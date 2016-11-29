@@ -29,19 +29,27 @@ __status__ = "Development"
 
 import logging
 import pickle
+import os
 from math import sqrt
-
+from network_builder import NetworkBuilder
 ###############################################################################
 
 class KeggMatrix:
-    
-    REACTIONS_PICKLE = 'reactions_22-11-2016.pickle'
-    MODULES_PICKLE   = 'modules_22-11-2016.pickle'
+    DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                             '..', 
+                             'data')
+    REACTIONS_PICKLE = os.path.join(DATA_PATH, 'reactions_22-11-2016.pickle')
+    MODULES_PICKLE   = os.path.join(DATA_PATH, 'modules_22-11-2016.pickle')
+    COMPOUNDS_PICKLE = os.path.join(DATA_PATH, 'compounds_22-11-2016.pickle')
     MODULE           = 'module'
     REACTION         = 'Reaction'
     ORTHOLOGY        = 'orthology_def'
-    
+    R2K = 'http://rest.kegg.jp/link/ko/reaction'
     def __init__(self, matrix):
+        logging.info("Downloading reaction to ko information from KEGG")
+        self.r2k = NetworkBuilder.build_dict(self.R2K)
+        logging.info("Done")
+
         self.reactions_dict \
                 = pickle.load(open(self.REACTIONS_PICKLE))
         self.modules_dict \
@@ -49,12 +57,8 @@ class KeggMatrix:
         self.orthology_matrix \
                 = self._parse_matrix(matrix)
         self.reaction_matrix \
-                = self._calculate_abundances(self.reactions_dict,
+                = self._calculate_abundances(self.r2k,
                                              self.orthology_matrix)
-        self.module_matrix \
-                = self._calculate_abundances(self.modules_dict,
-                                             self.reaction_matrix)
-
     def _parse_matrix(self, matrix):
         
         output_dict = {}
@@ -97,37 +101,30 @@ class KeggMatrix:
                 average    = sum(abundances)/float(len(abundances))
                 output_dict[reference] = average
         return output_dict
-                
-                
+                          
     def _calculate_abundances(self, reference_dict, matrix_dict):
         
         output_dict_mean   = {}
-        definition_key = (self.ORTHOLOGY if self.ORTHOLOGY 
-                          in reference_dict[reference_dict.keys()[0]]
-                          else self.REACTION)
+
 
         for sample, ko_abundances in matrix_dict.items():
             output_dict_mean[sample]   = {}
             
-            for key, definition in reference_dict.items():
+            for reaction, ko_list in reference_dict.items():
+                
                 abundances = []
-                for id in definition[definition_key]:
-                    if id in matrix_dict[sample]:
-                        abundances.append(matrix_dict[sample][id])
+                for ko in ko_list:
+
+                    if ko in matrix_dict[sample]:
+                        abundances.append(matrix_dict[sample][ko])
                     else:
-                        logging.debug("ID not found in input matrix: %s" % id)
+                        logging.debug("ID not found in input matrix: %s" % ko)
                         
                 if any(abundances):
                     abundance_mean = sum(abundances)/len(abundances)
                 else:
                     abundance_mean = 0
 
-                output_dict_mean[sample][key] = abundance_mean
+                output_dict_mean[sample][reaction] = abundance_mean
         
         return output_dict_mean
-
-    
-    def calculate_expression(self, km_t):
-        '''
-        '''
-        import IPython ; IPython.embed()

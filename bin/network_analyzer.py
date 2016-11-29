@@ -45,12 +45,7 @@ debug={1:logging.CRITICAL,
 
 def check_args(args):
     '''
-    '''
-    # Check either a metagenome and metatranscriptome was provided
-    if not(args.metagenome or args.transcriptome):
-        raise Exception("Input error: Either a metagenome (--metagenome) or a \
-transcriptome (--transcriptome) must be provided")
-    
+    '''    
     # Check output file doesn't already exist. Deleted if present and --force
     # is specified
     if (os.path.isfile(args.output) or os.path.isdir(args.output)):
@@ -92,59 +87,45 @@ class NetworkAnalyser:
         
 
 
-    def main(self, m_matrix_path, t_matrix_path):
+    def main(self, m_matrix_path, queries, depth):
         '''
         '''
         
         nb = NetworkBuilder()
         
-        if m_matrix_path:
-            logging.info("Parsing input metagenome matrix: %s" \
-                                                    % m_matrix_path)
-            m_km = KeggMatrix(m_matrix_path)
-            group1_abundances_mg = \
-                            m_km.group_abundances(KeggMatrix.REACTION, 
-                                                  self.metadata['Eriophorum'])
-            group2_abundances_mg = \
-                            m_km.group_abundances(KeggMatrix.REACTION, 
-                                                  self.metadata['Sphagnum'])
-        if t_matrix_path:
-            logging.info("Parsing input transcriptome matrix: %s" \
-                                                    % t_matrix_path)
-            t_km = KeggMatrix(t_matrix_path)
-            group1_abundances_mt = \
-                             t_km.group_abundances(KeggMatrix.REACTION, 
-                                                   self.metadata['Eriophorum'])
-            group2_abundances_mt = \
-                             t_km.group_abundances(KeggMatrix.REACTION, 
-                                                   self.metadata['Sphagnum'])
-            
-        if m_matrix_path: 
-            logging.info("Constructing matrix for %s metagenome abundances" \
-                                                        % KeggMatrix.REACTION)
-            for map, output_lines in nb.build(group1_abundances_mg, 
-                                              group2_abundances_mg):
-                self._write_results('_'.join([map, self.metagenome_matrix]), 
-                                    output_lines)
-        if t_matrix_path:
-            logging.info("Constructing matrix for %s transcriptome abundances" \
-                                                        % KeggMatrix.REACTION)
-            for map, output_lines in nb.build(group1_abundances_mg, 
-                                              group2_abundances_mg):
-                self._write_results('_'.join([map, self.transcriptome_matrix]), 
-                                    output_lines)
-        if(m_matrix_path and t_matrix_path):
-            logging.info("Constructing matrix for %s expression abundances" \
-                                                        % KeggMatrix.REACTION)
-        logging.info("Finished creating networks. Exiting.")
+        logging.info("Parsing input matrix: %s" % m_matrix_path)
+        m_km = KeggMatrix(m_matrix_path)
+        group1_abundances_mg = \
+                        m_km.group_abundances(KeggMatrix.REACTION, 
+                                              self.metadata['Eriophorum'])
+        group2_abundances_mg = \
+                        m_km.group_abundances(KeggMatrix.REACTION, 
+                                              self.metadata['Sphagnum'])
+        logging.info("Constructing matrix for %s metagenome abundances" \
+                                                    % KeggMatrix.REACTION)
+        if queries:
+            logging.info("Using supplied queries: %s" \
+                                                    % queries)
+            output_lines = nb.query_matrix(group1_abundances_mg, 
+                                           group2_abundances_mg,
+                                           queries,
+                                           depth)
+        else:
+            output_lines = nb.all_matrix(group1_abundances_mg,
+                                         group2_abundances_mg)
+        self._write_results('_'.join(['all', self.metagenome_matrix]), 
+                            output_lines)
+
         
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='''Build a metabolic matrix''')
-    parser.add_argument('--metagenome', 
+    parser.add_argument('--matrix', required=True,
                         help='metagenome to ko matrix')
-    parser.add_argument('--transcriptome', 
-                        help='transcriptome to ko matrix')
+    parser.add_argument('--queries', 
+                        help='query compounds')
+    parser.add_argument('--depth', type=int, default=2,
+                        help='depth')
     parser.add_argument('--metadata', required=True,
                         help='description of samples')
     parser.add_argument('--log',
@@ -174,4 +155,4 @@ if __name__ == "__main__":
     check_args(args)
 
     na=NetworkAnalyser(args.metadata, args.output)
-    na.main(args.metagenome, args.transcriptome)
+    na.main(args.matrix, args.queries, args.depth)
