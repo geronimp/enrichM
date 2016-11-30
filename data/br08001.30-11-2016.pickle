@@ -10,7 +10,7 @@ p5
 asS'C'
 p6
 (lp7
-S'Androstane derivatives'
+S'Androstane derivatives [Fig]'
 p8
 asS'B'
 p9
@@ -35,7 +35,7 @@ S"3',5'-Cyclic nuclcleotides"
 p20
 asg9
 (lp21
-S'Cyclic nucleotides'
+S'Cyclic nucleotides [Fig]'
 p22
 asg12
 (lp23
@@ -70,7 +70,7 @@ S'Hydroxycarboxylic acids'
 p37
 asg9
 (lp38
-S'Carboxylic acids'
+S'Carboxylic acids [Fig]'
 p39
 asg12
 (lp40
@@ -125,7 +125,7 @@ S'Non-ribosomal peptides'
 p65
 asg9
 (lp66
-S'Polyketides and nonribosomal peptides'
+S'Polyketides and nonribosomal peptides [Fig]'
 p67
 asg12
 (lp68
@@ -144,7 +144,7 @@ S'Leukotrienes'
 p75
 asg9
 (lp76
-S'Eicosanoids'
+S'Eicosanoids [Fig]'
 p77
 asg12
 (lp78
@@ -163,7 +163,7 @@ S'Heteropolysaccharides'
 p85
 asg9
 (lp86
-S'Polysaccharides'
+S'Polysaccharides [Fig]'
 p87
 asg12
 (lp88
@@ -262,7 +262,7 @@ VVitamins and Cofactors
 p132
 asg6
 (lp133
-S'Fat-soluble vitamins'
+S'Fat-soluble vitamins [Fig]'
 p134
 asg9
 (lp135
@@ -281,7 +281,7 @@ VPeptides
 p142
 asg6
 (lp143
-S'Other amino acids'
+S'Other amino acids [Fig]'
 p144
 asg9
 (lp145
@@ -322,7 +322,7 @@ g3
 g132
 asg6
 (lp162
-S'Water-soluble vitamins'
+S'Water-soluble vitamins [Fig]'
 p163
 asg9
 (lp164
@@ -343,7 +343,7 @@ S'Glycosphingolipids'
 p171
 asg9
 (lp172
-S'Glycolipids'
+S'Glycolipids [Fig]'
 p173
 asg12
 (lp174
@@ -357,7 +357,7 @@ g3
 g83
 asg6
 (lp179
-S'Sugar acids'
+S'Sugar acids [Fig]'
 p180
 asg9
 (lp181
@@ -375,7 +375,7 @@ g3
 g5
 asg6
 (lp188
-S'Bufanolide derivatives'
+S'Bufanolide derivatives [Fig]'
 p189
 asg9
 (lp190
@@ -410,7 +410,7 @@ g3
 g83
 asg6
 (lp205
-S'Ketoses'
+S'Ketoses [Fig]'
 p206
 asg9
 (lp207
@@ -427,7 +427,7 @@ g3
 g83
 asg6
 (lp213
-S'Sugar alcohols'
+S'Sugar alcohols [Fig]'
 p214
 asg9
 (lp215
@@ -480,7 +480,7 @@ S'2-Deoxystreptamines'
 p236
 asg9
 (lp237
-S'Aminoglycosides'
+S'Aminoglycosides [Fig]'
 p238
 asg12
 (lp239
@@ -498,7 +498,7 @@ S'Penams'
 p245
 asg9
 (lp246
-S'beta-Lactams'
+S'beta-Lactams [Fig]'
 p247
 asg12
 (lp248
@@ -514,7 +514,7 @@ ag45
 ag45
 asg6
 (lp253
-S'Biogenic amines'
+S'Biogenic amines [Fig]'
 p254
 aS'Histamine'
 p255
@@ -526,7 +526,7 @@ S'Amines'
 p258
 aS'Other hormones'
 p259
-aS'Neurotransmitters'
+aS'Neurotransmitters [Fig]'
 p260
 asg12
 (lp261
@@ -561,7 +561,7 @@ g3
 g142
 asg6
 (lp276
-S'Dipeptides'
+S'Dipeptides [Fig]'
 p277
 asg9
 (lp278
@@ -583,7 +583,7 @@ S'Ribonucleosides'
 p286
 asg9
 (lp287
-S'Nucleosides'
+S'Nucleosides [Fig]'
 p288
 asg12
 (lp289
@@ -601,7 +601,7 @@ S'Pyrimidines'
 p295
 asg9
 (lp296
-S'Bases'
+S'Bases [Fig]'
 p297
 asg12
 (lp298
@@ -690,7 +690,7 @@ S'Disaccharides'
 p335
 asg9
 (lp336
-S'Oligosaccharides'
+S'Oligosaccharides [Fig]'
 p337
 asg12
 (lp338
@@ -704,7 +704,7 @@ g3
 g83
 asg6
 (lp343
-S'Deoxy sugars'
+S'Deoxy sugars [Fig]'
 p344
 asg9
 (lp345
@@ -725,7 +725,7 @@ S'Deoxyribonucleotides'
 p352
 asg9
 (lp353
-S'Nucleotides'
+S'Nucleotides [Fig]'
 p354
 asg12
 (lp355
@@ -820,7 +820,7 @@ g3
 g132
 asg6
 (lp396
-S'Coenzymes'
+S'Coenzymes [Fig]'
 p397
 asg9
 (lp398
@@ -875,7 +875,7 @@ g3
 g83
 asg6
 (lp420
-S'Aldoses'
+S'Aldoses [Fig]'
 p421
 asg9
 (lp422
@@ -942,7 +942,7 @@ g3
 g5
 asg6
 (lp451
-S'Cardanolide derivatives'
+S'Cardanolide derivatives [Fig]'
 p452
 asg9
 (lp453
@@ -960,7 +960,7 @@ g3
 g83
 asg6
 (lp460
-S'Amino sugars'
+S'Amino sugars [Fig]'
 p461
 asg9
 (lp462
@@ -1029,7 +1029,7 @@ S'Acylglycerols'
 p490
 asg9
 (lp491
-S'Fats'
+S'Fats [Fig]'
 p492
 asg12
 (lp493
@@ -1060,7 +1060,7 @@ g5
 ag45
 asg6
 (lp505
-S'Pregnane derivatives'
+S'Pregnane derivatives [Fig]'
 p506
 aS'Glucocorticoids'
 p507
@@ -1131,7 +1131,7 @@ g3
 g142
 asg6
 (lp537
-S'Common amino acids'
+S'Common amino acids [Fig]'
 p538
 asg9
 (lp539
@@ -1185,7 +1185,7 @@ S'Pure sugars'
 p561
 asg9
 (lp562
-S'Others'
+S'Others [Fig]'
 p563
 asg12
 (lp564
@@ -1215,7 +1215,7 @@ g3
 g5
 asg6
 (lp576
-S'Estrane derivatives'
+S'Estrane derivatives [Fig]'
 p577
 asg9
 (lp578
@@ -1266,7 +1266,7 @@ g3
 g5
 asg6
 (lp600
-S'Cholestane derivatives'
+S'Cholestane derivatives [Fig]'
 p601
 asg9
 (lp602
@@ -1304,7 +1304,7 @@ S'Unsaturated fatty acids'
 p617
 asg9
 (lp618
-S'Fatty acids'
+S'Fatty acids [Fig]'
 p619
 asg12
 (lp620
@@ -1388,7 +1388,7 @@ g3
 g5
 asg6
 (lp655
-S'Spirostan derivatives'
+S'Spirostan derivatives [Fig]'
 p656
 asg9
 (lp657
@@ -1727,7 +1727,7 @@ g3
 g5
 asg6
 (lp805
-S'Campestane derivatives'
+S'Campestane derivatives [Fig]'
 p806
 asg9
 (lp807
@@ -1898,7 +1898,7 @@ g3
 g5
 asg6
 (lp882
-S'Cholane derivatives'
+S'Cholane derivatives [Fig]'
 p883
 asg9
 (lp884
@@ -2347,7 +2347,7 @@ g3
 g5
 asg6
 (lp1080
-S'Furostan derivatives'
+S'Furostan derivatives [Fig]'
 p1081
 asg9
 (lp1082
@@ -2364,7 +2364,7 @@ g3
 g5
 asg6
 (lp1088
-S'Ergostane derivatives'
+S'Ergostane derivatives [Fig]'
 p1089
 asg9
 (lp1090
@@ -2413,7 +2413,7 @@ g3
 g5
 asg6
 (lp1110
-S'Poriferastane derivatives'
+S'Poriferastane derivatives [Fig]'
 p1111
 asg9
 (lp1112
@@ -2447,7 +2447,7 @@ g3
 g5
 asg6
 (lp1126
-S'Gorgostane derivatives'
+S'Gorgostane derivatives [Fig]'
 p1127
 asg9
 (lp1128
@@ -2889,7 +2889,7 @@ g3
 g5
 asg6
 (lp1321
-S'Stigmastane derivatives'
+S'Stigmastane derivatives [Fig]'
 p1322
 asg9
 (lp1323
@@ -3208,7 +3208,7 @@ S'Glycerophospholipids'
 p1458
 asg9
 (lp1459
-S'Phospholipids'
+S'Phospholipids [Fig]'
 p1460
 asg12
 (lp1461
@@ -4805,7 +4805,7 @@ S'Fluoroquinolones'
 p2162
 asg9
 (lp2163
-S'Quinolones'
+S'Quinolones [Fig]'
 p2164
 asg12
 (lp2165

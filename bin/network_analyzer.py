@@ -32,8 +32,6 @@ from network_builder import NetworkBuilder
 import argparse
 import logging
 import os
-import pickle
-import shutil
 
 debug={1:logging.CRITICAL,
        2:logging.ERROR,
@@ -42,34 +40,12 @@ debug={1:logging.CRITICAL,
        5:logging.DEBUG}
 
 ###############################################################################
-
-def check_args(args):
-    '''
-    '''    
-    # Check output file doesn't already exist. Deleted if present and --force
-    # is specified
-    if (os.path.isfile(args.output) or os.path.isdir(args.output)):
-        if args.force:
-            logging.warning("Overwriting output file that already exists with \
-name %s" % args.output)
-            shutil.rmtree(args.output)
-        else:
-            raise Exception("Output file already exists: %s" % args.output)
-    
+   
     
 class NetworkAnalyser:
     
-    def __init__(self, metadata, output):
-        
-        self.metagenome_matrix    = 'metagenome.tsv'
-        self.transcriptome_matrix = 'transcriptome.tsv'
-        self.combined_matrix      = 'combined.tsv'
-        
-        self.output_directory     = output
-        os.mkdir(self.output_directory)
-        
+    def __init__(self, metadata):
         self.metadata = {}
-        
         for line in open(metadata):
             sample_id, group = line.strip().split('\t')
             if group in self.metadata:
@@ -79,48 +55,65 @@ class NetworkAnalyser:
 
     def _write_results(self, output_path, output_lines):
         '''
+        Parameters
+        ----------
+        output_path: string
+            Path to non-existent file to write output lines to
+        output_lines: list
+            list containing lines to write to output path
         '''
-        with open(os.path.join(self.output_directory,
-                                output_path), 'w') as output_path_io: 
+        logging.info('Writing results to file: %s' % output_path)
+        with open(output_path, 'w') as output_path_io: 
             output_path_io.write('\n'.join(output_lines))
             output_path_io.flush()
         
 
 
-    def main(self, m_matrix_path, queries, depth):
+    def main(self, matrix_path, queries, depth, transcriptome, output):
         '''
+        Parameters
+        ----------
+        matrix_path: string
+            Path to file containing a KO matrix build from either metagenomic
+            or metatranscriptomic data.
+        queries: string
+            Path to file containing query compounds
+        depth: integer
+            Number of steps into metabolism to take if 'queries' is provided
+        transcriptome: string
+            Path to file containing a KO matrix of transcriptomic data
         '''
         
         nb = NetworkBuilder()
         
-        logging.info("Parsing input matrix: %s" % m_matrix_path)
-        m_km = KeggMatrix(m_matrix_path)
-        group1_abundances_mg = \
-                        m_km.group_abundances(KeggMatrix.REACTION, 
-                                              self.metadata['Eriophorum'])
-        group2_abundances_mg = \
-                        m_km.group_abundances(KeggMatrix.REACTION, 
-                                              self.metadata['Sphagnum'])
-        logging.info("Constructing matrix for %s metagenome abundances" \
-                                                    % KeggMatrix.REACTION)
+        if transcriptome:
+            km = KeggMatrix(matrix_path, transcriptome)
+        else:
+            km = KeggMatrix(matrix_path)
+        group1_abundances = \
+                        km.group_abundances(self.metadata['Eriophorum'])
+        group2_abundances = \
+                        km.group_abundances(self.metadata['Sphagnum'])
+                        
+        logging.info("Constructing network for input matrix")
         if queries:
-            logging.info("Using supplied queries: %s" \
+            logging.info("Using supplied queries (%s) to explore network" \
                                                     % queries)
-            output_lines = nb.query_matrix(group1_abundances_mg, 
-                                           group2_abundances_mg,
+            output_lines = nb.query_matrix(group1_abundances, 
+                                           group2_abundances,
                                            queries,
                                            depth)
         else:
-            output_lines = nb.all_matrix(group1_abundances_mg,
-                                         group2_abundances_mg)
-        self._write_results('_'.join(['all', self.metagenome_matrix]), 
-                            output_lines)
+            output_lines = nb.all_matrix(group1_abundances,
+                                         group2_abundances)
+        self._write_results(output, output_lines)
 
         
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description='''Build a metabolic matrix''')
     parser.add_argument('--matrix', required=True,
+                        help='KO matrix')
+    parser.add_argument('--transcriptome', 
                         help='metagenome to ko matrix')
     parser.add_argument('--queries', 
                         help='query compounds')
@@ -149,10 +142,15 @@ if __name__ == "__main__":
         logging.basicConfig(level=debug[args.verbosity], 
                             format='%(asctime)s %(levelname)s: %(message)s', 
                             datefmt='%m/%d/%Y %I:%M:%S %p')
-    if os.path.isfile(args.output):
-        raise Exception("File %s exists" % args.output)
     
-    check_args(args)
-
-    na=NetworkAnalyser(args.metadata, args.output)
-    na.main(args.matrix, args.queries, args.depth)
+    if os.path.isfile(args.output):
+        if args.force:
+            logging.warning("Removing existing file with name: %s" \
+                                                                % args.output)
+            os.remove(args.output)
+        else:
+            raise Exception("File %s exists" % args.output)
+    
+    na=NetworkAnalyser(args.metadata)
+    na.main(args.matrix, args.queries, args.depth, args.transcriptome, 
+            args.output)

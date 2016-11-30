@@ -30,8 +30,8 @@ __status__ = "Development"
 import logging
 import pickle
 import os
-import urllib2     
-from itertools import product, chain
+import urllib2
+from itertools import chain
 from bs4 import BeautifulSoup
 
 ###############################################################################
@@ -46,106 +46,69 @@ class NetworkBuilder:
     COL_BLUE         = 'Blue'
     COL_UNIQUE_1     = 'Unique_1'
     COL_UNIQUE_2     = 'Unique_2'
-
-    REACTIONS_PICKLE     = os.path.join(DATA_PATH, 'reactions_22-11-2016.pickle')
-    MODULES_PICKLE       = os.path.join(DATA_PATH, 'modules_22-11-2016.pickle')
-    COMPOUNDS_PICKLE     = os.path.join(DATA_PATH, 'compounds_22-11-2016.pickle')
-    COMPOUND_DESC_PICKLE = os.path.join(DATA_PATH, 'compound_descriptions.pickle')
-    C2M_PICKLE           = os.path.join(DATA_PATH, 'c2m.pickle')
-    M2C_PICKLE           = os.path.join(DATA_PATH, 'm2c.pickle')
     
-    MODULE           = 'module'
-    REACTION         = 'Reaction'
-    ORTHOLOGY        = 'orthology_def'
-    REACTANT_PAIRS   = 'reactant_pairs'
-    MAPS             = 'maps'
-    COMPOUNDS        = 'compound_def'
-    MODULE           = 'modules'
-    KEGG_C_API       = 'http://rest.kegg.jp/link/compound/'
-    KEGG_L_API       = 'http://rest.kegg.jp/list/'
+    VERSION = os.path.join(DATA_PATH, 'VERSION')
+    COMPOUND_DESC_PICKLE = os.path.join(DATA_PATH, 'br08001')
     
-    R2C = 'http://rest.kegg.jp/link/compound/reaction'
-    R2M = 'http://rest.kegg.jp/link/module/reaction'
-    M2R = 'http://rest.kegg.jp/link/reaction/module'
-    R2P = 'http://rest.kegg.jp/link/pathway/reaction'
-    P2R = 'http://rest.kegg.jp/link/reaction/pathway'
+    PICKLE = 'pickle'
+    
+    R2C = os.path.join(DATA_PATH, 'reaction_to_compound')
+    R2M = os.path.join(DATA_PATH, 'reaction_to_module')
+    M2R = os.path.join(DATA_PATH, 'module_to_reaction')
+    R2P = os.path.join(DATA_PATH, 'reaction_to_pathway')
+    P2R = os.path.join(DATA_PATH, 'pathway_to_reaction')
 
-    C   = 'http://rest.kegg.jp/list/compound'    
-    R   = 'http://rest.kegg.jp/list/reaction'
-    P   = 'http://rest.kegg.jp/list/pathway'
-    M   = 'http://rest.kegg.jp/list/module'
+    C   = os.path.join(DATA_PATH, 'compound_descriptions')    
+    R   = os.path.join(DATA_PATH, 'reaction_descriptions')
+    P   = os.path.join(DATA_PATH, 'pathway_descriptions')
+    M   = os.path.join(DATA_PATH, 'module_descriptions')
 
     def __init__(self):
-        logging.info("Downloading reaction to pathway information from KEGG")
-        self.r2p = self.build_dict(self.R2P)
-        logging.info("Done")
-        logging.info("Downloading pathway to reaction information from KEGG")
-        self.p2r = self.build_dict(self.P2R)
-        logging.info("Done")
-        logging.info("Downloading reaction to module information from KEGG")
-        self.r2m = self.build_dict(self.R2M)
-        logging.info("Done")
-        logging.info("Downloading reaction to module information from KEGG")
-        self.m2r = self.build_dict(self.M2R)
-        logging.info("Done")
-        logging.info("Downloading reaction to compound information from KEGG")
-        self.r2c = self.build_dict(self.R2C)
-        logging.info("Done")
-        logging.info("Downloading compound descriptions from KEGG")
-        self.c   = self.build_name_dict(self.C)
-        logging.info("Done")
-        logging.info("Downloading pathway descriptions from KEGG")
-        self.p   = self.build_name_dict(self.P)
-        logging.info("Done")
-        logging.info("Downloading reaction descriptions from KEGG")
-        self.r   = self.build_name_dict(self.R)
-        logging.info("Done")
-        logging.info("Downloading module descriptions from KEGG")
-        self.m   = self.build_name_dict(self.M)
-        logging.info("Done")
         
-        self.reactions_dict \
-                = pickle.load(open(self.REACTIONS_PICKLE))
-        self.modules_dict \
-                = pickle.load(open(self.MODULES_PICKLE))
-        self.compounds_dict \
-                = pickle.load(open(self.COMPOUNDS_PICKLE))
+        self.VERSION = open(self.VERSION).readline().strip()
+        
+        logging.info("Loading reaction to pathway information")
+        self.r2p = pickle.load(open('.'.join([self.R2P, 
+                                              self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading pathway to reaction information")
+        self.p2r = pickle.load(open('.'.join([self.P2R, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading reaction to module information")
+        self.r2m = pickle.load(open('.'.join([self.R2M, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading reaction to module information")
+        self.m2r = pickle.load(open('.'.join([self.M2R, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading reaction to compound information")
+        self.r2c = pickle.load(open('.'.join([self.R2C, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading compound descriptions")
+        self.c   = pickle.load(open('.'.join([self.C, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading pathway descriptions")
+        self.p   = pickle.load(open('.'.join([self.P, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading reaction descriptions")
+        self.r   = pickle.load(open('.'.join([self.R, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading module descriptions")
+        self.m   = pickle.load(open('.'.join([self.M, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading compound classifications")
         self.compound_desc_dict \
-                = pickle.load(open(self.COMPOUND_DESC_PICKLE))
-        self.c2m \
-                = pickle.load(open(self.C2M_PICKLE))
-        self.m2c \
-                = pickle.load(open(self.M2C_PICKLE))
-        self.maps = {x:[] 
-                     for x in set(chain(*[self.modules_dict[x]['maps'] 
-                                          for x in self.modules_dict.keys()]))}
-        for map in self.maps.keys():
-            for module, entry in self.modules_dict.items():
-                if map in entry[self.MAPS]:
-                    self.maps[map].append(module)
-        self.compound_names={}
-    
-    @staticmethod
-    def build_name_dict(url):
-        output_dictionary = {}
-        for entry in urllib2.urlopen(url).read().strip().split('\n'):
-            sentry = entry.split('\t')
-            key = sentry[0].split(':')[1]
-            item = sentry[1].split(';')[0]
-            output_dictionary[key]=item
-        return output_dictionary    
-    
-    @staticmethod
-    def build_dict(url):
-        output_dictionary = {}
-        for entry in urllib2.urlopen(url).read().strip().split('\n'):
-            key, item = [x.split(':')[1] for x in entry.split('\t')]
-            if key in output_dictionary:
-                output_dictionary[key].append(item)
-            else:
-                output_dictionary[key] = [item]
-        return output_dictionary
-            
+                 = pickle.load(open('.'.join([self.COMPOUND_DESC_PICKLE, 
+                                                 self.VERSION, self.PICKLE])))
+        logging.info("Done")
+
     def _gather_module(self, key):
         if key in self.r2m:
             len_list =  [len(self.m2r[x]) for x in self.r2m[key]]
@@ -165,12 +128,6 @@ class NetworkBuilder:
             pathway = 'NA'
             pathway_description='NA'
         return pathway, pathway_description
-    
-    def _gather_compound_name(self, compound_list):   
-
-        soup = BeautifulSoup(urllib.urlopen("%s%s" % (self.KEGG_L_API,'+'.join(compound_list))), "html.parser")
-        self.compound_names.update({x.split('\t')[0].split(':')[1]:x.split('\t')[1].split(';')[0] 
-                         for x in soup.getText().strip().split('\n')})
     
     def _parse_queries(self, queries):
         output_dict = {}
@@ -233,7 +190,7 @@ class NetworkBuilder:
         return output_lines
 
     def query_matrix(self, abundances_1, abundances_2, queries, depth):
-        
+        steps=0
         query_list = self._parse_queries(queries)
         check_list = set(query_list.keys())
         
@@ -244,6 +201,7 @@ class NetworkBuilder:
                                 'reaction_description', 'compound_type', 
                                 'query', 'pathway', 'pathway_descriptions',
                                 'c1_ab', 'c2_ab'])]
+
         to_omit = set([x for x,y in self.compound_desc_dict.items() 
                        if "Vitamins and Cofactors" in y['A']])
         to_omit.add('C00001')
@@ -259,7 +217,8 @@ class NetworkBuilder:
         to_omit.add('C00007')
         while depth>0:
             if any(level_queries):
-                check_list = level_queries
+                check_list = set(level_queries)
+                level_queries = set()
             for reaction, entry in self.r2c.items():
                 if any(check_list.intersection(entry)):
                     C=self.COL_BLACK
@@ -317,5 +276,8 @@ class NetworkBuilder:
                         output_line = '\t'.join(reaction_line)
                         if output_line not in output_lines:
                             output_lines.append(output_line)
+            steps+=1
             depth-=1
+            logging.info("Step %i complete with %i queries to continue with" \
+                                              % (steps, len(level_queries)))
         return output_lines

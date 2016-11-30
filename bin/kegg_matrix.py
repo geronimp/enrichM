@@ -32,33 +32,37 @@ import pickle
 import os
 from math import sqrt
 from network_builder import NetworkBuilder
+
 ###############################################################################
 
 class KeggMatrix:
     DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              '..', 
                              'data')
-    REACTIONS_PICKLE = os.path.join(DATA_PATH, 'reactions_22-11-2016.pickle')
-    MODULES_PICKLE   = os.path.join(DATA_PATH, 'modules_22-11-2016.pickle')
-    COMPOUNDS_PICKLE = os.path.join(DATA_PATH, 'compounds_22-11-2016.pickle')
-    MODULE           = 'module'
-    REACTION         = 'Reaction'
-    ORTHOLOGY        = 'orthology_def'
-    R2K = 'http://rest.kegg.jp/link/ko/reaction'
-    def __init__(self, matrix):
-        logging.info("Downloading reaction to ko information from KEGG")
-        self.r2k = NetworkBuilder.build_dict(self.R2K)
-        logging.info("Done")
+    
+    VERSION = os.path.join(DATA_PATH, 'VERSION')
+    R2K     = os.path.join(DATA_PATH, 'reaction_to_orthology')
+    PICKLE  = 'pickle'
+    
+    def __init__(self, matrix, transcriptome=None):
+        self.VERSION = open(self.VERSION).readline().strip()
 
-        self.reactions_dict \
-                = pickle.load(open(self.REACTIONS_PICKLE))
-        self.modules_dict \
-                = pickle.load(open(self.MODULES_PICKLE))
+        logging.info("Loading reaction to pathway information")
+        self.r2k = pickle.load(open('.'.join([self.R2K, 
+                                              self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        
+        logging.info("Parsing input matrix: %s" % matrix)
         self.orthology_matrix \
                 = self._parse_matrix(matrix)
+        logging.info("Done")
+        
+        logging.info("Calculating reaction abundances")
         self.reaction_matrix \
                 = self._calculate_abundances(self.r2k,
                                              self.orthology_matrix)
+        logging.info("Done")
+
     def _parse_matrix(self, matrix):
         
         output_dict = {}
@@ -79,27 +83,23 @@ class KeggMatrix:
                     output_dict[sample][ko_id] = float(abundance)
         return output_dict
     
-    def group_abundances(self, level, samples):
-        
-        output_dict = {}
-        
-        if level == self.MODULE:
-            reference_dict = self.module_matrix
-        if level == self.REACTION:
-            reference_dict = self.reaction_matrix
-        if level == self.ORTHOLOGY:
-            reference_dict = self.orthology_matrix
-        
+    def group_abundances(self, samples):
+
+        output_dict = {}        
         for sample in samples:
-            new_dict = {key:entry for key,entry in reference_dict.items() if 
+            new_dict = {key:entry for key,entry in self.reaction_matrix.items() if 
                         key in samples}
             reference_list = new_dict[new_dict.keys()[0]].keys()
             
             for reference in reference_list:
                 # If samples are missing from stored data, this will crash 
-                abundances = [new_dict[sample][reference] for sample in samples]
-                average    = sum(abundances)/float(len(abundances))
-                output_dict[reference] = average
+                try:
+                    abundances = [new_dict[sample][reference] for sample in samples]
+                    average    = sum(abundances)/float(len(abundances))
+                    output_dict[reference] = average
+                except:
+                    raise Exception("metadata description does not match \
+input matrix")
         return output_dict
                           
     def _calculate_abundances(self, reference_dict, matrix_dict):
