@@ -40,8 +40,19 @@ debug={1:logging.CRITICAL,
        5:logging.DEBUG}
 
 ###############################################################################
-   
-    
+
+def check_args(args):
+    if not(args.queries):
+        if args.depth:
+            logging.warning("--depth argument ignored without --queries flag")
+    if os.path.isfile(args.output):
+        if args.force:
+            logging.warning("Removing existing file with name: %s" \
+                                                                % args.output)
+            os.remove(args.output)
+        else:
+            raise Exception("File %s exists" % args.output)
+
 class NetworkAnalyser:
     
     NETWORK_SUFFIX  = '_network.tsv'
@@ -152,7 +163,7 @@ if __name__ == "__main__":
                         help='query compounds')
     parser.add_argument('--depth', type=int, default=2,
                         help='depth')
-    parser.add_argument('--metadata', required=True,
+    parser.add_argument('--metadata', 
                         help='description of samples')
     parser.add_argument('--log',
                         help='output logging information to this file.')
@@ -176,13 +187,7 @@ if __name__ == "__main__":
                             format='%(asctime)s %(levelname)s: %(message)s', 
                             datefmt='%m/%d/%Y %I:%M:%S %p')
     
-    if os.path.isfile(args.output):
-        if args.force:
-            logging.warning("Removing existing file with name: %s" \
-                                                                % args.output)
-            os.remove(args.output)
-        else:
-            raise Exception("File %s exists" % args.output)
+    check_args(args)
     
     na=NetworkAnalyser(args.metadata)
     na.main(args.matrix, args.queries, args.depth, args.transcriptome, 

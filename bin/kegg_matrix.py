@@ -30,8 +30,6 @@ __status__ = "Development"
 import logging
 import pickle
 import os
-from math import sqrt
-from network_builder import NetworkBuilder
 
 ###############################################################################
 

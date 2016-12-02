@@ -30,9 +30,6 @@ __status__ = "Development"
 import logging
 import pickle
 import os
-import urllib2
-from itertools import chain, combinations
-from bs4 import BeautifulSoup
 
 ###############################################################################
 
