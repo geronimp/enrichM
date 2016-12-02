@@ -32,33 +32,77 @@ import pickle
 import os
 from math import sqrt
 from network_builder import NetworkBuilder
+
 ###############################################################################
 
 class KeggMatrix:
     DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              '..', 
                              'data')
-    REACTIONS_PICKLE = os.path.join(DATA_PATH, 'reactions_22-11-2016.pickle')
-    MODULES_PICKLE   = os.path.join(DATA_PATH, 'modules_22-11-2016.pickle')
-    COMPOUNDS_PICKLE = os.path.join(DATA_PATH, 'compounds_22-11-2016.pickle')
-    MODULE           = 'module'
-    REACTION         = 'Reaction'
-    ORTHOLOGY        = 'orthology_def'
-    R2K = 'http://rest.kegg.jp/link/ko/reaction'
-    def __init__(self, matrix):
-        logging.info("Downloading reaction to ko information from KEGG")
-        self.r2k = NetworkBuilder.build_dict(self.R2K)
-        logging.info("Done")
+    
+    VERSION = os.path.join(DATA_PATH, 'VERSION')
+    R2K     = os.path.join(DATA_PATH, 'reaction_to_orthology')
+    PICKLE  = 'pickle'
+    
+    def __init__(self, matrix, transcriptome):
+        self.VERSION = open(self.VERSION).readline().strip()
 
-        self.reactions_dict \
-                = pickle.load(open(self.REACTIONS_PICKLE))
-        self.modules_dict \
-                = pickle.load(open(self.MODULES_PICKLE))
+        logging.info("Loading reaction to pathway information")
+        self.r2k = pickle.load(open('.'.join([self.R2K, self.VERSION, 
+                                              self.PICKLE])))
+        logging.info("Done")
+        logging.info("Parsing input matrix: %s" % matrix)
         self.orthology_matrix \
-                = self._parse_matrix(matrix)
-        self.reaction_matrix \
-                = self._calculate_abundances(self.r2k,
-                                             self.orthology_matrix)
+                 = self._parse_matrix(matrix)
+        logging.info("Done")
+        logging.info("Calculating reaction abundances")
+        self.reaction_matrix  \
+                 = self._calculate_abundances(self.r2k, self.orthology_matrix)
+        logging.info("Done")
+        
+        if transcriptome:
+            logging.info("Parsing input transcriptome: %s" % transcriptome)
+            self.orthology_matrix_transcriptome \
+                        = self._parse_matrix(transcriptome)
+            logging.info("Done")
+            
+            logging.info("Calculating reaction transcriptome abundances")
+            self.reaction_matrix_transcriptome \
+                 = self._calculate_abundances(self.r2k, 
+                                              self.orthology_matrix_transcriptome)
+            logging.info("Done")
+            
+            logging.info("Calculating normalized expression abundances")
+            self.orthology_matrix_expression \
+                = self._calculate_expression_matrix(self.orthology_matrix, 
+                                        self.orthology_matrix_transcriptome)
+            logging.info("Done")
+            
+            logging.info("Calculating reaction expression abundances")
+            self.reaction_matrix_expression  \
+                 = self._calculate_abundances(self.r2k, 
+                                              self.orthology_matrix_expression)
+            logging.info("Done")
+   
+    def _calculate_expression_matrix(self, matrix, transcriptome_matrix):
+        '''
+        '''
+        output_dictionary = {}
+        for sample, abundances in transcriptome_matrix.items():
+            output_dictionary[sample] = {}
+            for ko, abundance in abundances.items():
+                if ko in matrix[sample]:
+                    mg_abundance = float(matrix[sample][ko])
+                    mt_abundance = float(abundance)
+                    if mg_abundance>0:
+                        output_dictionary[sample][ko] \
+                                = float(abundance)/float(matrix[sample][ko])
+                else:
+                    continue 
+                    # for now ignore genes that are expressed, but not detected
+                    # in the metagenome.
+        return output_dictionary        
+        
     def _parse_matrix(self, matrix):
         
         output_dict = {}
@@ -79,27 +123,24 @@ class KeggMatrix:
                     output_dict[sample][ko_id] = float(abundance)
         return output_dict
     
-    def group_abundances(self, level, samples):
+    def group_abundances(self, samples, reference_dict):
         
-        output_dict = {}
-        
-        if level == self.MODULE:
-            reference_dict = self.module_matrix
-        if level == self.REACTION:
-            reference_dict = self.reaction_matrix
-        if level == self.ORTHOLOGY:
-            reference_dict = self.orthology_matrix
-        
+        output_dict = {}        
         for sample in samples:
             new_dict = {key:entry for key,entry in reference_dict.items() if 
                         key in samples}
+
             reference_list = new_dict[new_dict.keys()[0]].keys()
-            
+
             for reference in reference_list:
                 # If samples are missing from stored data, this will crash 
-                abundances = [new_dict[sample][reference] for sample in samples]
-                average    = sum(abundances)/float(len(abundances))
-                output_dict[reference] = average
+                try:
+                    abundances = [new_dict[sample][reference] for sample in samples]
+                    average    = sum(abundances)/float(len(abundances))
+                    output_dict[reference] = average
+                except:
+                    raise Exception("metadata description does not match \
+input matrix")
         return output_dict
                           
     def _calculate_abundances(self, reference_dict, matrix_dict):
