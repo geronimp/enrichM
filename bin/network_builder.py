@@ -31,7 +31,7 @@ import logging
 import pickle
 import os
 import urllib2
-from itertools import chain
+from itertools import chain, combinations
 from bs4 import BeautifulSoup
 
 ###############################################################################
@@ -189,32 +189,52 @@ class NetworkBuilder:
                     output_lines.append(output_line)
         return output_lines
 
-    def query_matrix(self, abundances_1, abundances_2, queries, depth):
+    def query_matrix(self, abundances_1, abundances_2, queries, depth, 
+                     abundances_1_expression, abundances_2_expression,
+                     group1_transcriptome_abundances,
+                     group2_transcriptome_abundances, 
+                     abundances_1_name, abundances_2_name):
+               
         steps=0
         query_list = self._parse_queries(queries)
         check_list = set(query_list.keys())
-        
+        seen_steps = set()
+        seen_nodes = set()
         level_queries = set()
         output_lines=['\t'.join(["compound", "reaction", 'FC_col', 'FC', 
-                                'ab_1', 'ab_2', 'C', 'module', 
-                                'module_description', 'compound_description', 
-                                'reaction_description', 'compound_type', 
-                                'query', 'pathway', 'pathway_descriptions',
-                                'c1_ab', 'c2_ab'])]
-
+                                '%s_reaction_ab' % abundances_1_name,
+                                '%s_reaction_ab' % abundances_2_name, 'C', 
+                                '%s_compound_ab' % abundances_1_name, 
+                                '%s_compound_ab' % abundances_2_name])]
+        node_metadata = ['\t'.join(['node', 'description','type',
+                                    'query', 'module', 'module_descr',
+                                    'pathway', 'pathway_descr', 'step',
+                                    'node_type'])]
+        if(abundances_1_expression and 
+           abundances_2_expression and
+           group1_transcriptome_abundances and 
+           group1_transcriptome_abundances):
+            output_lines[0]+= '\t' + \
+                    '\t'.join(["%s_reaction_transcriptome" % abundances_1_name,
+                               "%s_reaction_transcriptome" % abundances_2_name,
+                               "%s_reaction_expression" % abundances_1_name,
+                               "%s_reaction_expression" % abundances_2_name])                         
+            
         to_omit = set([x for x,y in self.compound_desc_dict.items() 
                        if "Vitamins and Cofactors" in y['A']])
-        to_omit.add('C00001')
-        to_omit.add('C00008')
-        to_omit.add('C00013')
-        to_omit.add('C00004')
-        to_omit.add('C00005')
-        to_omit.add('C00080')
-        to_omit.add('C00009')
-        to_omit.add('C00008') # O2
-        to_omit.add('C00004')
-        to_omit.add('C00020')
-        to_omit.add('C00007')
+        to_omit.add('C00001') # H2O
+        to_omit.add('C00008') # ADP
+        to_omit.add('C00013') # Diphosphate
+        to_omit.add('C00004') # NADH
+        to_omit.add('C00005') # NADPH
+        to_omit.add('C00080') # H+
+        to_omit.add('C00009') # Orthophosphate
+        to_omit.add('C00008') # ADP
+        to_omit.add('C00004') # NADH
+        to_omit.add('C00020') # AMP
+        to_omit.add('C00007') # Oxygen
+        to_omit.add('C00015') # UDP
+        
         while depth>0:
             if any(level_queries):
                 check_list = set(level_queries)
@@ -242,22 +262,25 @@ class NetworkBuilder:
                             FC=0
                             if abundance_1>0:
                                 C=self.COL_UNIQUE_1
-                            elif abundance_2>0 :
-                                C=self.COL_UNIQUE_2   
+                            elif abundance_2>0:
+                                C=self.COL_UNIQUE_2
                             else:
                                 continue             
                     else:
                         continue
                     reaction_compounds = [x for x in entry if x not in to_omit]
-
                     for compound in reaction_compounds:
                         level_queries.add(compound)
-                        compound_description = self.c[compound]
+                        
                         query = ('True' if compound in query_list
                                  else 'False')
+                        
+                        compound_description = self.c[compound]
                         reaction_description = self.r[reaction]
+                        
                         module, module_description = self._gather_module(reaction)
                         pathway, pathway_description = self._gather_pathway(reaction)
+                            
                         if compound in query_list:
                             c1_ab, c2_ab = query_list[compound]
                         else:
@@ -267,17 +290,43 @@ class NetworkBuilder:
                                 ','.join(self.compound_desc_dict[compound]['A'])
                         else:
                             compound_type = 'NA'
+                        
                         reaction_line = [compound, reaction, str(FC_col), str(FC), 
-                                         str(abundance_1), str(abundance_2), C, module, 
-                                         module_description, compound_description,
-                                         reaction_description, compound_type,
-                                         query,pathway,pathway_description, 
+                                         str(abundance_1), str(abundance_2), C, 
                                          c1_ab, c2_ab] 
+                        
+                        index = str((steps if compound 
+                                     in check_list else steps+1))
+
+                        if(abundances_1_expression and abundances_2_expression):
+                            if reaction in(abundances_1_expression and abundances_2_expression):                                
+                                reaction_line.append(str(group1_transcriptome_abundances[reaction]))
+                                reaction_line.append(str(group2_transcriptome_abundances[reaction]))
+                                reaction_line.append(str(abundances_1_expression[reaction]))
+                                reaction_line.append(str(abundances_2_expression[reaction]))
+
+                                
                         output_line = '\t'.join(reaction_line)
-                        if output_line not in output_lines:
-                            output_lines.append(output_line)
+                        if output_line not in seen_steps:
+                            seen_steps.add(output_line)
+                            output_lines.append(output_line+'\t%i' % steps)
+                        
+                        if compound not in seen_nodes:
+                            node_metadata.append('\t'.join([compound, 
+                                                compound_description,
+                                                compound_type, query, 'NA',
+                                                'NA', 'NA', 'NA',index,  
+                                                'compound']))
+                        if reaction not in seen_nodes:
+                            node_metadata.append('\t'.join([reaction, reaction_description,
+                                                'NA', 'False', module, 
+                                                module_description, pathway,
+                                                pathway_description, index,
+                                                'reaction']))
+                        
+                        
             steps+=1
             depth-=1
             logging.info("Step %i complete with %i queries to continue with" \
                                               % (steps, len(level_queries)))
-        return output_lines
+        return output_lines, node_metadata

@@ -44,6 +44,9 @@ debug={1:logging.CRITICAL,
     
 class NetworkAnalyser:
     
+    NETWORK_SUFFIX  = '_network.tsv'
+    METADATA_SUFFIX = '_metadata.tsv'
+    
     def __init__(self, metadata):
         self.metadata = {}
         for line in open(metadata):
@@ -67,8 +70,6 @@ class NetworkAnalyser:
             output_path_io.write('\n'.join(output_lines))
             output_path_io.flush()
         
-
-
     def main(self, matrix_path, queries, depth, transcriptome, output):
         '''
         Parameters
@@ -90,25 +91,57 @@ class NetworkAnalyser:
             km = KeggMatrix(matrix_path, transcriptome)
         else:
             km = KeggMatrix(matrix_path)
-        group1_abundances = \
-                        km.group_abundances(self.metadata['Eriophorum'])
-        group2_abundances = \
-                        km.group_abundances(self.metadata['Sphagnum'])
-                        
+
+        if len(self.metadata.keys())==2:
+            group1_abundances = \
+                    km.group_abundances(self.metadata[self.metadata.keys()[0]],
+                                        km.reaction_matrix)
+            group2_abundances = \
+                    km.group_abundances(self.metadata[self.metadata.keys()[1]],
+                                        km.reaction_matrix)
+            if transcriptome:
+                
+                group1_transcriptome_abundances = \
+                    km.group_abundances(self.metadata[self.metadata.keys()[0]],
+                                        km.reaction_matrix_transcriptome)
+                group2_transcriptome_abundances = \
+                    km.group_abundances(self.metadata[self.metadata.keys()[1]],
+                                        km.reaction_matrix_transcriptome)
+                
+                group1_expression_abundances = \
+                    km.group_abundances(self.metadata[self.metadata.keys()[0]],
+                                        km.reaction_matrix_expression)
+                group2_expression_abundances = \
+                    km.group_abundances(self.metadata[self.metadata.keys()[1]],
+                                        km.reaction_matrix_expression)
+            else:
+                group1_transcriptome_abundances=None
+                group2_transcriptome_abundances=None
+                group1_expression_abundances=None
+                group2_expression_abundances=None
+        else:
+            raise Exception("network_analyzer does not yet handle comparisons \
+between >2 groups")
         logging.info("Constructing network for input matrix")
         if queries:
             logging.info("Using supplied queries (%s) to explore network" \
                                                     % queries)
-            output_lines = nb.query_matrix(group1_abundances, 
+            output_lines, node_metadata = nb.query_matrix(group1_abundances, 
                                            group2_abundances,
                                            queries,
-                                           depth)
+                                           depth,
+                                           group1_expression_abundances,
+                                           group2_expression_abundances,
+                                           group1_transcriptome_abundances,
+                                           group2_transcriptome_abundances,
+                                           self.metadata.keys()[0],
+                                           self.metadata.keys()[1])
         else:
-            output_lines = nb.all_matrix(group1_abundances,
+            output_lines, node_metadata = nb.all_matrix(group1_abundances,
                                          group2_abundances)
-        self._write_results(output, output_lines)
+        self._write_results(output + self.NETWORK_SUFFIX, output_lines)
+        self._write_results(output + self.METADATA_SUFFIX, node_metadata)
 
-        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''Build a metabolic matrix''')
     parser.add_argument('--matrix', required=True,

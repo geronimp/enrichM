@@ -44,25 +44,65 @@ class KeggMatrix:
     R2K     = os.path.join(DATA_PATH, 'reaction_to_orthology')
     PICKLE  = 'pickle'
     
-    def __init__(self, matrix, transcriptome=None):
+    def __init__(self, matrix, transcriptome):
         self.VERSION = open(self.VERSION).readline().strip()
 
         logging.info("Loading reaction to pathway information")
-        self.r2k = pickle.load(open('.'.join([self.R2K, 
-                                              self.VERSION, self.PICKLE])))
+        self.r2k = pickle.load(open('.'.join([self.R2K, self.VERSION, 
+                                              self.PICKLE])))
         logging.info("Done")
-        
         logging.info("Parsing input matrix: %s" % matrix)
         self.orthology_matrix \
-                = self._parse_matrix(matrix)
+                 = self._parse_matrix(matrix)
+        logging.info("Done")
+        logging.info("Calculating reaction abundances")
+        self.reaction_matrix  \
+                 = self._calculate_abundances(self.r2k, self.orthology_matrix)
         logging.info("Done")
         
-        logging.info("Calculating reaction abundances")
-        self.reaction_matrix \
-                = self._calculate_abundances(self.r2k,
-                                             self.orthology_matrix)
-        logging.info("Done")
-
+        if transcriptome:
+            logging.info("Parsing input transcriptome: %s" % transcriptome)
+            self.orthology_matrix_transcriptome \
+                        = self._parse_matrix(transcriptome)
+            logging.info("Done")
+            
+            logging.info("Calculating reaction transcriptome abundances")
+            self.reaction_matrix_transcriptome \
+                 = self._calculate_abundances(self.r2k, 
+                                              self.orthology_matrix_transcriptome)
+            logging.info("Done")
+            
+            logging.info("Calculating normalized expression abundances")
+            self.orthology_matrix_expression \
+                = self._calculate_expression_matrix(self.orthology_matrix, 
+                                        self.orthology_matrix_transcriptome)
+            logging.info("Done")
+            
+            logging.info("Calculating reaction expression abundances")
+            self.reaction_matrix_expression  \
+                 = self._calculate_abundances(self.r2k, 
+                                              self.orthology_matrix_expression)
+            logging.info("Done")
+   
+    def _calculate_expression_matrix(self, matrix, transcriptome_matrix):
+        '''
+        '''
+        output_dictionary = {}
+        for sample, abundances in transcriptome_matrix.items():
+            output_dictionary[sample] = {}
+            for ko, abundance in abundances.items():
+                if ko in matrix[sample]:
+                    mg_abundance = float(matrix[sample][ko])
+                    mt_abundance = float(abundance)
+                    if mg_abundance>0:
+                        output_dictionary[sample][ko] \
+                                = float(abundance)/float(matrix[sample][ko])
+                else:
+                    continue 
+                    # for now ignore genes that are expressed, but not detected
+                    # in the metagenome.
+        return output_dictionary        
+        
     def _parse_matrix(self, matrix):
         
         output_dict = {}
@@ -83,14 +123,15 @@ class KeggMatrix:
                     output_dict[sample][ko_id] = float(abundance)
         return output_dict
     
-    def group_abundances(self, samples):
-
+    def group_abundances(self, samples, reference_dict):
+        
         output_dict = {}        
         for sample in samples:
-            new_dict = {key:entry for key,entry in self.reaction_matrix.items() if 
+            new_dict = {key:entry for key,entry in reference_dict.items() if 
                         key in samples}
+
             reference_list = new_dict[new_dict.keys()[0]].keys()
-            
+
             for reference in reference_list:
                 # If samples are missing from stored data, this will crash 
                 try:
