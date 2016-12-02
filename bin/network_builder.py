@@ -174,9 +174,9 @@ class NetworkBuilder:
         # Construct headers to network matrices
         if(abundances_transcriptome and abundances_expression):
             network_lines  = ['\t'.join(self.matrix_header + 
-                                       self.transcriptome_header)]
+                                        self.transcriptome_header)]
         else:
-            output_lines  = ['\t'.join(self.matrix_header)]       
+            network_lines  = ['\t'.join(self.matrix_header)]       
         node_metadata_lines = ['\t'.join(self.metadata_header)]
         
         for reaction, entry in self.r2c.items():
@@ -225,7 +225,6 @@ class NetworkBuilder:
                         node_metadata_lines.append('\t'.join([reaction, 
                                                         self.r[reaction],
                                                         'NA', 
-                                                        'False', 
                                                         module, 
                                                         module_description, 
                                                         pathway,
@@ -241,27 +240,32 @@ class NetworkBuilder:
                      abundances_expression,
                      queries, 
                      depth):
-               
+        '''
+        Parameters
+        ----------
+        '''
         steps=0
         query_list = self._parse_queries(queries)
         check_list = set(query_list.keys())
         seen_steps = set()
         seen_nodes = set()
         level_queries = set()
-        output_lines=[]
-        node_metadata = ['\t'.join(self.metadata_header + self.query_header)]
-                 
-        if(abundances_1_expression and
-           abundances_2_expression and
-           group1_transcriptome_abundances and
-           group2_transcriptome_abundances):
-            output_lines  = ['\t'.join([self.matrix_header + 
-                                        self.compound_header +
-                                        self.transcriptome_header])]
+
+        if(abundances_transcriptome and abundances_expression):
+            network_lines  \
+                    = ['\t'.join(self.matrix_header + 
+                                 self.compound_header +
+                                 self.transcriptome_header)]
         else:
-            output_lines  = ['\t'.join(self.matrix_header +
-                                       self.compound_header)]      
-            
+            network_lines  \
+                    = ['\t'.join(self.matrix_header +
+                                 self.compound_header)]      
+        node_metadata_lines \
+                    = ['\t'.join(self.metadata_header + 
+                                 self.query_header)]
+
+        #######################################################################        
+        # This part hurts my eyes. Needs to be moved
         to_omit = set([x for x,y in self.compound_desc_dict.items() 
                        if "Vitamins and Cofactors" in y['A']])
         to_omit.add('C00001') # H2O
@@ -276,7 +280,7 @@ class NetworkBuilder:
         to_omit.add('C00020') # AMP
         to_omit.add('C00007') # Oxygen
         to_omit.add('C00015') # UDP
-
+        #######################################################################
 
         while depth>0:
             if any(level_queries):
@@ -324,16 +328,16 @@ class NetworkBuilder:
                         output_line = '\t'.join(reaction_line)
                         if output_line not in seen_steps:
                             seen_steps.add(output_line)
-                            output_lines.append(output_line+'\t%i' % steps)
+                            network_lines.append(output_line+'\t%i' % steps)
                         
                         if compound not in seen_nodes:
-                            node_metadata.append('\t'.join([compound, 
+                            network_lines.append('\t'.join([compound, 
                                                 compound_description,
                                                 compound_type, 'NA',
                                                 'NA', 'NA', 'NA',  
                                                 'compound', index, is_query]))
                         if reaction not in seen_nodes:
-                            node_metadata.append('\t'.join([reaction, 
+                            network_lines.append('\t'.join([reaction, 
                                                 reaction_description,
                                                 'NA', module, 
                                                 module_description, pathway,
@@ -345,4 +349,4 @@ class NetworkBuilder:
             depth-=1
             logging.info("Step %i complete with %i queries to continue with" \
                                               % (steps, len(level_queries)))
-        return output_lines, node_metadata
+        return network_lines, node_metadata

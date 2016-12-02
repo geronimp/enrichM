@@ -123,7 +123,7 @@ class NetworkAnalyser:
         if queries:
             logging.info("Using supplied queries (%s) to explore network" \
                                                     % queries)
-            output_lines, node_metadata = \
+            network_lines, node_metadata = \
                             nb.query_matrix(abundances_metagenome, 
                                             abundances_transcriptome,
                                             abundances_expression,
@@ -132,12 +132,12 @@ class NetworkAnalyser:
                                             depth)
         else:
             logging.info("Constructing entire metabolic network. Be patient.")
-            output_lines, node_metadata = \
+            network_lines, node_metadata = \
                             nb.all_matrix(abundances_metagenome,
                                           abundances_transcriptome,
                                           abundances_expression)
                     
-        self._write_results(output + self.NETWORK_SUFFIX, output_lines)
+        self._write_results(output + self.NETWORK_SUFFIX, network_lines)
         self._write_results(output + self.METADATA_SUFFIX, node_metadata)
 
 if __name__ == "__main__":
