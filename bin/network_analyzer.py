@@ -96,60 +96,47 @@ class NetworkAnalyser:
             Path to file containing a KO matrix of transcriptomic data
         '''
         
-        nb = NetworkBuilder()
-        
-        if transcriptome:
-            km = KeggMatrix(matrix_path, transcriptome)
-        else:
-            km = KeggMatrix(matrix_path)
+        nb = NetworkBuilder(self.metadata.keys())
+        km = KeggMatrix(matrix_path, transcriptome)
 
-        if len(self.metadata.keys())==2:
-            group1_abundances = \
-                    km.group_abundances(self.metadata[self.metadata.keys()[0]],
-                                        km.reaction_matrix)
-            group2_abundances = \
-                    km.group_abundances(self.metadata[self.metadata.keys()[1]],
-                                        km.reaction_matrix)
-            if transcriptome:
-                
-                group1_transcriptome_abundances = \
-                    km.group_abundances(self.metadata[self.metadata.keys()[0]],
-                                        km.reaction_matrix_transcriptome)
-                group2_transcriptome_abundances = \
-                    km.group_abundances(self.metadata[self.metadata.keys()[1]],
-                                        km.reaction_matrix_transcriptome)
-                
-                group1_expression_abundances = \
-                    km.group_abundances(self.metadata[self.metadata.keys()[0]],
-                                        km.reaction_matrix_expression)
-                group2_expression_abundances = \
-                    km.group_abundances(self.metadata[self.metadata.keys()[1]],
-                                        km.reaction_matrix_expression)
-            else:
-                group1_transcriptome_abundances=None
-                group2_transcriptome_abundances=None
-                group1_expression_abundances=None
-                group2_expression_abundances=None
+        abundances_metagenome = \
+                {key:km.group_abundances(self.metadata[key],
+                                         km.reaction_matrix) 
+                 for key in self.metadata.keys()}
+
+        if transcriptome:
+            abundances_transcriptome = \
+                    {key:km.group_abundances(self.metadata[key],
+                                             km.reaction_matrix_transcriptome) 
+                     for key in self.metadata.keys()}            
+            abundances_expression = \
+                    {key:km.group_abundances(self.metadata[key],
+                                             km.reaction_matrix_expression) 
+                     for key in self.metadata.keys()}
+
         else:
-            raise Exception("network_analyzer does not yet handle comparisons \
-between >2 groups")
+            abundances_transcriptome = None
+            abundances_expression    = None
+
+        
         logging.info("Constructing network for input matrix")
         if queries:
             logging.info("Using supplied queries (%s) to explore network" \
                                                     % queries)
-            output_lines, node_metadata = nb.query_matrix(group1_abundances, 
-                                           group2_abundances,
-                                           queries,
-                                           depth,
-                                           group1_expression_abundances,
-                                           group2_expression_abundances,
-                                           group1_transcriptome_abundances,
-                                           group2_transcriptome_abundances,
-                                           self.metadata.keys()[0],
-                                           self.metadata.keys()[1])
+            output_lines, node_metadata = \
+                            nb.query_matrix(abundances_metagenome, 
+                                            abundances_transcriptome,
+                                            abundances_expression,
+
+                                            queries,
+                                            depth)
         else:
-            output_lines, node_metadata = nb.all_matrix(group1_abundances,
-                                         group2_abundances)
+            logging.info("Constructing entire metabolic network. Be patient.")
+            output_lines, node_metadata = \
+                            nb.all_matrix(abundances_metagenome,
+                                          abundances_transcriptome,
+                                          abundances_expression)
+                    
         self._write_results(output + self.NETWORK_SUFFIX, output_lines)
         self._write_results(output + self.METADATA_SUFFIX, node_metadata)
 
@@ -157,21 +144,21 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''Build a metabolic matrix''')
     parser.add_argument('--matrix', required=True,
                         help='KO matrix')
+    parser.add_argument('--metadata', required=True,
+                        help='description of samples')
     parser.add_argument('--transcriptome', 
                         help='metagenome to ko matrix')
     parser.add_argument('--queries', 
                         help='query compounds')
     parser.add_argument('--depth', type=int, default=2,
                         help='depth')
-    parser.add_argument('--metadata', 
-                        help='description of samples')
     parser.add_argument('--log',
                         help='output logging information to this file.')
     parser.add_argument('--verbosity', type = int, default = 4,
                         help='Level of verbosity (1 - 5 - default = 4) \
 5 = Very verbose, 1 = Silent')
     parser.add_argument('--output', default = 'network_analyser_output',
-                        help='Output directory or file')
+                        help='Output file')
     parser.add_argument('--force', action='store_true',
                         help='Overwrite previous run')
     args = parser.parse_args()
