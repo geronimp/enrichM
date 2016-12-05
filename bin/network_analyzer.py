@@ -48,12 +48,15 @@ def check_args(args):
             if args.depth:
                 logging.warning("--depth argument ignored without --queries \
 flag")
-    elif args.subparser_name==NetworkAnalyser.PATHWAY:
-        raise Exception("This option is not yet implemented")
+    if args.subparser_name==NetworkAnalyser.PATHWAY:
+        pathway_opts = [args.from_node, args.to_node, args.filter, args.limit]
+        if not any(pathway_opts):
+            raise Exception("No options provided to pathway. Please pass an \
+argument to one of the following flags:\n%s" % ('\n'.join(['--from_node',
+                                                           '--to_node',
+                                                           '--filter',
+                                                           '--queries\n'])))
 
-    elif args.subparser_name==NetworkAnalyser.DEGRADE:
-        raise Exception("This option is not yet implemented")
-    
     if os.path.isfile(args.output):
         if args.force:
             logging.warning("Removing existing file with name: %s" \
@@ -175,6 +178,18 @@ class NetworkAnalyser:
                                             abundances_expression,
                                             args.queries,
                                             args.depth)
+        elif args.subparser_name==self.PATHWAY:
+            network_lines, node_metadata = \
+                            nb.pathway_matrix(abundances_metagenome, 
+                                              abundances_transcriptome,
+                                              abundances_expression,
+                                              args.limit,
+                                              args.filter,
+                                              args.from_node,
+                                              args.to_node,
+                                              args.anabolic,
+                                              args.catabolic,
+                                              args.dfs_shortest_path)
 
         self._write_results(args.output + self.NETWORK_SUFFIX, network_lines)
         self._write_results(args.output + self.METADATA_SUFFIX, node_metadata)
@@ -234,9 +249,18 @@ this file.')
                                     parents=[base])
 
     pathway_pathway_options = pathway.add_argument_group('Pathway options')
-    pathway_pathway_options.add_argument('--pathway_file', required=True,
+    pathway_pathway_options.add_argument('--from_node', 
                                        help='pathway file')
-    
+    pathway_pathway_options.add_argument('--to_node',
+                                       help='pathway file')
+    pathway_pathway_options.add_argument('--limit', default=[], nargs='+',
+                                       help='pathway file')
+    pathway_pathway_options.add_argument('--filter', default=[], nargs='+',
+                                       help='pathway file')
+    pathway_pathway_options.add_argument('--dfs_shortest_path', 
+                                         action='store_true',
+                                         help="Find shortest path using a \
+depth first search (DFS) instead of the default weighted dijkstra's algorithm")
     pathway_directionality_options = \
                         pathway.add_argument_group('Directionality options')
     pathway_directionality_options\
