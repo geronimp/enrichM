@@ -177,8 +177,8 @@ class NetworkAnalyser:
                                             args.queries,
                                             args.depth)
 
-        self._write_results(output + self.NETWORK_SUFFIX, network_lines)
-        self._write_results(output + self.METADATA_SUFFIX, node_metadata)
+        self._write_results(args.output + self.NETWORK_SUFFIX, network_lines)
+        self._write_results(args.output + self.METADATA_SUFFIX, node_metadata)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
