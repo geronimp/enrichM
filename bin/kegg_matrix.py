@@ -30,19 +30,17 @@ __status__ = "Development"
 import logging
 import pickle
 import os
-from math import sqrt
-from network_builder import NetworkBuilder
 
 ###############################################################################
 
 class KeggMatrix:
+    
     DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              '..', 
                              'data')
-    
-    VERSION = os.path.join(DATA_PATH, 'VERSION')
-    R2K     = os.path.join(DATA_PATH, 'reaction_to_orthology')
-    PICKLE  = 'pickle'
+    VERSION   = os.path.join(DATA_PATH, 'VERSION')
+    R2K       = os.path.join(DATA_PATH, 'reaction_to_orthology')
+    PICKLE    = 'pickle'
     
     def __init__(self, matrix, transcriptome):
         self.VERSION = open(self.VERSION).readline().strip()
