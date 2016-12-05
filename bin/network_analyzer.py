@@ -89,7 +89,6 @@ network using Dijkstra's algorithm.
               
     pathway - Not implemented
     
-    degrade - Not implemented
 """
 
 class NetworkAnalyser:
@@ -233,12 +232,21 @@ this file.')
     pathway = subparsers.add_parser('pathway',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base])
+
+    pathway_pathway_options = pathway.add_argument_group('Pathway options')
+    pathway_pathway_options.add_argument('--pathway_file', required=True,
+                                       help='pathway file')
     
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    degrade = subparsers.add_parser('degrade',
-                                    formatter_class=CustomHelpFormatter,
-                                    parents=[base])
+    pathway_directionality_options = \
+                        pathway.add_argument_group('Directionality options')
+    pathway_directionality_options\
+                        .add_argument('--catabolic', action='store_true',
+                                       help='Find degradation pathway. \
+EXPERIMENTAL')
+    pathway_directionality_options\
+                        .add_argument('--anabolic', action='store_true',
+                                      help='Find assimilation pathway. \
+EXPERIMENTAL')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
