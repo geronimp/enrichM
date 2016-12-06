@@ -61,7 +61,7 @@ class NetworkBuilder:
     COMPOUND_PREFIX = 'C'    
     MAP_PREFIX      = 'map'
     PATHWAY_PREFIX  = 'rn'
-    REACTION_SUFFIX = 'R'
+    REACTION_PREFIX = 'R'
     
     def __init__(self, metadata_keys):
         
@@ -409,7 +409,7 @@ class NetworkBuilder:
                 elif(entry.startswith(self.MODULE_PREFIX)):
                     for reaction in self.m2r[entry]:
                         possible_reactions.add(reaction)
-                elif(entry.starstwith(self.REACTION_PREFIX)):
+                elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(reaction)
             possible_reactions = {reaction:self.r2c[reaction] 
                                   for reaction in
@@ -432,7 +432,7 @@ class NetworkBuilder:
                 shortest_path_reactions = set()
                 
                 for entry in bfs_paths:
-                    if entry.startswith(self.REACTION_SUFFIX):
+                    if entry.startswith(self.REACTION_PREFIX):
                         shortest_path_reactions.add(entry)
             else:
                 pass
