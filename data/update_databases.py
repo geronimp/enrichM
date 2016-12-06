@@ -26,6 +26,8 @@ R2K = 'http://rest.kegg.jp/link/ko/reaction'
 r2k_result = 'reaction_to_orthology.%s.pickle' % date
 R2C = 'http://rest.kegg.jp/link/compound/reaction'
 r2c_result = 'reaction_to_compound.%s.pickle' % date
+C2R = 'http://rest.kegg.jp/link/reaction/compound'
+c2r_result = 'compound_to_reaction.%s.pickle' % date
 R2M = 'http://rest.kegg.jp/link/module/reaction'
 r2m_result = 'reaction_to_module.%s.pickle' % date
 M2R = 'http://rest.kegg.jp/link/reaction/module'
@@ -42,7 +44,8 @@ P   = 'http://rest.kegg.jp/list/pathway'
 p_result = 'pathway_descriptions.%s.pickle' % date
 M   = 'http://rest.kegg.jp/list/module'
 m_result = 'module_descriptions.%s.pickle' % date
-
+R2RCLASS   = 'http://rest.kegg.jp/list/module'
+r2rclass_result = 'reaction_to_rpair.%s.pickle' % date
 
 def build_name_dict(url):
     output_dictionary = {}
@@ -99,6 +102,12 @@ print("Done")
 print("Pickling results: %s" % r2c_result)
 pickle.dump(r2c, open(r2c_result, "wb"))
 
+print("Downloading compound to reaction information from KEGG")
+c2r = build_dict(C2R)
+print("Done")
+print("Pickling results: %s" % c2r_result)
+pickle.dump(c2r, open(c2r_result, "wb"))
+
 print("Downloading compound descriptions from KEGG")
 c   = build_name_dict(C)
 print("Done")
@@ -122,6 +131,7 @@ m   = build_name_dict(M)
 print("Done")
 print("Pickling results: %s" % m_result)
 pickle.dump(m, open(m_result, "wb"))
+
 
 print("Downloading compound classification information from KEGG (br08001)")
 
@@ -161,3 +171,28 @@ print("Pickling results: %s" % output_pickle)
 pickle.dump(output_dict, open(br08001_result, "wb"))
 
 print("Done")
+
+
+print("Downloading rpair information from KEGG")
+r2rclass={}
+base='http://rest.kegg.jp/get/'
+tot = float(len(r.keys()))
+for idx, reaction_key in enumerate(r.keys()):
+    url = base + reaction_key
+    r2rclass[reaction_key]=[]
+    try:
+        for line in urllib2.urlopen(url).read().strip().split('\n'):
+            if line.startswith('RCLASS'):
+                r2rclass[reaction_key]+=line.split()[2:]
+                
+            elif line.startswith(' '):
+                sline = line.split()
+                if sline[0].startswith('RC'):
+                    r2rclass[reaction_key]+=sline[1:]
+    except:
+        print reaction_key
+    print "%s percent done" % str(round(float(idx+1)/tot, 2)*100)
+    
+print("Done")
+print("Pickling results: %s" % m_result)
+pickle.dump(r2rclass, open(r2rclass_result, "wb"))

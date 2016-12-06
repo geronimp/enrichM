@@ -31,35 +31,38 @@ import logging
 import pickle
 import os
 
+from traverse import NetworkTraverser
+
 ###############################################################################
 
 class NetworkBuilder:
+    
     DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              '..', 
                              'data')
-
-    COL_BLACK        = 'Black'
-    COL_RED          = 'Red'
-    COL_BLUE         = 'Blue'
-    COL_UNIQUE_1     = 'Unique_1'
-    COL_UNIQUE_2     = 'Unique_2'
     
     VERSION = os.path.join(DATA_PATH, 'VERSION')
     COMPOUND_DESC_PICKLE = os.path.join(DATA_PATH, 'br08001')
     
     PICKLE = 'pickle'
-    
+    R2RPAIR = os.path.join(DATA_PATH, 'reaction_to_rpair')
     R2C = os.path.join(DATA_PATH, 'reaction_to_compound')
     R2M = os.path.join(DATA_PATH, 'reaction_to_module')
     M2R = os.path.join(DATA_PATH, 'module_to_reaction')
     R2P = os.path.join(DATA_PATH, 'reaction_to_pathway')
     P2R = os.path.join(DATA_PATH, 'pathway_to_reaction')
-
+    C2R = os.path.join(DATA_PATH, 'compound_to_reaction')
     C   = os.path.join(DATA_PATH, 'compound_descriptions')    
     R   = os.path.join(DATA_PATH, 'reaction_descriptions')
     P   = os.path.join(DATA_PATH, 'pathway_descriptions')
     M   = os.path.join(DATA_PATH, 'module_descriptions')
-
+    
+    MODULE_PREFIX   = 'M'
+    COMPOUND_PREFIX = 'C'    
+    MAP_PREFIX      = 'map'
+    PATHWAY_PREFIX  = 'rn'
+    REACTION_SUFFIX = 'R'
+    
     def __init__(self, metadata_keys):
         
         self.VERSION = open(self.VERSION).readline().strip()
@@ -82,6 +85,14 @@ class NetworkBuilder:
         logging.info("Done")
         logging.info("Loading reaction to compound information")
         self.r2c = pickle.load(open('.'.join([self.R2C, 
+                                              self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading reaction to rpair information")
+        self.r2rpair = pickle.load(open('.'.join([self.R2RPAIR, 
+                                              self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading compound to reaction information")
+        self.c2r = pickle.load(open('.'.join([self.C2R,
                                               self.VERSION, self.PICKLE])))
         logging.info("Done")
         logging.info("Loading compound descriptions")
@@ -132,6 +143,7 @@ class NetworkBuilder:
         self.query_header \
                         =  ['query',
                             'step']
+    
     def _gather_module(self, key):
         if key in self.r2m:
             len_list =  [len(self.m2r[x]) for x in self.r2m[key]]
@@ -171,12 +183,17 @@ class NetworkBuilder:
     def all_matrix(self, 
                    abundances_metagenome, 
                    abundances_transcriptome,
-                   abundances_expression):
+                   abundances_expression,
+                   reference_dict = None):
         '''
         Parameters
         ----------
         '''
         
+        if reference_dict:
+            r2c = reference_dict
+        else:
+            r2c = self.r2c
         seen_nodes = set()
         
         # Construct headers to network matrices
@@ -187,7 +204,7 @@ class NetworkBuilder:
             network_lines  = ['\t'.join(self.matrix_header)]       
         node_metadata_lines = ['\t'.join(self.metadata_header)]
         
-        for reaction, entry in self.r2c.items():
+        for reaction, entry in r2c.items():
             for compound in entry:
                 if any([reaction in x.keys() 
                         for x in abundances_metagenome.values()]):
@@ -270,24 +287,6 @@ class NetworkBuilder:
                     = ['\t'.join(self.metadata_header + 
                                  self.compound_header +
                                  self.query_header)]
-
-        #######################################################################        
-        # This part hurts my eyes. Needs to be moved
-        to_omit = set([x for x,y in self.compound_desc_dict.items() 
-                       if "Vitamins and Cofactors" in y['A']])
-        to_omit.add('C00001') # H2O
-        to_omit.add('C00008') # ADP
-        to_omit.add('C00013') # Diphosphate
-        to_omit.add('C00004') # NADH
-        to_omit.add('C00005') # NADPH
-        to_omit.add('C00080') # H+
-        to_omit.add('C00009') # Orthophosphate
-        to_omit.add('C00008') # ADP
-        to_omit.add('C00004') # NADH
-        to_omit.add('C00020') # AMP
-        to_omit.add('C00007') # Oxygen
-        to_omit.add('C00015') # UDP
-        #######################################################################
         
         while depth>0:
             if any(level_queries):
@@ -298,7 +297,7 @@ class NetworkBuilder:
                         for x in abundances_metagenome.values()]):
                     if any(check_list.intersection(entry)):
                         reaction_compounds = [x for x in entry 
-                                              if x not in to_omit]
+                                              if x not in NetworkTraverser.to_omit]
                         for compound in reaction_compounds:
                             #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
                             #~#~#~#~#~#~#~#~ Fill in abundances ~#~#~#~#~#~#~#~
@@ -324,7 +323,6 @@ class NetworkBuilder:
                                          in check_list else steps+1))
                             
                             if compound not in seen_nodes:
-                                # TODO : accomodate > 1 group
                                 if compound in query_list:
                                     query_ab = [str(query_list[compound][key]) 
                                                 for key in self.metadata_keys]
@@ -386,3 +384,66 @@ class NetworkBuilder:
             logging.info("Step %i complete with %i queries to continue with" \
                                               % (steps, len(level_queries)))
         return network_lines, node_metadata_lines
+    
+    
+    def pathway_matrix(self, 
+                     abundances_metagenome, 
+                     abundances_transcriptome,
+                     abundances_expression,
+                     limit,
+                     filter,
+                     node_from,
+                     node_to,
+                     catabolic,
+                     anabolic,
+                     bfs_shortest_path):
+
+        
+        possible_reactions=set()
+        if any(limit):
+            for entry in limit:
+                if(entry.startswith(self.MAP_PREFIX) or 
+                   entry.startswith(self.PATHWAY_PREFIX)): 
+                    for reaction in self.p2r[entry]:
+                        possible_reactions.add(reaction)
+                elif(entry.startswith(self.MODULE_PREFIX)):
+                    for reaction in self.m2r[entry]:
+                        possible_reactions.add(reaction)
+                elif(entry.starstwith(self.REACTION_PREFIX)):
+                    possible_reactions.add(reaction)
+            possible_reactions = {reaction:self.r2c[reaction] 
+                                  for reaction in
+                                  possible_reactions}                
+        else:
+            possible_reactions = self.r2c
+        
+        for entry in filter:
+            if entry in possible_reactions:
+                del possible_reactions[entry]
+        
+        if(node_to and node_from):
+            if bfs_shortest_path:
+
+                bfs_paths = NetworkTraverser\
+                                    .shortest_bfs_path(self.r2rpair, 
+                                                       self.c2r,
+                                                       node_from,
+                                                       node_to)
+                shortest_path_reactions = set()
+                
+                for entry in bfs_paths:
+                    if entry.startswith(self.REACTION_SUFFIX):
+                        shortest_path_reactions.add(entry)
+            else:
+                pass
+            possible_reactions = {reaction:possible_reactions[reaction]
+                                  for reaction in shortest_path_reactions}
+            
+        network_lines, node_metadata_lines = \
+            self.all_matrix(abundances_metagenome, 
+                            abundances_transcriptome, 
+                            abundances_expression, 
+                            possible_reactions)
+        
+        return network_lines, node_metadata_lines
+  
