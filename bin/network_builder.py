@@ -45,7 +45,7 @@ class NetworkBuilder:
     COMPOUND_DESC_PICKLE = os.path.join(DATA_PATH, 'br08001')
     
     PICKLE = 'pickle'
-    
+    R2RPAIR = os.path.join(DATA_PATH, 'reaction_to_rpair')
     R2C = os.path.join(DATA_PATH, 'reaction_to_compound')
     R2M = os.path.join(DATA_PATH, 'reaction_to_module')
     M2R = os.path.join(DATA_PATH, 'module_to_reaction')
@@ -85,6 +85,10 @@ class NetworkBuilder:
         logging.info("Done")
         logging.info("Loading reaction to compound information")
         self.r2c = pickle.load(open('.'.join([self.R2C, 
+                                              self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading reaction to rpair information")
+        self.r2rpair = pickle.load(open('.'.join([self.R2RPAIR, 
                                               self.VERSION, self.PICKLE])))
         logging.info("Done")
         logging.info("Loading compound to reaction information")
@@ -175,8 +179,6 @@ class NetworkBuilder:
                 for idx, group in enumerate(self.metadata_keys):
                     output_dict[compound][group] = 'NA'
         return output_dict
-    
-
     
     def all_matrix(self, 
                    abundances_metagenome, 
@@ -394,7 +396,7 @@ class NetworkBuilder:
                      node_to,
                      catabolic,
                      anabolic,
-                     dfs_shortest_path):
+                     bfs_shortest_path):
 
         
         possible_reactions=set()
@@ -418,15 +420,17 @@ class NetworkBuilder:
         for entry in filter:
             if entry in possible_reactions:
                 del possible_reactions[entry]
-                
+        
         if(node_to and node_from):
-            if dfs_shortest_path:
+            if bfs_shortest_path:
+
                 bfs_paths = NetworkTraverser\
-                                    .shortest_bfs_path(self.r2c, 
+                                    .shortest_bfs_path(self.r2rpair, 
                                                        self.c2r,
                                                        node_from,
                                                        node_to)
                 shortest_path_reactions = set()
+                
                 for entry in bfs_paths:
                     if entry.startswith(self.REACTION_SUFFIX):
                         shortest_path_reactions.add(entry)
@@ -434,11 +438,12 @@ class NetworkBuilder:
                 pass
             possible_reactions = {reaction:possible_reactions[reaction]
                                   for reaction in shortest_path_reactions}
+            
         network_lines, node_metadata_lines = \
             self.all_matrix(abundances_metagenome, 
                             abundances_transcriptome, 
                             abundances_expression, 
                             possible_reactions)
-
+        
         return network_lines, node_metadata_lines
   

@@ -45,7 +45,7 @@ p_result = 'pathway_descriptions.%s.pickle' % date
 M   = 'http://rest.kegg.jp/list/module'
 m_result = 'module_descriptions.%s.pickle' % date
 R2RCLASS   = 'http://rest.kegg.jp/list/module'
-r2rclass_result = 'reaction_to_reactionclass.%s.pickle' % date
+r2rclass_result = 'reaction_to_rpair.%s.pickle' % date
 
 def build_name_dict(url):
     output_dictionary = {}
@@ -131,13 +131,6 @@ m   = build_name_dict(M)
 print("Done")
 print("Pickling results: %s" % m_result)
 pickle.dump(m, open(m_result, "wb"))
-
-
-
-
-
-
-
 
 
 print("Downloading compound classification information from KEGG (br08001)")
