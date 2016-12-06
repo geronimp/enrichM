@@ -219,7 +219,7 @@ if __name__ == "__main__":
     base_network_options = base.add_argument_group('Network options')
     base_network_options.add_argument('--rpair', action='store_true',
                                       help='Use rpair to construct network, \
-instead of the reaction database')
+instead of the reaction database (AVAILABLE SOON)')
     
     base_output_options = base.add_argument_group('Output options')
     base_output_options.add_argument('--output_prefix', default = 'network_analyser_output',
@@ -275,7 +275,7 @@ node specified to --from_node. UNDER DEVELOPMENT.')
     pathway_pathway_options.add_argument('--bfs_shortest_path', 
                                          action='store_true',
                                          help="Find shortest path using a \
-breadth first search (DFS) instead of the default weighted dijkstra's \
+breadth first search (BFS) instead of the default weighted dijkstra's \
 algorithm. UNDER DEVELOPMENT.")
     pathway_directionality_options = \
                         pathway.add_argument_group('Directionality options')
