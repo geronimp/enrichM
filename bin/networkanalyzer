@@ -94,18 +94,23 @@ explore possible pathways from a given metabolite.
 
                             ~ Network analysis ~
 
-    network - Construct the entire metabolic network an input matrix
+    network    - Construct the entire metabolic network an input matrix
     
-    explore - Start from specified query compounds and make steps into 
-              metabolism. Answer questions like "How is glucose metabolized in 
-              my sample?" or "How many pathways are used to produce methane?"
+    explore    - Start from specified query compounds and make steps into 
+                 metabolism. Answer questions like "How is glucose metabolized 
+                 in my sample?" or "How many pathways are used to produce 
+                 methane?"
               
-    pathway - Specify paths in metabolism to explore. UNDER DEVELOPMENT.
+    pathway    - Specify paths in metabolism to explore. UNDER DEVELOPMENT.
 
 
                                ~ Annotation ~
 
-    annotate - Determine what KEGG modules are possible for a population genome
+    annotate   - Determine what KEGG modules are possible for a population 
+                 genome
+    
+    enrichment - Generate an enrichment matrix from modules produced by 
+                 annotate
 """
 
 class NetworkAnalyser:
@@ -316,9 +321,20 @@ percent of the requied KO groups (default = print all modules)')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    enrichment = subparsers.add_parser('enrichment',
+                                    formatter_class=CustomHelpFormatter,
+                                    parents=[base_all])
+    enrichment.add_argument('--annotations',
+                            help='Output of annotate',
+                            required=True)
+    enrichment.add_argument('--abundances',
+                            help='Genome abundances',
+                            required=True)
     
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     network_options = ['explore', 'network', 'pathway']
-    annotation_options = ['annotate']
+    annotation_options = ['annotate', 'enrichment']
     
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
