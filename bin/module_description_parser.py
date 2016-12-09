@@ -107,7 +107,6 @@ class ModuleDescriptionParser:
             new_stuff = []
             for e in current.understuff:
                 if isinstance(e, str):
-
                     if re.match('^K\d+$', e):
                         new_stuff.append(ModuleDescriptionKoEntry(e))
                     else:
@@ -127,7 +126,6 @@ class ModuleDescriptionParser:
                                     topush.understuff = minus_splits[:1]
                                 else:
                                     raise Exception("Parse exception on %s" % string)
-
                             else:
                                 m = ModuleDescriptionOrRelation()
                                 topush.understuff = comma_splits

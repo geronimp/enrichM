@@ -44,6 +44,11 @@ debug={1:logging.CRITICAL,
 ###############################################################################
 
 def check_args(args):
+    
+    if args.subparser_name==KeggModuleGrabber.ENRICHMENT:
+        if not(args.metadata or args.abundances):
+            raise Exception("No metadata or abundance information provided to \
+enrichment.")
     if args.subparser_name==NetworkAnalyser.EXPLORE:
         if not(args.queries):
             if args.depth:
@@ -94,18 +99,23 @@ explore possible pathways from a given metabolite.
 
                             ~ Network analysis ~
 
-    network - Construct the entire metabolic network an input matrix
+    network    - Construct the entire metabolic network an input matrix
     
-    explore - Start from specified query compounds and make steps into 
-              metabolism. Answer questions like "How is glucose metabolized in 
-              my sample?" or "How many pathways are used to produce methane?"
+    explore    - Start from specified query compounds and make steps into 
+                 metabolism. Answer questions like "How is glucose metabolized 
+                 in my sample?" or "How many pathways are used to produce 
+                 methane?"
               
-    pathway - Specify paths in metabolism to explore. UNDER DEVELOPMENT.
+    pathway    - Specify paths in metabolism to explore. UNDER DEVELOPMENT.
 
 
                                ~ Annotation ~
 
-    annotate - Determine what KEGG modules are possible for a population genome
+    annotate   - Determine what KEGG modules are possible for a population 
+                 genome
+    
+    enrichment - Generate an enrichment matrix from modules produced by 
+                 annotate
 """
 
 class NetworkAnalyser:
@@ -214,6 +224,7 @@ if __name__ == "__main__":
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     base_all = argparse.ArgumentParser(add_help=False)
     base_logging_options = base_all.add_argument_group('Logging options')
     base_logging_options.add_argument('--log',
@@ -248,12 +259,14 @@ instead of the reaction database (AVAILABLE SOON)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     network = subparsers.add_parser('network',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_network])
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     explore = subparsers.add_parser('explore',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_network, base_all])
@@ -266,6 +279,7 @@ instead of the reaction database (AVAILABLE SOON)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     pathway = subparsers.add_parser('pathway',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_network, base_all])
@@ -316,9 +330,23 @@ percent of the requied KO groups (default = print all modules)')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
+    enrichment = subparsers.add_parser('enrichment',
+                                    formatter_class=CustomHelpFormatter,
+                                    parents=[base_all])
+    enrichment.add_argument('--annotations',
+                            help='Output of annotate',
+                            required=True)
+    enrichment.add_argument('--abundances',
+                            help='Genome abundances')
+    enrichment.add_argument('--metadata',
+                            help='Genome groups')
+                            
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     
     network_options = ['explore', 'network', 'pathway']
-    annotation_options = ['annotate']
+    annotation_options = ['annotate', 'enrichment']
     
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()

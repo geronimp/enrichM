@@ -416,7 +416,7 @@ class NetworkBuilder:
                         possible_reactions.add(reaction)
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
-            import IPython ; IPython.embed()
+
             possible_reactions = {reaction:self.r2c[reaction] 
                                   for reaction in
                                   possible_reactions}                
