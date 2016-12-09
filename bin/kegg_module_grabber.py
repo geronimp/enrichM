@@ -57,11 +57,11 @@ class KeggModuleGrabber:
         logging.info("Loading module definitions")
         self.m2def = pickle.load(open('.'.join([self.M2DEF, 
                                                  self.VERSION, self.PICKLE])))
-        logging.info("Done")
+        logging.info("Done!")
         logging.info("Loading module descriptions")
         self.m = pickle.load(open('.'.join([self.M, 
                                             self.VERSION, self.PICKLE])))
-        logging.info("Done")
+        logging.info("Done!")
             
     def main(self, args):
         
@@ -109,8 +109,8 @@ class KeggModuleGrabber:
             logging.info("Done!")
         elif args.subparser_name == self.ENRICHMENT:
             bem = BuildEncrichmentMatrix()
-            output_path = args.output_prefix + '_enrichment.tsv'
-            bem.main(args.annotations, args.abundances, args.metadata, output_path)
+            bem.main(args.annotations, args.abundances, args.metadata, 
+                     args.output_prefix)
             
 
 

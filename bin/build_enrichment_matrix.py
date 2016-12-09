@@ -62,9 +62,13 @@ class Matrix:
             self.rownames.append(row_name)
     
     def get_entry(self, colname, rowname):
-        import IPython ; IPython.embed()
-        return self.matrix[colname][rowname]
-
+        if colname in self.colnames:
+            if rowname in self.rownames:
+                return self.matrix[colname][rowname]
+            else:
+                return 0 # raise Exception("Rowname %s not in matrix" % rowname)
+        else:
+            return 0 # raise Exception("Colname %s not in matrix" % colname)
 
 class BuildEncrichmentMatrix:
     
@@ -72,10 +76,23 @@ class BuildEncrichmentMatrix:
     COMPARE_SUFFIX  = '_compare_matrix.tsv'    
     
     def _parse_annotations(self, annotations_path):
-        pass
+        modules              = set()
+        genomes              = set()
+        genome_to_annotation = {}
+        
+        for line in open(annotations_path):
+            sline = line.strip().split('\t')
+            genome_id, module_id = sline[:2]
+            modules.add(module_id)
+            genomes.add(genome_id)
+            if genome_id in genome_to_annotation:
+                genome_to_annotation[genome_id].add(module_id)
+            else:
+                genome_to_annotation[genome_id] = set([module_id])
+        return genome_to_annotation, modules, genomes
         
     def main(self, annotations, abundances, metadata, output_path):
-        annotations_dict = self._parse_annotations(annotations)
+        annotations_dict, modules, genomes = self._parse_annotations(annotations)
 
         if metadata:
             logging.info("Comparing sets of genomes")
@@ -86,6 +103,23 @@ class BuildEncrichmentMatrix:
         if abundances:
             logging.info("Generating enrichment matrix")
             output_enrichment_matrix = output_path + self.MATRIX_SUFFIX
-            abundances_dict = Matrix(abundances)        
+            abundances = Matrix(abundances)    
+            output_lines = ['\t'.join(['Module'] + abundances.colnames)]
+            for module in modules:
+                output_line = [module]
+                for sample in abundances.colnames:
+                    module_prevalence = 0.0
+                    for genome in genomes:
+                        if module in annotations_dict[genome]:
+                            genome_abundance = abundances.get_entry(sample, genome)
+                            module_prevalence+=float(genome_abundance)
+                    output_line.append(str(module_prevalence))
+                output_lines.append('\t'.join(output_line))
+                
+            logging.info("Writing results to file: %s" % output_enrichment_matrix)
+            with open(output_enrichment_matrix, 'w') as output_enrichment_matrix_io:
+                output_enrichment_matrix_io.write('\n'.join(output_lines))
             logging.info('Done!')
+            
+            
         
