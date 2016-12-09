@@ -42,10 +42,11 @@ class NetworkBuilder:
                              'data')
     
     VERSION = os.path.join(DATA_PATH, 'VERSION')
-    COMPOUND_DESC_PICKLE = os.path.join(DATA_PATH, 'br08001')
-    
-    PICKLE = 'pickle'
+    PICKLE  = 'pickle'
+
+    COMPOUND_DESC_PICKLE = os.path.join(DATA_PATH, 'br08001')    
     R2RPAIR = os.path.join(DATA_PATH, 'reaction_to_rpair')
+    R2K     = os.path.join(DATA_PATH, 'reaction_to_orthology')
     R2C = os.path.join(DATA_PATH, 'reaction_to_compound')
     R2M = os.path.join(DATA_PATH, 'reaction_to_module')
     M2R = os.path.join(DATA_PATH, 'module_to_reaction')
@@ -74,6 +75,10 @@ class NetworkBuilder:
         logging.info("Loading pathway to reaction information")
         self.p2r = pickle.load(open('.'.join([self.P2R, 
                                               self.VERSION, self.PICKLE])))
+        logging.info("Done")
+        logging.info("Loading reaction to orthology information")
+        self.r2k = pickle.load(open('.'.join([self.R2K, self.VERSION, 
+                                              self.PICKLE])))
         logging.info("Done")
         logging.info("Loading reaction to module information")
         self.r2m = pickle.load(open('.'.join([self.R2M, 
@@ -116,7 +121,7 @@ class NetworkBuilder:
                  = pickle.load(open('.'.join([self.COMPOUND_DESC_PICKLE, 
                                               self.VERSION, self.PICKLE])))
         logging.info("Done")
-        
+
         self.metadata_keys \
                         = metadata_keys
         self.matrix_header \
@@ -411,6 +416,7 @@ class NetworkBuilder:
                         possible_reactions.add(reaction)
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
+            import IPython ; IPython.embed()
             possible_reactions = {reaction:self.r2c[reaction] 
                                   for reaction in
                                   possible_reactions}                
@@ -436,6 +442,7 @@ class NetworkBuilder:
                         shortest_path_reactions.add(entry)
             else:
                 pass
+            
             possible_reactions = {reaction:possible_reactions[reaction]
                                   for reaction in shortest_path_reactions}
             
