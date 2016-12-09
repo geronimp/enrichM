@@ -29,6 +29,7 @@ import logging
 import pickle
 
 from module_description_parser import ModuleDescription
+from build_enrichment_matrix import BuildEncrichmentMatrix
 
 class KeggModuleGrabber:
     ANNOTATE = 'annotate'
@@ -107,8 +108,9 @@ class KeggModuleGrabber:
                             output_path_io.write(output_line + '\n') 
             logging.info("Done!")
         elif args.subparser_name == self.ENRICHMENT:
-            
+            bem = BuildEncrichmentMatrix()
             output_path = args.output_prefix + '_enrichment.tsv'
-            import IPython ; IPython.embed()
+            bem.main(args.annotations, args.abundances, args.metadata, output_path)
+            
 
 

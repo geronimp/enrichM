@@ -44,6 +44,11 @@ debug={1:logging.CRITICAL,
 ###############################################################################
 
 def check_args(args):
+    
+    if args.subparser_name==KeggModuleGrabber.ENRICHMENT:
+        if not(args.metadata or args.abundances):
+            raise Exception("No metadata or abundance information provided to \
+enrichment.")
     if args.subparser_name==NetworkAnalyser.EXPLORE:
         if not(args.queries):
             if args.depth:
@@ -219,6 +224,7 @@ if __name__ == "__main__":
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     base_all = argparse.ArgumentParser(add_help=False)
     base_logging_options = base_all.add_argument_group('Logging options')
     base_logging_options.add_argument('--log',
@@ -253,12 +259,14 @@ instead of the reaction database (AVAILABLE SOON)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     network = subparsers.add_parser('network',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_network])
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     explore = subparsers.add_parser('explore',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_network, base_all])
@@ -271,6 +279,7 @@ instead of the reaction database (AVAILABLE SOON)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
     pathway = subparsers.add_parser('pathway',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_network, base_all])
@@ -321,6 +330,7 @@ percent of the requied KO groups (default = print all modules)')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
     enrichment = subparsers.add_parser('enrichment',
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_all])
@@ -328,11 +338,13 @@ percent of the requied KO groups (default = print all modules)')
                             help='Output of annotate',
                             required=True)
     enrichment.add_argument('--abundances',
-                            help='Genome abundances',
-                            required=True)
+                            help='Genome abundances')
+    enrichment.add_argument('--metadata',
+                            help='Genome groups')
+                            
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     network_options = ['explore', 'network', 'pathway']
     annotation_options = ['annotate', 'enrichment']
     
