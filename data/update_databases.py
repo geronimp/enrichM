@@ -17,7 +17,6 @@ with open('VERSION', 'w') as o:
 print("Done")
 
 
-output_pickle = 'compound_descriptions.%s.pickle' % date
 output_dict = {}
 br08001 = 'http://www.kegg.jp/kegg-bin/download_htext?htext=br08001&format=htext&filedir='
 br08001_result = 'br08001.%s.pickle' % date
@@ -134,6 +133,7 @@ pickle.dump(m, open(m_result, "wb"))
 
 
 print("Downloading compound classification information from KEGG (br08001)")
+output_pickle = 'compound_descriptions.%s.pickle' % date
 
 A='A'
 B='B'
@@ -171,6 +171,27 @@ print("Pickling results: %s" % output_pickle)
 pickle.dump(output_dict, open(br08001_result, "wb"))
 
 print("Done")
+
+
+
+current_module_list = m.keys()
+output_pickle = 'module_to_definition.05-12-2016.pickle'
+print("Downloading module definitions from KEGG")
+m2def={}
+base='http://rest.kegg.jp/get/'
+tot = float(len(current_module_list))
+for idx, module_key in enumerate(current_module_list):
+    url = base + module_key
+    m2def[module_key]=[]
+    for line in urllib2.urlopen(url).read().strip().split('\n'):
+        if line.startswith('DEFINITION'):
+            m2def[module_key]+=' '.join(line.split()[1:])            
+    print "%s percent done" % str(round(float(idx+1)/tot, 2)*100)
+    
+print("Done")
+print("Pickling results: %s" % output_pickle)
+pickle.dump(m2def, open(output_pickle, "wb"))
+
 
 
 print("Downloading rpair information from KEGG")
