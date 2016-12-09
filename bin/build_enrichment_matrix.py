@@ -29,6 +29,7 @@ __status__ = "Development"
 
 import logging
 import os
+from itertools import product
 
 ###############################################################################
 
@@ -60,7 +61,21 @@ class Matrix:
                 raise Exception("Duplicate row names found in %s" % \
                                                          (matrix_io.name))
             self.rownames.append(row_name)
+
+    def get_row(self, rowname):
+        if rowname in self.rownames:
+            row = [rowname]
+            for colname in self.colnames: 
+                row.append(self.matrix[colname][rowname])
+        return row
     
+    def get_col(self, colname):      
+        if colname in self.colnames:
+            
+            return self.matrix[colname].values()
+        else:
+            return 0 # raise Exception("Colname %s not in matrix" % colname)
+
     def get_entry(self, colname, rowname):
         if colname in self.colnames:
             if rowname in self.rownames:
@@ -69,9 +84,17 @@ class Matrix:
                 return 0 # raise Exception("Rowname %s not in matrix" % rowname)
         else:
             return 0 # raise Exception("Colname %s not in matrix" % colname)
-
+    
+    def filter_by_cols(self, set):
+        current_list = []
+        for row in self.rownames:
+            if tuple(self.get_row(row)[1:]) == set:
+                current_list.append(row)
+        return current_list
+        
 class BuildEncrichmentMatrix:
     
+    BACKGROUND      = 'backgrounnd'
     MATRIX_SUFFIX   = '_enrichment_matrix.tsv'    
     COMPARE_SUFFIX  = '_compare_matrix.tsv'    
     
@@ -98,6 +121,30 @@ class BuildEncrichmentMatrix:
             logging.info("Comparing sets of genomes")
             output_enrichment_matrix = output_path + self.COMPARE_SUFFIX
             metadata = Matrix(metadata)
+            metadata_value_lists = \
+                [set(metadata.get_col(col)) for col in metadata.colnames]
+            
+            combination_dict = {'all': genomes}
+            for combination in product(*metadata_value_lists):
+                genome_list = metadata.filter_by_cols(combination)
+                combination_dict['_'.join(combination)]=genome_list
+
+            output_lines = ['\t'.join(['Module'] + combination_dict.keys())]
+            for module in modules:
+                output_line = [module]
+                for group_name, genome_list in combination_dict.items():
+                    if len(genome_list)>0:
+                        coverage = len([genome for genome in genome_list 
+                                        if module in annotations_dict[genome]])
+                        all      = float(len(genome_list))
+                        output_line.append(str(coverage/all))
+                    else:
+                        output_line.append('0.0')
+                output_lines.append('\t'.join(output_line))
+                
+            logging.info("Writing results to file: %s" % output_enrichment_matrix)
+            with open(output_enrichment_matrix, 'w') as output_enrichment_matrix_io:
+                output_enrichment_matrix_io.write('\n'.join(output_lines))
             logging.info('Done!')
 
         if abundances:
