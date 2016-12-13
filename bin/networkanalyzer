@@ -150,7 +150,6 @@ class NetworkAnalyser:
             output_path_io.flush()
         
     def main(self, args):
-             #matrix_path, queries, depth, transcriptome, output):
         '''
         Parameters
         ----------
