@@ -35,55 +35,87 @@ class KeggModuleGrabber:
     ANNOTATE = 'annotate'
     ENRICHMENT = 'enrichment'
     DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             '..', 
+                             '..',
                              'data')
         
     VERSION = open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()
-    PICKLE  = 'pickle'
+    PICKLE = 'pickle'
 
     M2DEF = os.path.join(DATA_PATH, 'module_to_definition')
-    M   = os.path.join(DATA_PATH, 'module_descriptions')
+    M = os.path.join(DATA_PATH, 'module_descriptions')
     
     def __init__(self):
+        self.ko_re = re.compile('^K\d+$')
+
         
-        self.signature_modules = set(['M00611', 'M00612', 'M00613', 'M00614', 
-         'M00617', 'M00618', 'M00615', 'M00616', 'M00363', 'M00542', 'M00574', 
-         'M00575', 'M00564', 'M00660', 'M00664', 'M00625', 'M00627', 'M00745', 
-         'M00651', 'M00652', 'M00704', 'M00725', 'M00726', 'M00730', 'M00744', 
-         'M00718', 'M00639', 'M00641', 'M00642', 'M00643', 'M00769', 'M00649', 
-         'M00696', 'M00697', 'M00698', 'M00700', 'M00702', 'M00714', 'M00705', 
+        self.signature_modules = set(['M00611', 'M00612', 'M00613', 'M00614',
+         'M00617', 'M00618', 'M00615', 'M00616', 'M00363', 'M00542', 'M00574',
+         'M00575', 'M00564', 'M00660', 'M00664', 'M00625', 'M00627', 'M00745',
+         'M00651', 'M00652', 'M00704', 'M00725', 'M00726', 'M00730', 'M00744',
+         'M00718', 'M00639', 'M00641', 'M00642', 'M00643', 'M00769', 'M00649',
+         'M00696', 'M00697', 'M00698', 'M00700', 'M00702', 'M00714', 'M00705',
          'M00746'])
         
         logging.info("Loading module definitions")
-        self.m2def = pickle.load(open('.'.join([self.M2DEF, 
+        self.m2def = pickle.load(open('.'.join([self.M2DEF,
                                                  self.VERSION, self.PICKLE])))
         logging.info("Done!")
         logging.info("Loading module descriptions")
-        self.m = pickle.load(open('.'.join([self.M, 
+        self.m = pickle.load(open('.'.join([self.M,
                                             self.VERSION, self.PICKLE])))
         logging.info("Done!")
+        
+    def _update_with_custom_modules(self, custom_modules):
+        custom_modules_dict = {line.split('\t')[0]:line.strip().split('\t')[1]
+                               for line in open(custom_modules)}
+        self.m2def.update(custom_modules_dict)
+        
+        for key in custom_modules_dict.keys():
+            self.m[key] = 'Custom'
+    
+    def _parse_genome_and_ko_file_lf(self, genome_and_ko_file):
+        genome_to_ko_sets = {}
+        for line in open(genome_and_ko_file):
+            sline = line.strip().split("\t")
+            if len(sline) != 2: raise Exception("Input genomes/KO file error on %s" % line)
             
+            genome, ko = sline
+            
+            if self.ko_re.match(ko):
+                if genome not in genome_to_ko_sets:
+                    genome_to_ko_sets[genome] = set()
+                genome_to_ko_sets[genome].add(ko)
+            else:
+                raise Exception("Malformed ko line: %i" % line)
+        return genome_to_ko_sets
+    
+    def _parse_genome_and_ko_file_matrix(self, genome_and_ko_file):
+        genome_to_ko_sets = {}
+        genome_and_ko_file_io = open(genome_and_ko_file)
+        headers = genome_and_ko_file_io.readline().strip().split('\t')[1:]
+        for line in genome_and_ko_file_io:
+            sline = line.strip().split('\t')
+            genome_name, entries = sline[0], sline[1:]
+            if genome_name not in genome_to_ko_sets:
+                genome_to_ko_sets[genome_name] = set()
+            for ko, entry in zip(headers, entries):
+                if float(entry) > 0:
+                    genome_to_ko_sets[genome_name].add(ko)
+            else:
+                raise Exception("Programming error")
+        return genome_to_ko_sets
+      
     def main(self, args):
         
         if args.subparser_name == self.ANNOTATE:
+            if args.custom_modules:
+                self._update_with_custom_modules(args.custom_modules)
             output_path = args.output_prefix + '_annotations.tsv'
-    
-            genome_to_ko_sets = {}
-            ko_re = re.compile('^K\d+$')
-            for line in open(args.genome_and_ko_file):
-                sline = line.strip().split("\t")
-                if len(sline) != 2: raise Exception("Input genomes/KO file error on %s" % line)
-                
-                genome, ko = sline
-                
-                if ko_re.match(ko):
-                    if genome not in genome_to_ko_sets:
-                        genome_to_ko_sets[genome] = set()
-                    genome_to_ko_sets[genome].add(ko)
-                else:
-                    raise Exception("Malformed ko line: %i" % line)
+            if args.genome_and_ko_file:
+                genome_to_ko_sets = self._parse_genome_and_ko_file_lf(args.genome_and_ko_file)
+            elif args.genome_and_ko_matrix:
+                genome_to_ko_sets = self._parse_genome_and_ko_file_matrix(args.genome_and_ko_matrix)
             logging.info("Read in KOs for %i genomes" % len(genome_to_ko_sets))
-        
             pathways2 = {}
             for name, pathway_string in self.m2def.items():
                 if name not in self.signature_modules:   
@@ -97,19 +129,19 @@ class KeggModuleGrabber:
                 output_path_io.write('\t'.join(header) + '\n')  
                 for genome, kos in genome_to_ko_sets.items():
                     for name, path in pathways2.items():
-                        num_covered  = path.num_covered_steps(kos)
-                        num_all      = path.num_steps()
-                        perc_covered = num_covered/float(num_all)
-                        if perc_covered>=args.cutoff:
-                            output_line =  "\t".join([genome,name,self.m[name],
-                                                      str(num_covered),# 
+                        num_covered = path.num_covered_steps(kos)
+                        num_all = path.num_steps()
+                        perc_covered = num_covered / float(num_all)
+                        if perc_covered >= args.cutoff:
+                            output_line = "\t".join([genome, name, self.m[name],
+                                                      str(num_covered),  # 
                                                       str(num_all),
-                                                      str(round(perc_covered*100, 2))]) 
+                                                      str(round(perc_covered * 100, 2))]) 
                             output_path_io.write(output_line + '\n') 
             logging.info("Done!")
         elif args.subparser_name == self.ENRICHMENT:
             bem = BuildEncrichmentMatrix()
-            bem.main(args.annotations, args.abundances, args.metadata, 
+            bem.main(args.annotations, args.abundances, args.metadata,
                      args.output_prefix)
             
 

@@ -125,6 +125,7 @@ class ModuleDescriptionParser:
                                     m = ModuleDescriptionAndRelation()
                                     topush.understuff = minus_splits[:1]
                                 else:
+                                    import IPython ; IPython.embed()
                                     raise Exception("Parse exception on %s" % string)
                             else:
                                 m = ModuleDescriptionOrRelation()

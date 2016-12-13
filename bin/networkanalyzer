@@ -327,7 +327,9 @@ NOT IMPLEMENTED.')
                           default=0.0,
                           help='Output only modules with greater than this \
 percent of the requied KO groups (default = print all modules)')
-    
+    annotate.add_argument('--custom_modules',
+                          help='tab separated file containing module name, \
+definition as the columns')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
@@ -341,6 +343,7 @@ percent of the requied KO groups (default = print all modules)')
                             help='Genome abundances')
     enrichment.add_argument('--metadata',
                             help='Genome groups')
+
                             
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
