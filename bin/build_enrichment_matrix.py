@@ -94,7 +94,7 @@ class Matrix:
         
 class BuildEncrichmentMatrix:
     
-    BACKGROUND      = 'backgrounnd'
+    BACKGROUND      = 'background'
     MATRIX_SUFFIX   = '_enrichment_matrix.tsv'    
     COMPARE_SUFFIX  = '_compare_matrix.tsv'    
     
@@ -124,7 +124,7 @@ class BuildEncrichmentMatrix:
             metadata_value_lists = \
                 [set(metadata.get_col(col)) for col in metadata.colnames]
             
-            combination_dict = {'all': genomes}
+            combination_dict = {self.BACKGROUND: genomes}
             for combination in product(*metadata_value_lists):
                 genome_list = metadata.filter_by_cols(combination)
                 combination_dict['_'.join(combination)]=genome_list
@@ -155,6 +155,7 @@ class BuildEncrichmentMatrix:
             for module in modules:
                 output_line = [module]
                 for sample in abundances.colnames:
+                    
                     module_prevalence = 0.0
                     for genome in genomes:
                         if module in annotations_dict[genome]:
