@@ -90,19 +90,16 @@ class KeggModuleGrabber:
         return genome_to_ko_sets
     
     def _parse_genome_and_ko_file_matrix(self, genome_and_ko_file):
-        genome_to_ko_sets = {}
         genome_and_ko_file_io = open(genome_and_ko_file)
-        headers = genome_and_ko_file_io.readline().strip().split('\t')[1:]
+        headers=genome_and_ko_file_io.readline().strip().split('\t')[1:]
+        genome_to_ko_sets = {genome_name:set() for genome_name in headers}
+
         for line in genome_and_ko_file_io:
             sline = line.strip().split('\t')
-            genome_name, entries = sline[0], sline[1:]
-            if genome_name not in genome_to_ko_sets:
-                genome_to_ko_sets[genome_name] = set()
-            for ko, entry in zip(headers, entries):
+            ko, entries = sline[0], sline[1:]
+            for genome_name, entry in zip(headers, entries):
                 if float(entry) > 0:
                     genome_to_ko_sets[genome_name].add(ko)
-            else:
-                raise Exception("Programming error")
         return genome_to_ko_sets
       
     def main(self, args):
