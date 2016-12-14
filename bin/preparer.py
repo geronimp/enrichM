@@ -28,7 +28,6 @@ __status__ = "Development"
 ###############################################################################
 
 import logging
-import pickle
 import os
 from network_analyzer import NetworkAnalyser
 
@@ -39,22 +38,23 @@ class Preparer:
     REFERENCE_PATH = '/srv/db/uniprot/uniref100/19-09-2016/idmapping.KO.tsv'
     MATRIX_SUFFIX  = '_matrix.tsv'
     
-    def __init(self):        
+    def __init__(self):        
+        logging.info("Loading uniref to orthology information")
         self.reference_dictionary = {}
         for line in open(self.REFERENCE_PATH):
-            protein_id, ko_id  = line.strip().split('\t')
+            protein_id, ko_id  = line.strip().split()
             self.reference_dictionary[protein_id] = ko_id
-            
+        logging.info('Done!')
 
-    def blast_output(self, blast_output_paths, evalue_cutoff, 
-                     bitscore_cutoff, percent_id_cutoff, 
-                     percent_aln_query_cutoff, percent_aln_query_cutoff,
-                     percent_aln_reference_cutoff
+    def blast_output(self, 
+                     blast_output_paths, 
+                     evalue_cutoff, 
+                     bitscore_cutoff, 
+                     percent_id_cutoff, 
                      output_matrix_path):
         logging.info("Parsing %i blast output files" % \
                                     (len(blast_output_paths)))
-        
-        possible_kos = list(set(reference_dictionary.values()))
+        possible_kos = list(set(self.reference_dictionary.values()))
         output_dictionary = {}
         for file in blast_output_paths:
             # Setting up sample column
@@ -64,17 +64,23 @@ class Preparer:
             # Filling in column
             for line in open(file):
                 sline = line.strip().split()
-                hit_ko = reference_dictionary[sline[1]]
-                output_dictionary[file][hit_ko] += 1
+                
+                if(float(sline[10]) <= evalue_cutoff and
+                   float(sline[11]) >= bitscore_cutoff and
+                   float(sline[2])  >= percent_id_cutoff and                   
+                   float(sline[2])  >= percent_id_cutoff):
+                        hit_ko = self.reference_dictionary[sline[1]]
+                        output_dictionary[file][hit_ko] += 1
 
         logging.info("Writing results to file: %s" % output_matrix_path)
         with open(output_matrix_path, 'w') as output_matrix_path_io:
-            header = 'KO\t%s\n' % '\t'.join(blast_output_paths)
+            header = 'KO\t%s\n' % '\t'.join([os.path.basename(path) for 
+                                             path in blast_output_paths])
             output_matrix_path_io.write(header)
             for ko in possible_kos:
                 output_line = [ko]
                 
-                for file in blast_file_paths:
+                for file in blast_output_paths:
                     output_line.append( str(output_dictionary[file][ko]) )
                 
                 output_matrix_path_io.write("%s\n" % '\t'.join(output_line))
@@ -83,10 +89,13 @@ class Preparer:
         output_path = args.output_prefix + self.MATRIX_SUFFIX 
         if args.subparser_name == NetworkAnalyser.MATRIX:
             if args.blast_outputs:
+                if(args.percent_aln_query_cutoff or 
+                   args.percent_aln_reference_cutoff):
+                    logging.warning("Cannot calculate the percent of the query \
+aligned to the reference and vice versa with a blast output.")
+
                 self.blast_output(args.blast_outputs,
                                   args.evalue_cutoff,
                                   args.bitscore_cutoff,
                                   args.percent_id_cutoff,
-                                  args.percent_aln_query_cutoff,
-                                  args.percent_aln_reference_cutoff,
                                   output_path)

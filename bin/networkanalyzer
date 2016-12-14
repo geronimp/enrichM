@@ -46,7 +46,7 @@ debug={1:logging.CRITICAL,
 ###############################################################################
 
 def check_args(args):
-    if args.subparser_name==KeggModuleGrabber.MATRIX:
+    if args.subparser_name==NetworkAnalyser.MATRIX:
         if(args.blast_outputs or args.hmmsearch_outputs):
             if(args.blast_outputs and args.hmmsearch_outputs):
                 raise Exception("Both blast and hmmsearch outputs were \
@@ -147,7 +147,7 @@ this file.')
                                       help='Level of verbosity \
 (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
     base_output_options = base_all.add_argument_group('Output options')
-    base_output_options.add_argument('--output_prefix', default = 'network_analyser_output',
+    base_output_options.add_argument('--output_prefix', required=True,
                                      help='Output file')
     base_output_options.add_argument('--force', action='store_true',
                                      help='Overwrite previous run')
@@ -166,19 +166,24 @@ outputs')
     matrix_query_options.add_argument('--hmmsearch_outputs', nargs='+',
                                       help='list of space separated hmmsearch \
 outputs')
-    matrix_query_options.add_argument('--evalue_cutoff', type=float,
+    matrix_query_options.add_argument('--evalue_cutoff', type=float, 
+                                      default = 1e-05,
                                       help='Filter out hits above this evalue')
                                        
     matrix_query_options.add_argument('--bitscore_cutoff', type=float,
-                                      help='filter out reads below this \
+                                      default = 0.0,
+                                      help='Filter out hits below this \
 score cutoff')
     matrix_query_options.add_argument('--percent_id_cutoff', type=float,
-                                      help='Fitler out hits below this \
+                                      default = 0.0,
+                                      help='Filter out hits below this \
 percent ID cutoff')
     matrix_query_options.add_argument('--percent_aln_query_cutoff', type=float,
+                                      default = 0.0,
                                       help='Filter out hits where less than \
 this percent of the query aligns to the reference')
     matrix_query_options.add_argument('--percent_aln_reference_cutoff', 
+                                      default = 0.0,
                                       type=float,
                                       help='Filter out hits where less than \
 this percent of the reference aligns to the query')
