@@ -29,23 +29,43 @@ __status__ = "Development"
 
 import logging
 import os
+import gzip
 from network_analyzer import NetworkAnalyser
 
 ###############################################################################
 
 class Preparer:
     
-    REFERENCE_PATH = '/srv/db/uniprot/uniref100/19-09-2016/idmapping.KO.tsv'
+    COMPRESSED_SUFFIXES = set(['.gz', '.gzip'])
+    REFERENCE_PATH = '/srv/db/uniprot/201607/KO.idmapping.dat.gz'
+    OLD_REFERENCE_PATH='/srv/db/uniprot/uniref_20151020/idmapping.KO.dat.gz'
     MATRIX_SUFFIX  = '_matrix.tsv'
+    UR100 = 'UniRef100_'
     
     def __init__(self):        
         logging.info("Loading uniref to orthology information")
         self.reference_dictionary = {}
-        for line in open(self.REFERENCE_PATH):
-            protein_id, ko_id  = line.strip().split()
+        for line in gzip.open(self.REFERENCE_PATH):
+            protein_id, _, ko_id  = line.strip().split('\t')
             self.reference_dictionary[protein_id] = ko_id
         logging.info('Done!')
         self.possible_kos = list(set(self.reference_dictionary.values()))
+    
+    def _open(self, file):
+        file_suffix = os.path.splitext(file)[-1]
+        if file_suffix in self.COMPRESSED_SUFFIXES:
+            return gzip.open(file)
+        else:
+            return open(file)
+    def _clean(self, string):
+        '''
+        Strip off uniprot prefix if present.
+        '''
+        if string.startswith(self.UR100):
+            return string.replace(self.UR100,'')
+        else:
+            return string
+    
     def blast_output(self, 
                      blast_output_paths, 
                      evalue_cutoff, 
@@ -63,15 +83,24 @@ class Preparer:
             for ko in self.possible_kos:
                 output_dictionary[file][ko]=0
             # Filling in column
-            for line in open(file):
+            for line in self._open(file):
                 sline = line.strip().split()
                 
                 if(float(sline[10]) <= evalue_cutoff and
                    float(sline[11]) >= bitscore_cutoff and
                    float(sline[2])  >= percent_id_cutoff and                   
                    float(sline[2])  >= percent_id_cutoff):
-                        hit_ko = self.reference_dictionary[sline[1]]
-                        output_dictionary[file][hit_ko] += 1
+                        hit_id = self._clean(sline[1])
+                        try:
+                            hit_ko = self.reference_dictionary[hit_id]
+                            output_dictionary[file][hit_ko] += 1
+                        except:
+                            raise Exception("UniProt ID %s not found in \
+reference dictionary: %s. This probably means that an out-dated UniProt \
+reference database was used. It is highly recommended that you re-run blast \
+using the latest version of the UniProt database." \
+                                             % (hit_id, self.REFERENCE_PATH))
+
 
         logging.info("Writing results to file: %s" % output_matrix_path)
         with open(output_matrix_path, 'w') as output_matrix_path_io:

@@ -46,13 +46,13 @@ debug={1:logging.CRITICAL,
 ###############################################################################
 
 def check_args(args):
-    if args.subparser_name==NetworkAnalyser.MATRIX:
-        if(args.blast_outputs or args.hmmsearch_outputs):
-            if(args.blast_outputs and args.hmmsearch_outputs):
-                raise Exception("Both blast and hmmsearch outputs were \
-provided!")
-        else:
-            raise Exception("Neither blast or hmmsearch outputs were provided!")
+#    if args.subparser_name==NetworkAnalyser.MATRIX:
+#        if(args.blast_outputs or args.hmmsearch_outputs):
+#            if(args.blast_outputs and args.hmmsearch_outputs):
+#                raise Exception("Both blast and hmmsearch outputs were \
+#provided!")
+#        else:
+#            raise Exception("Neither blast or hmmsearch outputs were provided!")
     if args.subparser_name==KeggModuleGrabber.ENRICHMENT:
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to \
@@ -107,7 +107,7 @@ explore possible pathways from a given metabolite.
 
                             ~~~~~ Prepare ~~~~~
                                 
-    matrix     - Generate a KO matrix from blast outputs or HMM outputs
+    matrix     - Generate a KO matrix directory of blast outputs (like idM)
 
 
                          ~~~~~ Network analysis ~~~~~
@@ -160,12 +160,13 @@ this file.')
                                     parents=[base_all])
         
     matrix_query_options = matrix.add_argument_group('Query options')
-    matrix_query_options.add_argument('--blast_outputs', nargs='+',
+    matrix_query_options.add_argument('--blast_outputs', nargs='+', 
+                                      required = True,
                                       help='list of space separated blast \
 outputs')
-    matrix_query_options.add_argument('--hmmsearch_outputs', nargs='+',
-                                      help='list of space separated hmmsearch \
-outputs')
+#    matrix_query_options.add_argument('--hmmsearch_outputs', nargs='+',
+#                                      help='list of space separated hmmsearch \
+#outputs')
     matrix_query_options.add_argument('--evalue_cutoff', type=float, 
                                       default = 1e-05,
                                       help='Filter out hits above this evalue')
