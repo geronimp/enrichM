@@ -89,19 +89,21 @@ class ModuleDescriptionParser:
         return fixed_substrings
         
     def parse_module_string(self, string):
+
         frags1 = self.split_on_space(string)
         frags1 = self.correct_substrings(frags1) 
+
         if len(frags1) == 1:
             # rare if ever, I think
             frags1 = self.split_on_comma(frags1[0])
             master_relation = ModuleDescriptionOrRelation()
         else:
             master_relation = ModuleDescriptionAndRelation()
+            
         current = ParserHelper()
         current.top_relation = master_relation
         current.understuff = frags1
         stack = list([current])
-
         while len(stack) > 0:
             current = stack.pop()
             new_stuff = []
@@ -110,10 +112,12 @@ class ModuleDescriptionParser:
                     if re.match('^K\d+$', e):
                         new_stuff.append(ModuleDescriptionKoEntry(e))
                     else:
-                        frags = self.split_on_space(e)
+                        #TOREMOVE frags = self.split_on_space(e)
+                        frags = self.split_on_comma(e)
                         if len(frags) == 1:
                             topush = ParserHelper()
-                            comma_splits = self.split_on_comma(e)
+                            #TOREMOVE comma_splits = self.split_on_comma(e)
+                            comma_splits = self.split_on_space(e)
                             m = None
                             if len(comma_splits) == 1:
                                 plus_splits = self.split_on_plus(e)
@@ -125,16 +129,17 @@ class ModuleDescriptionParser:
                                     m = ModuleDescriptionAndRelation()
                                     topush.understuff = minus_splits[:1]
                                 else:
-                                    import IPython ; IPython.embed()
                                     raise Exception("Parse exception on %s" % string)
                             else:
-                                m = ModuleDescriptionOrRelation()
+                                #m = ModuleDescriptionOrRelation()
+                                m = ModuleDescriptionAndRelation()
                                 topush.understuff = comma_splits
                             topush.top_relation = m
                             stack.append(topush)
                             new_stuff.append(m)
                         else:
-                            m = ModuleDescriptionAndRelation()
+                            #m = ModuleDescriptionAndRelation()                            
+                            m = ModuleDescriptionOrRelation()
                             topush = ParserHelper()
                             topush.top_relation = m
                             topush.understuff = frags
