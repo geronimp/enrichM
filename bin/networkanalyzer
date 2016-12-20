@@ -53,6 +53,13 @@ def check_args(args):
 #provided!")
 #        else:
 #            raise Exception("Neither blast or hmmsearch outputs were provided!")
+    if args.subparser_name==KeggModuleGrabber.ANNOTATE:
+        if(args.genome_and_ko_file or args.genome_and_ko_matrix):
+            if(args.genome_and_ko_file and args.genome_and_ko_matrix):
+                raise Exception("A genome to KO matrix and list were provided. \
+Please run with one or the other!") 
+        else:
+            raise Exception("genome to KO matrix or list not provided!") 
     if args.subparser_name==KeggModuleGrabber.ENRICHMENT:
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to \
@@ -270,8 +277,9 @@ NOT IMPLEMENTED.')
                                     formatter_class=CustomHelpFormatter,
                                     parents=[base_all])
     annotate.add_argument('--genome_and_ko_file',
-                          help='Path to file containing a genome<tab>KO list',
-                          required=True)
+                          help='Path to file containing a genome<tab>KO list')
+    annotate.add_argument('--genome_and_ko_matrix',
+                          help='Path to file containing a genome<tab>KO matrix')
     annotate.add_argument('--cutoff',
                           type=float,
                           default=0.0,
