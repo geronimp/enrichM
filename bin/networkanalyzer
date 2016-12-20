@@ -30,6 +30,8 @@ __status__ = "Development"
 from kegg_matrix import KeggMatrix
 from network_builder import NetworkBuilder
 from kegg_module_grabber import KeggModuleGrabber
+from preparer import Preparer
+from network_analyzer import NetworkAnalyser
 import argparse
 import logging
 import os
@@ -44,6 +46,13 @@ debug={1:logging.CRITICAL,
 ###############################################################################
 
 def check_args(args):
+#    if args.subparser_name==NetworkAnalyser.MATRIX:
+#        if(args.blast_outputs or args.hmmsearch_outputs):
+#            if(args.blast_outputs and args.hmmsearch_outputs):
+#                raise Exception("Both blast and hmmsearch outputs were \
+#provided!")
+#        else:
+#            raise Exception("Neither blast or hmmsearch outputs were provided!")
     if args.subparser_name==KeggModuleGrabber.ANNOTATE:
         if(args.genome_and_ko_file or args.genome_and_ko_matrix):
             if(args.genome_and_ko_file and args.genome_and_ko_matrix):
@@ -103,7 +112,12 @@ explore possible pathways from a given metabolite.
     Subcommands
 -------------------------------------------------------------------------------
 
-                            ~ Network analysis ~
+                            ~~~~~ Prepare ~~~~~
+                                
+    matrix     - Generate a KO matrix directory of blast outputs (like idM)
+
+
+                         ~~~~~ Network analysis ~~~~~
 
     network    - Construct the entire metabolic network an input matrix
     
@@ -115,113 +129,14 @@ explore possible pathways from a given metabolite.
     pathway    - Specify paths in metabolism to explore. UNDER DEVELOPMENT.
 
 
-                               ~ Annotation ~
-
+                          ~~~~~ Annotation ~~~~~
+ 
     annotate   - Determine what KEGG modules are possible for a population 
                  genome
     
     enrichment - Generate an enrichment matrix from modules produced by 
                  annotate
 """
-
-class NetworkAnalyser:
-    NETWORK         = 'network'
-    EXPLORE         = 'explore'
-    DEGRADE         = 'degrade'
-    PATHWAY         = 'pathway'
-    NETWORK_SUFFIX  = '_network.tsv'
-    METADATA_SUFFIX = '_metadata.tsv'
-    
-    def __init__(self, metadata):
-        self.metadata = {}
-        for line in open(metadata):
-            sample_id, group = line.strip().split('\t')
-            if group in self.metadata:
-                self.metadata[group].append(sample_id)
-            else:
-                self.metadata[group] = [sample_id]
-
-    def _write_results(self, output_path, output_lines):
-        '''
-        Parameters
-        ----------
-        output_path: string
-            Path to non-existent file to write output lines to
-        output_lines: list
-            list containing lines to write to output path
-        '''
-        logging.info('Writing results to file: %s' % output_path)
-        with open(output_path, 'w') as output_path_io: 
-            output_path_io.write('\n'.join(output_lines))
-            output_path_io.flush()
-        
-    def main(self, args):
-        '''
-        Parameters
-        ----------
-        matrix_path: string
-            Path to file containing a KO matrix build from either metagenomic
-            or metatranscriptomic data.
-        queries: string
-            Path to file containing query compounds
-        depth: integer
-            Number of steps into metabolism to take if 'queries' is provided
-        transcriptome: string
-            Path to file containing a KO matrix of transcriptomic data
-        '''
-        
-        nb = NetworkBuilder(self.metadata.keys())
-        km = KeggMatrix(args.matrix, args.transcriptome)
-
-        abundances_metagenome = \
-                {key:km.group_abundances(self.metadata[key],
-                                         km.reaction_matrix) 
-                 for key in self.metadata.keys()}
-
-        if args.transcriptome:
-            abundances_transcriptome = \
-                    {key:km.group_abundances(self.metadata[key],
-                                             km.reaction_matrix_transcriptome) 
-                     for key in self.metadata.keys()}            
-            abundances_expression = \
-                    {key:km.group_abundances(self.metadata[key],
-                                             km.reaction_matrix_expression) 
-                     for key in self.metadata.keys()}
-
-        else:
-            abundances_transcriptome = None
-            abundances_expression    = None
-
-        if args.subparser_name==self.NETWORK:
-            logging.info("Constructing entire metabolic network. Be patient.")
-            network_lines, node_metadata = \
-                            nb.all_matrix(abundances_metagenome,
-                                          abundances_transcriptome,
-                                          abundances_expression)
-        elif args.subparser_name==self.EXPLORE:
-            logging.info("Using supplied queries (%s) to explore network" \
-                                                    % args.queries)
-            network_lines, node_metadata = \
-                            nb.query_matrix(abundances_metagenome, 
-                                            abundances_transcriptome,
-                                            abundances_expression,
-                                            args.queries,
-                                            args.depth)
-        elif args.subparser_name==self.PATHWAY:
-            network_lines, node_metadata = \
-                            nb.pathway_matrix(abundances_metagenome, 
-                                              abundances_transcriptome,
-                                              abundances_expression,
-                                              args.limit,
-                                              args.filter,
-                                              args.from_node,
-                                              args.to_node,
-                                              args.anabolic,
-                                              args.catabolic,
-                                              args.bfs_shortest_path)
-
-        self._write_results(args.output_prefix + self.NETWORK_SUFFIX, network_lines)
-        self._write_results(args.output_prefix + self.METADATA_SUFFIX, node_metadata)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -239,11 +154,48 @@ this file.')
                                       help='Level of verbosity \
 (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
     base_output_options = base_all.add_argument_group('Output options')
-    base_output_options.add_argument('--output_prefix', default = 'network_analyser_output',
+    base_output_options.add_argument('--output_prefix', required=True,
                                      help='Output file')
     base_output_options.add_argument('--force', action='store_true',
                                      help='Overwrite previous run')
     
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
+    matrix = subparsers.add_parser('matrix',
+                                    formatter_class=CustomHelpFormatter,
+                                    parents=[base_all])
+        
+    matrix_query_options = matrix.add_argument_group('Query options')
+    matrix_query_options.add_argument('--blast_outputs', nargs='+', 
+                                      required = True,
+                                      help='list of space separated blast \
+outputs')
+#    matrix_query_options.add_argument('--hmmsearch_outputs', nargs='+',
+#                                      help='list of space separated hmmsearch \
+#outputs')
+    matrix_query_options.add_argument('--evalue_cutoff', type=float, 
+                                      default = 1e-05,
+                                      help='Filter out hits above this evalue')
+                                       
+    matrix_query_options.add_argument('--bitscore_cutoff', type=float,
+                                      default = 0.0,
+                                      help='Filter out hits below this \
+score cutoff')
+    matrix_query_options.add_argument('--percent_id_cutoff', type=float,
+                                      default = 0.0,
+                                      help='Filter out hits below this \
+percent ID cutoff')
+    matrix_query_options.add_argument('--percent_aln_query_cutoff', type=float,
+                                      default = 0.0,
+                                      help='Filter out hits where less than \
+this percent of the query aligns to the reference')
+    matrix_query_options.add_argument('--percent_aln_reference_cutoff', 
+                                      default = 0.0,
+                                      type=float,
+                                      help='Filter out hits where less than \
+this percent of the reference aligns to the query')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#    
     
@@ -354,9 +306,15 @@ definition as the columns')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     
-    network_options = ['explore', 'network', 'pathway']
-    annotation_options = ['annotate', 'enrichment']
+    network_options    = [NetworkAnalyser.EXPLORE, 
+                          NetworkAnalyser.NETWORK, 
+                          NetworkAnalyser.PATHWAY]
+                          
+    annotation_options = [NetworkAnalyser.ANNOTATE, 
+                          NetworkAnalyser.ENRICHMENT]
     
+    prepare_options    = [NetworkAnalyser.MATRIX]
+
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
     else:
@@ -380,3 +338,6 @@ definition as the columns')
         elif args.subparser_name in annotation_options:
             kmg = KeggModuleGrabber()
             kmg.main(args)
+        elif args.subparser_name in prepare_options:
+            p = Preparer()
+            p.main(args)
