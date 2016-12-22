@@ -95,7 +95,8 @@ class Matrix:
 class BuildEncrichmentMatrix:
     
     BACKGROUND      = 'background'
-    MATRIX_SUFFIX   = '_enrichment_matrix.tsv'    
+    MATRIX_SUFFIX   = '_enrichment_matrix.tsv'
+    SAMPLE_MATRIX_SUFFIX   = '_sample_enrichment_matrix.tsv'
     COMPARE_SUFFIX  = '_compare_matrix.tsv'    
     
     def _parse_annotations(self, annotations_path):
@@ -114,43 +115,48 @@ class BuildEncrichmentMatrix:
                 genome_to_annotation[genome_id] = set([module_id])
         return genome_to_annotation, modules, genomes
         
-    def main(self, annotations, abundances, metadata, output_path):
+    def main(self, annotations, abundances, metadata, subset_modules, 
+             output_path):
         annotations_dict, modules, genomes = self._parse_annotations(annotations)
+        
+        if subset_modules:
+            modules = subset_modules
+        
+        logging.info("Comparing sets of genomes")
+        output_enrichment_matrix = output_path + self.COMPARE_SUFFIX
+        metadata = Matrix(metadata)
+        metadata_value_lists = \
+            [set(metadata.get_col(col)) for col in metadata.colnames]
+        
+        combination_dict = {self.BACKGROUND: genomes}
+        for combination in product(*metadata_value_lists):
+            genome_list = metadata.filter_by_cols(combination)
+            combination_dict['_'.join(combination)]=genome_list
 
-        if metadata:
-            logging.info("Comparing sets of genomes")
-            output_enrichment_matrix = output_path + self.COMPARE_SUFFIX
-            metadata = Matrix(metadata)
-            metadata_value_lists = \
-                [set(metadata.get_col(col)) for col in metadata.colnames]
+        output_lines = ['\t'.join(['Module'] + combination_dict.keys())]
+        for module in modules:
+            output_line = [module]
+            for group_name, genome_list in combination_dict.items():
+                if len(genome_list)>0:
+                    coverage = len([genome for genome in genome_list 
+                                    if module in annotations_dict[genome]])
+                    all      = float(len(genome_list))
+                    output_line.append(str(coverage/all))
+                else:
+                    output_line.append('0.0')
+            output_lines.append('\t'.join(output_line))
             
-            combination_dict = {self.BACKGROUND: genomes}
-            for combination in product(*metadata_value_lists):
-                genome_list = metadata.filter_by_cols(combination)
-                combination_dict['_'.join(combination)]=genome_list
-
-            output_lines = ['\t'.join(['Module'] + combination_dict.keys())]
-            for module in modules:
-                output_line = [module]
-                for group_name, genome_list in combination_dict.items():
-                    if len(genome_list)>0:
-                        coverage = len([genome for genome in genome_list 
-                                        if module in annotations_dict[genome]])
-                        all      = float(len(genome_list))
-                        output_line.append(str(coverage/all))
-                    else:
-                        output_line.append('0.0')
-                output_lines.append('\t'.join(output_line))
-                
-            logging.info("Writing results to file: %s" % output_enrichment_matrix)
-            with open(output_enrichment_matrix, 'w') as output_enrichment_matrix_io:
-                output_enrichment_matrix_io.write('\n'.join(output_lines))
-            logging.info('Done!')
+        logging.info("Writing results to file: %s" % output_enrichment_matrix)
+        with open(output_enrichment_matrix, 'w') as output_enrichment_matrix_io:
+            output_enrichment_matrix_io.write('\n'.join(output_lines))
+        logging.info('Done!')
 
         if abundances:
             logging.info("Generating enrichment matrix")
-            output_enrichment_matrix = output_path + self.MATRIX_SUFFIX
-            abundances = Matrix(abundances)    
+            abundances = Matrix(abundances)
+            
+            output_sample_enrichment_matrix = \
+                                        output_path + self.SAMPLE_MATRIX_SUFFIX
             output_lines = ['\t'.join(['Module'] + abundances.colnames)]
             for module in modules:
                 output_line = [module]
@@ -163,11 +169,36 @@ class BuildEncrichmentMatrix:
                             module_prevalence+=float(genome_abundance)
                     output_line.append(str(module_prevalence))
                 output_lines.append('\t'.join(output_line))
+            
+            logging.info("Writing results to file: %s" \
+                            % output_sample_enrichment_matrix)
+            with open(output_sample_enrichment_matrix, 'w') as output_enrichment_matrix_io:
+                output_enrichment_matrix_io.write('\n'.join(output_lines))
+            logging.info('Done!')
+            
+            output_enrichment_matrix = output_path + self.MATRIX_SUFFIX
+            output_lines = ['\t'.join(['Module', 'Sample', 
+                                       'Group', 'Abundance'])]
+            for module in modules:
+                for sample in abundances.colnames:
+                    for group in product(*metadata_value_lists):
+                        group_name='_'.join(group)
+                        genomes_in_group_list = metadata.filter_by_cols(group)                        
+                        module_prevalence = 0.0
+                        for genome in genomes_in_group_list:
+                            if module in annotations_dict[genome]:
+                                genome_abundance = abundances.get_entry(sample, genome)
+                                module_prevalence+=float(genome_abundance)
+                        output_line = [module, sample, 
+                                       group_name, str(module_prevalence)]
+                        
+                        output_lines.append('\t'.join(output_line))
                 
             logging.info("Writing results to file: %s" % output_enrichment_matrix)
             with open(output_enrichment_matrix, 'w') as output_enrichment_matrix_io:
                 output_enrichment_matrix_io.write('\n'.join(output_lines))
             logging.info('Done!')
             
+
             
         

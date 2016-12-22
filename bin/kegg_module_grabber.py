@@ -138,8 +138,8 @@ class KeggModuleGrabber:
             logging.info("Done!")
         elif args.subparser_name == self.ENRICHMENT:
             bem = BuildEncrichmentMatrix()
-            bem.main(args.annotations, args.abundances, args.metadata,
-                     args.output_prefix)
+            bem.main(args.annotations, args.abundances, args.metadata, 
+                     args.modules, args.output_prefix)
             
 
 
