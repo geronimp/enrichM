@@ -288,6 +288,7 @@ percent of the requied KO groups (default = print all modules)')
     annotate.add_argument('--custom_modules',
                           help='tab separated file containing module name, \
 definition as the columns')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
@@ -301,7 +302,8 @@ definition as the columns')
                             help='Genome abundances')
     enrichment.add_argument('--metadata',
                             help='Genome groups')
-
+    enrichment.add_argument('--modules', nargs='+',
+                            help='Limit output to these modules')
                             
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
