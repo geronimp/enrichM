@@ -91,10 +91,6 @@ explore possible pathways from a given metabolite.
     enrichment - Generate an enrichment matrix from modules produced by 
                  annotate.
 
-                 
-                      ~~~~~ Metagenome Annotation ~~~~~
-
-    module_ab  - Find the abundance of KEGG modules within a metagenome.
 """
 
 if __name__ == "__main__":
