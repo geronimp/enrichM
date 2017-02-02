@@ -27,11 +27,10 @@ __status__ = "Development"
  
 ###############################################################################
 
-from kegg_matrix import KeggMatrix
-from network_builder import NetworkBuilder
 from kegg_module_grabber import KeggModuleGrabber
 from preparer import Preparer
 from network_analyzer import NetworkAnalyser
+from run import Run
 import argparse
 import logging
 import os
@@ -45,52 +44,7 @@ debug={1:logging.CRITICAL,
 
 ###############################################################################
 
-def check_args(args):
-#    if args.subparser_name==NetworkAnalyser.MATRIX:
-#        if(args.blast_outputs or args.hmmsearch_outputs):
-#            if(args.blast_outputs and args.hmmsearch_outputs):
-#                raise Exception("Both blast and hmmsearch outputs were \
-#provided!")
-#        else:
-#            raise Exception("Neither blast or hmmsearch outputs were provided!")
-    if args.subparser_name==KeggModuleGrabber.ANNOTATE:
-        if(args.genome_and_ko_file or args.genome_and_ko_matrix):
-            if(args.genome_and_ko_file and args.genome_and_ko_matrix):
-                raise Exception("A genome to KO matrix and list were provided. \
-Please run with one or the other!") 
-        else:
-            raise Exception("genome to KO matrix or list not provided!") 
-    if args.subparser_name==KeggModuleGrabber.ENRICHMENT:
-        if not(args.metadata or args.abundances):
-            raise Exception("No metadata or abundance information provided to \
-enrichment.")
-    if args.subparser_name==NetworkAnalyser.EXPLORE:
-        if not(args.queries):
-            if args.depth:
-                logging.warning("--depth argument ignored without --queries \
-flag")
-    if args.subparser_name==NetworkAnalyser.PATHWAY:
-        pathway_opts = [args.from_node, args.to_node, args.filter, args.limit]
-        if not any(pathway_opts):
-            raise Exception("No options provided to pathway. Please pass an \
-argument to one of the following flags:\n%s" % ('\n'.join(['--from_node',
-                                                           '--to_node',
-                                                           '--filter',
-                                                           '--queries\n'])))
 
-    if(os.path.isfile(args.output_prefix + NetworkAnalyser.NETWORK_SUFFIX) or
-       os.path.isfile(args.output_prefix + NetworkAnalyser.METADATA_SUFFIX)):
-        if args.force:
-            logging.warning("Removing existing file with name: %s" \
-                                                        % args.output_prefix)
-            if os.path.isfile(args.output_prefix + 
-                              NetworkAnalyser.NETWORK_SUFFIX):
-                os.remove(args.output_prefix + NetworkAnalyser.NETWORK_SUFFIX)
-            if os.path.isfile(args.output_prefix + 
-                              NetworkAnalyser.METADATA_SUFFIX):
-                os.remove(args.output_prefix + NetworkAnalyser.METADATA_SUFFIX)
-        else:
-            raise Exception("File %s exists" % args.output_prefix)
         
 class CustomHelpFormatter(argparse.HelpFormatter):
     def _split_lines(self, text, width):
@@ -102,10 +56,10 @@ def phelp():
 ===============================================================================
 J. Boyd, B. Woodcroft
 
-The idea is simple: construct metabolic networks from your metagenomic and/or 
-transcriptomic data using the KEGG database as a framework.
+Construct metabolic networks from your metagenomic, transcriptomic or 
+population genomic data using the KEGG database as a framework.
 
-KEGG_network_analyzer allows you to look at specific pathways in KEGG, and to 
+networkanalyzer allows you to look at specific pathways in KEGG, and to 
 explore possible pathways from a given metabolite. 
 
 
@@ -114,12 +68,12 @@ explore possible pathways from a given metabolite.
 
                             ~~~~~ Prepare ~~~~~
                                 
-    matrix     - Generate a KO matrix directory of blast outputs (like idM)
+    matrix     - Generate a KO matrix directory of blast outputs (like idM).
 
 
                          ~~~~~ Network analysis ~~~~~
 
-    network    - Construct the entire metabolic network an input matrix
+    network    - Construct the entire metabolic network from an input matrix
     
     explore    - Start from specified query compounds and make steps into 
                  metabolism. Answer questions like "How is glucose metabolized 
@@ -129,13 +83,18 @@ explore possible pathways from a given metabolite.
     pathway    - Specify paths in metabolism to explore. UNDER DEVELOPMENT.
 
 
-                          ~~~~~ Annotation ~~~~~
+                        ~~~~~ Genome Annotation ~~~~~
  
-    annotate   - Determine what KEGG modules are possible for a population 
-                 genome
+    annotate   - Determine what KEGG modules are encoded in a population 
+                 genome.
     
     enrichment - Generate an enrichment matrix from modules produced by 
-                 annotate
+                 annotate.
+
+                 
+                      ~~~~~ Metagenome Annotation ~~~~~
+
+    module_ab  - Find the abundance of KEGG modules within a metagenome.
 """
 
 if __name__ == "__main__":
@@ -219,7 +178,7 @@ instead of the reaction database (AVAILABLE SOON)')
     
     network = subparsers.add_parser('network',
                                     formatter_class=CustomHelpFormatter,
-                                    parents=[base_network])
+                                    parents=[base_network, base_all])
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -307,20 +266,30 @@ definition as the columns')
                             
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    
-    network_options    = [NetworkAnalyser.EXPLORE, 
-                          NetworkAnalyser.NETWORK, 
-                          NetworkAnalyser.PATHWAY]
-                          
-    annotation_options = [NetworkAnalyser.ANNOTATE, 
-                          NetworkAnalyser.ENRICHMENT]
-    
-    prepare_options    = [NetworkAnalyser.MATRIX]
+
+    module_ab_options = subparsers.add_parser('module_ab',
+                                    formatter_class=CustomHelpFormatter,
+                                    parents=[base_all])
+    module_ab_options.add_argument('--matrix', required=True,
+                                    help='KO matrix. REQUIRED.')
+    module_ab_options.add_argument('--modules', nargs='+',
+                                    help='List of modules to include in the \
+                                    output. Default is all.')
+    module_ab_options.add_argument('--module_list_file', nargs='+',
+                                    help='List of modules to include in the \
+                                    output. Default is all.')
+    module_ab_options.add_argument('--custom_modules', 
+                          help='tab separated file containing module name, \
+definition as the columns')
+                                    
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
     else:
         args = parser.parse_args()
+
         if args.log:
             if os.path.isfile(args.log): 
                 raise Exception("File %s exists" % args.log)
@@ -331,15 +300,7 @@ definition as the columns')
             logging.basicConfig(level=debug[args.verbosity], 
                                 format='%(asctime)s %(levelname)s: %(message)s', 
                                 datefmt='%m/%d/%Y %I:%M:%S %p')
-        
-        check_args(args)
-        
-        if args.subparser_name in network_options:
-            na=NetworkAnalyser(args.metadata)
-            na.main(args)
-        elif args.subparser_name in annotation_options:
-            kmg = KeggModuleGrabber()
-            kmg.main(args)
-        elif args.subparser_name in prepare_options:
-            p = Preparer()
-            p.main(args)
+               
+        r = Run()
+        r.main(args)
+

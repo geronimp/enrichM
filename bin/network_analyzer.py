@@ -28,10 +28,13 @@ __status__ = "Development"
 ###############################################################################
 
 import logging
+from kegg_matrix import KeggMatrix
+from network_builder import NetworkBuilder
 
 ###############################################################################
 
 class NetworkAnalyser:
+    
     MATRIX          = 'matrix'
     NETWORK         = 'network'
     EXPLORE         = 'explore'
@@ -39,9 +42,10 @@ class NetworkAnalyser:
     PATHWAY         = 'pathway'
     ANNOTATE        = 'annotate'
     ENRICHMENT      = 'enrichment'
+    MODULE_AB       = 'module_ab'
 
     NETWORK_SUFFIX  = '_network.tsv'
-    METADATA_SUFFIX = '_metadata.tsv'
+    METADATA_SUFFIX = '_metadata.tsv'    
     
     def __init__(self, metadata):
         self.metadata = {}
@@ -82,7 +86,6 @@ class NetworkAnalyser:
         '''
         nb = NetworkBuilder(self.metadata.keys())
         km = KeggMatrix(args.matrix, args.transcriptome)
-
         abundances_metagenome = \
                 {key:km.group_abundances(self.metadata[key],
                                          km.reaction_matrix) 

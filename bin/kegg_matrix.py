@@ -127,9 +127,7 @@ class KeggMatrix:
         for sample in samples:
             new_dict = {key:entry for key,entry in reference_dict.items() if 
                         key in samples}
-
             reference_list = new_dict[new_dict.keys()[0]].keys()
-
             for reference in reference_list:
                 # If samples are missing from stored data, this will crash 
                 try:
@@ -144,7 +142,6 @@ input matrix")
     def _calculate_abundances(self, reference_dict, matrix_dict):
         
         output_dict_mean   = {}
-
 
         for sample, ko_abundances in matrix_dict.items():
             output_dict_mean[sample]   = {}

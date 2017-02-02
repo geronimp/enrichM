@@ -36,6 +36,7 @@ from itertools import product
 class Matrix:
     suffix_to_delim = {'.tsv':'\t',
                        '.csv':','}
+    
     def __init__(self, matrix):
         self.rownames = []
         self.colnames = []

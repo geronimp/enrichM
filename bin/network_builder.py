@@ -172,17 +172,21 @@ class NetworkBuilder:
     def _parse_queries(self, queries):
         output_dict = {}
         queries_io  = open(queries)
-        header      = queries_io.readline().strip().split('\t')[1:]
+        #header      = queries_io.readline().strip().split('\t')[1:]
+        
         for line in queries_io:
             sline = line.strip().split()
             compound = sline[0]
             output_dict[compound] = {}
-            if any(header):
-                for idx, group in enumerate(header[1:]):
-                    output_dict[compound][group] = sline[idx+1]
-            else:
-                for idx, group in enumerate(self.metadata_keys):
-                    output_dict[compound][group] = 'NA'
+            
+            #if any(header):
+            #    for idx, group in enumerate(header[1:]):
+            #        output_dict[compound][group] = sline[idx+1]
+            #else:
+                
+            for idx, group in enumerate(self.metadata_keys):
+                output_dict[compound][group] = 'NA'
+
         return output_dict
     
     def all_matrix(self, 
