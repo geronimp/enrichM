@@ -52,7 +52,7 @@ class CustomHelpFormatter(argparse.HelpFormatter):
     
 def phelp():
     print u"""
-    KEGG_network_analyzer
+    enrichM
 ===============================================================================
 J. Boyd, B. Woodcroft
 
