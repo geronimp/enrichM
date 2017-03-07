@@ -30,6 +30,7 @@ __status__ = "Development"
 import logging
 from kegg_matrix import KeggMatrix
 from network_builder import NetworkBuilder
+from build_enrichment_matrix import Matrix
 
 ###############################################################################
 
@@ -43,10 +44,13 @@ class NetworkAnalyser:
     ANNOTATE        = 'annotate'
     ENRICHMENT      = 'enrichment'
     MODULE_AB       = 'module_ab'
+    TRAVERSE        = 'traverse'
+
 
     NETWORK_SUFFIX  = '_network.tsv'
     METADATA_SUFFIX = '_metadata.tsv'    
-    
+    TRAVERSE_SUFFIX = '_traverse.tsv'    
+
     def __init__(self, metadata):
         self.metadata = {}
         for line in open(metadata):
@@ -86,6 +90,7 @@ class NetworkAnalyser:
         '''
         nb = NetworkBuilder(self.metadata.keys())
         km = KeggMatrix(args.matrix, args.transcriptome)
+
         abundances_metagenome = \
                 {key:km.group_abundances(self.metadata[key],
                                          km.reaction_matrix) 
@@ -101,37 +106,52 @@ class NetworkAnalyser:
                                              km.reaction_matrix_expression) 
                      for key in self.metadata.keys()}
 
+
         else:
             abundances_transcriptome = None
             abundances_expression    = None
 
-        if args.subparser_name==self.NETWORK:
-            logging.info("Constructing entire metabolic network. Be patient.")
-            network_lines, node_metadata = \
-                            nb.all_matrix(abundances_metagenome,
-                                          abundances_transcriptome,
-                                          abundances_expression)
-        elif args.subparser_name==self.EXPLORE:
-            logging.info("Using supplied queries (%s) to explore network" \
-                                                    % args.queries)
-            network_lines, node_metadata = \
-                            nb.query_matrix(abundances_metagenome, 
-                                            abundances_transcriptome,
-                                            abundances_expression,
-                                            args.queries,
-                                            args.depth)
-        elif args.subparser_name==self.PATHWAY:
-            network_lines, node_metadata = \
-                            nb.pathway_matrix(abundances_metagenome, 
-                                              abundances_transcriptome,
-                                              abundances_expression,
-                                              args.limit,
-                                              args.filter,
-                                              args.from_node,
-                                              args.to_node,
-                                              args.anabolic,
-                                              args.catabolic,
-                                              args.bfs_shortest_path)
+        if args.metabolome:
+            abundances_metabolome = Matrix(args.metabolome)
+        else:
+            abundances_compounds     = None
 
-        self._write_results(args.output_prefix + self.NETWORK_SUFFIX, network_lines)
-        self._write_results(args.output_prefix + self.METADATA_SUFFIX, node_metadata)
+        if args.subparser_name==self.TRAVERSE:
+            output_lines = \
+                            nb.traverse(abundances_metagenome,
+                                        abundances_transcriptome,
+                                        args.limit,
+                                        args.filter,
+                                        args.starting_compounds,
+                                        args.steps,
+                                        args.number_of_queries)
+            self._write_results(args.output_prefix + self.TRAVERSE_SUFFIX, output_lines)
+        else:
+            if args.subparser_name==self.EXPLORE:
+                logging.info("Using supplied queries (%s) to explore network" \
+                                                            % args.queries)
+                network_lines, node_metadata = \
+                                nb.query_matrix(abundances_metagenome, 
+                                                abundances_transcriptome,
+                                                abundances_expression,
+                                                args.queries,
+                                                args.depth)
+
+            elif args.subparser_name==self.PATHWAY:
+                network_lines, node_metadata = \
+                                nb.pathway_matrix(abundances_metagenome, 
+                                                  abundances_transcriptome,
+                                                  abundances_expression,
+                                                  abundances_metabolome,
+                                                  args.limit,
+                                                  args.filter,
+                                                  args.from_node,
+                                                  args.to_node,
+                                                  args.anabolic,
+                                                  args.catabolic,
+                                                  args.bfs_shortest_path)
+
+
+
+            self._write_results(args.output_prefix + self.NETWORK_SUFFIX, network_lines)
+            self._write_results(args.output_prefix + self.METADATA_SUFFIX, node_metadata)

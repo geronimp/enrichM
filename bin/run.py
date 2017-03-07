@@ -33,6 +33,7 @@ from kegg_module_grabber import KeggModuleGrabber
 from preparer import Preparer
 from network_analyzer import NetworkAnalyser
 from metagenome_analyzer import MetagenomeAnalyzer
+
 ###############################################################################
 
 class Run:
@@ -40,16 +41,17 @@ class Run:
     MATRIX          = 'matrix'
     NETWORK         = 'network'
     EXPLORE         = 'explore'
-    DEGRADE         = 'degrade'
     PATHWAY         = 'pathway'
     ANNOTATE        = 'annotate'
     ENRICHMENT      = 'enrichment'
     MODULE_AB       = 'module_ab'
-    
+    TRAVERSE        = 'traverse'
+
     def __init__(self):
         self.network_options    = [self.EXPLORE, 
                                    self.NETWORK, 
-                                   self.PATHWAY]
+                                   self.PATHWAY,
+                                   self.TRAVERSE]
                           
         self.annotation_options = [self.ANNOTATE, 
                                    self.ENRICHMENT]
@@ -82,14 +84,6 @@ class Run:
                 if args.depth:
                     logging.warning("--depth argument ignored without --queries \
     flag")
-        if args.subparser_name==NetworkAnalyser.PATHWAY:
-            pathway_opts = [args.from_node, args.to_node, args.filter, args.limit]
-            if not any(pathway_opts):
-                raise Exception("No options provided to pathway. Please pass an \
-    argument to one of the following flags:\n%s" % ('\n'.join(['--from_node',
-                                                               '--to_node',
-                                                               '--filter',
-                                                               '--queries\n'])))
     
         if(os.path.isfile(args.output_prefix + NetworkAnalyser.NETWORK_SUFFIX) or
            os.path.isfile(args.output_prefix + NetworkAnalyser.METADATA_SUFFIX)):

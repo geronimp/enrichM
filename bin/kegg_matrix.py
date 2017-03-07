@@ -89,6 +89,7 @@ class KeggMatrix:
         for sample, abundances in transcriptome_matrix.items():
             output_dictionary[sample] = {}
             for ko, abundance in abundances.items():
+
                 if ko in matrix[sample]:
                     mg_abundance = float(matrix[sample][ko])
                     mt_abundance = float(abundance)
@@ -107,7 +108,6 @@ class KeggMatrix:
         
         for idx, line in enumerate(open(matrix)):
             sline = line.strip().split('\t')
-            
             if idx==0:
                 self.sample_names = sline[1:]
                     
@@ -133,34 +133,29 @@ class KeggMatrix:
                 try:
                     abundances = [new_dict[sample][reference] for sample in samples]
                     average    = sum(abundances)/float(len(abundances))
-                    output_dict[reference] = average
+                    if average > 0:
+                        output_dict[reference] = average
                 except:
                     raise Exception("metadata description does not match \
 input matrix")
         return output_dict
                           
     def _calculate_abundances(self, reference_dict, matrix_dict):
-        
         output_dict_mean   = {}
-
         for sample, ko_abundances in matrix_dict.items():
             output_dict_mean[sample]   = {}
-            
             for reaction, ko_list in reference_dict.items():
-                
+
+
                 abundances = []
                 for ko in ko_list:
-
                     if ko in matrix_dict[sample]:
                         abundances.append(matrix_dict[sample][ko])
                     else:
                         logging.debug("ID not found in input matrix: %s" % ko)
-                        
                 if any(abundances):
                     abundance_mean = sum(abundances)/len(abundances)
                 else:
                     abundance_mean = 0
-
                 output_dict_mean[sample][reaction] = abundance_mean
-        
         return output_dict_mean

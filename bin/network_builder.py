@@ -30,6 +30,8 @@ __status__ = "Development"
 import logging
 import pickle
 import os
+import random
+import itertools
 
 from traverse import NetworkTraverser
 
@@ -63,7 +65,8 @@ class NetworkBuilder:
     MAP_PREFIX      = 'map'
     PATHWAY_PREFIX  = 'rn'
     REACTION_PREFIX = 'R'
-    
+    ZERO            = '0.0'
+
     def __init__(self, metadata_keys):
         
         self.VERSION = open(self.VERSION).readline().strip()
@@ -148,7 +151,8 @@ class NetworkBuilder:
         self.query_header \
                         =  ['query',
                             'step']
-    
+        self.compound_reaction_index_header \
+                        = []
     def _gather_module(self, key):
         if key in self.r2m:
             len_list =  [len(self.m2r[x]) for x in self.r2m[key]]
@@ -172,64 +176,149 @@ class NetworkBuilder:
     def _parse_queries(self, queries):
         output_dict = {}
         queries_io  = open(queries)
-        #header      = queries_io.readline().strip().split('\t')[1:]
+        header      = queries_io.readline().strip().split('\t')[1:]
         
         for line in queries_io:
             sline = line.strip().split()
             compound = sline[0]
             output_dict[compound] = {}
             
-            #if any(header):
-            #    for idx, group in enumerate(header[1:]):
-            #        output_dict[compound][group] = sline[idx+1]
-            #else:
+            if any(header):
+                for idx, group in enumerate(header):
+                    output_dict[compound][group] = sline[idx+1]
                 
-            for idx, group in enumerate(self.metadata_keys):
-                output_dict[compound][group] = 'NA'
-
+            else:
+                for idx, group in enumerate(self.metadata_keys):
+                    output_dict[compound][group] = 'NA'
+        
         return output_dict
-    
+
+
+    def normalise(self, reaction_abundances):
+        probability_list = []
+        for reaction_abundance in reaction_abundances:
+            probability = float(reaction_abundance)/sum(reaction_abundances)
+            probability_list.append(probability)
+        return probability_list
+
+    def get_transition(self, probabilities):
+        n=random.uniform(0,1)
+        x = []
+        for probability in probabilities:
+            x.append(probability-n)
+        return x.index(min(x, key=abs))
+
+    def traverse_matrix(self,
+                        abundances_metagenome,
+                        abundances_transcriptome,
+                        possible_reactions,
+                        query_list,
+                        number_of_queries,
+                        steps): 
+
+        network_visitations={key:{} for key in self.metadata_keys}
+        for _ in range(number_of_queries):
+            starting_compound = random.choice(query_list)
+            previous_reaction=''
+            next_compound=''
+            for i in range(steps):
+                if i==0:
+                    iter_batch={key:starting_compound for key in self.metadata_keys}
+
+                for key in self.metadata_keys:
+                    compound = iter_batch[key]
+                    
+                    try:
+                        reactions = [x for x in self.c2r[compound]
+                                     if x in self.r2rpair]
+                    except:
+                        reactions=[]
+                    possible_reaction_abundance = []
+                    possible_reaction_name = []
+                    for reaction in reactions:  
+                        if(reaction in abundances_metagenome[key] and
+                           reaction in abundances_transcriptome[key]):
+                            if reaction!=previous_reaction:
+                                if abundances_metagenome[key][reaction]>0:
+                                    possible_reaction_name.append(reaction)
+                                    possible_reaction_abundance.append(abundances_transcriptome[key][reaction])
+
+                    if any(possible_reaction_abundance):
+                        probabilities = self.normalise(possible_reaction_abundance)
+                        transition_reaction = possible_reaction_name[self.get_transition(probabilities)]
+                        if any(self.r2rpair[transition_reaction]):
+                            for pair in self.r2rpair[transition_reaction]:
+                                if compound in pair.split('_'):
+                                    transition_compound = pair.replace(compound, '')\
+                                                              .replace('_', '')   
+                            if transition_compound not in network_visitations[key]:
+                                network_visitations[key][transition_compound]=1
+                            else:
+                                network_visitations[key][transition_compound]+=1    
+                            iter_batch[key] = transition_compound
+                            previous_reaction=transition_reaction
+                            
+        output_lines = ['\t'.join(['C'] + self.metadata_keys)]
+        for c in set(itertools.chain(*possible_reactions.values())):
+            output_line = [c]
+            for key in self.metadata_keys:
+                if c in network_visitations[key]:
+                    output_line.append(str(network_visitations[key][c]))
+                else:
+                    output_line.append('0')    
+            output_lines.append('\t'.join(output_line))
+        return output_lines
+
     def all_matrix(self, 
                    abundances_metagenome, 
                    abundances_transcriptome,
                    abundances_expression,
-                   reference_dict = None):
+                   abundances_metabolome,
+                   reference_dict):
         '''
         Parameters
         ----------
         '''
-        
-        if reference_dict:
-            r2c = reference_dict
-        else:
-            r2c = self.r2c
         seen_nodes = set()
-        
         # Construct headers to network matrices
         if(abundances_transcriptome and abundances_expression):
             network_lines  = ['\t'.join(self.matrix_header + 
                                         self.transcriptome_header)]
         else:
-            network_lines  = ['\t'.join(self.matrix_header)]       
-        node_metadata_lines = ['\t'.join(self.metadata_header)]
+            network_lines  = ['\t'.join(self.matrix_header)]  
+        if abundances_metabolome:
+            node_metadata_lines = ['\t'.join(self.metadata_header + 
+                                             self.compound_header)]
+        else:     
+            node_metadata_lines = ['\t'.join(self.metadata_header)]
         
-        for reaction, entry in r2c.items():
+        for reaction, entry in reference_dict.items():
             for compound in entry:
                 if any([reaction in x.keys() 
                         for x in abundances_metagenome.values()]):
                     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
                     #~#~#~#~#~#~#~#~#~#~ Fill in abundances ~#~#~#~#~#~#~#~#~#~
                     reaction_line = [compound, reaction]
-                    reaction_line += \
-                                [str(abundances_metagenome[key][reaction]) 
-                                 for key in self.metadata_keys]
+
+                    for key in self.metadata_keys:
+                        if reaction in abundances_metagenome[key]:
+                            reaction_line.append(str(abundances_metagenome[key][reaction]))
+                        else:
+                            reaction_line.append(self.ZERO)
+
                     if(abundances_transcriptome and abundances_expression):
-                        reaction_line += \
-                                [str(abundances_transcriptome[key][reaction]) 
-                                 for key in self.metadata_keys]
-                        reaction_line += \
-                                [str(abundances_expression[key][reaction]) 
-                                 for key in self.metadata_keys]
+                        for key in self.metadata_keys:
+                            if reaction in abundances_transcriptome[key]:
+                                reaction_line.append(str(abundances_transcriptome[key][reaction]))
+                            else:
+                                reaction_line.append(self.ZERO)
+
+                        for key in self.metadata_keys:
+                            if reaction in abundances_expression[key]:
+                                reaction_line.append(str(abundances_expression[key][reaction]))
+                            else:
+                                reaction_line.append(self.ZERO)
+
                     output_line = '\t'.join(reaction_line)
                     if output_line not in network_lines:
                         network_lines.append(output_line)
@@ -242,28 +331,37 @@ class NetworkBuilder:
                                 ','.join(self.compound_desc_dict[compound]['A'])
                         else:
                             compound_type = 'NA'
-                        node_metadata_lines.append('\t'.join([compound, 
-                                                        self.c[compound],
-                                                        compound_type, 
-                                                        'NA',
-                                                        'NA', 
-                                                        'NA',
-                                                        'NA',  
-                                                        'compound']))
+                        
+                        metadata_list = [compound, self.c[compound], compound_type, 
+                                         'NA', 'NA', 'NA', 'NA', 'compound']
+                        if abundances_metabolome:   
+                            # This is fragile - compound abundances need to be aggregated
+                            # by the user. TODO: Integrate compounds into kegg_matrix
+                            # module.
+                            for sample in self.metadata_keys:
+                                c_ab = abundances_metabolome.get_entry(sample, compound)
+                                if c_ab == 0:
+                                    c_ab = '-5'
+                                metadata_list.append(str(c_ab))
+                        node_metadata_lines.append('\t'.join(metadata_list))
                         seen_nodes.add(compound)
+
                     if reaction not in seen_nodes:
                         module, module_description \
                                         = self._gather_module(reaction)
                         pathway, pathway_description \
                                         = self._gather_pathway(reaction)
-                        node_metadata_lines.append('\t'.join([reaction, 
-                                                        self.r[reaction],
-                                                        'NA', 
-                                                        module, 
-                                                        module_description, 
-                                                        pathway,
-                                                        pathway_description,
-                                                        'reaction']))
+                        metadata_list = [reaction, 
+                                         self.r[reaction],
+                                         'NA', 
+                                         module, 
+                                         module_description, 
+                                         pathway,
+                                         pathway_description,
+                                         'reaction']
+                        if abundances_metabolome:   
+                            metadata_list += ['-5' for sample in self.metadata_keys]
+                        node_metadata_lines.append('\t'.join(metadata_list))
                         seen_nodes.add(reaction)
 
         return network_lines, node_metadata_lines
@@ -296,7 +394,8 @@ class NetworkBuilder:
                     = ['\t'.join(self.metadata_header + 
                                  self.compound_header +
                                  self.query_header)]
-        
+        compound_reaction_index_lines \
+                    = ['\t'.join(self.compound_reaction_index_header)]
         while depth>0:
             if any(level_queries):
                 check_list = set(level_queries)
@@ -311,16 +410,26 @@ class NetworkBuilder:
                             #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
                             #~#~#~#~#~#~#~#~ Fill in abundances ~#~#~#~#~#~#~#~
                             reaction_line = [compound, reaction]
-                            reaction_line += \
-                                    [str(abundances_metagenome[key][reaction]) 
-                                     for key in self.metadata_keys]
+                        
+                            for key in self.metadata_keys:
+                                if reaction in abundances_metagenome[key]:
+                                    reaction_line.append(str(abundances_metagenome[key][reaction]))
+                                else:
+                                    reaction_line.append(self.ZERO)
+
                             if(abundances_transcriptome and abundances_expression):
-                                reaction_line += \
-                                    [str(abundances_transcriptome[key][reaction]) 
-                                     for key in self.metadata_keys]
-                                reaction_line += \
-                                    [str(abundances_expression[key][reaction]) 
-                                     for key in self.metadata_keys]
+                                for key in self.metadata_keys:
+                                    if reaction in abundances_transcriptome[key]:
+                                        reaction_line.append(str(abundances_transcriptome[key][reaction]))
+                                    else:
+                                        reaction_line.append(self.ZERO)
+
+                                for key in self.metadata_keys:
+                                    if reaction in abundances_expression[key]:
+                                        reaction_line.append(str(abundances_expression[key][reaction]))
+                                    else:
+                                        reaction_line.append(self.ZERO)
+
                             output_line = '\t'.join(reaction_line)
                             if output_line not in seen_steps:
                                 seen_steps.add(output_line)
@@ -399,6 +508,7 @@ class NetworkBuilder:
                      abundances_metagenome, 
                      abundances_transcriptome,
                      abundances_expression,
+                     abundances_metabolome,
                      limit,
                      filter,
                      node_from,
@@ -409,6 +519,67 @@ class NetworkBuilder:
 
         
         possible_reactions=set()
+
+        if any(limit):
+            for entry in limit:
+                if(entry.startswith(self.MAP_PREFIX) or 
+                   entry.startswith(self.PATHWAY_PREFIX)): 
+                    for reaction in self.p2r[entry]:
+                        possible_reactions.add(reaction)
+                elif(entry.startswith(self.MODULE_PREFIX)):
+                    for reaction in self.m2r[entry]:
+                        possible_reactions.add(reaction)
+                elif(entry.startswith(self.REACTION_PREFIX)):
+                    possible_reactions.add(entry)
+
+            possible_reactions = {reaction:self.r2c[reaction] 
+                                  for reaction in
+                                  possible_reactions}                
+        else:
+            possible_reactions = self.r2c
+        
+        for entry in filter:
+            if entry in possible_reactions:
+                del possible_reactions[entry]
+ 
+
+        if(node_to and node_from):
+            if bfs_shortest_path:
+
+                bfs_paths = NetworkTraverser\
+                                    .shortest_bfs_path(self.r2rpair, 
+                                                       self.c2r,
+                                                       node_from,
+                                                       node_to)
+                shortest_path_reactions = set()
+                
+                for entry in bfs_paths:
+                    if entry.startswith(self.REACTION_PREFIX):
+                        shortest_path_reactions.add(entry)
+            else:
+                pass
+            
+            possible_reactions = {reaction:possible_reactions[reaction]
+                                  for reaction in shortest_path_reactions}
+        
+        network_lines, node_metadata_lines = \
+            self.all_matrix(abundances_metagenome, 
+                            abundances_transcriptome, 
+                            abundances_expression, 
+                            abundances_metabolome,
+                            possible_reactions)
+        
+        return network_lines, node_metadata_lines
+  
+    def traverse(self,
+                 abundances_metagenome,
+                 abundances_transcriptome,
+                 limit,
+                 filter,
+                 starting_compounds,
+                 steps,
+                 number_of_queries):
+
         if any(limit):
             for entry in limit:
                 if(entry.startswith(self.MAP_PREFIX) or 
@@ -431,30 +602,20 @@ class NetworkBuilder:
             if entry in possible_reactions:
                 del possible_reactions[entry]
         
-        if(node_to and node_from):
-            if bfs_shortest_path:
+        possible_compounds = set(itertools.chain(*possible_reactions.values()))
 
-                bfs_paths = NetworkTraverser\
-                                    .shortest_bfs_path(self.r2rpair, 
-                                                       self.c2r,
-                                                       node_from,
-                                                       node_to)
-                shortest_path_reactions = set()
-                
-                for entry in bfs_paths:
-                    if entry.startswith(self.REACTION_PREFIX):
-                        shortest_path_reactions.add(entry)
-            else:
-                pass
-            
-            possible_reactions = {reaction:possible_reactions[reaction]
-                                  for reaction in shortest_path_reactions}
-            
-        network_lines, node_metadata_lines = \
-            self.all_matrix(abundances_metagenome, 
-                            abundances_transcriptome, 
-                            abundances_expression, 
-                            possible_reactions)
-        
-        return network_lines, node_metadata_lines
-  
+        if len(starting_compounds)==0:
+            query_list=[x for x in self.c.keys()
+                        if x in possible_compounds]
+        else:
+            query_list=[x for x in starting_compounds 
+                        if x in possible_compounds]
+
+
+        output_lines = self.traverse_matrix(abundances_metagenome, 
+                                            abundances_transcriptome, 
+                                            possible_reactions, 
+                                            query_list,
+                                            number_of_queries, 
+                                            steps)
+        return output_lines
