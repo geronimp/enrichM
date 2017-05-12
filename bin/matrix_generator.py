@@ -30,11 +30,12 @@ __status__ = "Development"
 import logging
 import os
 import gzip
-from network_analyzer import NetworkAnalyser
+
+from genome import Genome
 
 ###############################################################################
 
-class Preparer:
+class MatrixGenerator:
     
     COMPRESSED_SUFFIXES = set(['.gz', '.gzip'])
     REFERENCE_PATH = '/srv/db/uniprot/201607/KO.idmapping.dat.gz'
@@ -42,14 +43,25 @@ class Preparer:
     MATRIX_SUFFIX  = '_matrix.tsv'
     UR100 = 'UniRef100_'
     
-    def __init__(self):        
-        logging.info("Loading uniref to orthology information")
-        self.reference_dictionary = {}
-        for line in gzip.open(self.REFERENCE_PATH):
-            protein_id, _, ko_id  = line.strip().split('\t')
-            self.reference_dictionary[protein_id] = ko_id
-        logging.info('Done!')
-        self.possible_kos = list(set(self.reference_dictionary.values()))
+    KO      = 'KO_IDS.txt'
+    PFAM    = 'PFAM_IDS.txt'
+    TIGRFAM = 'TIGRFAM_IDS.txt'
+
+    def __init__(self, annotation_type):        
+        data_directory = os.path.join(os.path.split(os.path.realpath(__file__))[0], '../data/ids/')
+        if annotation_type == self.KO:
+            ids = [x.strip() for x in open(os.path.join(data_directory,self.KO))]
+        elif annotation_type == self.PFAM:
+            ids = [x.strip() for x in open(os.path.join(data_directory,self.PFAM))]
+        elif annotation_type == self.TIGRFAM:
+            ids = [x.strip() for x in open(os.path.join(data_directory,self.TIGRFAM))]
+
+        #logging.info("Loading uniref to orthology information")
+        #self.reference_dictionary = {}
+        #for line in gzip.open(self.REFERENCE_PATH):
+        #    protein_id, _, ko_id  = line.strip().split('\t')
+        #    self.reference_dictionary[protein_id] = ko_id
+        #self.possible_kos = list(set(self.reference_dictionary.values()))
     
     def _open(self, file):
         file_suffix = os.path.splitext(file)[-1]
@@ -57,6 +69,7 @@ class Preparer:
             return gzip.open(file)
         else:
             return open(file)
+    
     def _clean(self, string):
         '''
         Strip off uniprot prefix if present.
@@ -66,13 +79,25 @@ class Preparer:
         else:
             return string
     
-    def blast_output(self, 
-                     blast_output_paths, 
-                     evalue_cutoff, 
-                     bitscore_cutoff, 
-                     percent_id_cutoff, 
-                     output_matrix_path):
-        # TODO: select only best hit.
+    def write_matrix(self, input_annotations, output_path):
+        '''
+        Writes a frequency matrix with of each annotation (rows) per sample (columns)
+
+        Parameters
+        ----------
+        input_annotations   - list.
+        output_path         - string. Path to file to which the results are written.
+        '''
+        logging.debug("    - Writing results to file: %s" % output_path)
+        
+
+        colnames = ['ID'] + [os.path.splitext(os.path.basename(filename))[0]
+                             for filename in input_annotations.keys()]
+        #
+
+
+
+    def from_blast_results(self, blast_output_paths, evalue_cutoff, bitscore_cutoff, percent_id_cutoff, output_matrix_path):
         logging.info("Parsing %i blast output files" % \
                                     (len(blast_output_paths)))
         
@@ -114,82 +139,57 @@ using the latest version of the UniProt database." \
                     output_line.append( str(output_dictionary[file][ko]) )
                 output_matrix_path_io.write("%s\n" % '\t'.join(output_line))
     
-    def hmmsearch_output(self, 
-                         hmmsearch_output_paths, 
-                         evalue_cutoff, 
-                         bitscore_cutoff, 
-                         percent_aln_query_cutoff,
-                         percent_aln_reference_cutoff,
-                         output_matrix_path):
-        logging.info("Parsing %i hmmsearch output files" % \
-                                    (len(hmmsearch_output_paths)))
+    def from_hmmsearch_results(self, hmmsearch_output_paths, output_matrix_path, evalue_cutoff, bitscore_cutoff, 
+                               percent_aln_query_cutoff, percent_aln_reference_cutoff):
+        '''
+        Parse input hmmsearch files and generate a frequency matrix of annotations. 
+
+        Parameters 
+        ----------
+        hmmsearch_output_paths          -
+        output_matrix_path              -
+        evalue_cutoff                   -
+        bitscore_cutoff                 -
+        percent_aln_query_cutoff        -       
+        percent_aln_reference_cutoff    -
+
+        Outputs
+        -------
+
+        '''
+        logging.debug("    - Parsing %i hmmsearch output files" % len(hmmsearch_output_paths))
         
         output_dictionary = {}
-        seq_dictionary    = {}
-        
         for file in hmmsearch_output_paths:
-            # Setting up sample column
-            output_dictionary[file] = {}
-            for ko in self.possible_kos:
-                output_dictionary[file][ko]=0
+            genome = Genome(file)
+
             # Filling in column
             for line in open(file):
                 if line.startswith('#'): continue
+                
                 seqname, _, tlen, query_name, accession, qlen, evalue, score, \
                 bias, _, _, c_evalue, i_evalue, dom_score, dom_bias, hmm_from, \
                 hmm_to, seq_from, seq_to, _, _, acc = line.strip().split()[:22]
 
-                seq_list = [float(seq_from), float(seq_to)]
-                hmm_list = [float(hmm_from), float(hmm_to)]
+                seq_list = [int(seq_from), int(seq_to)]
+                hmm_list = [int(hmm_from), int(hmm_to)]
+
                 perc_seq_aln = (max(seq_list)-min(seq_list))/float(tlen)
                 perc_hmm_aln = (max(seq_list)-min(seq_list))/float(qlen)
-                
+
                 if(float(evalue)<=evalue_cutoff and
                    float(score)>=bitscore_cutoff and
                    perc_seq_aln>=percent_aln_query_cutoff and
                    perc_hmm_aln>=percent_aln_reference_cutoff):
-                    if seqname in seq_dictionary:
-                        if float(evalue)< seq_dictionary[seqname][1]:
-                            seq_dictionary[seqname]=[query_name, float(evalue)]
+                    if seqname in genome.sequences:
+                        output_dictionary[file][seqname].add(query_name, evalue, range(min(seq_list), max(seq_list)))
                     else:
-                        seq_dictionary[seqname]=[query_name, float(evalue)]
-            for sequence_name, (annoatation, evalue) in \
-                                                    output_dictionary.items():
-                output_dictionary[file][annotation]+=1
-        
-        logging.info("Writing results to file: %s" % output_matrix_path)
-        with open(output_matrix_path, 'w') as output_matrix_path_io:
-            header = 'KO\t%s\n' % '\t'.join([os.path.basename(path) for 
-                                             path in hmmsearch_output_paths])
-            output_matrix_path_io.write(header)
-            for ko in self.possible_kos:
-                output_line = [ko]
-                
-                for file in hmmsearch_output_paths:
-                    output_line.append( str(output_dictionary[file][ko]) )
-                output_matrix_path_io.write("%s\n" % '\t'.join(output_line))
-                
-    def main(self, args):
-        output_path = args.output_prefix + self.MATRIX_SUFFIX 
-        if args.subparser_name == NetworkAnalyser.MATRIX:
-            if args.blast_outputs:
-                if(args.percent_aln_query_cutoff or 
-                   args.percent_aln_reference_cutoff):
-                    logging.warning("Cannot calculate the percent of the query \
-aligned to the reference and vice versa with a blast output.")
+                        sequence_object = Sequence(seqname, tlen)
+                        sequence_object.add(query_name, evalue, 
+                                            range(min(seq_list), max(seq_list)))
+                        output_dictionary[file][seqname]=sequence_object
 
-                self.blast_output(args.blast_outputs,
-                                  args.evalue_cutoff,
-                                  args.bitscore_cutoff,
-                                  args.percent_id_cutoff,
-                                  output_path)
-            elif args.hmmsearch_outputs:
-                if(args.percent_id_cutoff):
-                    logging.warning("Cannot calculate the percent identity \
-with a     hmmsearch.")
-                self.hmmsearch_output(args.hmmsearch_outputs,
-                                      args.evalue_cutoff,
-                                      args.bitscore_cutoff,
-                                      args.percent_aln_query_cutoff,
-                                      args.percent_aln_reference_cutoff,
-                                      output_path)
+            output_dictionary[file] = genome
+        self.write_matrix(output_dictionary, output_matrix_path, )
+        
+        return output_dictionary
