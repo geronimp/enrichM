@@ -199,7 +199,6 @@ class Annotate:
                                              self.GENOME_PFAM)
         os.mkdir(output_directory_path)
         for genome in genomes_list:
-            import IPython ; IPython.embed()
             self._hmm_search(PFAM_DB, genome.path, output_directory_path)
             results_files = [os.path.join(output_directory_path, genome_result) 
                         for genome_result in os.listdir(output_directory_path)]
@@ -228,7 +227,7 @@ class Annotate:
                         for genome_result in os.listdir(output_directory_path)]
         return results_files
 
-    def _hmm_search(self, database, genome_faa_directory, output_directory_path):
+    def _hmm_search(self, database, genome_path, output_directory_path):
         '''
         Carry out a hmmsearches on each genome within a given directory. 
 
@@ -239,23 +238,19 @@ class Annotate:
                                 each input genome
         output_directory_path - string. Path to directory to output results into        
         '''  
-        for genome in os.listdir(genome_faa_directory):
-            genome_path = os.path.join(genome_faa_directory,
-                                       genome)
-            output_genome = os.path.splitext(genome)[0] + self.OUTPUT_SUFFIX 
-            output_genome_path = os.path.join(output_directory_path,
-                                              output_genome)            
-            cmd = "hmmsearch --cpu %s -o /dev/null --noali --domtblout %s " \
-                              % (self.threads,output_genome_path)
-            if self.evalue:
-                cmd += '-E %f ' % (self.evalue) 
-            if self.bit:
-                cmd += '-T %f ' % (self.bit)
-            if self.id:
-                logging.warning("--id flag not used for hmmsearch")
-            cmd += "%s %s " % (database, genome_path)
-            logging.debug(cmd)
-            subprocess.call(cmd, shell = True)        
+        output_genome = os.path.basename(os.path.splitext(genome_path)[0]) + self.OUTPUT_SUFFIX 
+        output_genome_path = os.path.join(output_directory_path, output_genome)            
+        cmd = "hmmsearch --cpu %s -o /dev/null --noali --domtblout %s " \
+                          % (self.threads,output_genome_path)
+        if self.evalue:
+            cmd += '-E %f ' % (self.evalue) 
+        if self.bit:
+            cmd += '-T %f ' % (self.bit)
+        if self.id:
+            logging.warning("--id flag not used for hmmsearch")
+        cmd += "%s %s " % (database, genome_path)
+        logging.debug(cmd)
+        subprocess.call(cmd, shell = True)        
 
     def do(self, genome_directory, proteins_directory):
         '''

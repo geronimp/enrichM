@@ -127,3 +127,17 @@ class Annotation(Sequence):
 			return True
 		else:
 			return False
+
+class AnnotationParser:
+    KO      = 'KO_IDS.txt'
+    PFAM    = 'PFAM_IDS.txt'
+    TIGRFAM = 'TIGRFAM_IDS.txt'
+    
+	def __init__(annotation_type):        
+        data_directory = os.path.join(os.path.split(os.path.realpath(__file__))[0], '../data/ids/')
+        if annotation_type == self.KO:
+            ids = [x.strip() for x in open(os.path.join(data_directory,self.KO))]
+        elif annotation_type == self.PFAM:
+            ids = [x.strip() for x in open(os.path.join(data_directory,self.PFAM))]
+        elif annotation_type == self.TIGRFAM:
+            ids = [x.strip() for x in open(os.path.join(data_directory,self.TIGRFAM))]
