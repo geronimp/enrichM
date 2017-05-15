@@ -35,7 +35,8 @@ import os
 from databases import KO_DB, PFAM_DB, TIGRFAM_DB
 from matrix_generator import MatrixGenerator
 from gff_generator import GffGenerator
-from genome import Genome
+from genome import Genome, AnnotationParser
+
 ###############################################################################
 ################################ - Classes - ##################################
 
@@ -47,10 +48,13 @@ class Annotate:
     GENOME_COG = 'annotations_cog'
     GENOME_PFAM = 'annotations_pfam'
     GENOME_TIGRFAM = 'annotations_tigrfam'
-    OUTPUT_PFAM = 'pfam.tsv'
+    OUTPUT_KO = 'ko_frequency_table.tsv'
+    OUTPUT_PFAM = 'pfam_frequency_table.tsv'
+    OUTPUT_TIGRFAM = 'tigrfam_frequency_table.tsv'
 
+    GFF_SUFFIX = '.gff'
     PROTEINS_SUFFIX = '.faa'
-    OUTPUT_SUFFIX = '.tsv'
+    ANNOTATION_SUFFIX = '.tsv'
     
     def __init__(self, genome_files, output_directory, ko, pfam, 
                  tigrfam, cog, evalue, bit, id, aln_query, aln_reference, 
@@ -81,23 +85,25 @@ class Annotate:
         -------
         returns the directory with all genome ids sym-linked into it.
         '''
-        # link all the genomes into one file
-        
-        genome_directory = os.path.join(self.output_directory, 
-                                       self.GENOME_BIN)
-        os.mkdir(os.path.join(self.output_directory, self.GENOME_BIN))
-        for genome_path in self.genome_file_list:
-            os.symlink(os.path.join(os.getcwd(),
-                                    genome_path), 
-                       os.path.join(genome_directory, 
-                                    os.path.basename(genome_path)
-                                    )
-                       )    
+        # link all the genomes into one file    
+        genome_directory=None
+        if self.genome_file_list:
+            genome_directory = os.path.join(self.output_directory, 
+                                           self.GENOME_BIN)
+            os.mkdir(os.path.join(self.output_directory, self.GENOME_BIN))
+            for genome_path in self.genome_file_list:
+                os.symlink(os.path.join(os.getcwd(),
+                                        genome_path), 
+                           os.path.join(genome_directory, 
+                                        os.path.basename(genome_path)
+                                        )
+                           )    
         return genome_directory
 
     def call_proteins(self, genome_directory):
         '''
-        Use prodigal (https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-119) to call proteins within the genomes 
+        Use prodigal (https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-119)
+        to call proteins within the genomes 
         
         Parameters
         ----------
@@ -123,16 +129,17 @@ class Annotate:
             logging.info("    - Calling proteins for genome: %s" % (genome))
             cmd = 'prodigal -q -p meta -o /dev/null -a %s -i %s' % (output_genome_path,
                                                     genome_path)
+            
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
-            
-            genomes_list.append(Genome(output_genome_path))
-        
+            genome = Genome(output_genome_path)
+            genomes_list.append(genome)
         return genomes_list
     
-    def annotate_ko(self, genome_faa_directory):
+    def annotate_ko(self, genomes_list):
         '''
-        Annotate the proteins encoded by each genome with KO ids using either BLAST or using HMM searches (no implemented yet).
+        Annotate the proteins encoded by each genome with KO ids using either BLAST or using HMM
+        searches (no implemented yet).
 
         Parameters
         ----------        
@@ -141,46 +148,49 @@ class Annotate:
         
         Outputs
         -------
-        returns a directory containing the search results for each of the input population genomes, and a frequency matrix contining with the KOs as rows, and the genomes as columns.
+        returns a directory containing the search results for each of the input population genomes, 
+        and a frequency matrix contining with the KOs as rows, and the genomes as columns.
         '''        
+
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_KO)
         os.mkdir(output_directory_path)
-        self._diamond_search(KO_DB, genome_faa_directory, output_directory_path)
-        results_files = [os.path.join(output_directory_path, genome_result) 
-                        for genome_result in os.listdir(output_directory_path)]
-        return results_files
+        for genome in genomes_list:
+            output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
+            self._diamond_search(genome.path, output_annotation_path, KO_DB)
+            genome.add(output_annotation_path, 
+                         self.evalue, 
+                         self.bit, 
+                         self.aln_query, 
+                         self.aln_reference,
+                         AnnotationParser.KO)
 
     def annotate_cog(self): 
         pass
         # TODO haven't prepared the reference database yet
 
-    def _diamond_search(self, database, genome_faa_directory, output_directory_path):
+    def _diamond_search(self, input_genome_path, output_path, database):
         '''
-        Carry out a diamond searches on each genome within a given directory. 
+        Carry out a diamond blastp search. 
 
         Parameters
         ----------   
-        databases             - string. Path to .dmnd database to use for searching     
-        genome_faa_directory  - string. Directory containing .faa files for 
-                                each input genome
-        output_directory_path - string. Path to directory to output results into        
+        input_genome_path     - string. Path to file containing .faa file for 
+                                an input genome
+        output_path           - string. Path to file to output results into    
+        databases             - string. Path to HMM to use for searching         
         '''  
-        for genome in os.listdir(genome_faa_directory):
-            genome_path = os.path.join(genome_faa_directory,
-                                       genome)
-            output_genome = os.path.splitext(genome)[0] + self.OUTPUT_SUFFIX 
-            output_genome_path = os.path.join(output_directory_path,
-                                              output_genome)            
-            cmd = 'diamond blastp --outfmt 6 --max-target-seqs 1 --query %s --out %s --db %s --threads %s ' % (genome_path,  output_genome_path, database, self.threads)
-            if self.evalue:
-                cmd += '--evalue %f ' % (self.evalue) 
-            if self.bit:
-                cmd += '--min-score %f ' % (self.bit)
-            if self.id:
-                cmd += '--id %f ' % (self.id)
-            logging.debug(cmd)
-            subprocess.call(cmd, shell = True)
+         
+        cmd = 'diamond blastp --quiet --outfmt 6 --max-target-seqs 1 --query %s --out %s --db %s --threads %s ' \
+                            % (input_genome_path,  output_path, database, self.threads)
+        if self.evalue:
+            cmd += '--evalue %f ' % (self.evalue) 
+        if self.bit:
+            cmd += '--min-score %f ' % (self.bit)
+        if self.id:
+            cmd += '--id %f ' % (self.id)
+        logging.debug(cmd)
+        subprocess.call(cmd, shell = True)
 
     def annotate_pfam(self, genomes_list):
         '''
@@ -188,69 +198,85 @@ class Annotate:
 
         Parameters
         ----------        
-        genomes_list  - object.        
+        genomes_list  - list. list of Genome objects        
 
-        Outputs
-        -------
-        returns a directory containing the search results for each of the input population genomes,
-        and a frequency matrix contining with the pfam ids as rows, and the genomes as columns.
         '''    
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_PFAM)
         os.mkdir(output_directory_path)
         for genome in genomes_list:
-            self._hmm_search(PFAM_DB, genome.path, output_directory_path)
-            results_files = [os.path.join(output_directory_path, genome_result) 
-                        for genome_result in os.listdir(output_directory_path)]
-        return results_files
+            output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
+            self._hmm_search(genome.path, output_annotation_path, PFAM_DB)
+            genome.add(output_annotation_path, 
+                         self.evalue, 
+                         self.bit, 
+                         self.aln_query, 
+                         self.aln_reference,
+                         AnnotationParser.PFAM)
 
-    def annotate_tigrfam(self, genome_faa_directory):
+    def annotate_tigrfam(self, genomes_list):
         '''
         Annotate the proteins encoded by each genome with tigrfam ids using HMM searches.
 
         Parameters
         ----------        
-        genome_faa_directory  - string. Directory containing .faa files for 
-                                each input genome
-        
-        Outputs
-        -------
-        returns a directory containing the search results for each of the input population genomes,
-        and a frequency matrix contining with the tigrfam ids as rows, and the genomes as columns.
+        genomes_list  - list. list of Genome objects        
+
         '''    
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_TIGRFAM)
         os.mkdir(output_directory_path)      
-        self._hmm_search(TIGRFAM_DB, genome_faa_directory, output_directory_path)
+        for genome in genomes_list:
+            output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
+            self._hmm_search(genome.path, output_annotation_path, TIGRFAM_DB)
+            genome.add(output_annotation_path, 
+                         self.evalue, 
+                         self.bit, 
+                         self.aln_query, 
+                         self.aln_reference,
+                         AnnotationParser.TIGRFAM)
 
-        results_files = [os.path.join(output_directory_path, genome_result) 
-                        for genome_result in os.listdir(output_directory_path)]
-        return results_files
-
-    def _hmm_search(self, database, genome_path, output_directory_path):
+    def _hmm_search(self, input_genome_path, output_path, database):
         '''
-        Carry out a hmmsearches on each genome within a given directory. 
+        Carry out a hmmsearch. 
 
         Parameters
         ----------   
-        databases             - string. Path to HMM to use for searching     
-        genome_faa_directory  - string. Directory containing .faa files for 
-                                each input genome
-        output_directory_path - string. Path to directory to output results into        
+        input_genome_path     - string. Path to file containing .faa file for 
+                                an input genome
+        output_path           - string. Path to file to output results into   
+        databases             - string. Path to HMM to use for searching          
         '''  
-        output_genome = os.path.basename(os.path.splitext(genome_path)[0]) + self.OUTPUT_SUFFIX 
-        output_genome_path = os.path.join(output_directory_path, output_genome)            
         cmd = "hmmsearch --cpu %s -o /dev/null --noali --domtblout %s " \
-                          % (self.threads,output_genome_path)
+                          % (self.threads, output_path)
         if self.evalue:
             cmd += '-E %f ' % (self.evalue) 
         if self.bit:
             cmd += '-T %f ' % (self.bit)
         if self.id:
             logging.warning("--id flag not used for hmmsearch")
-        cmd += "%s %s " % (database, genome_path)
+        cmd += "%s %s " % (database, input_genome_path)
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)        
+
+    def _parse_genome_proteins_directory(self, directory):
+        '''
+        Iterate through a directory and parse all .faa files it contains (assumed to be separate)
+        genome bins
+
+        Parameters 
+        ----------
+        directory   -   string. path to directory containing genome proteins.
+
+        Outputs
+        -------
+        A list of Genome objects.
+        '''
+        genomes_list = []
+        for genome_proteins_file in os.listdir(directory):
+            genome = Genome(os.path.join(directory, genome_proteins_file))
+            genomes_list.append(genome) 
+        return genomes_list
 
     def do(self, genome_directory, proteins_directory):
         '''
@@ -258,11 +284,10 @@ class Annotate:
 
         Parameters
         ----------
-        genome_directory  - string. Path to directory containing genomes
+        genome_directory    - string. Path to directory containing genomes
         proteins_directory  - string. Path to directory containing proteins (.faa files) for genomes
         '''
         logging.info("Running pipeline: annotate")
-        results = {}
         logging.info("Setting up for genome annotation")
         if genome_directory:
             self.genome_directory = genome_directory
@@ -270,9 +295,8 @@ class Annotate:
             self.genome_directory = self.prep()
 
         if proteins_directory:
-            pass
-            # TODO: Implement me
-            # genomes_dictionary = self.parse_proteins(proteins_directory)
+            logging.info('Using provided proteins.')
+            genomes_list = self._parse_genome_proteins_directory(proteins_directory)
         else:
             logging.info("Calling proteins for annotation")
             genomes_list = self.call_proteins(self.genome_directory)
@@ -280,9 +304,11 @@ class Annotate:
         logging.info("Starting annotation:")
         if self.ko:
             logging.info('    - Annotating genomes with ko ids')
-            ko_result_paths = self.annotate_ko(self.genome_faa_directory)
-            freq_table = os.path.join(self.output_directory, self.OUTPUT_PFAM)
-            mg.from_blast_results(ko_result_paths)
+            self.annotate_ko(genomes_list)
+            logging.info('    - Generating ko frequency table')
+            mg = MatrixGenerator(MatrixGenerator.KO)
+            freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
+            mg.write_matrix(genomes_list, freq_table)
 
         if self.cog:
             logging.info('    - Annotating genomes with cog ids')
@@ -290,22 +316,26 @@ class Annotate:
 
         if self.pfam:
             logging.info('    - Annotating genomes with pfam ids')
-            pfam_result_paths = self.annotate_pfam(genomes_list)
+            self.annotate_pfam(genomes_list)
             logging.info('    - Generating pfam frequency table')
             mg = MatrixGenerator(MatrixGenerator.PFAM)
             freq_table = os.path.join(self.output_directory, self.OUTPUT_PFAM)
-            pfam_annotations = mg.from_hmmsearch_results(pfam_result_paths, 
-                                                         freq_table, 
-                                                         self.evalue, 
-                                                         self.bit, 
-                                                         self.aln_query, 
-                                                         self.aln_reference)
+            mg.write_matrix(genomes_list, freq_table)
 
         if self.tigrfam:
             logging.info('    - Annotating genomes with tigrfam ids')
-            freq_table = os.path.join(self.output_directory, self.OUTPUT_PFAM)
-            tigrfam_result_paths = self.annotate_tigrfam(self.genome_faa_directory)
-            mg.from_hmmsearch_results(tigrfam_result_paths)
-        # TODO: Generate GFF files
-        # TODO: Generate frequency matrix files
+            self.annotate_tigrfam(genomes_list)
+            logging.info('    - Generating tigrfam frequency table')
+            mg = MatrixGenerator(MatrixGenerator.TIGRFAM)
+            freq_table = os.path.join(self.output_directory, self.OUTPUT_TIGRFAM)
+            mg.write_matrix(genomes_list, freq_table)
+
+        logging.info('Generating .gff files:')
+        for genome in genomes_list:
+            logging.info('    - Generating .gff file for %s' % genome.name)
+            gff_output = os.path.join(self.output_directory, genome.name+self.GFF_SUFFIX)
+            gg = GffGenerator()
+            gg.write(genome, gff_output)
+
+
 

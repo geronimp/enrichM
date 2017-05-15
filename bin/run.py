@@ -146,7 +146,6 @@ class Run:
                          # Parameters
                          args.threads)
             a.do(args.genome_directory, args.proteins_directory)
-
         #elif args.subparser_name in self.network_options:
         #    na=NetworkAnalyser(args.metadata)
         #    na.main(args)

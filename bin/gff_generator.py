@@ -1,8 +1,6 @@
 
 #!/usr/bin/env python
 ###############################################################################
-# Samle.py - Info about Sample.py
-###############################################################################
 #                                                                             #
 # This program is free software: you can redistribute it and/or modify        #
 # it under the terms of the GNU General Public License as published by        #
@@ -31,6 +29,41 @@ __status__ = "Development"
 ###############################################################################
 # System imports
 
-class GffGenerator(object):
-	def __init__(self, arg):
-		pass	
+class GffGenerator():
+
+	def write(self, genome, output_file):
+		'''
+		Writes a gff file for a Genome object
+		
+		Parameters
+		----------
+		genome 			- Genome object
+		output_file 	- string. file name to output results to.
+		'''
+
+		with open(output_file, 'w') as out_io:
+			for sequence in genome.ordered_sequences():
+
+				features = ['prodigal_id=%s' % sequence.prod_id,
+							'partial=%s' 	 % sequence.partial,
+							'start_type=%s'  % sequence.starttype,
+							'rbs_motif=%s'   % sequence.rbs_motif,
+							'rbs_spacer=%s'  % sequence.rbs_spacer,
+							'gc=%s'    		 % sequence.gc]
+
+				if len(sequence.all_annotations())>0:
+					features.append('annotations=%s' % ','.join(sequence.all_annotations()))
+				else:
+					features.append('annotations=hypothetical_protein')
+
+				line = [sequence.seqname, 
+						'prodigal',
+						'CDS',
+						sequence.startpos,
+						sequence.finishpos,
+						'.',
+						('-' if sequence.direction == '-1'
+						 else '+'),
+						'0',
+						';'.join(features)]
+				out_io.write('\t'.join(line) + '\n')
