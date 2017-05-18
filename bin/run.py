@@ -31,7 +31,6 @@ import logging
 import os
 import shutil
 from kegg_module_grabber import KeggModuleGrabber
-from preparer import Preparer
 from network_analyzer import NetworkAnalyser
 from metagenome_analyzer import MetagenomeAnalyzer
 from annotate import Annotate
@@ -39,6 +38,7 @@ from annotate import Annotate
 ###############################################################################
 
 class Run:
+    
     ANNOTATE        = 'annotate'
     MATRIX          = 'matrix'
 
@@ -153,9 +153,6 @@ class Run:
         #elif args.subparser_name in self.annotation_options:
         #    kmg = KeggModuleGrabber()
         #    kmg.main(args)
-        #elif args.subparser_name in self.prepare_options:
-        #    p = Preparer()
-        #    p.main(args)
         #elif args.subparser_name in self.metagenome_annotation_options:
         #    ma = MetagenomeAnalyzer()
         #    ma.main(args)

@@ -28,7 +28,6 @@ __status__ = "Development"
 ###############################################################################
 
 from kegg_module_grabber import KeggModuleGrabber
-from preparer import Preparer
 from network_analyzer import NetworkAnalyser
 from run import Run
 import argparse
