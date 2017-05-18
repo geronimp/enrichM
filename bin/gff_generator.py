@@ -66,4 +66,5 @@ class GffGenerator():
 						 else '+'),
 						'0',
 						';'.join(features)]
+						
 				out_io.write('\t'.join(line) + '\n')
