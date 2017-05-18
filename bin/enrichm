@@ -1,0 +1,235 @@
+#!/usr/bin/env python
+###############################################################################
+#                                                                             #
+# This program is free software: you can redistribute it and/or modify        #
+# it under the terms of the GNU General Public License as published by        #
+# the Free Software Foundation, either version 3 of the License, or           #
+# (at your option) any later version.                                         #
+#                                                                             #
+# This program is distributed in the hope that it will be useful,             #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
+# GNU General Public License for more details.                                #
+#                                                                             #
+# You should have received a copy of the GNU General Public License           #
+# along with this program. If not, see <http://www.gnu.org/licenses/>.        #
+#                                                                             #
+###############################################################################
+ 
+__author__ = "Joel Boyd"
+__copyright__ = "Copyright 2015"
+__credits__ = ["Joel Boyd"]
+__license__ = "GPL3"
+__version__ = "0.0.1"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
+__status__ = "Development"
+ 
+###############################################################################
+
+from kegg_module_grabber import KeggModuleGrabber
+from preparer import Preparer
+from network_analyzer import NetworkAnalyser
+from run import Run
+import argparse
+import logging
+import os
+import sys
+import textwrap
+
+debug={1:logging.CRITICAL,
+       2:logging.ERROR,
+       3:logging.WARNING,
+       4:logging.INFO,
+       5:logging.DEBUG}
+
+###############################################################################
+
+
+        
+class CustomHelpFormatter(argparse.HelpFormatter):
+    def _split_lines(self, text, width):
+        return text.splitlines()
+    
+def phelp():
+    print u"""                                           _      _     __  __ 
+                                          (_)    | |   |  \/  |
+                            ___ _ __  _ __ _  ___| |__ | \  / |
+                           / _ \ '_ \| '__| |/ __| '_ \| |\/| |
+                          |  __/ | | | |  | | (__| | | | |  | |
+                           \___|_| |_|_|  |_|\___|_| |_|_|  |_|   
+  ------------------------------------------------------------------------------------
+
+  Genome annotation
+    annotate    -> Basic annotation of genomes and metagenomes (be patient)
+
+  Enrichment analysis
+    classify    -> Interpret annotations provided to a genome
+    build       -> Determine what KEGG modules are encoded within a population genome.
+    enrichment  -> Generate an enrichment matrix from modules produced by annotate.
+    module_ab   -> Determine the total abundance of each KO module in each sample
+    
+  Network analysis
+    pathway     -> Generate a metabolic network from specific KEGG module or compounds
+    explore     -> Explore a metabolic network from a given compound            
+
+  Authors: J. Boyd, B. Woodcroft
+"""
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(help="--", dest='subparser_name')
+    
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
+    base_all             = argparse.ArgumentParser(add_help=False)
+    base_logging_options = base_all.add_argument_group('Logging options')
+    base_logging_options.add_argument('--log', help='output logging information to this file.')
+    base_logging_options.add_argument('--verbosity', type = int, default = 4, help='Level of verbosity (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
+    
+    base_output_options = base_all.add_argument_group('Output options')
+    base_output_options.add_argument('--output_directory', required=True, help='Output file')
+    base_output_options.add_argument('--force', action='store_true', help='Overwrite previous run')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+  
+    base_network = argparse.ArgumentParser(add_help=False)
+    
+    base_input_options = base_network.add_argument_group('Input options')
+    base_input_options.add_argument('--matrix', required=True, help='KO matrix. REQUIRED.')
+    base_input_options.add_argument('--transcriptome', help='Transcriptome KO matrix.')
+    base_input_options.add_argument('--metabolome', help='Metabolome CID matrix.')
+    base_input_options.add_argument('--metadata', required=True, help='Description of samples. REQUIRED.')
+    
+    base_network_options = base_network.add_argument_group('Network options')
+    base_network_options.add_argument('--rpair', action='store_true', help='Use rpair to construct network, instead of the reaction database (AVAILABLE SOON)')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Annotate
+
+    annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
+    
+    annotate_input_options = base_network.add_argument_group('Input options')
+    annotate_input_options.add_argument('--genome_files', default = None, nargs='+', help = 'Space separated list of genomes to annotate')
+    annotate_input_options.add_argument('--genome_directory', default = None, help = 'Directory containing genomes to annotate')
+    annotate_input_options.add_argument('--proteins_directory', default = None, help = 'Directory containing .faa files of genomes to annotate')
+
+    annotate_annotation_options = base_network.add_argument_group('Annotations options')
+    annotate_annotation_options.add_argument('--ko', action='store_true', help='Annotate with KO ids')   
+    annotate_annotation_options.add_argument('--pfam', action='store_true', help='Annotate with pfam HMMs')
+    annotate_annotation_options.add_argument('--tigrfam', action='store_true', help='Annotate with tigrfam HMMs')
+    annotate_annotation_options.add_argument('--cog', action='store_true', help='Annotate with COG ids')
+
+    annotate_cutoff_options = base_network.add_argument_group('Cutoff options')
+    annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-3, help='Use this evalue cutoff to filter false positives (default: 1e-05)')
+    annotate_cutoff_options.add_argument('--bit', type = float, default = 0, help='Use this bit score cutoff to filter false positives (default: 0)')
+    annotate_cutoff_options.add_argument('--id', type = float, default = 0, help='Use this percent identity cutoff to filter false positives (default: 0)')
+    annotate_cutoff_options.add_argument('--aln_query', type = float, default = 0, help='This fraction of the query must align to filter false positives (default: 0)')
+    annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0, help='This fraction of the reference must align to filter false positives (default: 0)')
+    
+    annotate_runtime_options = base_network.add_argument_group('Runtime options')
+    annotate_runtime_options.add_argument('--threads', default = '1', help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
+    
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Classify  
+
+    classify = subparsers.add_parser('classify', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    classify_input_options = base_network.add_argument_group('Input options')
+
+    classify_input_options.add_argument('--genome_and_ko_file', help='Path to file containing a genome<tab>KO list')
+    classify_input_options.add_argument('--genome_and_ko_matrix', help='Path to file containing a genome<tab>KO matrix')
+    classify_input_options.add_argument('--custom_modules', help='tab separated file containing module name, definition as the columns')
+
+    classify_cutoff_options = base_network.add_argument_group('Cutoff options')
+    classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0, help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Build
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Enrichment
+
+    enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
+    enrichment.add_argument('--annotations', help='Output of annotate', required=True)
+    enrichment.add_argument('--abundances', help='Genome abundances')
+    enrichment.add_argument('--metadata', help='Genome groups')
+    enrichment.add_argument('--modules', nargs='+', help='Limit output to these modules')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # module_ab
+
+    module_ab_options = subparsers.add_parser('module_ab', formatter_class=CustomHelpFormatter, parents=[base_all])
+    module_ab_options.add_argument('--matrix', required=True, help='KO matrix. REQUIRED.')
+    module_ab_options.add_argument('--modules', nargs='+', help='List of modules to include in the output. Default is all.')
+    module_ab_options.add_argument('--module_list_file', nargs='+', help='List of modules to include in the output. Default is all.')
+    module_ab_options.add_argument('--custom_modules',  help='tab separated file containing module name, definition as the columns')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Pathway
+    pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
+
+    pathway_pathway_options = pathway.add_argument_group('Pathway options')
+    pathway_pathway_options.add_argument('--limit', default=[], nargs='+', help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
+    pathway_pathway_options.add_argument('--filter', default=[], nargs='+', help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
+    pathway_pathway_options.add_argument('--from_node',  help='Find path from this node to the node specified to --to_node. UNDER DEVELOPMENT.')
+    pathway_pathway_options.add_argument('--to_node', help='Find path to this node from the node specified to --from_node. UNDER DEVELOPMENT.')
+    pathway_pathway_options.add_argument('--bfs_shortest_path', action='store_true', help="Find shortest path using a breadth first search (BFS) instead of the default weighted dijkstra's algorithm. UNDER DEVELOPMENT.")
+    pathway_directionality_options = pathway.add_argument_group('Directionality options')
+    pathway_directionality_options.add_argument('--catabolic', action='store_true', help='Find degradation pathway. NOT IMPLEMENTED.')
+    pathway_directionality_options.add_argument('--anabolic', action='store_true', help='Find assimilation pathway. NOT IMPLEMENTED.')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Explore
+
+    explore = subparsers.add_parser('explore', ormatter_class=CustomHelpFormatter, parents=[base_network, base_all])
+
+    explore_query_options = explore.add_argument_group('Query options')
+    explore_query_options.add_argument('--queries', required=True, help='query compounds')
+    explore_query_options.add_argument('--depth', type=int, default=2, help='depth')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Explore
+
+    explore = subparsers.add_parser('explore', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
+
+    explore_options = explore.add_argument_group('Pathway options')
+    explore_options.add_argument('--starting_compounds',  default=[],  nargs='+', help='start from these compounds in the network only. DEFAULT = start from a ')
+    explore_options.add_argument('--steps', type=int, default = 10000, help='number of steps into the network taken by each query')
+    explore_options.add_argument('--number_of_queries', type=int, default = 10000, help='number of queries to drop into the network')
+    explore_options.add_argument('--limit', default=[], nargs='+', help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
+    explore_options.add_argument('--filter', default=[], nargs='+', help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
+    if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+        phelp()
+    else:
+        args = parser.parse_args()
+
+        if args.log:
+            if os.path.isfile(args.log): 
+                raise Exception("File %s exists" % args.log)
+            logging.basicConfig(filename=args.log, level=debug[args.verbosity], 
+                                format='%(asctime)s %(levelname)s: %(message)s', 
+                                datefmt='%m/%d/%Y %I:%M:%S %p')
+        else:
+            logging.basicConfig(level=debug[args.verbosity], 
+                                format='%(asctime)s %(levelname)s: %(message)s', 
+                                datefmt='%m/%d/%Y %I:%M:%S %p')
+               
+        r = Run()
+        r.main(args)
+
