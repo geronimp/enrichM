@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!usr/bin/env python
 ###############################################################################
 #                                                                             #
 # This program is free software: you can redistribute it and/or modify        #
@@ -116,7 +116,7 @@ class BuildEncrichmentMatrix:
                 genome_to_annotation[genome_id] = set([module_id])
         return genome_to_annotation, modules, genomes
         
-    def main(self, annotations, abundances, metadata, subset_modules, 
+    def do(self, annotations, abundances, metadata, subset_modules, 
              output_path):
         annotations_dict, modules, genomes = self._parse_annotations(annotations)
         

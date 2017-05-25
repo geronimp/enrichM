@@ -59,14 +59,13 @@ def phelp():
                            \___|_| |_|_|  |_|\___|_| |_|_|  |_|   
   ------------------------------------------------------------------------------------
 
-  Genome annotation
+  Annotation 
     annotate    -> Basic annotation of genomes and metagenomes (be patient)
 
   Enrichment analysis
     classify    -> Interpret annotations provided to a genome
     build       -> Determine what KEGG modules are encoded within a population genome.
     enrichment  -> Generate an enrichment matrix from modules produced by annotate.
-    module_ab   -> Determine the total abundance of each KO module in each sample
     
   Network analysis
     pathway     -> Generate a metabolic network from specific KEGG module or compounds
@@ -89,7 +88,7 @@ if __name__ == "__main__":
     base_logging_options.add_argument('--verbosity', type = int, default = 4, help='Level of verbosity (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
     
     base_output_options = base_all.add_argument_group('Output options')
-    base_output_options.add_argument('--output_directory', required=True, help='Output file')
+    base_output_options.add_argument('--output', required=True, help='Output file')
     base_output_options.add_argument('--force', action='store_true', help='Overwrite previous run')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -112,25 +111,25 @@ if __name__ == "__main__":
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
     
-    annotate_input_options = base_network.add_argument_group('Input options')
+    annotate_input_options = annotate.add_argument_group('Input options')
     annotate_input_options.add_argument('--genome_files', default = None, nargs='+', help = 'Space separated list of genomes to annotate')
     annotate_input_options.add_argument('--genome_directory', default = None, help = 'Directory containing genomes to annotate')
     annotate_input_options.add_argument('--proteins_directory', default = None, help = 'Directory containing .faa files of genomes to annotate')
 
-    annotate_annotation_options = base_network.add_argument_group('Annotations options')
+    annotate_annotation_options = annotate.add_argument_group('Annotations options')
     annotate_annotation_options.add_argument('--ko', action='store_true', help='Annotate with KO ids')   
     annotate_annotation_options.add_argument('--pfam', action='store_true', help='Annotate with pfam HMMs')
     annotate_annotation_options.add_argument('--tigrfam', action='store_true', help='Annotate with tigrfam HMMs')
     annotate_annotation_options.add_argument('--cog', action='store_true', help='Annotate with COG ids')
 
-    annotate_cutoff_options = base_network.add_argument_group('Cutoff options')
+    annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
     annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-3, help='Use this evalue cutoff to filter false positives (default: 1e-05)')
     annotate_cutoff_options.add_argument('--bit', type = float, default = 0, help='Use this bit score cutoff to filter false positives (default: 0)')
     annotate_cutoff_options.add_argument('--id', type = float, default = 0, help='Use this percent identity cutoff to filter false positives (default: 0)')
     annotate_cutoff_options.add_argument('--aln_query', type = float, default = 0, help='This fraction of the query must align to filter false positives (default: 0)')
     annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0, help='This fraction of the reference must align to filter false positives (default: 0)')
     
-    annotate_runtime_options = base_network.add_argument_group('Runtime options')
+    annotate_runtime_options = annotate.add_argument_group('Runtime options')
     annotate_runtime_options.add_argument('--threads', default = '1', help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -139,38 +138,34 @@ if __name__ == "__main__":
 
     classify = subparsers.add_parser('classify', formatter_class=CustomHelpFormatter, parents=[base_all])
 
-    classify_input_options = base_network.add_argument_group('Input options')
+    classify_input_options = classify.add_argument_group('Input options')
 
-    classify_input_options.add_argument('--genome_and_ko_file', help='Path to file containing a genome<tab>KO list')
-    classify_input_options.add_argument('--genome_and_ko_matrix', help='Path to file containing a genome<tab>KO matrix')
+    classify_input_options.add_argument('--genome_and_annotation_file', help='Path to file containing a genome<tab>annotation list')
+    classify_input_options.add_argument('--genome_and_annotation_matrix', help='Path to file containing a genome<tab>annotation matrix')
     classify_input_options.add_argument('--custom_modules', help='tab separated file containing module name, definition as the columns')
 
-    classify_cutoff_options = base_network.add_argument_group('Cutoff options')
+    classify_cutoff_options = classify.add_argument_group('Cutoff options')
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0, help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Build
 
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Enrichment
-
-    enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
-    enrichment.add_argument('--annotations', help='Output of annotate', required=True)
-    enrichment.add_argument('--abundances', help='Genome abundances')
-    enrichment.add_argument('--metadata', help='Genome groups')
-    enrichment.add_argument('--modules', nargs='+', help='Limit output to these modules')
+    build = subparsers.add_parser('build', formatter_class=CustomHelpFormatter, parents=[base_all])
+    build.add_argument('--annotations', help='Output of annotate', required=True)
+    build.add_argument('--abundances', help='Genome abundances')
+    build.add_argument('--metadata', help='Genome groups')
+    build.add_argument('--modules', nargs='+', help='Limit output to these modules')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # module_ab
+    # module_ab DEPRECATED
 
-    module_ab_options = subparsers.add_parser('module_ab', formatter_class=CustomHelpFormatter, parents=[base_all])
-    module_ab_options.add_argument('--matrix', required=True, help='KO matrix. REQUIRED.')
-    module_ab_options.add_argument('--modules', nargs='+', help='List of modules to include in the output. Default is all.')
-    module_ab_options.add_argument('--module_list_file', nargs='+', help='List of modules to include in the output. Default is all.')
-    module_ab_options.add_argument('--custom_modules',  help='tab separated file containing module name, definition as the columns')
+    # module_ab_options = subparsers.add_parser('module_ab', formatter_class=CustomHelpFormatter, parents=[base_all])
+    # module_ab_options.add_argument('--matrix', required=True, help='KO matrix. REQUIRED.')
+    # module_ab_options.add_argument('--modules', nargs='+', help='List of modules to include in the output. Default is all.')
+    # module_ab_options.add_argument('--module_list_file', nargs='+', help='List of modules to include in the output. Default is all.')
+    # module_ab_options.add_argument('--custom_modules',  help='tab separated file containing module name, definition as the columns')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -191,7 +186,7 @@ if __name__ == "__main__":
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Explore
 
-    explore = subparsers.add_parser('explore', ormatter_class=CustomHelpFormatter, parents=[base_network, base_all])
+    explore = subparsers.add_parser('explore', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
     explore_query_options = explore.add_argument_group('Query options')
     explore_query_options.add_argument('--queries', required=True, help='query compounds')

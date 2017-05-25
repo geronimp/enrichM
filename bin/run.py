@@ -33,35 +33,27 @@ import shutil
 from kegg_module_grabber import KeggModuleGrabber
 from network_analyzer import NetworkAnalyser
 from metagenome_analyzer import MetagenomeAnalyzer
+from build_enrichment_matrix import BuildEncrichmentMatrix
 from annotate import Annotate
+from classifier import Classifier
 
 ###############################################################################
 
 class Run:
-    
-    ANNOTATE        = 'annotate'
-    MATRIX          = 'matrix'
-
-    NETWORK         = 'network'
-    EXPLORE         = 'explore'
-    PATHWAY         = 'pathway'
-    ENRICHMENT      = 'enrichment'
-    MODULE_AB       = 'module_ab'
-    TRAVERSE        = 'traverse'
 
     def __init__(self):
-        self.network_options    = [self.EXPLORE, 
-                                   self.NETWORK, 
-                                   self.PATHWAY,
-                                   self.TRAVERSE]
-                          
-        self.annotation_options = [self.ANNOTATE, 
-                                   self.ENRICHMENT]
-    
-        self.prepare_options    = [self.MATRIX]
-    
-        self.metagenome_annotation_options    = [self.MODULE_AB]
-    
+
+        self.ANNOTATE        = 'annotate'
+        self.MATRIX          = 'matrix'
+        self.BUILD           = 'build'
+        self.NETWORK         = 'network'
+        self.EXPLORE         = 'explore'
+        self.PATHWAY         = 'pathway'
+        self.ENRICHMENT      = 'enrichment'
+        self.MODULE_AB       = 'module_ab'
+        self.TRAVERSE        = 'traverse'
+        self.CLASSIFY        = 'classify'
+
     def _check_general(self, args):
         '''
         Check general input and output options are valid.
@@ -71,45 +63,14 @@ class Run:
         args    - object. Argparse object
         '''
         # Set up working directory
-        if os.path.isdir(args.output_directory):
+        if(os.path.isdir(args.output) or os.path.isfile(args.output)):
             if args.force:
-                logging.warning("Removing existing directory with name: %s" \
-                                % args.output_directory )
-                shutil.rmtree(args.output_directory)
+                logging.warning("Removing existing directory or file with name: %s" \
+                                % args.output )
+                shutil.rmtree(args.output)
             else:
-                raise Exception("File '%s' exists." % args.output_directory)
-        os.mkdir(args.output_directory)
-
-
-    # TODO: Check list of annotate pipeline
-
-
-    #    if args.subparser_name==NetworkAnalyser.MATRIX:
-    #        if(args.blast_outputs or args.hmmsearch_outputs):
-    #            if(args.blast_outputs and args.hmmsearch_outputs):
-    #                raise Exception("Both blast and hmmsearch outputs were \
-    #provided!")
-    #        else:
-    #            raise Exception("Neither blast or hmmsearch outputs were provided!")
-    #    if args.subparser_name==KeggModuleGrabber.ANNOTATE:
-    #        if(args.genome_and_ko_file or args.genome_and_ko_matrix):
-    #            if(args.genome_and_ko_file and args.genome_and_ko_matrix):
-    #                raise Exception("A genome to KO matrix and list were provided. \
-    #Please run with one or the other!") 
-    #        else:
-    #            raise Exception("genome to KO matrix or list not provided!") 
-    #    if args.subparser_name==KeggModuleGrabber.ENRICHMENT:
-    #        if not(args.metadata or args.abundances):
-    #            raise Exception("No metadata or abundance information provided to \
-    #enrichment.")
-    #    if args.subparser_name==NetworkAnalyser.EXPLORE:
-    #       if not(args.queries):
-    #            if args.depth:
-    #                logging.warning("--depth argument ignored without --queries \
-    #flag")
-    #
-    #    if(os.path.isfile(args.output_prefix + NetworkAnalyser.NETWORK_SUFFIX) or
-    #       os.path.isfile(args.output_prefix + NetworkAnalyser.METADATA_SUFFIX)):
+                raise Exception("File '%s' exists." % args.output)
+        os.mkdir(args.output)
 
     def _check_annotate(self, args):
         '''
@@ -123,15 +84,51 @@ class Run:
         if not(args.genome_files or args.genome_directory or args.proteins_directory):
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
         
+    def _check_classify(self, args):
+        '''
+        Check classify input and output options are valid.
+        
+        Parameters
+        ----------
+        args    - object. Argparse object
+        '''
+        # Ensure either an annotation matrix or list file has been specified:
+        if not(args.genome_and_annotation_file or args.genome_and_annotation_matrix):
+            raise Exception("Input error: An input file must be specified to either --genome_and_annotation_file or --genome_and_annotation_matrix")
+
+    def _check_build(self, args):
+        '''
+        Check build input and output options are valid.
+        
+        Parameters
+        ----------
+        args    - object. Argparse object
+        '''
+        if not(args.metadata or args.abundances):
+            raise Exception("No metadata or abundance information provided to build.")
+            
+    def _check_network(self, input, output):
+        '''
+        Check network (explore, pathway) input and output options are valid.
+        
+        Parameters
+        ----------
+        args    - object. Argparse object
+        '''
+        if args.subparser_name==NetworkAnalyser.EXPLORE:
+          if not(args.queries):
+            if args.depth:
+              logging.warning("--depth argument ignored without --queries flag")
 
     def main(self, args):
+
         self._check_general(args)
         
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
             a = Annotate(# Define inputs and outputs
                          args.genome_files,
-                         args.output_directory,
+                         args.output,
                          # Define type of annotation to be carried out
                          args.ko,
                          args.pfam,
@@ -146,13 +143,37 @@ class Run:
                          # Parameters
                          args.threads)
             a.do(args.genome_directory, args.proteins_directory)
-        elif
-        #elif args.subparser_name in self.network_options:
-        #    na=NetworkAnalyser(args.metadata)
-        #    na.main(args)
-        #elif args.subparser_name in self.annotation_options:
-        #    kmg = KeggModuleGrabber()
-        #    kmg.main(args)
-        #elif args.subparser_name in self.metagenome_annotation_options:
-        #    ma = MetagenomeAnalyzer()
-        #    ma.main(args)
+
+        elif args.subparser_name == self.CLASSIFY:
+            self._check_classify(args)
+            c = Classify()
+            c.do(args.custom_modules, 
+                 args.cutoff,
+                 args.genome_and_annotation_file,
+                 args.genome_and_annotation_matrix,
+                 args.output)
+
+        elif args.subparser_name == self.BUILD:
+            bem = BuildEncrichmentMatrix()
+            bem.do(args.annotations,
+                     args.abundances, 
+                     args.metadata, 
+                     args.modules, 
+                     args.output_prefix)
+
+        elif(args.subparser_name == self.PATHWAY or args.subparser_name == self.EXPLORE):
+            self._check_network(args)
+            na=NetworkAnalyser(args.metadata)
+            na.do(args.depth,
+                  args.filter,
+                  args.limit,
+                  args.metabolome,
+                  args.number_of_queries,
+                  args.queries,
+                  args.starting_compounds,
+                  args.steps,
+                  args.subparser_name,
+                  args.transcriptome,
+                  args.output_prefix)
+
+        logging.info('Done!')
