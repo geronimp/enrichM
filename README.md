@@ -1,4 +1,4 @@
-[logo](logo/logo.png)
+![logo](logo/logo.png)
 
 The purpose of enrichM is threefold: First, to provide a very basic pipeline for quickly annotating population genomes. Second, to compare user-defined groups of genomes and identify the enrichment of genes or metabolic pathways within and between groups. Third, to construct metabolic networks from the annotated population genomes. enrichM is not restricted to population genomes, and any of the above functions can be used to analyze and integrate metagenomic and metatranscriptomic data in metabolic networks as well. 
 
