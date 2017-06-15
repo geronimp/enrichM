@@ -33,34 +33,23 @@ import shutil
 from kegg_module_grabber import KeggModuleGrabber
 from network_analyzer import NetworkAnalyser
 from metagenome_analyzer import MetagenomeAnalyzer
+from build_enrichment_matrix import BuildEncrichmentMatrix
 from annotate import Annotate
 
 ###############################################################################
 
 class Run:
     
-    ANNOTATE        = 'annotate'
-    MATRIX          = 'matrix'
-
-    NETWORK         = 'network'
-    EXPLORE         = 'explore'
-    PATHWAY         = 'pathway'
-    ENRICHMENT      = 'enrichment'
-    MODULE_AB       = 'module_ab'
-    TRAVERSE        = 'traverse'
-
     def __init__(self):
-        self.network_options    = [self.EXPLORE, 
-                                   self.NETWORK, 
-                                   self.PATHWAY,
-                                   self.TRAVERSE]
-                          
-        self.annotation_options = [self.ANNOTATE, 
-                                   self.ENRICHMENT]
-    
-        self.prepare_options    = [self.MATRIX]
-    
-        self.metagenome_annotation_options    = [self.MODULE_AB]
+        self.ANNOTATE        = 'annotate'
+
+        self.CLASSIFY        = 'classify'
+        self.BUILD           = 'build'
+        self.ENRICHMENT      = 'enrichment'
+        self.MODULE_AB       = 'module_ab'
+
+        self.PATHWAY         = 'pathway'
+        self.EXPLORE         = 'explore'
     
     def _check_general(self, args):
         '''
@@ -123,6 +112,11 @@ class Run:
         if not(args.genome_files or args.genome_directory or args.proteins_directory):
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
         
+    def _check_annotate(self, args):
+        pass
+    
+    def _check_enrichment(self, args):
+        pass
 
     def main(self, args):
         self._check_general(args)
@@ -146,7 +140,26 @@ class Run:
                          # Parameters
                          args.threads)
             a.do(args.genome_directory, args.proteins_directory)
-        elif
+
+        if args.subparser_name == self.CLASSIFY:
+            self._check_annotate(args)
+            kem = KeggModuleGrabber()
+            kem.do(args.custom_modules, 
+                   args.output_prefix, 
+                   args.genome_and_annotation_file, 
+                   args.genome_and_annotation_matrix,
+                   args.cutoff)
+
+        elif args.subparser_name == self.ENRICHMENT:
+            self._check_enrichment(args)
+            bem = BuildEncrichmentMatrix()
+            bem.do(args.annotations,
+                   args.abundances,
+                   args.metadata,
+                   args.modules,
+                   args.output_prefix)
+
+
         #elif args.subparser_name in self.network_options:
         #    na=NetworkAnalyser(args.metadata)
         #    na.main(args)
@@ -156,3 +169,4 @@ class Run:
         #elif args.subparser_name in self.metagenome_annotation_options:
         #    ma = MetagenomeAnalyzer()
         #    ma.main(args)
+        logging.info('Done')
