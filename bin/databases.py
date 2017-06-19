@@ -26,7 +26,14 @@ __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
  
 ###############################################################################
+# Imports
 
-KO_DB = '/srv/db/uniprot/uniref100_20170310/uniref100.KO.faa.dmnd'
-PFAM_DB = '/srv/db/pfam/31/Pfam-A.hmm'
-TIGRFAM_DB = '/srv/db/tigrfam/15.0/TIGRFAMs_15.0_HMM/tigrfam.hmm'
+import os
+
+###############################################################################
+
+DATABASE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data', 'databases')
+
+KO_DB = os.path.join(DATABASE_DIR, 'uniref100.dmnd')
+PFAM_DB = os.path.join(DATABASE_DIR, 'pfam.hmm')
+TIGRFAM_DB = os.path.join(DATABASE_DIR, 'tigrfam.hmm')
