@@ -59,19 +59,21 @@ def phelp():
                            \___|_| |_|_|  |_|\___|_| |_|_|  |_|   
   ------------------------------------------------------------------------------------
 
+  Workflows
+    enrichment_wf   -> annotate - enrichment
+
   Annotation 
-    annotate    -> Basic annotation of genomes and metagenomes (be patient)
+    annotate        -> Basic annotation of genomes and metagenomes (be patient)
 
   Enrichment analysis
-    classify    -> Interpret annotations provided to a genome
-    build       -> Determine what KEGG modules are encoded within a population genome.
-    enrichment  -> Generate an enrichment matrix from modules produced by annotate.
+    classify        -> Interpret annotations provided to a genome
+    enrichment      -> Generate an enrichment matrix from modules produced by annotate.
     
   Network analysis
-    pathway     -> Generate a metabolic network from specific KEGG module or compounds
-    explore     -> Explore a metabolic network from a given compound            
+    pathway         -> Generate a metabolic network from specific KEGG module or compounds
+    explore         -> Explore a metabolic network from a given compound            
 
-  Authors: J. Boyd, B. Woodcroft
+  Authors: J. Boyd, B. Woodcroft, A. Baker
 """
 
 if __name__ == "__main__":
@@ -146,26 +148,27 @@ if __name__ == "__main__":
 
     classify_cutoff_options = classify.add_argument_group('Cutoff options')
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0, help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
-
+    
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Build
+    # Enrichment  
 
-    build = subparsers.add_parser('build', formatter_class=CustomHelpFormatter, parents=[base_all])
-    build.add_argument('--annotations', help='Output of annotate', required=True)
-    build.add_argument('--abundances', help='Genome abundances')
-    build.add_argument('--metadata', help='Genome groups')
-    build.add_argument('--modules', nargs='+', help='Limit output to these modules')
+    enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # module_ab DEPRECATED
+    enrichment_input_options = enrichment.add_argument_group('Input options')
+    enrichment_input_options.add_argument('--enrichm_annotations', help='Input annotations file from enrichm.')
+    enrichment_input_options.add_argument('--annotation_matrix', help='Input annotation matrix (pfam, Tigrfam, etc).')
+    enrichment_input_options.add_argument('--metadata', required=True, help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+    enrichment_input_options.add_argument('--taxonomy', help='Taxonomy of genomes')
 
-    # module_ab_options = subparsers.add_parser('module_ab', formatter_class=CustomHelpFormatter, parents=[base_all])
-    # module_ab_options.add_argument('--matrix', required=True, help='KO matrix. REQUIRED.')
-    # module_ab_options.add_argument('--modules', nargs='+', help='List of modules to include in the output. Default is all.')
-    # module_ab_options.add_argument('--module_list_file', nargs='+', help='List of modules to include in the output. Default is all.')
-    # module_ab_options.add_argument('--custom_modules',  help='tab separated file containing module name, definition as the columns')
+    enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
+    enrichment_runtime_options.add_argument('--modules', help='Modules to limit analysis to.')
+    enrichment_runtime_options.add_argument('--abundances', help='Genome abundance matrix.')
+    enrichment_runtime_options.add_argument('--no_ivi', action='store_true', help='Do not conduct individual vs individual tests (Fisher).')
+    enrichment_runtime_options.add_argument('--no_gvg', action='store_true', help='Do not conduct group vs group tests (T-test).')
+    enrichment_runtime_options.add_argument('--no_ivg', action='store_true', help='Do not conduct individual vs group tests (Z score).')
+    enrichment_runtime_options.add_argument('--cutoff', type=float, help='Only output results with a p-value below a this cutoff.')
+
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#

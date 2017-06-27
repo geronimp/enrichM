@@ -16,19 +16,24 @@
 #                                                                             #
 ###############################################################################
 
-__author__ = "Ben Woodcroft"
+__author__ = "Ben Woodcroft, Joel Boyd"
 __copyright__ = "Copyright 2015-2016"
-__credits__ = ["Ben Woodcroft"]
+__credits__ = ["Ben Woodcroft", "Joel Boyd"]
 __license__ = "GPL3+"
-__maintainer__ = "Ben Woodcroft"
-__email__ = "b.woodcroft near uq.edu.au"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
+__version__ = "0.0.1"
+
+###############################################################################
 
 import os, re
 import logging
 import pickle
 
 from module_description_parser import ModuleDescription
+
+###############################################################################
 
 class KeggModuleGrabber:
 
@@ -160,7 +165,3 @@ class KeggModuleGrabber:
                                                   str(num_all),
                                                   str(round(perc_covered * 100, 2))]) 
                         output_path_io.write(output_line + '\n') 
-
-
-
-

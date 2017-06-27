@@ -33,14 +33,13 @@ import shutil
 from kegg_module_grabber import KeggModuleGrabber
 from network_analyzer import NetworkAnalyser
 from metagenome_analyzer import MetagenomeAnalyzer
-from build_enrichment_matrix import BuildEncrichmentMatrix
+from enrichment import Enrichment
 from annotate import Annotate
-from classifier import Classifier
+from classifier import Classify
 
 ###############################################################################
 
 class Run:
-<<<<<<< HEAD
     
     def __init__(self):
         self.ANNOTATE        = 'annotate'
@@ -53,22 +52,6 @@ class Run:
         self.PATHWAY         = 'pathway'
         self.EXPLORE         = 'explore'
     
-=======
-
-    def __init__(self):
-
-        self.ANNOTATE        = 'annotate'
-        self.MATRIX          = 'matrix'
-        self.BUILD           = 'build'
-        self.NETWORK         = 'network'
-        self.EXPLORE         = 'explore'
-        self.PATHWAY         = 'pathway'
-        self.ENRICHMENT      = 'enrichment'
-        self.MODULE_AB       = 'module_ab'
-        self.TRAVERSE        = 'traverse'
-        self.CLASSIFY        = 'classify'
-
->>>>>>> 33bdee9900b7c3a8d294ca7c47b434e1310dfcae
     def _check_general(self, args):
         '''
         Check general input and output options are valid.
@@ -82,10 +65,12 @@ class Run:
             if args.force:
                 logging.warning("Removing existing directory or file with name: %s" \
                                 % args.output )
-                shutil.rmtree(args.output)
+                if os.path.isdir(args.output):
+                    shutil.rmtree(args.output)
+                else:
+                    os.remove(args.output)
             else:
                 raise Exception("File '%s' exists." % args.output)
-        os.mkdir(args.output)
 
     def _check_annotate(self, args):
         '''
@@ -97,15 +82,28 @@ class Run:
         '''
         # ensure either a list of genomes or a directory of genomes have been specified
         if not(args.genome_files or args.genome_directory or args.proteins_directory):
-            raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
-        
-<<<<<<< HEAD
-    def _check_annotate(self, args):
-        pass
+            raise Exception("Input error: Either a list of genomes or a directory of genomes \
+need to be specified.")
+        os.mkdir(args.output)
+
     
-    def _check_enrichment(self, args):
-        pass
-=======
+    def _check_enrichment(self, args):### ~ TODO: 
+        '''
+        
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        if not(args.enrichm_annotations or args.annotation_matrix): 
+            raise Exception("Input error: Either enrichm annotations (--enrichm_annotations) or an \
+annotation matrix (--annotation_matrix) need to be specified.")
+        if(args.enrichm_annotations and args.annotation_matrix): 
+            raise Exception("Input error: Only one set of comparisons can be made at any time, so \
+please specify either enrichM annotations (--enrichm_annotations) OR an annotation matrix \
+(--annotation_matrix)")
+
     def _check_classify(self, args):
         '''
         Check classify input and output options are valid.
@@ -116,7 +114,8 @@ class Run:
         '''
         # Ensure either an annotation matrix or list file has been specified:
         if not(args.genome_and_annotation_file or args.genome_and_annotation_matrix):
-            raise Exception("Input error: An input file must be specified to either --genome_and_annotation_file or --genome_and_annotation_matrix")
+            raise Exception("Input error: An input file must be specified to either \
+--genome_and_annotation_file or --genome_and_annotation_matrix")
 
     def _check_build(self, args):
         '''
@@ -141,10 +140,17 @@ class Run:
           if not(args.queries):
             if args.depth:
               logging.warning("--depth argument ignored without --queries flag")
->>>>>>> 33bdee9900b7c3a8d294ca7c47b434e1310dfcae
 
     def main(self, args):
-
+        '''
+        
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        ### ~ TODO: Logging file?
         self._check_general(args)
         
         if args.subparser_name == self.ANNOTATE:
@@ -167,37 +173,6 @@ class Run:
                          args.threads)
             a.do(args.genome_directory, args.proteins_directory)
 
-<<<<<<< HEAD
-        if args.subparser_name == self.CLASSIFY:
-            self._check_annotate(args)
-            kem = KeggModuleGrabber()
-            kem.do(args.custom_modules, 
-                   args.output_prefix, 
-                   args.genome_and_annotation_file, 
-                   args.genome_and_annotation_matrix,
-                   args.cutoff)
-
-        elif args.subparser_name == self.ENRICHMENT:
-            self._check_enrichment(args)
-            bem = BuildEncrichmentMatrix()
-            bem.do(args.annotations,
-                   args.abundances,
-                   args.metadata,
-                   args.modules,
-                   args.output_prefix)
-
-
-        #elif args.subparser_name in self.network_options:
-        #    na=NetworkAnalyser(args.metadata)
-        #    na.main(args)
-        #elif args.subparser_name in self.annotation_options:
-        #    kmg = KeggModuleGrabber()
-        #    kmg.main(args)
-        #elif args.subparser_name in self.metagenome_annotation_options:
-        #    ma = MetagenomeAnalyzer()
-        #    ma.main(args)
-        logging.info('Done')
-=======
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
             c = Classify()
@@ -207,13 +182,21 @@ class Run:
                  args.genome_and_annotation_matrix,
                  args.output)
 
-        elif args.subparser_name == self.BUILD:
-            bem = BuildEncrichmentMatrix()
-            bem.do(args.annotations,
-                     args.abundances, 
-                     args.metadata, 
-                     args.modules, 
-                     args.output_prefix)
+        elif args.subparser_name == self.ENRICHMENT: 
+            ### ~ TODO: Make sure an output directory is written, rather than to files.
+            self._check_enrichment(args)
+            e = Enrichment()
+            e.do(args.enrichm_annotations,
+                 args.annotation_matrix,
+                 args.metadata,
+                 args.modules,
+                 args.abundances,
+                 args.no_ivi,
+                 args.no_gvg,
+                 args.no_ivg,
+                 args.cutoff,
+                 args.output
+                 )
 
         elif(args.subparser_name == self.PATHWAY or args.subparser_name == self.EXPLORE):
             self._check_network(args)
@@ -231,4 +214,3 @@ class Run:
                   args.output_prefix)
 
         logging.info('Done!')
->>>>>>> 33bdee9900b7c3a8d294ca7c47b434e1310dfcae

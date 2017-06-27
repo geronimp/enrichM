@@ -36,4 +36,5 @@ DATABASE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '
 
 KO_DB = os.path.join(DATABASE_DIR, 'uniref100.dmnd')
 PFAM_DB = os.path.join(DATABASE_DIR, 'pfam.hmm')
+PFAM_CLAN_DB = os.path.join(DATABASE_DIR, 'pfam_clans.txt')
 TIGRFAM_DB = os.path.join(DATABASE_DIR, 'tigrfam.hmm')

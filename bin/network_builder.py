@@ -77,7 +77,7 @@ class NetworkBuilder:
         logging.info("Done")
         logging.info("Loading pathway to reaction information")
         self.p2r = pickle.load(open('.'.join([self.P2R, 
-                                              self.VERSION, self.PICKLE])))
+                                                 self.VERSION, self.PICKLE])))
         logging.info("Done")
         logging.info("Loading reaction to orthology information")
         self.r2k = pickle.load(open('.'.join([self.R2K, self.VERSION, 

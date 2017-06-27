@@ -30,7 +30,7 @@ import pickle
 
 from module_description_parser import ModuleDescription
 
-class Classifier:
+class Classify:
     
     PICKLE      = 'pickle'
 
@@ -97,6 +97,13 @@ class Classifier:
                     genome_to_annotation_sets[genome_name].add(annotation)
         return genome_to_annotation_sets
 
+    def write(self, lines, output_path):
+        
+        logging.info('Writing results to file: %s' % output_path)
+
+        with open(output_path, 'w') as output_path_io:
+            for line in sorted(lines):
+                output_path_io.write(line)      
     def do(self, custom_modules, cutoff, genome_and_annotation_file, 
            genome_and_annotation_matrix, output_path):
         '''
@@ -122,19 +129,16 @@ class Classifier:
         elif genome_and_annotation_matrix:
             genome_to_annotation_sets = self._parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix)
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
-        pathways2 = {}
+        
+        pathway = {}
+
+        output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found", 
+                             "Steps_needed", "Percent_Steps_found"]) + '\n']
         for name, pathway_string in self.m2def.items():
             if name not in self.signature_modules:   
                 path = ModuleDescription(pathway_string)
-                pathways2[name] = path
-
-        logging.info('Writing results to file: %s' % output_path)
-        with open(output_path, 'w') as output_path_io:
-            header = ["Genome_name", "Module_id", "Module_name", "Steps_found",
-                      "Steps_needed", "Percent_Steps_found"]
-            output_path_io.write('\t'.join(header) + '\n')  
-            for genome, annotations in genome_to_annotation_sets.items():
-                for name, path in pathways2.items():
+                pathway[name] = path
+                for genome, annotations in genome_to_annotation_sets.items():
                     num_covered = path.num_covered_steps(annotations)
                     num_all = path.num_steps()
                     perc_covered = num_covered / float(num_all)
@@ -143,8 +147,8 @@ class Classifier:
                                                   str(num_covered),  # 
                                                   str(num_all),
                                                   str(round(perc_covered * 100, 2))]) 
-                        output_path_io.write(output_line + '\n') 
-
+                        output_lines.append(output_line + '\n') 
+        self.write(output_lines, output_path)
             
 
 
