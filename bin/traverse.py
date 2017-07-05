@@ -17,7 +17,7 @@
 ###############################################################################
  
 __author__ = "Joel Boyd"
-__copyright__ = "Copyright 2015"
+__copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]
 __license__ = "GPL3"
 __version__ = "0.0.1"

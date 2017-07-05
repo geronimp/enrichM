@@ -17,7 +17,7 @@
 ###############################################################################
 
 __author__ = "Ben Woodcroft"
-__copyright__ = "Copyright 2015-2016"
+__copyright__ = "Copyright 2017"
 __credits__ = ["Ben Woodcroft"]
 __license__ = "GPL3+"
 __maintainer__ = "Ben Woodcroft"

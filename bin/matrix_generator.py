@@ -38,7 +38,7 @@ from genome import Genome
 class MatrixGenerator:
     
     COMPRESSED_SUFFIXES = set(['.gz', '.gzip'])
-    REFERENCE_PATH = '/srv/db/uniprot/201607/KO.idmapping.dat.gz'
+    REFERENCE_PATH = '/srv/db/uniprot/201607/KO.idmapping.dat.gz' ### ~ TODO: Wrap this up
     OLD_REFERENCE_PATH='/srv/db/uniprot/uniref_20151020/idmapping.KO.dat.gz'
     MATRIX_SUFFIX  = '_matrix.tsv'
     UR100 = 'UniRef100_'

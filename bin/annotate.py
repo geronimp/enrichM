@@ -26,13 +26,14 @@ __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
  
 ###############################################################################
+
 # System imports
 import logging
 import subprocess
 import os 
 
 
-from databases import KO_DB, PFAM_DB, TIGRFAM_DB
+from databases import Databases
 from matrix_generator import MatrixGenerator
 from gff_generator import GffGenerator
 from genome import Genome, AnnotationParser
@@ -157,7 +158,7 @@ class Annotate:
         os.mkdir(output_directory_path)
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._diamond_search(genome.path, output_annotation_path, KO_DB)
+            self._diamond_search(genome.path, output_annotation_path, Databases.KO_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 
@@ -206,14 +207,15 @@ class Annotate:
         os.mkdir(output_directory_path)
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._hmm_search(genome.path, output_annotation_path, PFAM_DB)
+            self._hmm_search(genome.path, output_annotation_path, Databases.PFAM_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 
                          self.aln_query, 
                          self.aln_reference,
                          AnnotationParser.PFAM)
-
+    ### ~ TODO: arCOG
+    
     def annotate_tigrfam(self, genomes_list):
         '''
         Annotate the proteins encoded by each genome with tigrfam ids using HMM searches.
@@ -228,7 +230,7 @@ class Annotate:
         os.mkdir(output_directory_path)      
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._hmm_search(genome.path, output_annotation_path, TIGRFAM_DB)
+            self._hmm_search(genome.path, output_annotation_path, Databases.TIGRFAM_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 

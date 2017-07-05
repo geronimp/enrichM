@@ -17,7 +17,7 @@
 ###############################################################################
  
 __author__ = "Joel Boyd"
-__copyright__ = "Copyright 2015"
+__copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]
 __license__ = "GPL3"
 __version__ = "0.0.1"
@@ -28,6 +28,7 @@ __status__ = "Development"
 ###############################################################################
 
 import logging
+import sys
 import os
 import shutil
 from kegg_module_grabber import KeggModuleGrabber
@@ -39,9 +40,18 @@ from classifier import Classify
 
 ###############################################################################
 
+debug={1:logging.CRITICAL,
+       2:logging.ERROR,
+       3:logging.WARNING,
+       4:logging.INFO,
+       5:logging.DEBUG}
+
+###############################################################################
+
 class Run:
     
     def __init__(self):
+
         self.ANNOTATE        = 'annotate'
 
         self.CLASSIFY        = 'classify'
@@ -51,7 +61,23 @@ class Run:
 
         self.PATHWAY         = 'pathway'
         self.EXPLORE         = 'explore'
-    
+
+    def _logging_setup(self, args):
+
+        logger = logging.getLogger('')
+        logger.setLevel(debug[args.verbosity])
+        log_format = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
+                                       datefmt="%Y-%m-%d %H:%M:%S %p")
+
+        stream_logger = logging.StreamHandler(sys.stdout)
+        stream_logger.setFormatter(log_format)
+        stream_logger.setLevel(debug[args.verbosity])
+        logger.addHandler(stream_logger)
+
+        file_logger = logging.FileHandler(os.path.join(args.output, args.log), 'a')
+        file_logger.setFormatter(log_format)
+        logger.addHandler(file_logger)
+
     def _check_general(self, args):
         '''
         Check general input and output options are valid.
@@ -63,14 +89,13 @@ class Run:
         # Set up working directory
         if(os.path.isdir(args.output) or os.path.isfile(args.output)):
             if args.force:
-                logging.warning("Removing existing directory or file with name: %s" \
-                                % args.output )
                 if os.path.isdir(args.output):
                     shutil.rmtree(args.output)
                 else:
                     os.remove(args.output)
             else:
                 raise Exception("File '%s' exists." % args.output)
+        os.mkdir(args.output)   
 
     def _check_annotate(self, args):
         '''
@@ -84,10 +109,8 @@ class Run:
         if not(args.genome_files or args.genome_directory or args.proteins_directory):
             raise Exception("Input error: Either a list of genomes or a directory of genomes \
 need to be specified.")
-        os.mkdir(args.output)
-
     
-    def _check_enrichment(self, args):### ~ TODO: 
+    def _check_enrichment(self, args):
         '''
         
         Parameters
@@ -103,7 +126,8 @@ annotation matrix (--annotation_matrix) need to be specified.")
             raise Exception("Input error: Only one set of comparisons can be made at any time, so \
 please specify either enrichM annotations (--enrichm_annotations) OR an annotation matrix \
 (--annotation_matrix)")
-
+        ### ~ TODO: Check Multi test correction inputs...
+        
     def _check_classify(self, args):
         '''
         Check classify input and output options are valid.
@@ -141,18 +165,18 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
             if args.depth:
               logging.warning("--depth argument ignored without --queries flag")
 
-    def main(self, args):
+    def main(self, args, command):
         '''
-        
         Parameters
         ----------
         
         Output
         ------
         '''
-        ### ~ TODO: Logging file?
+
         self._check_general(args)
-        
+        self._logging_setup(args)
+        logging.info("Running command: %s" % ' '.join(command))
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
             a = Annotate(# Define inputs and outputs
@@ -170,7 +194,8 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
                          args.aln_query, 
                          args.aln_reference, 
                          # Parameters
-                         args.threads)
+                         args.threads
+                         )
             a.do(args.genome_directory, args.proteins_directory)
 
         elif args.subparser_name == self.CLASSIFY:
@@ -180,21 +205,25 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
                  args.cutoff,
                  args.genome_and_annotation_file,
                  args.genome_and_annotation_matrix,
-                 args.output)
+                 args.output
+                 )
 
         elif args.subparser_name == self.ENRICHMENT: 
             ### ~ TODO: Make sure an output directory is written, rather than to files.
             self._check_enrichment(args)
             e = Enrichment()
-            e.do(args.enrichm_annotations,
+            e.do(# Inputs
+                 args.enrichm_annotations,
                  args.annotation_matrix,
                  args.metadata,
                  args.modules,
                  args.abundances,
-                 args.no_ivi,
+                 args.no_ivi, 
                  args.no_gvg,
                  args.no_ivg,
                  args.cutoff,
+                 args.threshold,
+                 args.multi_test_correction,
                  args.output
                  )
 
@@ -211,6 +240,7 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
                   args.steps,
                   args.subparser_name,
                   args.transcriptome,
-                  args.output_prefix)
+                  args.output_prefix
+                  )
 
         logging.info('Done!')
