@@ -29,6 +29,7 @@ pfam2clan_result        = 'pfam_to_clan.%s.pickle' % date
 clan2name_result        = 'clan_to_name.%s.pickle' % date
 pfam2name_result        = 'pfam_to_name.%s.pickle' % date
 pfam2description_result = 'pfam_to_description.%s.pickle' % date
+clan2pfam_result        = 'clan_to_pfam.%s.pickle' % date
 R2K                     = 'http://rest.kegg.jp/link/ko/reaction'
 r2k_result              = 'reaction_to_orthology.%s.pickle' % date
 R2C                     = 'http://rest.kegg.jp/link/compound/reaction'
@@ -79,23 +80,26 @@ def build_pfam_dict(url):
     clan2name           = {}
     pfam2name           = {}
     pfam2description    = {}
-
+    clan2pfam           = {}
     with tempfile.NamedTemporaryFile(prefix='for_file', suffix='.gz') as tmp:
         cmd = 'wget -O %s %s' % (tmp.name, url)
         subprocess.call(cmd, shell=True)
         for line in gzip.open(tmp.name):
             pfam, clan, clan_name, pfam_name, description \
                 = line.strip().split('\t')
-            
-            if clan:
+            if clan.startswith('CL') and len(clan)==6:
                 pfam2clan[pfam] = clan
                 clan2name[clan] = clan_name
+                if clan in clan2pfam:
+                    clan2pfam[clan]+=','+pfam
+                else:
+                    clan2pfam[clan] = pfam
             pfam2name[pfam] = pfam_name
             pfam2description[pfam] = description
-    return pfam2clan, clan2name, pfam2name, pfam2description
+    return pfam2clan, clan2name, pfam2name, pfam2description, clan2pfam
             
 print("Downloading PFAM clan information")
-pfam2clan, clan2name, pfam2name, pfam2description = build_pfam_dict(PFAM2CLAN)
+pfam2clan, clan2name, pfam2name, pfam2description, clan2pfam = build_pfam_dict(PFAM2CLAN)
 print("Done")
 print("Pickling results: %s" % pfam2clan_result)
 pickle.dump(pfam2clan, open(pfam2clan_result, "wb"))
@@ -105,6 +109,9 @@ print("Pickling results: %s" % pfam2name_result)
 pickle.dump(pfam2name, open(pfam2name_result, "wb"))
 print("Pickling results: %s" % pfam2description_result)
 pickle.dump(pfam2description, open(pfam2description_result, "wb"))
+print("Pickling results: %s" % clan2pfam_result)
+pickle.dump(clan2pfam, open(clan2pfam_result, "wb"))
+exit()
 
 print("Downloading reaction to orthology information from KEGG")
 r2k = build_dict(R2K)
@@ -216,7 +223,7 @@ print("Done")
 
 
 current_module_list = m.keys()
-output_pickle = 'module_to_definition.05-12-2016.pickle'
+output_pickle = 'module_to_definition.%s.pickle' % date
 print("Downloading module definitions from KEGG")
 m2def={}
 base='http://rest.kegg.jp/get/'
@@ -226,13 +233,12 @@ for idx, module_key in enumerate(current_module_list):
     m2def[module_key]=[]
     for line in urllib2.urlopen(url).read().strip().split('\n'):
         if line.startswith('DEFINITION'):
-            m2def[module_key]+=' '.join(line.split()[1:])            
+            m2def[module_key] = ' '.join(line.split()[1:])
     print "%s percent done" % str(round(float(idx+1)/tot, 2)*100)
     
 print("Done")
 print("Pickling results: %s" % output_pickle)
 pickle.dump(m2def, open(output_pickle, "wb"))
-
 
 
 print("Downloading rpair information from KEGG")

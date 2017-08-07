@@ -31,6 +31,8 @@ import logging
 import sys
 import os
 import shutil
+import time
+
 from kegg_module_grabber import KeggModuleGrabber
 from network_analyzer import NetworkAnalyser
 from metagenome_analyzer import MetagenomeAnalyzer
@@ -59,9 +61,6 @@ class Run:
         self.ENRICHMENT      = 'enrichment'
         self.MODULE_AB       = 'module_ab'
 
-        self.PATHWAY         = 'pathway'
-        self.EXPLORE         = 'explore'
-
     def _logging_setup(self, args):
 
         logger = logging.getLogger('')
@@ -87,6 +86,9 @@ class Run:
         args    - object. Argparse object
         '''
         # Set up working directory
+        if not args.output:
+            args.output = '%s-enrichm_%s_output' % (time.strftime("%Y-%m-%d_%H-%M"), args.subparser_name)
+
         if(os.path.isdir(args.output) or os.path.isfile(args.output)):
             if args.force:
                 if os.path.isdir(args.output):
@@ -152,7 +154,7 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to build.")
             
-    def _check_network(self, input, output):
+    def _check_network(self, args):
         '''
         Check network (explore, pathway) input and output options are valid.
         
@@ -160,10 +162,29 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
         ----------
         args    - object. Argparse object
         '''
+
         if args.subparser_name==NetworkAnalyser.EXPLORE:
-          if not(args.queries):
-            if args.depth:
-              logging.warning("--depth argument ignored without --queries flag")
+            args.filter             = None  
+            args.limit              = None 
+            args.starting_compounds = None
+            args.steps              = None
+            args.number_of_queries  = None
+
+            if not(args.queries):
+                if args.depth:
+                    logging.warning("--depth argument ignored without --queries flag")
+
+        if args.subparser_name==NetworkAnalyser.PATHWAY:
+            args.depth              = None
+            args.queries            = None
+            args.starting_compounds = None
+            args.steps              = None
+            args.number_of_queries  = None
+        
+        if args.subparser_name==NetworkAnalyser.TRAVERSE:
+            args.depth              = None
+            args.queries            = None
+
 
     def main(self, args, command):
         '''
@@ -176,7 +197,9 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
 
         self._check_general(args)
         self._logging_setup(args)
+
         logging.info("Running command: %s" % ' '.join(command))
+        
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
             a = Annotate(# Define inputs and outputs
@@ -209,7 +232,6 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
                  )
 
         elif args.subparser_name == self.ENRICHMENT: 
-            ### ~ TODO: Make sure an output directory is written, rather than to files.
             self._check_enrichment(args)
             e = Enrichment()
             e.do(# Inputs
@@ -227,20 +249,23 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
                  args.output
                  )
 
-        elif(args.subparser_name == self.PATHWAY or args.subparser_name == self.EXPLORE):
+        elif(args.subparser_name == NetworkAnalyser.PATHWAY or
+             args.subparser_name == NetworkAnalyser.EXPLORE or
+             args.subparser_name == NetworkAnalyser.TRAVERSE):
+
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
-            na.do(args.depth,
+            na.do(args.matrix,
+                  args.transcriptome,
+                  args.metabolome,
+                  args.depth,
                   args.filter,
                   args.limit,
-                  args.metabolome,
-                  args.number_of_queries,
                   args.queries,
-                  args.starting_compounds,
-                  args.steps,
                   args.subparser_name,
-                  args.transcriptome,
-                  args.output_prefix
+                  args.starting_compounds, 
+                  args.steps,
+                  args.number_of_queries,
+                  args.output
                   )
-
         logging.info('Done!')

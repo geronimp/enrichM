@@ -38,6 +38,7 @@ class Classify:
     VERSION     = open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()
     M2DEF       = os.path.join(DATA_PATH, 'module_to_definition')
     M           = os.path.join(DATA_PATH, 'module_descriptions')
+    KO_OUTPUT   = "KO_interpretations.tsv"
     
     def __init__(self):
 
@@ -105,7 +106,7 @@ class Classify:
             for line in sorted(lines):
                 output_path_io.write(line)      
     def do(self, custom_modules, cutoff, genome_and_annotation_file, 
-           genome_and_annotation_matrix, output_path):
+           genome_and_annotation_matrix, output_directory):
         '''
         
         Parameters
@@ -148,7 +149,7 @@ class Classify:
                                                   str(num_all),
                                                   str(round(perc_covered * 100, 2))]) 
                         output_lines.append(output_line + '\n') 
-        self.write(output_lines, output_path)
+        self.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT)) ### ~ TODO: make output flexible
             
 
 

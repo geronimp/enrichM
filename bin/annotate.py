@@ -78,6 +78,8 @@ class Annotate:
         # Parameters
         self.threads          = threads
 
+        self.databases        = Databases()
+
     def prep(self):
         '''
         Do any preparation specific to the genome annotation pipeline. 
@@ -158,7 +160,7 @@ class Annotate:
         os.mkdir(output_directory_path)
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._diamond_search(genome.path, output_annotation_path, Databases.KO_DB)
+            self._diamond_search(genome.path, output_annotation_path, self.databases.KO_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 
@@ -207,7 +209,7 @@ class Annotate:
         os.mkdir(output_directory_path)
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._hmm_search(genome.path, output_annotation_path, Databases.PFAM_DB)
+            self._hmm_search(genome.path, output_annotation_path, self.databases.PFAM_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 
@@ -230,7 +232,7 @@ class Annotate:
         os.mkdir(output_directory_path)      
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._hmm_search(genome.path, output_annotation_path, Databases.TIGRFAM_DB)
+            self._hmm_search(genome.path, output_annotation_path, self.databases.TIGRFAM_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 

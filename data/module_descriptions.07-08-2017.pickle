@@ -1,0 +1,3134 @@
+(dp0
+S'M00474'
+p1
+S'RcsC-RcsD-RcsB (capsule synthesis) two-component regulatory system'
+p2
+sS'M00475'
+p3
+S'BarA-UvrY (central carbon metabolism) two-component regulatory system'
+p4
+sS'M00476'
+p5
+S'ComP-ComA (competence) two-component regulatory system'
+p6
+sS'M00477'
+p7
+S'EvgS-EvgA (acid and drug tolerance) two-component regulatory system'
+p8
+sS'M00470'
+p9
+S'YxdK-YxdJ (antimicrobial peptide response) two-component regulatory system'
+p10
+sS'M00471'
+p11
+S'NarX-NarL (nitrate respiration) two-component regulatory system'
+p12
+sS'M00472'
+p13
+S'NarQ-NarP (nitrate respiration) two-component regulatory system'
+p14
+sS'M00473'
+p15
+S'UhpB-UhpA (hexose phosphates uptake) two-component regulatory system'
+p16
+sS'M00478'
+p17
+S'DegS-DegU (multicellular behavior control) two-component regulatory system'
+p18
+sS'M00479'
+p19
+S'DesK-DesR (membrane lipid fluidity regulation) two-component regulatory system'
+p20
+sS'M00276'
+p21
+S'PTS system, mannose-specific II component'
+p22
+sS'M00277'
+p23
+S'PTS system, N-acetylgalactosamine-specific II component'
+p24
+sS'M00274'
+p25
+S'PTS system, mannitol-specific II component'
+p26
+sS'M00275'
+p27
+S'PTS system, cellobiose-specific II component'
+p28
+sS'M00272'
+p29
+S'PTS system, beta-glucoside (arbutin/salicin/cellobiose)-specific II component'
+p30
+sS'M00273'
+p31
+S'PTS system, fructose-specific II component'
+p32
+sS'M00270'
+p33
+S'PTS system, trehalose-specific II component'
+p34
+sS'M00271'
+p35
+S'PTS system, beta-glucoside-specific II component'
+p36
+sS'M00377'
+p37
+S'Reductive acetyl-CoA pathway (Wood-Ljungdahl pathway)'
+p38
+sS'M00376'
+p39
+S'3-Hydroxypropionate bi-cycle'
+p40
+sS'M00375'
+p41
+S'Hydroxypropionate-hydroxybutylate cycle'
+p42
+sS'M00374'
+p43
+S'Dicarboxylate-hydroxybutyrate cycle'
+p44
+sS'M00373'
+p45
+S'Ethylmalonyl pathway'
+p46
+sS'M00372'
+p47
+S'Abscisic acid biosynthesis, beta-carotene => abscisic acid'
+p48
+sS'M00278'
+p49
+S'PTS system, sorbose-specific II component'
+p50
+sS'M00279'
+p51
+S'PTS system, galactitol-specific II component'
+p52
+sS'M00519'
+p53
+S'YesM-YesN two-component regulatory system'
+p54
+sS'M00518'
+p55
+S'GlnK-GlnL (glutamine utilization) two-component regulatory system'
+p56
+sS'M00513'
+p57
+S'LuxQN/CqsS-LuxU-LuxO (quorum sensing) two-component regulatory system'
+p58
+sS'M00512'
+p59
+S'CckA-CtrA/CpdR (cell cycle control) two-component regulatory system'
+p60
+sS'M00511'
+p61
+S'PleC-PleD (cell fate control) two-component regulatory system'
+p62
+sS'M00510'
+p63
+S'Cph1-Rcp1 (light response) two-component regulatory system'
+p64
+sS'M00517'
+p65
+S'RpfC-RpfG (cell-to-cell signaling) two-component regulatory system'
+p66
+sS'M00516'
+p67
+S'SLN1-YPD1-SSK1/SKN7 (osmosensing) two-component regulatory system'
+p68
+sS'M00515'
+p69
+S'FlrB-FlrC (polar flagellar synthesis) two-component regulatory system'
+p70
+sS'M00514'
+p71
+S'TtrS-TtrR (tetrathionate respiration) two-component regulatory system'
+p72
+sS'M00742'
+p73
+S'Aminoglycoside resistance, protease FtsH'
+p74
+sS'M00429'
+p75
+S'Competence-related DNA transformation transporter'
+p76
+sS'M00743'
+p77
+S'Aminoglycoside resistance, protease HtpX'
+p78
+sS'M00428'
+p79
+S'eIF4F complex'
+p80
+sS'M00682'
+p81
+S'Notch signaling'
+p82
+sS'M00761'
+p83
+S'Undecaprenylphosphate alpha-L-Ara4N biosynthesis, UDP-GlcA => undecaprenyl phosphate alpha-L-Ara4N'
+p84
+sS'M00012'
+p85
+S'Glyoxylate cycle'
+p86
+sS'M00013'
+p87
+S'Malonate semialdehyde pathway, propanoyl-CoA => acetyl-CoA'
+p88
+sS'M00010'
+p89
+S'Citrate cycle, first carbon oxidation, oxaloacetate => 2-oxoglutarate'
+p90
+sS'M00011'
+p91
+S'Citrate cycle, second carbon oxidation, 2-oxoglutarate => oxaloacetate'
+p92
+sS'M00016'
+p93
+S'Lysine biosynthesis, succinyl-DAP pathway, aspartate => lysine'
+p94
+sS'M00017'
+p95
+S'Methionine biosynthesis, apartate => homoserine => methionine'
+p96
+sS'M00014'
+p97
+S'Glucuronate pathway (uronate pathway)'
+p98
+sS'M00015'
+p99
+S'Proline biosynthesis, glutamate => proline'
+p100
+sS'M00153'
+p101
+S'Cytochrome d ubiquinol oxidase'
+p102
+sS'M00152'
+p103
+S'Cytochrome bc1 complex'
+p104
+sS'M00018'
+p105
+S'Threonine biosynthesis, aspartate => homoserine => threonine'
+p106
+sS'M00019'
+p107
+S'Valine/isoleucine biosynthesis, pyruvate => valine / 2-oxobutanoate => isoleucine'
+p108
+sS'M00157'
+p109
+S'F-type ATPase, prokaryotes and chloroplasts'
+p110
+sS'M00156'
+p111
+S'Cytochrome c oxidase, cbb3-type'
+p112
+sS'M00155'
+p113
+S'Cytochrome c oxidase, prokaryotes'
+p114
+sS'M00154'
+p115
+S'Cytochrome c oxidase'
+p116
+sS'M00607'
+p117
+S'Glycerol transport system'
+p118
+sS'M00606'
+p119
+S"N,N'-Diacetylchitobiose transport system"
+p120
+sS'M00605'
+p121
+S'Glucose/mannose transport system'
+p122
+sS'M00604'
+p123
+S'Trehalose transport system'
+p124
+sS'M00603'
+p125
+S'Putative aldouronate transport system'
+p126
+sS'M00602'
+p127
+S'Arabinosaccharide transport system'
+p128
+sS'M00601'
+p129
+S'Putative chitobiose transport system'
+p130
+sS'M00600'
+p131
+S'alpha-1,4-Digalacturonate transport system'
+p132
+sS'M00764'
+p133
+S'PTS system, fructoselysine/glucoselysine-specific II component'
+p134
+sS'M00765'
+p135
+S'Multidrug resistance, efflux pump Bmr'
+p136
+sS'M00766'
+p137
+S'Streptomycin resistance, deactivating enzyme StrAB'
+p138
+sS'M00767'
+p139
+S'Multidrug resistance, efflux pump OqxAB'
+p140
+sS'M00760'
+p141
+S"Erythromycin resistance, macrolide 2'-phosphotransferase I MphA"
+p142
+sS'M00649'
+p143
+S'Multidrug resistance, efflux pump AdeABC'
+p144
+sS'M00609'
+p145
+S'Cysteine biosynthesis, methionine => cysteine'
+p146
+sS'M00608'
+p147
+S'2-Oxocarboxylic acid chain extension, 2-oxoglutarate => 2-oxoadipate => 2-oxopimelate => 2-oxosuberate'
+p148
+sS'M00568'
+p149
+S'Catechol ortho-cleavage, catechol => 3-oxoadipate'
+p150
+sS'M00569'
+p151
+S'Catechol meta-cleavage, catechol => acetyl-CoA / 4-methylcatechol => propanoyl-CoA'
+p152
+sS'M00566'
+p153
+S'Dipeptide transport system, Firmicutes'
+p154
+sS'M00567'
+p155
+S'Methanogenesis, CO2 => methane'
+p156
+sS'M00564'
+p157
+S'Helicobacter pylori pathogenicity signature, cagA pathogenicity island'
+p158
+sS'M00565'
+p159
+S'Trehalose biosynthesis, D-glucose 1P => trehalose'
+p160
+sS'M00563'
+p161
+S'Methanogenesis, methylamine/dimethylamine/trimethylamine => methane'
+p162
+sS'M00128'
+p163
+S'Ubiquinone biosynthesis, eukaryotes, 4-hydroxybenzoate => ubiquinone'
+p164
+sS'M00129'
+p165
+S'Ascorbate biosynthesis, animals, glucose-1P => ascorbate'
+p166
+sS'M00126'
+p167
+S'Tetrahydrofolate biosynthesis, GTP => THF'
+p168
+sS'M00127'
+p169
+S'Thiamine biosynthesis, AIR => thiamine-P/thiamine-2P'
+p170
+sS'M00124'
+p171
+S'Pyridoxal biosynthesis, erythrose-4P => pyridoxal-5P'
+p172
+sS'M00125'
+p173
+S'Riboflavin biosynthesis, GTP => riboflavin/FMN/FAD'
+p174
+sS'M00122'
+p175
+S'Cobalamin biosynthesis, cobinamide => cobalamin'
+p176
+sS'M00123'
+p177
+S'Biotin biosynthesis, pimeloyl-ACP/CoA => biotin'
+p178
+sS'M00120'
+p179
+S'Coenzyme A biosynthesis, pantothenate => CoA'
+p180
+sS'M00121'
+p181
+S'Heme biosynthesis, glutamate => protoheme/siroheme'
+p182
+sS'M00089'
+p183
+S'Triacylglycerol biosynthesis'
+p184
+sS'M00088'
+p185
+S'Ketone body biosynthesis, acetyl-CoA => acetoacetate/3-hydroxybutyrate/acetone'
+p186
+sS'M00379'
+p187
+S'SCF-MET30 complex'
+p188
+sS'M00081'
+p189
+S'Pectin degradation'
+p190
+sS'M00080'
+p191
+S'Lipopolysaccharide biosynthesis, inner core => outer core => O-antigen'
+p192
+sS'M00083'
+p193
+S'Fatty acid biosynthesis, elongation'
+p194
+sS'M00082'
+p195
+S'Fatty acid biosynthesis, initiation'
+p196
+sS'M00085'
+p197
+S'Fatty acid biosynthesis, elongation, mitochondria'
+p198
+sS'M00779'
+p199
+S'Dihydrokalafungin biosynthesis, octaketide => dihydrokalafungin'
+p200
+sS'M00087'
+p201
+S'beta-Oxidation'
+p202
+sS'M00086'
+p203
+S'beta-Oxidation, acyl-CoA synthesis'
+p204
+sS'M00489'
+p205
+S'DctS-DctR (C4-dicarboxylate transport) two-component regulatory system'
+p206
+sS'M00488'
+p207
+S'DcuS-DcuR (C4-dicarboxylate metabolism) two-component regulatory system'
+p208
+sS'M00620'
+p209
+S'Incomplete reductive citrate cycle, acetyl-CoA => oxoglutarate'
+p210
+sS'M00333'
+p211
+S'Type IV secretion system'
+p212
+sS'M00332'
+p213
+S'Type III secretion system'
+p214
+sS'M00331'
+p215
+S'Type II general secretion pathway'
+p216
+sS'M00330'
+p217
+S'Adhesin protein transport system'
+p218
+sS'M00337'
+p219
+S'Immunoproteasome'
+p220
+sS'M00336'
+p221
+S'Twin-arginine translocation (Tat) system'
+p222
+sS'M00335'
+p223
+S'Sec (secretion) system'
+p224
+sS'M00334'
+p225
+S'Type VI secretion system'
+p226
+sS'M00339'
+p227
+S'RaxAB-RaxC type I secretion system'
+p228
+sS'M00338'
+p229
+S'Cysteine biosynthesis, homocysteine + serine => cysteine'
+p230
+sS'M00771'
+p231
+S'FitF-FitH (insecticidal toxin regulation) two-component regulatory system'
+p232
+sS'M00238'
+p233
+S'D-Methionine transport system'
+p234
+sS'M00239'
+p235
+S'Peptides/nickel transport system'
+p236
+sS'M00691'
+p237
+S'DNA damage-induced cell cycle checkpoints'
+p238
+sS'M00232'
+p239
+S'General L-amino acid transport system'
+p240
+sS'M00233'
+p241
+S'Glutamate transport system'
+p242
+sS'M00230'
+p243
+S'Glutamate/aspartate transport system'
+p244
+sS'M00231'
+p245
+S'Octopine/nopaline transport system'
+p246
+sS'M00236'
+p247
+S'Putative polar amino acid transport system'
+p248
+sS'M00237'
+p249
+S'Branched-chain amino acid transport system'
+p250
+sS'M00234'
+p251
+S'Cystine transport system'
+p252
+sS'M00235'
+p253
+S'Arginine/ornithine transport system'
+p254
+sS'M00786'
+p255
+S'Fumitremorgin alkaloid biosynthesis, tryptophan + proline => fumitremorgin C/A'
+p256
+sS'M00787'
+p257
+S'Bacilysin biosynthesis, prephenate => bacilysin'
+p258
+sS'M00784'
+p259
+S'Elloramycin biosynthesis, 8-demethyltetracenomycin C => elloramycin A'
+p260
+sS'M00785'
+p261
+S'Cycloserine biosynthesis, arginine/serine => cycloserine'
+p262
+sS'M00782'
+p263
+S'Mithramycin biosynthesis, 4-demethylpremithramycinone => mithramycin'
+p264
+sS'M00783'
+p265
+S'Tetracenomycin C/8-demethyltetracenomycin C biosynthesis, tetracenomycin F2 => tetracenomycin C/8-demethyltetracenomycin C'
+p266
+sS'M00780'
+p267
+S'Tetracycline/oxytetracycline biosynthesis, pretetramide => tetracycline/oxytetracycline'
+p268
+sS'M00781'
+p269
+S'Nogalavinone/aklavinone biosynthesis, deoxynogalonate/deoxyaklanonate => nogalavinone/aklavinone'
+p270
+sS'M00788'
+p271
+S'Terpentecin biosynthesis, GGAP => terpentecin'
+p272
+sS'M00789'
+p273
+S'Rebeccamycin biosynthesis, tryptophan => rebeccamycin'
+p274
+sS'M00346'
+p275
+S'Formaldehyde assimilation, serine pathway'
+p276
+sS'M00344'
+p277
+S'Formaldehyde assimilation, xylulose monophosphate pathway'
+p278
+sS'M00345'
+p279
+S'Formaldehyde assimilation, ribulose monophosphate pathway'
+p280
+sS'M00342'
+p281
+S'Bacterial proteasome'
+p282
+sS'M00343'
+p283
+S'Archaeal proteasome'
+p284
+sS'M00340'
+p285
+S'Proteasome, 20S core particle'
+p286
+sS'M00341'
+p287
+S'Proteasome, 19S regulatory particle (PA700)'
+p288
+sS'M00427'
+p289
+S'Nuclear pore complex'
+p290
+sS'M00426'
+p291
+S'Survival motor neuron (SMN) complex'
+p292
+sS'M00425'
+p293
+S'H/ACA ribonucleoprotein complex'
+p294
+sS'M00424'
+p295
+S'Shelterin complex'
+p296
+sS'M00423'
+p297
+S'Molybdate/tungstate transport system'
+p298
+sS'M00422'
+p299
+S'Acetyl-CoA pathway, CO2 => acetyl-CoA'
+p300
+sS'M00348'
+p301
+S'Glutathione transport system'
+p302
+sS'M00349'
+p303
+S'Microcin C transport system'
+p304
+sS'M00648'
+p305
+S'Multidrug resistance, efflux pump MdtABC'
+p306
+sS'M00383'
+p307
+S'ECV complex'
+p308
+sS'M00522'
+p309
+S'SalK-SalR two-component regulatory system'
+p310
+sS'M00523'
+p311
+S'RegB-RegA (redox response) two-component regulatory system'
+p312
+sS'M00520'
+p313
+S'ChvG-ChvI (acidity sensing) two-component regulatory system'
+p314
+sS'M00521'
+p315
+S'CiaH-CiaR two-component regulatory system'
+p316
+sS'M00526'
+p317
+S'Lysine biosynthesis, DAP dehydrogenase pathway, aspartate => lysine'
+p318
+sS'M00527'
+p319
+S'Lysine biosynthesis, DAP aminotransferase pathway, aspartate => lysine'
+p320
+sS'M00524'
+p321
+S'FixL-FixJ (nitrogen fixation) two-component regulatory system'
+p322
+sS'M00525'
+p323
+S'Lysine biosynthesis, acetyl-DAP pathway, aspartate => lysine'
+p324
+sS'M00643'
+p325
+S'Multidrug resistance, efflux pump MexXY-OprM'
+p326
+sS'M00642'
+p327
+S'Multidrug resistance, efflux pump MexJK-OprM'
+p328
+sS'M00528'
+p329
+S'Nitrification, ammonia => nitrite'
+p330
+sS'M00529'
+p331
+S'Denitrification, nitrate => nitrogen'
+p332
+sS'M00647'
+p333
+S'Multidrug resistance, efflux pump AcrAB-TolC/SmeDEF'
+p334
+sS'M00641'
+p335
+S'Multidrug resistance, efflux pump MexEF-OprN'
+p336
+sS'M00645'
+p337
+S'Multidrug resistance, efflux pump SmeABC'
+p338
+sS'M00644'
+p339
+S'Vanadium resistance, efflux pump MexGHI-OpmD'
+p340
+sS'M00385'
+p341
+S'Cul4-DDB1-DDB2 complex'
+p342
+sS'M00646'
+p343
+S'Multidrug resistance, efflux pump AcrAD-TolC'
+p344
+sS'M00162'
+p345
+S'Cytochrome b6f complex'
+p346
+sS'M00163'
+p347
+S'Photosystem I'
+p348
+sS'M00289'
+p349
+S'RF-C complex'
+p350
+sS'M00288'
+p351
+S'RPA complex'
+p352
+sS'M00166'
+p353
+S'Reductive pentose phosphate cycle, ribulose-5P => glyceraldehyde-3P'
+p354
+sS'M00167'
+p355
+S'Reductive pentose phosphate cycle, glyceraldehyde-3P => ribulose-5P'
+p356
+sS'M00165'
+p357
+S'Reductive pentose phosphate cycle (Calvin cycle)'
+p358
+sS'M00283'
+p359
+S'PTS system, ascorbate-specific II component'
+p360
+sS'M00282'
+p361
+S'PTS system, D-glucosamine-specific II component'
+p362
+sS'M00281'
+p363
+S'PTS system, lactose-specific II component'
+p364
+sS'M00169'
+p365
+S'CAM (Crassulacean acid metabolism), light'
+p366
+sS'M00287'
+p367
+S'PTS system, galactosamine-specific II component'
+p368
+sS'M00286'
+p369
+S'GINS complex'
+p370
+sS'M00285'
+p371
+S'MCM complex'
+p372
+sS'M00284'
+p373
+S'Origin recognition complex'
+p374
+sS'M00737'
+p375
+S'Bacitracin resistance, VraDE transporter'
+p376
+sS'M00736'
+p377
+S'Nocardicin A biosynthesis, L-pHPG + arginine + serine => nocardicin A'
+p378
+sS'M00734'
+p379
+S'BraS-BraR (bacitracin transport) two-component regulatory system'
+p380
+sS'M00049'
+p381
+S'Adenine ribonucleotide biosynthesis, IMP => ADP,ATP'
+p382
+sS'M00048'
+p383
+S'Inosine monophosphate biosynthesis, PRPP + glutamine => IMP'
+p384
+sS'M00731'
+p385
+S'Bacitracin transport system'
+p386
+sS'M00730'
+p387
+S'Cationic antimicrobial peptide (CAMP) resistance, VraFG transporter'
+p388
+sS'M00045'
+p389
+S'Histidine degradation, histidine => N-formiminoglutamate => glutamate'
+p390
+sS'M00044'
+p391
+S'Tyrosine degradation, tyrosine => homogentisate'
+p392
+sS'M00047'
+p393
+S'Creatine pathway'
+p394
+sS'M00046'
+p395
+S'Pyrimidine degradation, uracil => beta-alanine, thymine => 3-aminoisobutanoate'
+p396
+sS'M00040'
+p397
+S'Tyrosine biosynthesis, prephanate => pretyrosine => tyrosine'
+p398
+sS'M00043'
+p399
+S'Thyroid hormone biosynthesis, tyrosine => triiodothyronine/thyroxine'
+p400
+sS'M00042'
+p401
+S'Catecholamine biosynthesis, tyrosine => dopamine => noradrenaline => adrenaline'
+p402
+sS'M00638'
+p403
+S'Salicylate degradation, salicylate => gentisate'
+p404
+sS'M00639'
+p405
+S'Multidrug resistance, efflux pump MexCD-OprJ'
+p406
+sS'M00636'
+p407
+S'Phthalate degradation, phthalate => protocatechuate'
+p408
+sS'M00637'
+p409
+S'Anthranilate degradation, anthranilate => catechol'
+p410
+sS'M00634'
+p411
+S'Oleandomycin transport system'
+p412
+sS'M00635'
+p413
+S'Tetracycline resistance, TetAB(46) transporter'
+p414
+sS'M00632'
+p415
+S'Galactose degradation, Leloir pathway, galactose => alpha-D-glucose-1P'
+p416
+sS'M00633'
+p417
+S'Semi-phosphorylative Entner-Doudoroff pathway, gluconate/galactonate => glycerate-3P'
+p418
+sS'M00630'
+p419
+S'D-Galacturonate degradation (fungi), D-galacturonate => glycerol'
+p420
+sS'M00631'
+p421
+S'D-Galacturonate degradation (bacteria), D-galacturonate => pyruvate + D-glyceraldehyde 3P'
+p422
+sS'M00818'
+p423
+S'FusK-FusR (virulence regulation) two-component regulatory system'
+p424
+sS'M00823'
+p425
+S'Chlortetracycline biosynthesis, pretetramide => chlortetracycline'
+p426
+sS'M00822'
+p427
+S'Multidrug resistance, efflux pump MexMN-OprM'
+p428
+sS'M00821'
+p429
+S'Multidrug resistance, efflux pump TriABC-TolC'
+p430
+sS'M00820'
+p431
+S'SagS-HptB-HsbR (swarming activity and biofilm formation) two-component regulatory system'
+p432
+sS'M00827'
+p433
+S'C-1027 beta-amino acid moiety biosynthesis, tyrosine => 3-chloro-4,5-dihydroxy-beta-phenylalanyl-PCP'
+p434
+sS'M00826'
+p435
+S'C-1027 benzoxazolinate moiety biosynthesis, chorismate => benzoxazolinyl-CoA'
+p436
+sS'M00825'
+p437
+S'10-membered enediyne core biosynthesis, malonyl-CoA => 3-hydroxyhexadeca-4,6,8,10,12,14-hexaenoyl-ACP => 10-membered enediyne core'
+p438
+sS'M00824'
+p439
+S'9-membered enediyne core biosynthesis, malonyl-CoA => 3-hydroxyhexadeca-4,6,8,10,12,14-hexaenoyl-ACP => 9-membered enediyne core'
+p440
+sS'M00829'
+p441
+S'3,6-Dimethylsalicylyl-CoA biosynthesis, malonyl-CoA => 6-methylsalicylate => 3,6-dimethylsalicylyl-CoA'
+p442
+sS'M00828'
+p443
+S'Maduropeptin beta-hydroxy acid moiety biosynthesis, tyrosine => 3-(2-chloro-3-hydroxy-4-methoxyphenyl)-3-hydroxypropanoyl-PCP'
+p444
+sS'M00293'
+p445
+S'DNA polymerase zeta  complex'
+p446
+sS'M00463'
+p447
+S'TrcS-TrcR two-component regulatory system'
+p448
+sS'M00462'
+p449
+S'PrrB-PrrA (intracellular multiplication) two-component regulatory system'
+p450
+sS'M00461'
+p451
+S'MtrB-MtrA (osmotic stress response) two-component regulatory system'
+p452
+sS'M00460'
+p453
+S'MprB-MprA (maintenance of persistent infection) two-component regulatory system'
+p454
+sS'M00467'
+p455
+S'SasA-RpaAB (circadian timing mediating) two-component regulatory system'
+p456
+sS'M00466'
+p457
+S'NblS-NblR (photosynthesis) two-component regulatory system'
+p458
+sS'M00465'
+p459
+S'ManS-ManR (manganese homeostasis) two-component regulatory system'
+p460
+sS'M00464'
+p461
+S'NrsS-NrsR (nickel tolerance) two-component regulatory system'
+p462
+sS'M00469'
+p463
+S'BceS-BceR (bacitracin transport) two-component regulatory system'
+p464
+sS'M00468'
+p465
+S'SaeS-SaeR (staphylococcal virulence regulation) two-component regulatory system'
+p466
+sS'M00265'
+p467
+S'PTS system, glucose-specific II component'
+p468
+sS'M00264'
+p469
+S'DNA polymerase II complex, archaea'
+p470
+sS'M00267'
+p471
+S'PTS system, N-acetylglucosamine-specific II component'
+p472
+sS'M00309'
+p473
+S'Non-phosphorylative Entner-Doudoroff pathway, gluconate/galactonate => glycerate'
+p474
+sS'M00261'
+p475
+S'DNA polymerase alpha / primase complex'
+p476
+sS'M00260'
+p477
+S'DNA polymerase III complex, bacteria'
+p478
+sS'M00263'
+p479
+S'DNA polymerase epsilon complex'
+p480
+sS'M00262'
+p481
+S'DNA polymerase delta complex'
+p482
+sS'M00302'
+p483
+S'2-Aminoethylphosphonate transport system'
+p484
+sS'M00303'
+p485
+S'PTS system, N-acetylmuramic acid-specific II component'
+p486
+sS'M00300'
+p487
+S'Putrescine transport system'
+p488
+sS'M00301'
+p489
+S'Mannopine transport system'
+p490
+sS'M00269'
+p491
+S'PTS system, sucrose-specific II component'
+p492
+sS'M00268'
+p493
+S'PTS system, alpha-glucoside-specific II component'
+p494
+sS'M00304'
+p495
+S'PTS system, fructose-specific II component'
+p496
+sS'M00305'
+p497
+S'PTS system, 2-O-A-mannosyl-D-glycerate-specific II component'
+p498
+sS'M00160'
+p499
+S'V-type ATPase, eukaryotes'
+p500
+sS'M00161'
+p501
+S'Photosystem II'
+p502
+sS'M00416'
+p503
+S'Cytochrome aa3-600 menaquinol oxidase'
+p504
+sS'M00417'
+p505
+S'Cytochrome o ubiquinol oxidase'
+p506
+sS'M00414'
+p507
+S"Bloom's syndrome complex"
+p508
+sS'M00415'
+p509
+S'Fatty acid biosynthesis, elongation, endoplasmic reticulum'
+p510
+sS'M00412'
+p511
+S'ESCRT-III complex'
+p512
+sS'M00413'
+p513
+S'FA core complex'
+p514
+sS'M00410'
+p515
+S'ESCRT-II complex'
+p516
+sS'M00411'
+p517
+S'SCF-GRR1 complex'
+p518
+sS'M00418'
+p519
+S'Toluene degradation, anaerobic, toluene => benzoyl-CoA'
+p520
+sS'M00419'
+p521
+S'Cymene degradation, p-cymene => p-cumate'
+p522
+sS'M00168'
+p523
+S'CAM (Crassulacean acid metabolism), dark'
+p524
+sS'M00001'
+p525
+S'Glycolysis (Embden-Meyerhof pathway), glucose => pyruvate'
+p526
+sS'M00003'
+p527
+S'Gluconeogenesis, oxaloacetate => fructose-6P'
+p528
+sS'M00002'
+p529
+S'Glycolysis, core module involving three-carbon compounds'
+p530
+sS'M00005'
+p531
+S'PRPP biosynthesis, ribose 5P => PRPP'
+p532
+sS'M00004'
+p533
+S'Pentose phosphate pathway (Pentose phosphate cycle)'
+p534
+sS'M00007'
+p535
+S'Pentose phosphate pathway, non-oxidative phase, fructose 6P => ribose 5P'
+p536
+sS'M00006'
+p537
+S'Pentose phosphate pathway, oxidative phase, glucose 6P => ribulose 5P'
+p538
+sS'M00009'
+p539
+S'Citrate cycle (TCA cycle, Krebs cycle)'
+p540
+sS'M00008'
+p541
+S'Entner-Doudoroff pathway, glucose-6P => glyceraldehyde-3P + pyruvate'
+p542
+sS'M00697'
+p543
+S'Multidrug resistance, efflux pump MdtEF-TolC'
+p544
+sS'M00672'
+p545
+S'Penicillin biosynthesis, aminoadipate + cycteine + valine => penicillin'
+p546
+sS'M00673'
+p547
+S'Cephamycin C biosynthesis, aminoadipate + cycteine + valine => cephamycin C'
+p548
+sS'M00670'
+p549
+S'Mce transport system'
+p550
+sS'M00778'
+p551
+S'Type II polyketide backbone biosynthesis, acyl-CoA + malonyl-CoA => polyketide'
+p552
+sS'M00676'
+p553
+S'PI3K-Akt signaling'
+p554
+sS'M00677'
+p555
+S'Wnt signaling'
+p556
+sS'M00674'
+p557
+S'Clavaminate biosynthesis, arginine + glyceraldehyde-3P => clavaminate'
+p558
+sS'M00675'
+p559
+S'Carbapenem-3-carboxylate biosynthesis, pyrroline-5-carboxylate + malonyl-CoA => carbapenem-3-carboxylate'
+p560
+sS'M00773'
+p561
+S'Tylosin biosynthesis, methylmalonyl-CoA + malonyl-CoA => tylactone => tylosin'
+p562
+sS'M00772'
+p563
+S'HupT-HupR (hydrogenase synthesis regulation) two-component regulatory system'
+p564
+sS'M00678'
+p565
+S'Hedgehog signaling'
+p566
+sS'M00679'
+p567
+S'BMP signaling'
+p568
+sS'M00777'
+p569
+S'Avermectin biosynthesis, 2-methylbutanoyl-CoA/isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a/1b aglycone => avermectin A1a/B1a/A1b/B1b'
+p570
+sS'M00776'
+p571
+S'Pikromycin/methymycin/neomethymycin biosynthesis, methylmalonyl-CoA + malonyl-CoA => narbonolide/10-deoxymethynolide => pikromycin/methymycin/neomethymycin'
+p572
+sS'M00775'
+p573
+S'Oleandomycin biosynthesis, malonyl-CoA + methylmalonyl-CoA => 8,8a-deoxyoleandolide => oleandomycin'
+p574
+sS'M00774'
+p575
+S'Erythromycin biosynthesis, propanoyl-CoA + methylmalonyl-CoA => deoxyerythronolide B => erythromycin A/B'
+p576
+sS'M00579'
+p577
+S'Phosphate acetyltransferase-acetate kinase pathway, acetyl-CoA => acetate'
+p578
+sS'M00575'
+p579
+S'Pertussis pathogenicity signature 2, T1SS'
+p580
+sS'M00574'
+p581
+S'Pertussis pathogenicity signature 1, pertussis toxin'
+p582
+sS'M00577'
+p583
+S'Biotin biosynthesis, BioW pathway, pimelate => pimeloyl-CoA => biotin'
+p584
+sS'M00571'
+p585
+S'AlgE-type Mannuronan C-5-Epimerase transport system'
+p586
+sS'M00570'
+p587
+S'Isoleucine biosynthesis, threonine => 2-oxobutanoate => isoleucine'
+p588
+sS'M00573'
+p589
+S'Biotin biosynthesis, BioI pathway, long-chain-acyl-ACP => pimeloyl-ACP => biotin'
+p590
+sS'M00572'
+p591
+S'Pimeloyl-ACP biosynthesis, BioC-BioH pathway, malonyl-ACP => pimeloyl-ACP'
+p592
+sS'M00733'
+p593
+S'GraS-GraR (cationic antimicrobial peptide transport) two-component regulatory system'
+p594
+sS'M00732'
+p595
+S'Cationic antimicrobial peptide transport system'
+p596
+sS'M00159'
+p597
+S'V/A-type ATPase, prokaryotes'
+p598
+sS'M00158'
+p599
+S'F-type ATPase, eukaryotes'
+p600
+sS'M00138'
+p601
+S'Flavonoid biosynthesis, naringenin => pelargonidin'
+p602
+sS'M00135'
+p603
+S'GABA biosynthesis, eukaryotes, putrescine => GABA'
+p604
+sS'M00134'
+p605
+S'Polyamine biosynthesis, arginine => ornithine => putrescine'
+p606
+sS'M00137'
+p607
+S'Flavanone biosynthesis, phenylalanine => naringenin'
+p608
+sS'M00136'
+p609
+S'GABA biosynthesis, prokaryotes, putrescine => GABA'
+p610
+sS'M00131'
+p611
+S'Inositol phosphate metabolism, Ins(1,3,4,5)P4 => Ins(1,3,4)P3 => myo-inositol'
+p612
+sS'M00130'
+p613
+S'Inositol phosphate metabolism, PI=> PIP2 => Ins(1,4,5)P3 => Ins(1,3,4,5)P4'
+p614
+sS'M00133'
+p615
+S'Polyamine biosynthesis, arginine => agmatine => putrescine => spermidine'
+p616
+sS'M00132'
+p617
+S'Inositol phosphate metabolism, Ins(1,3,4)P3 => phytate'
+p618
+sS'M00708'
+p619
+S'Multidrug resistance, PatAB transporter'
+p620
+sS'M00709'
+p621
+S'Macrolide resistance, MacAB-TolC transporter'
+p622
+sS'M00706'
+p623
+S'Multidrug resistance, EfrAB transporter'
+p624
+sS'M00707'
+p625
+S'Multidrug resistance, MdlAB/SmdAB transporter'
+p626
+sS'M00704'
+p627
+S'Tetracycline resistance, efflux pump Tet38'
+p628
+sS'M00705'
+p629
+S'Multidrug resistance, efflux pump MepA'
+p630
+sS'M00702'
+p631
+S'Multidrug resistance, efflux pump NorB'
+p632
+sS'M00700'
+p633
+S'Multidrug resistance, efflux pump AbcA'
+p634
+sS'M00701'
+p635
+S'Multidrug resistance, efflux pump EmrAB'
+p636
+sS'M00739'
+p637
+S'Cationic peptide transport system'
+p638
+sS'M00738'
+p639
+S'Bacitracin resistance, BceAB transporter'
+p640
+sS'M00151'
+p641
+S'Cytochrome bc1 complex respiratory unit'
+p642
+sS'M00449'
+p643
+S'CreC-CreB (phosphate regulation) two-component regulatory system'
+p644
+sS'M00150'
+p645
+S'Fumarate reductase, prokaryotes'
+p646
+sS'M00448'
+p647
+S'CssS-CssR (secretion stress response) two-component regulatory system'
+p648
+sS'M00229'
+p649
+S'Arginine transport system'
+p650
+sS'M00228'
+p651
+S'Putative glutamine transport system'
+p652
+sS'M00182'
+p653
+S'RNA polymerase I, eukaryotes'
+p654
+sS'M00183'
+p655
+S'RNA polymerase, bacteria'
+p656
+sS'M00184'
+p657
+S'RNA polymerase, archaea'
+p658
+sS'M00185'
+p659
+S'Sulfate transport system'
+p660
+sS'M00186'
+p661
+S'Tungstate transport system'
+p662
+sS'M00221'
+p663
+S'Putative simple sugar transport system'
+p664
+sS'M00220'
+p665
+S'Rhamnose transport system'
+p666
+sS'M00223'
+p667
+S'Phosphonate transport system'
+p668
+sS'M00222'
+p669
+S'Phosphate transport system'
+p670
+sS'M00225'
+p671
+S'Lysine/arginine/ornithine transport system'
+p672
+sS'M00224'
+p673
+S'Fluoroquinolone transport system'
+p674
+sS'M00227'
+p675
+S'Glutamine transport system'
+p676
+sS'M00226'
+p677
+S'Histidine transport system'
+p678
+sS'M00795'
+p679
+S'dTDP-beta-L-noviose biosynthesis'
+p680
+sS'M00794'
+p681
+S'dTDP-6-deoxy-D-allose biosynthesis'
+p682
+sS'M00797'
+p683
+S'dTDP-D-desosamine biosynthesis'
+p684
+sS'M00796'
+p685
+S'dTDP-D-mycaminose biosynthesis'
+p686
+sS'M00791'
+p687
+S'Manganese/zinc transport system'
+p688
+sS'M00790'
+p689
+S'Pyrrolnitrin biosynthesis, tryptophan => pyrrolnitrin'
+p690
+sS'M00793'
+p691
+S'dTDP-L-rhamnose biosynthesis'
+p692
+sS'M00440'
+p693
+S'Nickel transport system'
+p694
+sS'M00812'
+p695
+S'AgrC2-AgrA2 (virulence regulation) two-component regulatory system'
+p696
+sS'M00768'
+p697
+S'Multidrug resistance, efflux pump GesABC'
+p698
+sS'M00810'
+p699
+S'Nicotine degradation, pyridine pathway, nicotine => 2,6-dihydroxypyridine/succinate semialdehyde'
+p700
+sS'M00811'
+p701
+S'Nicotine degradation, pyrrolidine pathway, nicotine => succinate semialdehyde'
+p702
+sS'M00799'
+p703
+S'dTDP-L-oleandrose biosynthesis'
+p704
+sS'M00798'
+p705
+S'dTDP-L-mycarose biosynthesis'
+p706
+sS'M00814'
+p707
+S'Acarbose biosynthesis, sedoheptulopyranose-7P => acarbose'
+p708
+sS'M00769'
+p709
+S'Multidrug resistance, efflux pump MexPQ-OpmE'
+p710
+sS'M00308'
+p711
+S'Semi-phosphorylative Entner-Doudoroff pathway, gluconate => glycerate-3P'
+p712
+sS'M00355'
+p713
+S'Spliceosome, 35S U5-snRNP'
+p714
+sS'M00354'
+p715
+S'Spliceosome, U4/U6.U5 tri-snRNP'
+p716
+sS'M00357'
+p717
+S'Methanogenesis, acetate => methane'
+p718
+sS'M00356'
+p719
+S'Methanogenesis, methanol => methane'
+p720
+sS'M00351'
+p721
+S'Spliceosome, U1-snRNP'
+p722
+sS'M00350'
+p723
+S'Capsaicin biosynthesis, L-Phenylalanine => Capsaicin'
+p724
+sS'M00353'
+p725
+S'Spliceosome, Prp19/CDC5L complex'
+p726
+sS'M00352'
+p727
+S'Spliceosome, U2-snRNP'
+p728
+sS'M00452'
+p729
+S'CusS-CusR (copper tolerance) two-component regulatory system'
+p730
+sS'M00453'
+p731
+S'QseC-QseB (quorum sensing) two-component regulatory system'
+p732
+sS'M00450'
+p733
+S'BaeS-BaeR (envelope stress response) two-component regulatory system'
+p734
+sS'M00451'
+p735
+S'BasS-BasR (antimicrobial peptide resistance) two-component regulatory system'
+p736
+sS'M00359'
+p737
+S'Aminoacyl-tRNA biosynthesis, eukaryotes'
+p738
+sS'M00358'
+p739
+S'Coenzyme M biosynthesis'
+p740
+sS'M00454'
+p741
+S'KdpD-KdpE (potassium transport) two-component regulatory system'
+p742
+sS'M00455'
+p743
+S'TorS-TorR (TMAO respiration) two-component regulatory system'
+p744
+sS'M00762'
+p745
+S'Copper-processing system'
+p746
+sS'M00618'
+p747
+S'Acetogen'
+p748
+sS'M00763'
+p749
+S'Ornithine biosynthesis, mediated by LysW, glutamate => ornithine'
+p750
+sS'M00250'
+p751
+S'Lipopolysaccharide transport system'
+p752
+sS'M00251'
+p753
+S'Teichoic acid transport system'
+p754
+sS'M00531'
+p755
+S'Assimilatory nitrate reduction, nitrate => ammonia'
+p756
+sS'M00530'
+p757
+S'Dissimilatory nitrate reduction, nitrate => ammonia'
+p758
+sS'M00533'
+p759
+S'Homoprotocatechuate degradation, homoprotocatechuate => 2-oxohept-3-enedioate'
+p760
+sS'M00532'
+p761
+S'Photorespiration'
+p762
+sS'M00535'
+p763
+S'Isoleucine biosynthesis, pyruvate => 2-oxobutanoate'
+p764
+sS'M00534'
+p765
+S'Naphthalene degradation, naphthalene => salicylate'
+p766
+sS'M00537'
+p767
+S'Xylene degradation, xylene => methylbenzoate'
+p768
+sS'M00619'
+p769
+S'Xylobiose transport system'
+p770
+sS'M00539'
+p771
+S'Cumate degradation, p-cumate => 2-oxopent-4-enoate + 2-methylpropanoate'
+p772
+sS'M00538'
+p773
+S'Toluene degradation, toluene => benzoate'
+p774
+sS'M00171'
+p775
+S'C4-dicarboxylic acid cycle, NAD - malic enzyme type'
+p776
+sS'M00170'
+p777
+S'C4-dicarboxylic acid cycle, phosphoenolpyruvate carboxykinase type'
+p778
+sS'M00173'
+p779
+S'Reductive citrate cycle (Arnon-Buchanan cycle)'
+p780
+sS'M00172'
+p781
+S'C4-dicarboxylic acid cycle, NADP - malic enzyme type'
+p782
+sS'M00175'
+p783
+S'Nitrogen fixation, nitrogen => ammonia'
+p784
+sS'M00174'
+p785
+S'Methane oxidation, methanotroph, methane => formaldehyde'
+p786
+sS'M00177'
+p787
+S'Ribosome, eukaryotes'
+p788
+sS'M00176'
+p789
+S'Assimilatory sulfate reduction, sulfate => H2S'
+p790
+sS'M00179'
+p791
+S'Ribosome, archaea'
+p792
+sS'M00178'
+p793
+S'Ribosome, bacteria'
+p794
+sS'M00078'
+p795
+S'Heparan sulfate degradation'
+p796
+sS'M00079'
+p797
+S'Keratan sulfate degradation'
+p798
+sS'M00740'
+p799
+S'Methylaspartate cycle'
+p800
+sS'M00741'
+p801
+S'Propanoyl-CoA metabolism, propanoyl-CoA => succinyl-CoA'
+p802
+sS'M00746'
+p803
+S'Multidrug resistance, repression of porin OmpF'
+p804
+sS'M00747'
+p805
+S'Bacitracin transport system'
+p806
+sS'M00744'
+p807
+S'Cationic antimicrobial peptide (CAMP) resistance, protease PgtE'
+p808
+sS'M00745'
+p809
+S'Imipenem resistance, repression of porin OprD'
+p810
+sS'M00070'
+p811
+S'Glycosphingolipid biosynthesis, lacto-series, LacCer => Lc4Cer'
+p812
+sS'M00071'
+p813
+S'Glycosphingolipid biosynthesis, neolacto-series, LacCer => nLc4Cer'
+p814
+sS'M00072'
+p815
+S'N-glycosylation by oligosaccharyltransferase'
+p816
+sS'M00073'
+p817
+S'N-glycan precursor trimming'
+p818
+sS'M00074'
+p819
+S'N-glycan biosynthesis, high-mannose type'
+p820
+sS'M00075'
+p821
+S'N-glycan biosynthesis, complex type'
+p822
+sS'M00076'
+p823
+S'Dermatan sulfate degradation'
+p824
+sS'M00077'
+p825
+S'Chondroitin sulfate degradation'
+p826
+sS'M00584'
+p827
+S'Acetoin utilization transport system'
+p828
+sS'M00585'
+p829
+S'L-Cystine transport system'
+p830
+sS'M00586'
+p831
+S'Putative amino-acid transport system'
+p832
+sS'M00587'
+p833
+S'Arginine/lysine/histidine/glutamine transport system'
+p834
+sS'M00580'
+p835
+S'Pentose phosphate pathway, archaea, fructose 6P => ribose 5P'
+p836
+sS'M00581'
+p837
+S'Biotin transport system'
+p838
+sS'M00582'
+p839
+S'Energy-coupling factor transport system'
+p840
+sS'M00583'
+p841
+S'Putative peptide transport system'
+p842
+sS'M00625'
+p843
+S'Methicillin resistance'
+p844
+sS'M00624'
+p845
+S'Terephthalate degradation, terephthalate => 3,4-dihydroxybenzoate'
+p846
+sS'M00627'
+p847
+S'beta-Lactam resistance, Bla system'
+p848
+sS'M00589'
+p849
+S'Putative lysine transport system'
+p850
+sS'M00623'
+p851
+S'Phthalate degradation, phthalate => protocatechuate'
+p852
+sS'M00622'
+p853
+S'Nicotinate degradation, nicotinate => fumarate'
+p854
+sS'M00652'
+p855
+S'Vancomycin resistance, D-Ala-D-Ser type'
+p856
+sS'M00370'
+p857
+S'Glucosinolate biosynthesis, tryptophan => glucobrassicin'
+p858
+sS'M00382'
+p859
+S'SCF-FBS complex'
+p860
+sS'M00180'
+p861
+S'RNA polymerase II, eukaryotes'
+p862
+sS'M00380'
+p863
+S'SCF-BTRC complex'
+p864
+sS'M00381'
+p865
+S'SCF-SKP2 complex'
+p866
+sS'M00386'
+p867
+S'Cul4-DDB1-CSA complex'
+p868
+sS'M00387'
+p869
+S'SCF-FBW7 complex'
+p870
+sS'M00384'
+p871
+S'Cul3-SPOP complex'
+p872
+sS'M00181'
+p873
+S'RNA polymerase III, eukaryotes'
+p874
+sS'M00388'
+p875
+S'ECS complex'
+p876
+sS'M00389'
+p877
+S'APC/C complex'
+p878
+sS'M00690'
+p879
+S'MAPK (ERK5) signaling'
+p880
+sS'M00188'
+p881
+S'NitT/TauT family transport system'
+p882
+sS'M00692'
+p883
+S'Cell cycle - G1/S transition'
+p884
+sS'M00693'
+p885
+S'Cell cycle - G2/M transition'
+p886
+sS'M00694'
+p887
+S'cGMP signaling'
+p888
+sS'M00695'
+p889
+S'cAMP signaling'
+p890
+sS'M00696'
+p891
+S'Multidrug resistance, efflux pump AcrEF-TolC'
+p892
+sS'M00189'
+p893
+S'Molybdate transport system'
+p894
+sS'M00698'
+p895
+S'Multidrug resistance, efflux pump BpeEF-OprC'
+p896
+sS'M00699'
+p897
+S'Multidrug resistance, efflux pump AmeABC'
+p898
+sS'M00498'
+p899
+S'NtrY-NtrX (nitrogen regulation) two-component regulatory system'
+p900
+sS'M00499'
+p901
+S'HydH-HydG (metal tolerance) two-component regulatory system'
+p902
+sS'M00496'
+p903
+S'ComD-ComE (competence) two-component regulatory system'
+p904
+sS'M00497'
+p905
+S'GlnL-GlnG (nitrogen regulation) two-component regulatory system'
+p906
+sS'M00494'
+p907
+S'NatK-NatR (sodium extrusion) two-component regulatory system'
+p908
+sS'M00495'
+p909
+S'AgrC-AgrA (exoprotein synthesis) two-component regulatory system'
+p910
+sS'M00492'
+p911
+S'LytS-LytR two-component regulatory system'
+p912
+sS'M00493'
+p913
+S'AlgZ-AlgR (alginate production) two-component regulatory system'
+p914
+sS'M00490'
+p915
+S'MalK-MalR (malate transport) two-component regulatory system'
+p916
+sS'M00491'
+p917
+S'arabinogalactan oligomer/maltooligosaccharide transport system'
+p918
+sS'M00319'
+p919
+S'Manganese/zinc/iron transport system'
+p920
+sS'M00318'
+p921
+S'Iron/zinc/manganese/copper transport system'
+p922
+sS'M00252'
+p923
+S'Lipooligosaccharide transport system'
+p924
+sS'M00253'
+p925
+S'Sodium transport system'
+p926
+sS'M00254'
+p927
+S'ABC-2 type transport system'
+p928
+sS'M00255'
+p929
+S'Lipoprotein-releasing system'
+p930
+sS'M00256'
+p931
+S'Cell division transport system'
+p932
+sS'M00257'
+p933
+S'Hemin transport system'
+p934
+sS'M00258'
+p935
+S'Putative ABC transport system'
+p936
+sS'M00259'
+p937
+S'Heme transport system'
+p938
+sS'M00315'
+p939
+S'Uncharacterized ABC transport system'
+p940
+sS'M00314'
+p941
+S'Bacitracin transport system'
+p942
+sS'M00317'
+p943
+S'Manganese/iron transport system'
+p944
+sS'M00316'
+p945
+S'Manganese transport system'
+p946
+sS'M00819'
+p947
+S'Pentalenolactone biosynthesis, farnesyl-PP => pentalenolactone'
+p948
+sS'M00792'
+p949
+S'Manganese/zinc transport system'
+p950
+sS'M00813'
+p951
+S'Lantibiotic transport system'
+p952
+sS'M00405'
+p953
+S'THC complex'
+p954
+sS'M00404'
+p955
+S'COPII complex'
+p956
+sS'M00407'
+p957
+S'SCF-CDC4 complex'
+p958
+sS'M00406'
+p959
+S'TREX complex'
+p960
+sS'M00401'
+p961
+S'Sec61 complex'
+p962
+sS'M00400'
+p963
+S'p97-Ufd1-Npl4 complex'
+p964
+sS'M00403'
+p965
+S'HRD1/SEL1 ERAD complex'
+p966
+sS'M00402'
+p967
+S'Translocon-associated protein (TRAP) complex'
+p968
+sS'M00816'
+p969
+S'NisK-NisR (lantibiotic biosynthesis) two-component regulatory system'
+p970
+sS'M00409'
+p971
+S'ESCRT-I complex'
+p972
+sS'M00408'
+p973
+S'ESCRT-0 complex'
+p974
+sS'M00817'
+p975
+S'Lantibiotic transport system'
+p976
+sS'M00815'
+p977
+S'Validamycin A biosynthesis, sedoheptulopyranose-7P => validamycin A'
+p978
+sS'M00613'
+p979
+S'Anoxygenic photosynthesis in green nonsulfur bacteria'
+p980
+sS'M00038'
+p981
+S'Tryptophan metabolism, tryptophan => kynurenine => 2-aminomuconate'
+p982
+sS'M00039'
+p983
+S'Monolignol biosynthesis, phenylalanine/tyrosine  => monolignol'
+p984
+sS'M00034'
+p985
+S'Methionine salvage pathway'
+p986
+sS'M00035'
+p987
+S'Methionine degradation'
+p988
+sS'M00036'
+p989
+S'Leucine degradation, leucine => acetoacetate + acetyl-CoA'
+p990
+sS'M00037'
+p991
+S'Melatonin biosynthesis, tryptophan => serotonin => melatonin'
+p992
+sS'M00030'
+p993
+S'Lysine biosynthesis, AAA pathway, 2-oxoglutarate => 2-aminoadipate => lysine'
+p994
+sS'M00031'
+p995
+S'Lysine biosynthesis, mediated by LysW, 2-aminoadipate => lysine'
+p996
+sS'M00032'
+p997
+S'Lysine degradation, lysine => saccharopine => acetoacetyl-CoA'
+p998
+sS'M00033'
+p999
+S'Ectoine biosynthesis, aspartate => ectoine'
+p1000
+sS'M00661'
+p1001
+S'Paspaline biosynthesis, geranylgeranyl-PP + indoleglycerol phosphate => paspaline'
+p1002
+sS'M00660'
+p1003
+S'Xanthomonas spp. pathogenicity signature, T3SS and effectors'
+p1004
+sS'M00663'
+p1005
+S'SsrA-SsrB two-component regulatory system'
+p1006
+sS'M00662'
+p1007
+S'Hk1-Rrp1 (glycerol uptake and utilization) two-component regulatory system'
+p1008
+sS'M00664'
+p1009
+S'Nodulation'
+p1010
+sS'M00667'
+p1011
+S'Tetracycline resistance, efflux pump'
+p1012
+sS'M00669'
+p1013
+S'gamma-Hexachlorocyclohexane transport system'
+p1014
+sS'M00113'
+p1015
+S'Jasmonic acid biosynthesis'
+p1016
+sS'M00112'
+p1017
+S'Tocopherol/tocotorienol biosynthesis'
+p1018
+sS'M00548'
+p1019
+S'Benzene degradation, benzene => catechol'
+p1020
+sS'M00549'
+p1021
+S'Nucleotide sugar biosynthesis, glucose => UDP-glucose'
+p1022
+sS'M00540'
+p1023
+S'Benzoate degradation, cyclohexanecarboxylic acid =>pimeloyl-CoA'
+p1024
+sS'M00541'
+p1025
+S'Benzoyl-CoA degradation, benzoyl-CoA => 3-hydroxypimeloyl-CoA'
+p1026
+sS'M00542'
+p1027
+S'EHEC/EPEC pathogenicity signature, T3SS and effectors'
+p1028
+sS'M00543'
+p1029
+S'Biphenyl degradation, biphenyl => 2-oxopent-4-enoate + benzoate'
+p1030
+sS'M00544'
+p1031
+S'Carbazole degradation, carbazole => 2-oxopent-4-enoate + anthranilate'
+p1032
+sS'M00545'
+p1033
+S'Trans-cinnamate degradation, trans-cinnamate => acetyl-CoA'
+p1034
+sS'M00546'
+p1035
+S'Purine degradation, xanthine => urea'
+p1036
+sS'M00547'
+p1037
+S'Benzene/toluene degradation, benzene => catechol / toluene => 3-methylcatechol'
+p1038
+sS'M00108'
+p1039
+S'C21-Steroid hormone biosynthesis, progesterone => corticosterone/aldosterone'
+p1040
+sS'M00109'
+p1041
+S'C21-Steroid hormone biosynthesis, progesterone => cortisol/cortisone'
+p1042
+sS'M00119'
+p1043
+S'Pantothenate biosynthesis, valine/L-aspartate => pantothenate'
+p1044
+sS'M00100'
+p1045
+S'Sphingosine degradation'
+p1046
+sS'M00101'
+p1047
+S'Cholesterol biosynthesis, squalene 2,3-epoxide => cholesterol'
+p1048
+sS'M00102'
+p1049
+S'Ergocalciferol biosynthesis'
+p1050
+sS'M00103'
+p1051
+S'Cholecalciferol biosynthesis'
+p1052
+sS'M00104'
+p1053
+S'Bile acid biosynthesis, cholesterol => cholate/chenodeoxycholate'
+p1054
+sS'M00106'
+p1055
+S'Conjugated bile acid biosynthesis, cholate => taurocholate/glycocholate'
+p1056
+sS'M00107'
+p1057
+S'Steroid hormone biosynthesis, cholesterol => prognenolone => progesterone'
+p1058
+sS'M00719'
+p1059
+S'Ihk-Irr (virulence regulation) two-component regulatory system'
+p1060
+sS'M00718'
+p1061
+S'Multidrug resistance, efflux pump MexAB-OprM'
+p1062
+sS'M00715'
+p1063
+S'Lincosamide resistance, efflux pump LmrB'
+p1064
+sS'M00714'
+p1065
+S'Multidrug resistance, efflux pump QacA'
+p1066
+sS'M00717'
+p1067
+S'Multidrug resistance, efflux pump NorA'
+p1068
+sS'M00716'
+p1069
+S'ArlS-ArlR (virulence regulation) two-component regulatory system'
+p1070
+sS'M00711'
+p1071
+S'Multidrug resistance, efflux pump MdtIJ'
+p1072
+sS'M00710'
+p1073
+S'Multidrug resistance, efflux pump EbrAB'
+p1074
+sS'M00713'
+p1075
+S'Fluoroquinolone resistance, efflux pump LfrA'
+p1076
+sS'M00712'
+p1077
+S'Multidrug resistance, efflux pump YkkCD'
+p1078
+sS'M00481'
+p1079
+S'LiaS-LiaR (cell wall stress response) two-component regulatory system'
+p1080
+sS'M00214'
+p1081
+S'Methyl-galactoside transport system'
+p1082
+sS'M00215'
+p1083
+S'D-Xylose transport system'
+p1084
+sS'M00216'
+p1085
+S'Multiple sugar transport system'
+p1086
+sS'M00217'
+p1087
+S'D-Allose transport system'
+p1088
+sS'M00210'
+p1089
+S'Phospholipid transport system'
+p1090
+sS'M00211'
+p1091
+S'Putative ABC transport system'
+p1092
+sS'M00212'
+p1093
+S'Ribose transport system'
+p1094
+sS'M00213'
+p1095
+S'L-Arabinose transport system'
+p1096
+sS'M00063'
+p1097
+S'CMP-KDO biosynthesis'
+p1098
+sS'M00218'
+p1099
+S'Fructose transport system'
+p1100
+sS'M00219'
+p1101
+S'AI-2 transport system'
+p1102
+sS'M00480'
+p1103
+S'VraS-VraR (cell-wall peptidoglycan synthesis) two-component regulatory system'
+p1104
+sS'M00199'
+p1105
+S'L-Arabinose/lactose transport system'
+p1106
+sS'M00198'
+p1107
+S'Putative sn-glycerol-phosphate transport system'
+p1108
+sS'M00197'
+p1109
+S'Putative fructooligosaccharide transport system'
+p1110
+sS'M00196'
+p1111
+S'Raffinose/stachyose/melibiose transport system'
+p1112
+sS'M00194'
+p1113
+S'Maltose/maltodextrin transport system'
+p1114
+sS'M00193'
+p1115
+S'Putative spermidine/putrescine transport system'
+p1116
+sS'M00192'
+p1117
+S'Putative thiamine transport system'
+p1118
+sS'M00191'
+p1119
+S'Thiamine transport system'
+p1120
+sS'M00190'
+p1121
+S'Iron(III) transport system'
+p1122
+sS'M00809'
+p1123
+S'PTS system, glucose-specific II component'
+p1124
+sS'M00808'
+p1125
+S'Violacein biosynthesis, tryptophan => violacein'
+p1126
+sS'M00801'
+p1127
+S'dTDP-L-olivose biosynthesis'
+p1128
+sS'M00800'
+p1129
+S'dTDP-L-megosamine biosynthesis'
+p1130
+sS'M00803'
+p1131
+S'dTDP-D-angolosamine biosynthesis'
+p1132
+sS'M00802'
+p1133
+S'dTDP-D-forosamine biosynthesis'
+p1134
+sS'M00805'
+p1135
+S'Staurosporine biosynthesis, tryptophan => staurosporine'
+p1136
+sS'M00804'
+p1137
+S'Complete nitrification, comammox, ammonia => nitrite => nitrate'
+p1138
+sS'M00807'
+p1139
+S'PTS system, galactose-specific II component'
+p1140
+sS'M00806'
+p1141
+S'PTS system, maltose-specific II component'
+p1142
+sS'M00770'
+p1143
+S'PfeS-PfeR (enterobactin-dependent iron acquisition) two-component regulatory system'
+p1144
+sS'M00458'
+p1145
+S'ResE-ResD (aerobic and anaerobic respiration) two-component regulatory system'
+p1146
+sS'M00459'
+p1147
+S'VicK-VicR (cell wall metabolism) two-component regulatory system'
+p1148
+sS'M00142'
+p1149
+S'NADH:ubiquinone oxidoreductase, mitochondria'
+p1150
+sS'M00143'
+p1151
+S'NADH dehydrogenase (ubiquinone) Fe-S protein/flavoprotein complex, mitochondria'
+p1152
+sS'M00360'
+p1153
+S'Aminoacyl-tRNA biosynthesis, prokaryotes'
+p1154
+sS'M00361'
+p1155
+S'Nucleotide sugar biosynthesis, eukaryotes'
+p1156
+sS'M00362'
+p1157
+S'Nucleotide sugar biosynthesis, prokaryotes'
+p1158
+sS'M00363'
+p1159
+S'EHEC pathogenicity signature, Shiga toxin'
+p1160
+sS'M00364'
+p1161
+S'C10-C20 isoprenoid biosynthesis, bacteria'
+p1162
+sS'M00365'
+p1163
+S'C10-C20 isoprenoid biosynthesis, archaea'
+p1164
+sS'M00366'
+p1165
+S'C10-C20 isoprenoid biosynthesis, plants'
+p1166
+sS'M00367'
+p1167
+S'C10-C20 isoprenoid biosynthesis, non-plant eukaryotes'
+p1168
+sS'M00368'
+p1169
+S'Ethylene biosynthesis, methionine => ethylene'
+p1170
+sS'M00369'
+p1171
+S'Cyanogenic glycoside biosynthesis, tyrosine => dhurrin'
+p1172
+sS'M00443'
+p1173
+S'SenX3-RegX3 (phosphate starvation response) two-component regulatory system'
+p1174
+sS'M00442'
+p1175
+S'Putative hydroxymethylpyrimidine transport system'
+p1176
+sS'M00445'
+p1177
+S'EnvZ-OmpR (osmotic stress response) two-component regulatory system'
+p1178
+sS'M00444'
+p1179
+S'PhoQ-PhoP (magnesium transport) two-component regulatory system'
+p1180
+sS'M00447'
+p1181
+S'CpxA-CpxR (envelope stress response) two-component regulatory system'
+p1182
+sS'M00446'
+p1183
+S'RstB-RstA two-component regulatory system'
+p1184
+sS'M00456'
+p1185
+S'ArcB-ArcA (anoxic redox control) two-component regulatory system'
+p1186
+sS'M00457'
+p1187
+S'TctE-TctD (tricarboxylic acid transport) two-component regulatory system'
+p1188
+sS'M00508'
+p1189
+S'PixL-PixGH (positive phototaxis) two-component regulatory system'
+p1190
+sS'M00509'
+p1191
+S'WspE-WspRF (chemosensory) two-component regulatory system'
+p1192
+sS'M00504'
+p1193
+S'DctB-DctD (C4-dicarboxylate transport) two-component regulatory system'
+p1194
+sS'M00505'
+p1195
+S'KinB-AlgB (alginate production) two-component regulatory system'
+p1196
+sS'M00506'
+p1197
+S'CheA-CheYBV (chemotaxis) two-component regulatory system'
+p1198
+sS'M00507'
+p1199
+S'ChpA-ChpB/PilGH (chemosensory) two-component regulatory system'
+p1200
+sS'M00500'
+p1201
+S'AtoS-AtoC (cPHB biosynthesis) two-component regulatory system'
+p1202
+sS'M00501'
+p1203
+S'PilS-PilR (type 4 fimbriae synthesis) two-component regulatory system'
+p1204
+sS'M00502'
+p1205
+S'GlrK-GlrR (amino sugar metabolism) two-component regulatory system'
+p1206
+sS'M00503'
+p1207
+S'PgtB-PgtA (phosphoglycerate transport) two-component regulatory system'
+p1208
+sS'M00067'
+p1209
+S'Sulfoglycolipids biosynthesis, ceramide/1-alkyl-2-acylglycerol => sulfatide/seminolipid'
+p1210
+sS'M00066'
+p1211
+S'Lactosylceramide biosynthesis'
+p1212
+sS'M00065'
+p1213
+S'GPI-anchor biosynthesis, core oligosaccharide'
+p1214
+sS'M00064'
+p1215
+S'ADP-L-glycero-D-manno-heptose biosynthesis'
+p1216
+sS'M00148'
+p1217
+S'Succinate dehydrogenase (ubiquinone)'
+p1218
+sS'M00149'
+p1219
+S'Succinate dehydrogenase, prokaryotes'
+p1220
+sS'M00061'
+p1221
+S'D-Glucuronate degradation, D-glucuronate => pyruvate + D-glyceraldehyde 3P'
+p1222
+sS'M00060'
+p1223
+S'Lipopolysaccharide biosynthesis, KDO2-lipid A'
+p1224
+sS'M00144'
+p1225
+S'NADH:quinone oxidoreductase, prokaryotes'
+p1226
+sS'M00145'
+p1227
+S'NAD(P)H:quinone oxidoreductase, chloroplasts and cyanobacteria'
+p1228
+sS'M00146'
+p1229
+S'NADH dehydrogenase (ubiquinone) 1 alpha subcomplex'
+p1230
+sS'M00147'
+p1231
+S'NADH dehydrogenase (ubiquinone) 1 beta subcomplex'
+p1232
+sS'M00140'
+p1233
+S'C1-unit interconversion, prokaryotes'
+p1234
+sS'M00141'
+p1235
+S'C1-unit interconversion, eukaryotes'
+p1236
+sS'M00069'
+p1237
+S'Glycosphingolipid biosynthesis, ganglio series, LacCer => GT3'
+p1238
+sS'M00068'
+p1239
+S'Glycosphingolipid biosynthesis, globo-series, LacCer => Gb4Cer'
+p1240
+sS'M00266'
+p1241
+S'PTS system, maltose/glucose-specific II component'
+p1242
+sS'M00754'
+p1243
+S'Nisin resistance, phage shock protein homolog LiaH'
+p1244
+sS'M00593'
+p1245
+S'Inositol transport system'
+p1246
+sS'M00592'
+p1247
+S'Inositol transport system'
+p1248
+sS'M00591'
+p1249
+S'Putative xylitol transport system'
+p1250
+sS'M00590'
+p1251
+S'Erythritol transport system'
+p1252
+sS'M00597'
+p1253
+S'Anoxygenic photosystem II'
+p1254
+sS'M00596'
+p1255
+S'Dissimilatory sulfate reduction, sulfate => H2S'
+p1256
+sS'M00595'
+p1257
+S'Thiosulfate oxidation by SOX complex, thiosulfate => sulfate'
+p1258
+sS'M00610'
+p1259
+S'PTS system, D-glucosaminate-specific II component'
+p1260
+sS'M00611'
+p1261
+S'Oxygenic photosynthesis in plants and cyanobacteria'
+p1262
+sS'M00599'
+p1263
+S'Inositol-phosphate transport system'
+p1264
+sS'M00598'
+p1265
+S'Anoxygenic photosystem I'
+p1266
+sS'M00614'
+p1267
+S'Anoxygenic photosynthesis in green sulfur bacteria'
+p1268
+sS'M00615'
+p1269
+S'Nitrate assimilation'
+p1270
+sS'M00616'
+p1271
+S'Sulfate-sulfur assimilation'
+p1272
+sS'M00617'
+p1273
+S'Methanogen'
+p1274
+sS'M00612'
+p1275
+S'Anoxygenic photosynthesis in purple bacteria'
+p1276
+sS'M00391'
+p1277
+S'Exosome, eukaryotes'
+p1278
+sS'M00390'
+p1279
+S'Exosome, archaea'
+p1280
+sS'M00393'
+p1281
+S'TRAMP complex'
+p1282
+sS'M00392'
+p1283
+S'Ski complex'
+p1284
+sS'M00395'
+p1285
+S'Decapping complex'
+p1286
+sS'M00394'
+p1287
+S'RNA degradosome'
+p1288
+sS'M00397'
+p1289
+S'Lsm 1-7 complex'
+p1290
+sS'M00396'
+p1291
+S'Lsm 2-8 complex'
+p1292
+sS'M00399'
+p1293
+S'Cap binding complex'
+p1294
+sS'M00306'
+p1295
+S'PTS system, fructose-specific II-like component'
+p1296
+sS'M00307'
+p1297
+S'Pyruvate oxidation, pyruvate => acetyl-CoA'
+p1298
+sS'M00668'
+p1299
+S'Tetracycline resistance, TetA transporter'
+p1300
+sS'M00378'
+p1301
+S'F420 biosynthesis'
+p1302
+sS'M00098'
+p1303
+S'Acylglycerol degradation'
+p1304
+sS'M00099'
+p1305
+S'Sphingosine biosynthesis'
+p1306
+sS'M00092'
+p1307
+S'Phosphatidylethanolamine (PE) biosynthesis, ethanolamine => PE'
+p1308
+sS'M00093'
+p1309
+S'Phosphatidylethanolamine (PE) biosynthesis, PA => PS => PE'
+p1310
+sS'M00090'
+p1311
+S'Phosphatidylcholine (PC) biosynthesis, choline => PC'
+p1312
+sS'M00091'
+p1313
+S'Phosphatidylcholine (PC) biosynthesis, PE => PC'
+p1314
+sS'M00096'
+p1315
+S'C5 isoprenoid biosynthesis, non-mevalonate pathway'
+p1316
+sS'M00097'
+p1317
+S'beta-Carotene biosynthesis, GGAP => beta-carotene'
+p1318
+sS'M00094'
+p1319
+S'Ceramide biosynthesis'
+p1320
+sS'M00095'
+p1321
+S'C5 isoprenoid biosynthesis, mevalonate pathway'
+p1322
+sS'M00689'
+p1323
+S'MAPK (p38) signaling'
+p1324
+sS'M00688'
+p1325
+S'MAPK (JNK) signaling'
+p1326
+sS'M00687'
+p1327
+S'MAPK (ERK1/2) signaling'
+p1328
+sS'M00686'
+p1329
+S'Toll-like receptor signaling'
+p1330
+sS'M00685'
+p1331
+S'Apoptotic machinery'
+p1332
+sS'M00684'
+p1333
+S'JAK-STAT signaling'
+p1334
+sS'M00683'
+p1335
+S'Hippo signaling'
+p1336
+sS'M00628'
+p1337
+S'beta-Lactam resistance, AmpC system'
+p1338
+sS'M00681'
+p1339
+S'Activin signaling'
+p1340
+sS'M00680'
+p1341
+S'TGF-beta signaling'
+p1342
+sS'M00324'
+p1343
+S'Dipeptide transport system'
+p1344
+sS'M00325'
+p1345
+S'alpha-Hemolysin/cyclolysin transport system'
+p1346
+sS'M00326'
+p1347
+S'RTX toxin transport system'
+p1348
+sS'M00327'
+p1349
+S'S-Layer protein transport system'
+p1350
+sS'M00320'
+p1351
+S'Lipopolysaccharide export system'
+p1352
+sS'M00321'
+p1353
+S'Bicarbonate transport system'
+p1354
+sS'M00322'
+p1355
+S'Neutral amino acid transport system'
+p1356
+sS'M00323'
+p1357
+S'Urea transport system'
+p1358
+sS'M00485'
+p1359
+S'KinABCDE-Spo0FA (sporulation control) two-component regulatory system'
+p1360
+sS'M00484'
+p1361
+S'YdfH-YdfI two-component regulatory system'
+p1362
+sS'M00487'
+p1363
+S'CitS-CitT (magnesium-citrate transport) two-component regulatory system'
+p1364
+sS'M00486'
+p1365
+S'CitA-CitB (citrate fermentation) two-component regulatory system'
+p1366
+sS'M00328'
+p1367
+S'Hemophore/metalloprotease transport system'
+p1368
+sS'M00329'
+p1369
+S'Multiple protein transport system'
+p1370
+sS'M00483'
+p1371
+S'NreB-NreC (dissimilatory nitrate/nitrite reduction) two-component regulatory system'
+p1372
+sS'M00482'
+p1373
+S'DevS-DevR (redox response) two-component regulatory system'
+p1374
+sS'M00249'
+p1375
+S'Capsular polysaccharide transport system'
+p1376
+sS'M00247'
+p1377
+S'Putative ABC transport system'
+p1378
+sS'M00246'
+p1379
+S'Nickel transport system'
+p1380
+sS'M00245'
+p1381
+S'Cobalt/nickel transport system'
+p1382
+sS'M00244'
+p1383
+S'Putative zinc/manganese transport system'
+p1384
+sS'M00243'
+p1385
+S'Manganese/iron transport system'
+p1386
+sS'M00242'
+p1387
+S'Zinc transport system'
+p1388
+sS'M00241'
+p1389
+S'Vitamin B12 transport system'
+p1390
+sS'M00240'
+p1391
+S'Iron complex transport system'
+p1392
+sS'M00430'
+p1393
+S'Exon junction complex (EJC)'
+p1394
+sS'M00432'
+p1395
+S'Leucine biosynthesis, 2-oxoisovalerate => 2-oxoisocaproate'
+p1396
+sS'M00433'
+p1397
+S'Lysine biosynthesis, 2-oxoglutarate => 2-oxoadipate'
+p1398
+sS'M00434'
+p1399
+S'PhoR-PhoB (phosphate starvation response) two-component regulatory system'
+p1400
+sS'M00435'
+p1401
+S'Taurine transport system'
+p1402
+sS'M00436'
+p1403
+S'Sulfonate transport system'
+p1404
+sS'M00437'
+p1405
+S'Phthalate transport system'
+p1406
+sS'M00438'
+p1407
+S'Nitrate/nitrite transport system'
+p1408
+sS'M00439'
+p1409
+S'Oligopeptide transport system'
+p1410
+sS'M00398'
+p1411
+S'Sm core complex'
+p1412
+sS'M00029'
+p1413
+S'Urea cycle'
+p1414
+sS'M00028'
+p1415
+S'Ornithine biosynthesis, glutamate => ornithine'
+p1416
+sS'M00023'
+p1417
+S'Tryptophan biosynthesis, chorismate => tryptophan'
+p1418
+sS'M00022'
+p1419
+S'Shikimate pathway, phosphoenolpyruvate + erythrose-4P => chorismate'
+p1420
+sS'M00021'
+p1421
+S'Cysteine biosynthesis, serine => cysteine'
+p1422
+sS'M00020'
+p1423
+S'Serine biosynthesis, glycerate-3P => serine'
+p1424
+sS'M00027'
+p1425
+S'GABA (gamma-Aminobutyrate) shunt'
+p1426
+sS'M00026'
+p1427
+S'Histidine biosynthesis, PRPP => histidine'
+p1428
+sS'M00025'
+p1429
+S'Tyrosine biosynthesis, chorismate => tyrosine'
+p1430
+sS'M00024'
+p1431
+S'Phenylalanine biosynthesis, chorismate => phenylalanine'
+p1432
+sS'M00555'
+p1433
+S'Betaine biosynthesis, choline => betaine'
+p1434
+sS'M00554'
+p1435
+S'Nucleotide sugar biosynthesis, galactose => UDP-galactose'
+p1436
+sS'M00658'
+p1437
+S'VanS-VanR (actinomycete type vancomycin resistance) two-component regulatory system'
+p1438
+sS'M00552'
+p1439
+S'D-galactonate degradation, De Ley-Doudoroff pathway, D-galactonate => glycerate-3P'
+p1440
+sS'M00551'
+p1441
+S'Benzoate degradation, benzoate => catechol / methylbenzoate => methylcatechol'
+p1442
+sS'M00550'
+p1443
+S'Ascorbate degradation, ascorbate => D-xylulose-5P'
+p1444
+sS'M00654'
+p1445
+S'ParS-ParR (polymyxin-adaptive resistance) two-component regulatory system'
+p1446
+sS'M00655'
+p1447
+S'AdeS-AdeR two-component regulatory system'
+p1448
+sS'M00656'
+p1449
+S'VanS-VanR (VanB type vancomycin resistance) two-component regulatory system'
+p1450
+sS'M00657'
+p1451
+S'VanS-VanR (VanE type vancomycin resistance) two-component regulatory system'
+p1452
+sS'M00651'
+p1453
+S'Vancomycin resistance, D-Ala-D-Lac type'
+p1454
+sS'M00280'
+p1455
+S'PTS system, glucitol/sorbitol-specific II component'
+p1456
+sS'M00653'
+p1457
+S'AauS-AauR (acidic amino acids utilization) two-component regulatory system'
+p1458
+sS'M00371'
+p1459
+S'Castasterone biosynthesis, campesterol => castasterone'
+p1460
+sS'M00117'
+p1461
+S'Ubiquinone biosynthesis, prokaryotes, chorismate => ubiquinone'
+p1462
+sS'M00116'
+p1463
+S'Menaquinone biosynthesis, chorismate => menaquinone'
+p1464
+sS'M00115'
+p1465
+S'NAD biosynthesis, aspartate => NAD'
+p1466
+sS'M00114'
+p1467
+S'Ascorbate biosynthesis, plants, glucose-6P => ascorbate'
+p1468
+sS'M00298'
+p1469
+S'Multidrug/hemolysin transport system'
+p1470
+sS'M00299'
+p1471
+S'Spermidine/putrescine transport system'
+p1472
+sS'M00110'
+p1473
+S'C19/C18-Steroid hormone biosynthesis, pregnenolone => androstenedione => estrone'
+p1474
+sS'M00294'
+p1475
+S'DNA polymerase gamma complex'
+p1476
+sS'M00295'
+p1477
+S'BRCA1-associated genome surveillance complex (BASC)'
+p1478
+sS'M00296'
+p1479
+S'BER complex'
+p1480
+sS'M00297'
+p1481
+S'DNA-PK complex'
+p1482
+sS'M00290'
+p1483
+S'Holo-TFIIH complex'
+p1484
+sS'M00291'
+p1485
+S'MRN complex'
+p1486
+sS'M00292'
+p1487
+S'MRX complex'
+p1488
+sS'M00118'
+p1489
+S'Glutathione biosynthesis, glutamate => glutathione'
+p1490
+sS'M00058'
+p1491
+S'Glycosaminoglycan biosynthesis, chondroitin sulfate backbone'
+p1492
+sS'M00059'
+p1493
+S'Glycosaminoglycan biosynthesis, heparan sulfate backbone'
+p1494
+sS'M00056'
+p1495
+S'O-glycan biosynthesis, mucin type core'
+p1496
+sS'M00057'
+p1497
+S'Glycosaminoglycan biosynthesis, linkage tetrasaccharide'
+p1498
+sS'M00055'
+p1499
+S'N-glycan precursor biosynthesis'
+p1500
+sS'M00052'
+p1501
+S'Pyrimidine ribonucleotide biosynthesis, UMP => UDP/UTP,CDP/CTP'
+p1502
+sS'M00053'
+p1503
+S'Pyrimidine deoxyribonuleotide biosynthesis, CDP/CTP => dCDP/dCTP,dTDP/dTTP'
+p1504
+sS'M00050'
+p1505
+S'Guanine ribonucleotide biosynthesis IMP => GDP,GTP'
+p1506
+sS'M00051'
+p1507
+S'Uridine monophosphate biosynthesis, glutamine (+ PRPP) => UMP'
+p1508
+sS'M00728'
+p1509
+S'Cationic antimicrobial peptide (CAMP) resistance, envelope protein folding and degrading  factors DegP and DsbA'
+p1510
+sS'M00729'
+p1511
+S'Fluoroquinolone resistance, gyrase-protecting protein Qnr'
+p1512
+sS'M00720'
+p1513
+S'Multidrug resistance, efflux pump VexEF-TolC'
+p1514
+sS'M00721'
+p1515
+S'Cationic antimicrobial peptide (CAMP) resistance, arnBCADTEF operon'
+p1516
+sS'M00722'
+p1517
+S'Cationic antimicrobial peptide (CAMP) resistance, ethanolaminephosphotransferase EptA'
+p1518
+sS'M00723'
+p1519
+S'Cationic antimicrobial peptide (CAMP) resistance,  ethanolaminephosphotransferase EptB'
+p1520
+sS'M00724'
+p1521
+S'Cationic antimicrobial peptide (CAMP) resistance, palmitoyl transferase PagP'
+p1522
+sS'M00725'
+p1523
+S'Cationic antimicrobial peptide (CAMP) resistance, dltABCD operon'
+p1524
+sS'M00726'
+p1525
+S'Cationic antimicrobial peptide (CAMP) resistance, lysyl-phosphatidylglycerol (L-PG) synthase MprF'
+p1526
+sS'M00727'
+p1527
+S'Cationic antimicrobial peptide (CAMP) resistance,  N-acetylmuramoyl-L-alanine amidase AmiA and AmiC'
+p1528
+sS'M00203'
+p1529
+S'Glucose/arabinose transport system'
+p1530
+sS'M00202'
+p1531
+S'Oligogalacturonide transport system'
+p1532
+sS'M00201'
+p1533
+S'alpha-Glucoside transport system'
+p1534
+sS'M00200'
+p1535
+S'Putative sorbitol/mannitol transport system'
+p1536
+sS'M00207'
+p1537
+S'Putative multiple sugar transport system'
+p1538
+sS'M00206'
+p1539
+S'Cellobiose transport system'
+p1540
+sS'M00205'
+p1541
+S'N-Acetylglucosamine transport system'
+p1542
+sS'M00204'
+p1543
+S'Trehalose/maltose transport system'
+p1544
+sS'M00209'
+p1545
+S'Osmoprotectant transport system'
+p1546
+sS'M00208'
+p1547
+S'Glycine betaine/proline transport system'
+p1548
+sS'M00834'
+p1549
+S'Calicheamicin orsellinate moiety biosynthesis, malonyl-CoA => orsellinate-ACP => 5-iodo-2,3-dimethoxyorsellinate-ACP'
+p1550
+sS'M00835'
+p1551
+S'Pyocyanine biosynthesis, chorismate => pyocyanine'
+p1552
+sS'M00836'
+p1553
+S'Coenzyme F430 biosynthesis, sirohydrochlorin => coenzyme F430'
+p1554
+sS'M00837'
+p1555
+S'Prodigiosin biosynthesis, L-proline => prodigiosin'
+p1556
+sS'M00830'
+p1557
+S'Neocarzinostatin naphthoate moiety biosynthesis, malonyl-CoA => 2-hydroxy-5-methyl-1-naphthoate => 2-hydroxy-7-methoxy-5-methyl-1-naphthoyl-CoA'
+p1558
+sS'M00831'
+p1559
+S'Kedarcidin 2-hydroxynaphthoate moiety biosynthesis, malonyl-CoA => 3,6,8-trihydroxy-2-naphthoate => 3-hydroxy-7,8-dimethoxy-6-isopropoxy-2-naphthoyl-CoA'
+p1560
+sS'M00832'
+p1561
+S'Kedarcidin 2-aza-3-chloro-beta-tyrosine moiety biosynthesis, azatyrosine => 2-aza-3-chloro-beta-tyrosyl-PCP'
+p1562
+sS'M00833'
+p1563
+S'Calicheamicin biosynthesis, calicheamicinone => calicheamicin'
+p1564
+sS'M00838'
+p1565
+S'Undecylprodigiosin biosynthesis, L-proline => undecylprodigiosin'
+p1566
+s.

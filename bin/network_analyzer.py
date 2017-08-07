@@ -28,6 +28,8 @@ __status__ = "Development"
 ###############################################################################
 
 import logging
+import os
+
 from kegg_matrix import KeggMatrix
 from network_builder import NetworkBuilder
 from build_enrichment_matrix import Matrix
@@ -47,9 +49,9 @@ class NetworkAnalyser:
     TRAVERSE        = 'traverse'
 
 
-    NETWORK_SUFFIX  = '_network.tsv'
-    METADATA_SUFFIX = '_metadata.tsv'    
-    TRAVERSE_SUFFIX = '_traverse.tsv'    
+    NETWORK_OUTPUT_FILE  = 'network.tsv'
+    METADATA_OUTPUT_FILE = 'metadata.tsv'    
+    TRAVERSE_OUTPUT_FILE = 'traverse.tsv'    
 
     def __init__(self, metadata):
         self.metadata = {}
@@ -74,8 +76,8 @@ class NetworkAnalyser:
             output_path_io.write('\n'.join(output_lines))
             output_path_io.flush()
         
-    def do(self, depth, filter, limit, metabolome, number_of_queries, queries, 
-           starting_compounds, steps, subparser_name, transcriptome, output_prefix):
+    def do(self, matrix, transcriptome, metabolome, depth, filter, limit, queries, 
+           subparser_name, starting_compounds, steps, number_of_queries, output_directory):
         '''
         Parameters
         ----------
@@ -83,15 +85,14 @@ class NetworkAnalyser:
         filter
         limit
         metabolome
-        number_of_queries
         queries
-        starting_compounds
-        steps
+
         subparser_name
         transcriptome
-        output_prefix
+        output_directory
 
         '''
+
         nb = NetworkBuilder(self.metadata.keys())
         km = KeggMatrix(matrix, transcriptome)
 
@@ -116,7 +117,7 @@ class NetworkAnalyser:
         if metabolome:
             abundances_metabolome = Matrix(metabolome)
         else:
-            abundances_compounds     = None
+            abundances_metabolome = None
 
         if subparser_name==self.TRAVERSE:
             output_lines = \
@@ -127,7 +128,7 @@ class NetworkAnalyser:
                                         starting_compounds,
                                         steps,
                                         number_of_queries)
-            self._write_results(output_prefix + self.TRAVERSE_SUFFIX, output_lines)
+            self._write_results(os.path.join(output_directory, self.TRAVERSE_OUTPUT_FILE), output_lines)
 
         elif subparser_name==self.EXPLORE:
             logging.info("Using supplied queries (%s) to explore network" \
@@ -139,6 +140,20 @@ class NetworkAnalyser:
                                             queries,
                                             depth)
 
-            self._write_results(output_prefix + self.NETWORK_SUFFIX, network_lines)
-            self._write_results(output_prefix + self.METADATA_SUFFIX, node_metadata)
+            self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
+            self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
 
+        elif subparser_name==self.PATHWAY:
+            
+            logging.info('Generating pathway network')
+
+            network_lines, node_metadata = \
+                            nb.pathway_matrix(abundances_metagenome, 
+                                              abundances_transcriptome,
+                                              abundances_expression,
+                                              abundances_metabolome,
+                                              limit,
+                                              filter)
+
+            self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
+            self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
