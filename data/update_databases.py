@@ -1,9 +1,13 @@
 import pickle
-from bs4 import BeautifulSoup
 import urllib2
 import time 
+import gzip
 import shutil
+import tempfile
+import subprocess
 import os
+
+from bs4 import BeautifulSoup
 
 print("Archiving old database")
 old_version = open('VERSION').readline().strip()
@@ -17,34 +21,39 @@ with open('VERSION', 'w') as o:
 print("Done")
 
 
-output_dict = {}
-br08001 = 'http://www.kegg.jp/kegg-bin/download_htext?htext=br08001&format=htext&filedir='
-br08001_result = 'br08001.%s.pickle' % date
-
-R2K = 'http://rest.kegg.jp/link/ko/reaction'
-r2k_result = 'reaction_to_orthology.%s.pickle' % date
-R2C = 'http://rest.kegg.jp/link/compound/reaction'
-r2c_result = 'reaction_to_compound.%s.pickle' % date
-C2R = 'http://rest.kegg.jp/link/reaction/compound'
-c2r_result = 'compound_to_reaction.%s.pickle' % date
-R2M = 'http://rest.kegg.jp/link/module/reaction'
-r2m_result = 'reaction_to_module.%s.pickle' % date
-M2R = 'http://rest.kegg.jp/link/reaction/module'
-m2r_result = 'module_to_reaction.%s.pickle' % date
-R2P = 'http://rest.kegg.jp/link/pathway/reaction'
-r2p_result = 'reaction_to_pathway.%s.pickle' % date
-P2R = 'http://rest.kegg.jp/link/reaction/pathway'
-p2r_result = 'pathway_to_reaction.%s.pickle' % date
-C   = 'http://rest.kegg.jp/list/compound'   
-c_result = 'compound_descriptions.%s.pickle' % date
-R   = 'http://rest.kegg.jp/list/reaction'
-r_result = 'reaction_descriptions.%s.pickle' % date
-P   = 'http://rest.kegg.jp/list/pathway'
-p_result = 'pathway_descriptions.%s.pickle' % date
-M   = 'http://rest.kegg.jp/list/module'
-m_result = 'module_descriptions.%s.pickle' % date
-R2RCLASS   = 'http://rest.kegg.jp/list/module'
-r2rclass_result = 'reaction_to_rpair.%s.pickle' % date
+output_dict             = {}
+br08001                 = 'http://www.kegg.jp/kegg-bin/download_htext?htext=br08001&format=htext&filedir='
+br08001_result          = 'br08001.%s.pickle' % date
+PFAM2CLAN               = 'ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam31.0/Pfam-A.clans.tsv.gz'
+pfam2clan_result        = 'pfam_to_clan.%s.pickle' % date
+clan2name_result        = 'clan_to_name.%s.pickle' % date
+pfam2name_result        = 'pfam_to_name.%s.pickle' % date
+pfam2description_result = 'pfam_to_description.%s.pickle' % date
+clan2pfam_result        = 'clan_to_pfam.%s.pickle' % date
+R2K                     = 'http://rest.kegg.jp/link/ko/reaction'
+r2k_result              = 'reaction_to_orthology.%s.pickle' % date
+R2C                     = 'http://rest.kegg.jp/link/compound/reaction'
+r2c_result              = 'reaction_to_compound.%s.pickle' % date
+C2R                     = 'http://rest.kegg.jp/link/reaction/compound'
+c2r_result              = 'compound_to_reaction.%s.pickle' % date
+R2M                     = 'http://rest.kegg.jp/link/module/reaction'
+r2m_result              = 'reaction_to_module.%s.pickle' % date
+M2R                     = 'http://rest.kegg.jp/link/reaction/module'
+m2r_result              = 'module_to_reaction.%s.pickle' % date
+R2P                     = 'http://rest.kegg.jp/link/pathway/reaction'
+r2p_result              = 'reaction_to_pathway.%s.pickle' % date
+P2R                     = 'http://rest.kegg.jp/link/reaction/pathway'
+p2r_result              = 'pathway_to_reaction.%s.pickle' % date
+C                       = 'http://rest.kegg.jp/list/compound'   
+c_result                = 'compound_descriptions.%s.pickle' % date
+R                       = 'http://rest.kegg.jp/list/reaction'
+r_result                = 'reaction_descriptions.%s.pickle' % date
+P                       = 'http://rest.kegg.jp/list/pathway'
+p_result                = 'pathway_descriptions.%s.pickle' % date
+M                       = 'http://rest.kegg.jp/list/module'
+m_result                = 'module_descriptions.%s.pickle' % date
+R2RCLASS                = 'http://rest.kegg.jp/list/module'
+r2rclass_result         = 'reaction_to_rpair.%s.pickle' % date
 
 def build_name_dict(url):
     output_dictionary = {}
@@ -64,6 +73,45 @@ def build_dict(url):
         else:
             output_dictionary[key] = [item]
     return output_dictionary
+
+def build_pfam_dict(url):
+
+    pfam2clan           = {}
+    clan2name           = {}
+    pfam2name           = {}
+    pfam2description    = {}
+    clan2pfam           = {}
+    with tempfile.NamedTemporaryFile(prefix='for_file', suffix='.gz') as tmp:
+        cmd = 'wget -O %s %s' % (tmp.name, url)
+        subprocess.call(cmd, shell=True)
+        for line in gzip.open(tmp.name):
+            pfam, clan, clan_name, pfam_name, description \
+                = line.strip().split('\t')
+            if clan.startswith('CL') and len(clan)==6:
+                pfam2clan[pfam] = clan
+                clan2name[clan] = clan_name
+                if clan in clan2pfam:
+                    clan2pfam[clan]+=','+pfam
+                else:
+                    clan2pfam[clan] = pfam
+            pfam2name[pfam] = pfam_name
+            pfam2description[pfam] = description
+    return pfam2clan, clan2name, pfam2name, pfam2description, clan2pfam
+            
+print("Downloading PFAM clan information")
+pfam2clan, clan2name, pfam2name, pfam2description, clan2pfam = build_pfam_dict(PFAM2CLAN)
+print("Done")
+print("Pickling results: %s" % pfam2clan_result)
+pickle.dump(pfam2clan, open(pfam2clan_result, "wb"))
+print("Pickling results: %s" % clan2name_result)
+pickle.dump(clan2name, open(clan2name_result, "wb"))
+print("Pickling results: %s" % pfam2name_result)
+pickle.dump(pfam2name, open(pfam2name_result, "wb"))
+print("Pickling results: %s" % pfam2description_result)
+pickle.dump(pfam2description, open(pfam2description_result, "wb"))
+print("Pickling results: %s" % clan2pfam_result)
+pickle.dump(clan2pfam, open(clan2pfam_result, "wb"))
+exit()
 
 print("Downloading reaction to orthology information from KEGG")
 r2k = build_dict(R2K)
@@ -175,7 +223,7 @@ print("Done")
 
 
 current_module_list = m.keys()
-output_pickle = 'module_to_definition.05-12-2016.pickle'
+output_pickle = 'module_to_definition.%s.pickle' % date
 print("Downloading module definitions from KEGG")
 m2def={}
 base='http://rest.kegg.jp/get/'
@@ -185,13 +233,12 @@ for idx, module_key in enumerate(current_module_list):
     m2def[module_key]=[]
     for line in urllib2.urlopen(url).read().strip().split('\n'):
         if line.startswith('DEFINITION'):
-            m2def[module_key]+=' '.join(line.split()[1:])            
+            m2def[module_key] = ' '.join(line.split()[1:])
     print "%s percent done" % str(round(float(idx+1)/tot, 2)*100)
     
 print("Done")
 print("Pickling results: %s" % output_pickle)
 pickle.dump(m2def, open(output_pickle, "wb"))
-
 
 
 print("Downloading rpair information from KEGG")

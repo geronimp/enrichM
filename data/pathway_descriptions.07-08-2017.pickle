@@ -1,0 +1,2070 @@
+(dp0
+S'map07227'
+p1
+S'Histamine H2/H3 receptor agonists/antagonists'
+p2
+sS'map01010'
+p3
+S'Overview of biosynthetic pathways'
+p4
+sS'map07226'
+p5
+S'Progesterone, androgen and estrogen receptor agonists/antagonists'
+p6
+sS'map00195'
+p7
+S'Photosynthesis'
+p8
+sS'map04330'
+p9
+S'Notch signaling pathway'
+p10
+sS'map07221'
+p11
+S'Nicotinic cholinergic receptor antagonists'
+p12
+sS'map00650'
+p13
+S'Butanoate metabolism'
+p14
+sS'map07218'
+p15
+S'HIV protease inhibitors'
+p16
+sS'map00710'
+p17
+S'Carbon fixation in photosynthetic organisms'
+p18
+sS'map00300'
+p19
+S'Lysine biosynthesis'
+p20
+sS'map07229'
+p21
+S'Angiotensin receptor and endothelin receptor antagonists'
+p22
+sS'map07213'
+p23
+S'Dopamine receptor agonists/antagonists'
+p24
+sS'map07228'
+p25
+S'Eicosanoid receptor agonists/antagonists'
+p26
+sS'map07025'
+p27
+S'Quinolines'
+p28
+sS'map07024'
+p29
+S'HMG-CoA reductase inhibitors'
+p30
+sS'map07027'
+p31
+S'Antidepressants'
+p32
+sS'map07026'
+p33
+S'Antifungal agents'
+p34
+sS'map07021'
+p35
+S'Aminoglycosides'
+p36
+sS'map07020'
+p37
+S'Macrolides and ketolides'
+p38
+sS'map07023'
+p39
+S'Rifamycins'
+p40
+sS'map07029'
+p41
+S'Antipsychotics - phenothiazines'
+p42
+sS'map07028'
+p43
+S'Antipsychotics'
+p44
+sS'map05120'
+p45
+S'Epithelial cell signaling in Helicobacter pylori infection'
+p46
+sS'map00970'
+p47
+S'Aminoacyl-tRNA biosynthesis'
+p48
+sS'map00565'
+p49
+S'Ether lipid metabolism'
+p50
+sS'map04650'
+p51
+S'Natural killer cell mediated cytotoxicity'
+p52
+sS'map04657'
+p53
+S'IL-17 signaling pathway'
+p54
+sS'map00270'
+p55
+S'Cysteine and methionine metabolism'
+p56
+sS'map04659'
+p57
+S'Th17 cell differentiation'
+p58
+sS'map04658'
+p59
+S'Th1 and Th2 cell differentiation'
+p60
+sS'map04662'
+p61
+S'B cell receptor signaling pathway'
+p62
+sS'map00563'
+p63
+S'Glycosylphosphatidylinositol (GPI)-anchor biosynthesis'
+p64
+sS'map07110'
+p65
+S'Benzoic acid family'
+p66
+sS'map07112'
+p67
+S'1,2-Diphenyl substitution family'
+p68
+sS'map07114'
+p69
+S'Naphthalene family'
+p70
+sS'map07117'
+p71
+S'Benzodiazepine family'
+p72
+sS'map07050'
+p73
+S'Antirheumatics - DMARDs and biological agents'
+p74
+sS'map07051'
+p75
+S'Antidiabetics'
+p76
+sS'map07052'
+p77
+S'Antidyslipidemic agents'
+p78
+sS'map07053'
+p79
+S'Anti-HIV agents'
+p80
+sS'map07054'
+p81
+S'Antiglaucoma agents'
+p82
+sS'map07055'
+p83
+S'Sulfonamide derivatives - overview'
+p84
+sS'map07056'
+p85
+S'Agents for Alzheimer-type dementia'
+p86
+sS'map04728'
+p87
+S'Dopaminergic synapse'
+p88
+sS'map04727'
+p89
+S'GABAergic synapse'
+p90
+sS'map04726'
+p91
+S'Serotonergic synapse'
+p92
+sS'map04725'
+p93
+S'Cholinergic synapse'
+p94
+sS'map04724'
+p95
+S'Glutamatergic synapse'
+p96
+sS'map04723'
+p97
+S'Retrograde endocannabinoid signaling'
+p98
+sS'map04722'
+p99
+S'Neurotrophin signaling pathway'
+p100
+sS'map04721'
+p101
+S'Synaptic vesicle cycle'
+p102
+sS'map04720'
+p103
+S'Long-term potentiation'
+p104
+sS'map00051'
+p105
+S'Fructose and mannose metabolism'
+p106
+sS'map00053'
+p107
+S'Ascorbate and aldarate metabolism'
+p108
+sS'map00052'
+p109
+S'Galactose metabolism'
+p110
+sS'map05418'
+p111
+S'Fluid shear stress and atherosclerosis'
+p112
+sS'map05416'
+p113
+S'Viral myocarditis'
+p114
+sS'map05414'
+p115
+S'Dilated cardiomyopathy (DCM)'
+p116
+sS'map05412'
+p117
+S'Arrhythmogenic right ventricular cardiomyopathy (ARVC)'
+p118
+sS'map05410'
+p119
+S'Hypertrophic cardiomyopathy (HCM)'
+p120
+sS'map03010'
+p121
+S'Ribosome'
+p122
+sS'map04978'
+p123
+S'Mineral absorption'
+p124
+sS'map00280'
+p125
+S'Valine, leucine and isoleucine degradation'
+p126
+sS'map00281'
+p127
+S'Geraniol degradation'
+p128
+sS'map02026'
+p129
+S'Biofilm formation - Escherichia coli'
+p130
+sS'map04973'
+p131
+S'Carbohydrate digestion and absorption'
+p132
+sS'map02024'
+p133
+S'Quorum sensing'
+p134
+sS'map02025'
+p135
+S'Biofilm formation - Pseudomonas aeruginosa'
+p136
+sS'map04976'
+p137
+S'Bile secretion'
+p138
+sS'map04977'
+p139
+S'Vitamin digestion and absorption'
+p140
+sS'map02020'
+p141
+S'Two-component system'
+p142
+sS'map04975'
+p143
+S'Fat digestion and absorption'
+p144
+sS'map04150'
+p145
+S'mTOR signaling pathway'
+p146
+sS'map04151'
+p147
+S'PI3K-Akt signaling pathway'
+p148
+sS'map04152'
+p149
+S'AMPK signaling pathway'
+p150
+sS'map05215'
+p151
+S'Prostate cancer'
+p152
+sS'map03430'
+p153
+S'Mismatch repair'
+p154
+sS'map04270'
+p155
+S'Vascular smooth muscle contraction'
+p156
+sS'map04060'
+p157
+S'Cytokine-cytokine receptor interaction'
+p158
+sS'map04370'
+p159
+S'VEGF signaling pathway'
+p160
+sS'map04371'
+p161
+S'Apelin signaling pathway'
+p162
+sS'map00020'
+p163
+S'Citrate cycle (TCA cycle)'
+p164
+sS'map04072'
+p165
+S'Phospholipase D signaling pathway'
+p166
+sS'map00750'
+p167
+S'Vitamin B6 metabolism'
+p168
+sS'map04070'
+p169
+S'Phosphatidylinositol signaling system'
+p170
+sS'map04075'
+p171
+S'Plant hormone signal transduction'
+p172
+sS'map05211'
+p173
+S'Renal cell carcinoma'
+p174
+sS'map00450'
+p175
+S'Selenocompound metabolism'
+p176
+sS'map05212'
+p177
+S'Pancreatic cancer'
+p178
+sS'map00590'
+p179
+S'Arachidonic acid metabolism'
+p180
+sS'map00591'
+p181
+S'Linoleic acid metabolism'
+p182
+sS'map00592'
+p183
+S'alpha-Linolenic acid metabolism'
+p184
+sS'map05213'
+p185
+S'Endometrial cancer'
+p186
+sS'map04380'
+p187
+S'Osteoclast differentiation'
+p188
+sS'map01120'
+p189
+S'Microbial metabolism in diverse environments'
+p190
+sS'map05218'
+p191
+S'Melanoma'
+p192
+sS'map05219'
+p193
+S'Bladder cancer'
+p194
+sS'map00930'
+p195
+S'Caprolactam degradation'
+p196
+sS'map00626'
+p197
+S'Naphthalene degradation'
+p198
+sS'map00627'
+p199
+S'Aminobenzoate degradation'
+p200
+sS'map00624'
+p201
+S'Polycyclic aromatic hydrocarbon degradation'
+p202
+sS'map00625'
+p203
+S'Chloroalkane and chloroalkene degradation'
+p204
+sS'map00622'
+p205
+S'Xylene degradation'
+p206
+sS'map00623'
+p207
+S'Toluene degradation'
+p208
+sS'map00620'
+p209
+S'Pyruvate metabolism'
+p210
+sS'map00621'
+p211
+S'Dioxin degradation'
+p212
+sS'map01052'
+p213
+S'Type I polyketide structures'
+p214
+sS'map01053'
+p215
+S'Biosynthesis of siderophore group nonribosomal peptides'
+p216
+sS'map01051'
+p217
+S'Biosynthesis of ansamycins'
+p218
+sS'map01056'
+p219
+S'Biosynthesis of type II polyketide backbone'
+p220
+sS'map01057'
+p221
+S'Biosynthesis of type II polyketide products'
+p222
+sS'map01054'
+p223
+S'Nonribosomal peptide structures'
+p224
+sS'map01055'
+p225
+S'Biosynthesis of vancomycin group antibiotics'
+p226
+sS'map01058'
+p227
+S'Acridone alkaloid biosynthesis'
+p228
+sS'map01059'
+p229
+S'Biosynthesis of enediyne antibiotics'
+p230
+sS'map05214'
+p231
+S'Glioma'
+p232
+sS'map01220'
+p233
+S'Degradation of aromatic compounds'
+p234
+sS'map05216'
+p235
+S'Thyroid cancer'
+p236
+sS'map05217'
+p237
+S'Basal cell carcinoma'
+p238
+sS'map00231'
+p239
+S'Puromycin biosynthesis'
+p240
+sS'map00230'
+p241
+S'Purine metabolism'
+p242
+sS'map04750'
+p243
+S'Inflammatory mediator regulation of TRP channels'
+p244
+sS'map00232'
+p245
+S'Caffeine metabolism'
+p246
+sS'map00330'
+p247
+S'Arginine and proline metabolism'
+p248
+sS'map00331'
+p249
+S'Clavulanic acid biosynthesis'
+p250
+sS'map00332'
+p251
+S'Carbapenem biosynthesis'
+p252
+sS'map00333'
+p253
+S'Prodigiosin biosynthesis'
+p254
+sS'map07043'
+p255
+S'Antineoplastics - hormones'
+p256
+sS'map07018'
+p257
+S'Sulfonamide derivatives - hypoglycemic agents'
+p258
+sS'map07019'
+p259
+S'Tetracyclines'
+p260
+sS'map07042'
+p261
+S'Antineoplastics - agents from natural products'
+p262
+sS'map07014'
+p263
+S'Quinolones'
+p264
+sS'map07015'
+p265
+S'Local analgesics'
+p266
+sS'map07016'
+p267
+S'Sulfonamide derivatives - sulfa drugs'
+p268
+sS'map07017'
+p269
+S'Sulfonamide derivatives - diuretics'
+p270
+sS'map07011'
+p271
+S'Penicillins'
+p272
+sS'map07012'
+p273
+S'Cephalosporins - parenteral agents'
+p274
+sS'map07013'
+p275
+S'Cephalosporins - oral agents'
+p276
+sS'map07040'
+p277
+S'Antineoplastics - alkylating agents'
+p278
+sS'map07234'
+p279
+S'Neurotransmitter transporter inhibitors'
+p280
+sS'map07235'
+p281
+S'N-Metyl-D-aspartic acid receptor antagonists'
+p282
+sS'map00480'
+p283
+S'Glutathione metabolism'
+p284
+sS'map07230'
+p285
+S'GABA-A receptor agonists/antagonists'
+p286
+sS'map07231'
+p287
+S'Sodium channel blocking drugs'
+p288
+sS'map07232'
+p289
+S'Potassium channel blocking and opening drugs'
+p290
+sS'map07233'
+p291
+S'Ion transporter inhibitors'
+p292
+sS'map00521'
+p293
+S'Streptomycin biosynthesis'
+p294
+sS'map00520'
+p295
+S'Amino sugar and nucleotide sugar metabolism'
+p296
+sS'map00523'
+p297
+S'Polyketide sugar unit biosynthesis'
+p298
+sS'map00522'
+p299
+S'Biosynthesis of 12-, 14- and 16-membered macrolides'
+p300
+sS'map00525'
+p301
+S'Acarbose and validamycin biosynthesis'
+p302
+sS'map00524'
+p303
+S'Neomycin, kanamycin and gentamicin biosynthesis'
+p304
+sS'map00240'
+p305
+S'Pyrimidine metabolism'
+p306
+sS'map02060'
+p307
+S'Phosphotransferase system (PTS)'
+p308
+sS'map05210'
+p309
+S'Colorectal cancer'
+p310
+sS'map04614'
+p311
+S'Renin-angiotensin system'
+p312
+sS'map04612'
+p313
+S'Antigen processing and presentation'
+p314
+sS'map04611'
+p315
+S'Platelet activation'
+p316
+sS'map04610'
+p317
+S'Complement and coagulation cascades'
+p318
+sS'map03040'
+p319
+S'Spliceosome'
+p320
+sS'map05165'
+p321
+S'Human papillomavirus infection'
+p322
+sS'map00061'
+p323
+S'Fatty acid biosynthesis'
+p324
+sS'map00062'
+p325
+S'Fatty acid elongation'
+p326
+sS'map00791'
+p327
+S'Atrazine degradation'
+p328
+sS'map00140'
+p329
+S'Steroid hormone biosynthesis'
+p330
+sS'map00410'
+p331
+S'beta-Alanine metabolism'
+p332
+sS'map04921'
+p333
+S'Oxytocin signaling pathway'
+p334
+sS'map04920'
+p335
+S'Adipocytokine signaling pathway'
+p336
+sS'map04923'
+p337
+S'Regulation of lipolysis in adipocytes'
+p338
+sS'map04922'
+p339
+S'Glucagon signaling pathway'
+p340
+sS'map04925'
+p341
+S'Aldosterone synthesis and secretion'
+p342
+sS'map04924'
+p343
+S'Renin secretion'
+p344
+sS'map04530'
+p345
+S'Tight junction'
+p346
+sS'map03460'
+p347
+S'Fanconi anemia pathway'
+p348
+sS'map00660'
+p349
+S'C5-Branched dibasic acid metabolism'
+p350
+sS'map04320'
+p351
+S'Dorso-ventral axis formation'
+p352
+sS'map00460'
+p353
+S'Cyanoamino acid metabolism'
+p354
+sS'map05140'
+p355
+S'Leishmaniasis'
+p356
+sS'map05142'
+p357
+S'Chagas disease (American trypanosomiasis)'
+p358
+sS'map05143'
+p359
+S'African trypanosomiasis'
+p360
+sS'map05144'
+p361
+S'Malaria'
+p362
+sS'map01501'
+p363
+S'beta-Lactam resistance'
+p364
+sS'map01502'
+p365
+S'Vancomycin resistance'
+p366
+sS'map01503'
+p367
+S'Cationic antimicrobial peptide (CAMP) resistance'
+p368
+sS'map04810'
+p369
+S'Regulation of actin cytoskeleton'
+p370
+sS'map00960'
+p371
+S'Tropane, piperidine and pyridine alkaloid biosynthesis'
+p372
+sS'map00965'
+p373
+S'Betalain biosynthesis'
+p374
+sS'map00966'
+p375
+S'Glucosinolate biosynthesis'
+p376
+sS'map05134'
+p377
+S'Legionellosis'
+p378
+sS'map05131'
+p379
+S'Shigellosis'
+p380
+sS'map05130'
+p381
+S'Pathogenic Escherichia coli infection'
+p382
+sS'map05133'
+p383
+S'Pertussis'
+p384
+sS'map05132'
+p385
+S'Salmonella infection'
+p386
+sS'map05034'
+p387
+S'Alcoholism'
+p388
+sS'map05030'
+p389
+S'Cocaine addiction'
+p390
+sS'map05031'
+p391
+S'Amphetamine addiction'
+p392
+sS'map05032'
+p393
+S'Morphine addiction'
+p394
+sS'map05033'
+p395
+S'Nicotine addiction'
+p396
+sS'map04666'
+p397
+S'Fc gamma R-mediated phagocytosis'
+p398
+sS'map00564'
+p399
+S'Glycerophospholipid metabolism'
+p400
+sS'map04664'
+p401
+S'Fc epsilon RI signaling pathway'
+p402
+sS'map05323'
+p403
+S'Rheumatoid arthritis'
+p404
+sS'map00561'
+p405
+S'Glycerolipid metabolism'
+p406
+sS'map04660'
+p407
+S'T cell receptor signaling pathway'
+p408
+sS'map00562'
+p409
+S'Inositol phosphate metabolism'
+p410
+sS'map01210'
+p411
+S'2-Oxocarboxylic acid metabolism'
+p412
+sS'map01212'
+p413
+S'Fatty acid metabolism'
+p414
+sS'map04668'
+p415
+S'TNF signaling pathway'
+p416
+sS'map00363'
+p417
+S'Bisphenol degradation'
+p418
+sS'map00362'
+p419
+S'Benzoate degradation'
+p420
+sS'map00361'
+p421
+S'Chlorocyclohexane and chlorobenzene degradation'
+p422
+sS'map00360'
+p423
+S'Phenylalanine metabolism'
+p424
+sS'map00365'
+p425
+S'Furfural degradation'
+p426
+sS'map00364'
+p427
+S'Fluorobenzoate degradation'
+p428
+sS'map05320'
+p429
+S'Autoimmune thyroid disease'
+p430
+sS'map04712'
+p431
+S'Circadian rhythm - plant'
+p432
+sS'map04713'
+p433
+S'Circadian entrainment'
+p434
+sS'map04710'
+p435
+S'Circadian rhythm'
+p436
+sS'map04711'
+p437
+S'Circadian rhythm - fly'
+p438
+sS'map07047'
+p439
+S'Osteoporosis drugs'
+p440
+sS'map07046'
+p441
+S'Immunosuppressive agents'
+p442
+sS'map07045'
+p443
+S'Antineoplastics - protein kinases inhibitors'
+p444
+sS'map07044'
+p445
+S'Antiviral agents'
+p446
+sS'map07049'
+p447
+S'Antithrombosis agents'
+p448
+sS'map07048'
+p449
+S'Antimigraines'
+p450
+sS'map05310'
+p451
+S'Asthma'
+p452
+sS'map00510'
+p453
+S'N-Glycan biosynthesis'
+p454
+sS'map00511'
+p455
+S'Other glycan degradation'
+p456
+sS'map00512'
+p457
+S'Mucin type O-glycan biosynthesis'
+p458
+sS'map00513'
+p459
+S'Various types of N-glycan biosynthesis'
+p460
+sS'map00514'
+p461
+S'Other types of O-glycan biosynthesis'
+p462
+sS'map00515'
+p463
+S'Mannose type O-glycan biosynthesis'
+p464
+sS'map00100'
+p465
+S'Steroid biosynthesis'
+p466
+sS'map02030'
+p467
+S'Bacterial chemotaxis'
+p468
+sS'map00290'
+p469
+S'Valine, leucine and isoleucine biosynthesis'
+p470
+sS'map04964'
+p471
+S'Proximal tubule bicarbonate reclamation'
+p472
+sS'map04966'
+p473
+S'Collecting duct acid secretion'
+p474
+sS'map04961'
+p475
+S'Endocrine and other factor-regulated calcium reabsorption'
+p476
+sS'map04960'
+p477
+S'Aldosterone-regulated sodium reabsorption'
+p478
+sS'map04962'
+p479
+S'Vasopressin-regulated water reabsorption'
+p480
+sS'map04146'
+p481
+S'Peroxisome'
+p482
+sS'map04145'
+p483
+S'Phagosome'
+p484
+sS'map04144'
+p485
+S'Endocytosis'
+p486
+sS'map00190'
+p487
+S'Oxidative phosphorylation'
+p488
+sS'map04142'
+p489
+S'Lysosome'
+p490
+sS'map04141'
+p491
+S'Protein processing in endoplasmic reticulum'
+p492
+sS'map04140'
+p493
+S'Autophagy - animal'
+p494
+sS'map03420'
+p495
+S'Nucleotide excision repair'
+p496
+sS'map03030'
+p497
+S'DNA replication'
+p498
+sS'map04360'
+p499
+S'Axon guidance'
+p500
+sS'map00030'
+p501
+S'Pentose phosphate pathway'
+p502
+sS'map00196'
+p503
+S'Photosynthesis - antenna proteins'
+p504
+sS'map04918'
+p505
+S'Thyroid hormone synthesis'
+p506
+sS'map04919'
+p507
+S'Thyroid hormone signaling pathway'
+p508
+sS'map04910'
+p509
+S'Insulin signaling pathway'
+p510
+sS'map04911'
+p511
+S'Insulin secretion'
+p512
+sS'map04912'
+p513
+S'GnRH signaling pathway'
+p514
+sS'map04913'
+p515
+S'Ovarian steroidogenesis'
+p516
+sS'map04914'
+p517
+S'Progesterone-mediated oocyte maturation'
+p518
+sS'map04915'
+p519
+S'Estrogen signaling pathway'
+p520
+sS'map04916'
+p521
+S'Melanogenesis'
+p522
+sS'map04917'
+p523
+S'Prolactin signaling pathway'
+p524
+sS'map04218'
+p525
+S'Cellular senescence'
+p526
+sS'map04213'
+p527
+S'Longevity regulating pathway - multiple species'
+p528
+sS'map04212'
+p529
+S'Longevity regulating pathway - worm'
+p530
+sS'map04211'
+p531
+S'Longevity regulating pathway'
+p532
+sS'map04210'
+p533
+S'Apoptosis'
+p534
+sS'map04217'
+p535
+S'Necroptosis'
+p536
+sS'map04216'
+p537
+S'Ferroptosis'
+p538
+sS'map04215'
+p539
+S'Apoptosis - multiple species'
+p540
+sS'map04214'
+p541
+S'Apoptosis - fly'
+p542
+sS'map00630'
+p543
+S'Glyoxylate and dicarboxylate metabolism'
+p544
+sS'map00633'
+p545
+S'Nitrotoluene degradation'
+p546
+sS'map00920'
+p547
+S'Sulfur metabolism'
+p548
+sS'map00730'
+p549
+S'Thiamine metabolism'
+p550
+sS'map01040'
+p551
+S'Biosynthesis of unsaturated fatty acids'
+p552
+sS'map05206'
+p553
+S'MicroRNAs in cancer'
+p554
+sS'map05205'
+p555
+S'Proteoglycans in cancer'
+p556
+sS'map05204'
+p557
+S'Chemical carcinogenesis'
+p558
+sS'map05203'
+p559
+S'Viral carcinogenesis'
+p560
+sS'map05202'
+p561
+S'Transcriptional misregulation in cancer'
+p562
+sS'map05200'
+p563
+S'Pathways in cancer'
+p564
+sS'map00950'
+p565
+S'Isoquinoline alkaloid biosynthesis'
+p566
+sS'map01130'
+p567
+S'Biosynthesis of antibiotics'
+p568
+sS'map05100'
+p569
+S'Bacterial invasion of epithelial cells'
+p570
+sS'map04136'
+p571
+S'Autophagy - other'
+p572
+sS'map04137'
+p573
+S'Mitophagy - animal'
+p574
+sS'map07225'
+p575
+S'Glucocorticoid and mineralocorticoid receptor agonists/antagonists'
+p576
+sS'map07224'
+p577
+S'Opioid receptor agonists/antagonists'
+p578
+sS'map07223'
+p579
+S'Retinoic acid receptor (RAR) and retinoid X receptor (RXR) agonists/antagonists'
+p580
+sS'map07222'
+p581
+S'Peroxisome proliferator-activated receptor (PPAR) agonists'
+p582
+sS'map04130'
+p583
+S'SNARE interactions in vesicular transport'
+p584
+sS'map07220'
+p585
+S'Cholinergic and anticholinergic drugs'
+p586
+sS'map05332'
+p587
+S'Graft-versus-host disease'
+p588
+sS'map05330'
+p589
+S'Allograft rejection'
+p590
+sS'map00550'
+p591
+S'Peptidoglycan biosynthesis'
+p592
+sS'map04138'
+p593
+S'Autophagy - yeast'
+p594
+sS'map04139'
+p595
+S'Mitophagy - yeast'
+p596
+sS'map00253'
+p597
+S'Tetracycline biosynthesis'
+p598
+sS'map00250'
+p599
+S'Alanine, aspartate and glutamate metabolism'
+p600
+sS'map00254'
+p601
+S'Aflatoxin biosynthesis'
+p602
+sS'map00740'
+p603
+S'Riboflavin metabolism'
+p604
+sS'map04622'
+p605
+S'RIG-I-like receptor signaling pathway'
+p606
+sS'map04623'
+p607
+S'Cytosolic DNA-sensing pathway'
+p608
+sS'map04620'
+p609
+S'Toll-like receptor signaling pathway'
+p610
+sS'map04621'
+p611
+S'NOD-like receptor signaling pathway'
+p612
+sS'map04626'
+p613
+S'Plant-pathogen interaction'
+p614
+sS'map04624'
+p615
+S'Toll and Imd signaling pathway'
+p616
+sS'map04740'
+p617
+S'Olfactory transduction'
+p618
+sS'map04742'
+p619
+S'Taste transduction'
+p620
+sS'map04745'
+p621
+S'Phototransduction - fly'
+p622
+sS'map04744'
+p623
+S'Phototransduction'
+p624
+sS'map03070'
+p625
+S'Bacterial secretion system'
+p626
+sS'map04550'
+p627
+S'Signaling pathways regulating pluripotency of stem cells'
+p628
+sS'map00780'
+p629
+S'Biotin metabolism'
+p630
+sS'map07057'
+p631
+S'Antiparkinsonian agents'
+p632
+sS'map00785'
+p633
+S'Lipoic acid metabolism'
+p634
+sS'map00073'
+p635
+S'Cutin, suberine and wax biosynthesis'
+p636
+sS'map00072'
+p637
+S'Synthesis and degradation of ketone bodies'
+p638
+sS'map00071'
+p639
+S'Fatty acid degradation'
+p640
+sS'map05224'
+p641
+S'Breast cancer'
+p642
+sS'map05221'
+p643
+S'Acute myeloid leukemia'
+p644
+sS'map05220'
+p645
+S'Chronic myeloid leukemia'
+p646
+sS'map04950'
+p647
+S'Maturity onset diabetes of the young'
+p648
+sS'map05223'
+p649
+S'Non-small cell lung cancer'
+p650
+sS'map05222'
+p651
+S'Small cell lung cancer'
+p652
+sS'map04520'
+p653
+S'Adherens junction'
+p654
+sS'map00790'
+p655
+S'Folate biosynthesis'
+p656
+sS'map05150'
+p657
+S'Staphylococcus aureus infection'
+p658
+sS'map03410'
+p659
+S'Base excision repair'
+p660
+sS'map00670'
+p661
+S'One carbon pool by folate'
+p662
+sS'map04310'
+p663
+S'Wnt signaling pathway'
+p664
+sS'map00770'
+p665
+S'Pantothenate and CoA biosynthesis'
+p666
+sS'map00473'
+p667
+S'D-Alanine metabolism'
+p668
+sS'map00472'
+p669
+S'D-Arginine and D-ornithine metabolism'
+p670
+sS'map00471'
+p671
+S'D-Glutamine and D-glutamate metabolism'
+p672
+sS'map01100'
+p673
+S'Metabolic pathways'
+p674
+sS'map05152'
+p675
+S'Tuberculosis'
+p676
+sS'map00984'
+p677
+S'Steroid degradation'
+p678
+sS'map00983'
+p679
+S'Drug metabolism - other enzymes'
+p680
+sS'map00982'
+p681
+S'Drug metabolism - cytochrome P450'
+p682
+sS'map00981'
+p683
+S'Insect hormone biosynthesis'
+p684
+sS'map00980'
+p685
+S'Metabolism of xenobiotics by cytochrome P450'
+p686
+sS'map07211'
+p687
+S'Serotonin receptor agonists/antagonists'
+p688
+sS'map00600'
+p689
+S'Sphingolipid metabolism'
+p690
+sS'map00601'
+p691
+S'Glycosphingolipid biosynthesis - lacto and neolacto series'
+p692
+sS'map00603'
+p693
+S'Glycosphingolipid biosynthesis - globo and isoglobo series'
+p694
+sS'map00604'
+p695
+S'Glycosphingolipid biosynthesis - ganglio series'
+p696
+sS'map01070'
+p697
+S'Biosynthesis of plant hormones'
+p698
+sS'map05020'
+p699
+S'Prion diseases'
+p700
+sS'map01200'
+p701
+S'Carbon metabolism'
+p702
+sS'map00350'
+p703
+S'Tyrosine metabolism'
+p704
+sS'map00351'
+p705
+S'DDT degradation'
+p706
+sS'map03320'
+p707
+S'PPAR signaling pathway'
+p708
+sS'map04514'
+p709
+S'Cell adhesion molecules (CAMs)'
+p710
+sS'map04510'
+p711
+S'Focal adhesion'
+p712
+sS'map04512'
+p713
+S'ECM-receptor interaction'
+p714
+sS'map00130'
+p715
+S'Ubiquinone and other terpenoid-quinone biosynthesis'
+p716
+sS'map00500'
+p717
+S'Starch and sucrose metabolism'
+p718
+sS'map02040'
+p719
+S'Flagellar assembly'
+p720
+sS'map04972'
+p721
+S'Pancreatic secretion'
+p722
+sS'map04670'
+p723
+S'Leukocyte transendothelial migration'
+p724
+sS'map04672'
+p725
+S'Intestinal immune network for IgA production'
+p726
+sS'map04970'
+p727
+S'Salivary secretion'
+p728
+sS'map00533'
+p729
+S'Glycosaminoglycan biosynthesis - keratan sulfate'
+p730
+sS'map04971'
+p731
+S'Gastric acid secretion'
+p732
+sS'map03020'
+p733
+S'RNA polymerase'
+p734
+sS'map04350'
+p735
+S'TGF-beta signaling pathway'
+p736
+sS'map03022'
+p737
+S'Basal transcription factors'
+p738
+sS'map03450'
+p739
+S'Non-homologous end-joining'
+p740
+sS'map04974'
+p741
+S'Protein digestion and absorption'
+p742
+sS'map00680'
+p743
+S'Methane metabolism'
+p744
+sS'map00430'
+p745
+S'Taurine and hypotaurine metabolism'
+p746
+sS'map03440'
+p747
+S'Homologous recombination'
+p748
+sS'map00640'
+p749
+S'Propanoate metabolism'
+p750
+sS'map00642'
+p751
+S'Ethylbenzene degradation'
+p752
+sS'map00643'
+p753
+S'Styrene degradation'
+p754
+sS'map00720'
+p755
+S'Carbon fixation pathways in prokaryotes'
+p756
+sS'map00310'
+p757
+S'Lysine degradation'
+p758
+sS'map00311'
+p759
+S'Penicillin and cephalosporin biosynthesis'
+p760
+sS'map07032'
+p761
+S'Hypnotics'
+p762
+sS'map07033'
+p763
+S'Anticonvulsants'
+p764
+sS'map07030'
+p765
+S'Anxiolytics'
+p766
+sS'map07031'
+p767
+S'Antipsychotics - butyrophenones'
+p768
+sS'map07036'
+p769
+S'Calcium channel blocking drugs'
+p770
+sS'map07037'
+p771
+S'Antiarrhythmic drugs'
+p772
+sS'map07034'
+p773
+S'Eicosanoids'
+p774
+sS'map07035'
+p775
+S'Prostaglandins'
+p776
+sS'map07038'
+p777
+S'Antiulcer drugs'
+p778
+sS'map07039'
+p779
+S'Opioid analgesics'
+p780
+sS'map00860'
+p781
+S'Porphyrin and chlorophyll metabolism'
+p782
+sS'map00943'
+p783
+S'Isoflavonoid biosynthesis'
+p784
+sS'map00942'
+p785
+S'Anthocyanin biosynthesis'
+p786
+sS'map00941'
+p787
+S'Flavonoid biosynthesis'
+p788
+sS'map00940'
+p789
+S'Phenylpropanoid biosynthesis'
+p790
+sS'map00945'
+p791
+S'Stilbenoid, diarylheptanoid and gingerol biosynthesis'
+p792
+sS'map00944'
+p793
+S'Flavone and flavonol biosynthesis'
+p794
+sS'map05111'
+p795
+S'Biofilm formation - Vibrio cholerae'
+p796
+sS'map05110'
+p797
+S'Vibrio cholerae infection'
+p798
+sS'map04640'
+p799
+S'Hematopoietic cell lineage'
+p800
+sS'map00540'
+p801
+S'Lipopolysaccharide biosynthesis'
+p802
+sS'map00260'
+p803
+S'Glycine, serine and threonine metabolism'
+p804
+sS'map00261'
+p805
+S'Monobactam biosynthesis'
+p806
+sS'map00380'
+p807
+S'Tryptophan metabolism'
+p808
+sS'map04630'
+p809
+S'Jak-STAT signaling pathway'
+p810
+sS'map05230'
+p811
+S'Central carbon metabolism in cancer'
+p812
+sS'map05231'
+p813
+S'Choline metabolism in cancer'
+p814
+sS'map04730'
+p815
+S'Long-term depression'
+p816
+sS'map04392'
+p817
+S'Hippo signaling pathway - multiple species'
+p818
+sS'map03060'
+p819
+S'Protein export'
+p820
+sS'map04390'
+p821
+S'Hippo signaling pathway'
+p822
+sS'map04391'
+p823
+S'Hippo signaling pathway - fly'
+p824
+sS'map04015'
+p825
+S'Rap1 signaling pathway'
+p826
+sS'map04014'
+p827
+S'Ras signaling pathway'
+p828
+sS'map00040'
+p829
+S'Pentose and glucuronate interconversions'
+p830
+sS'map04540'
+p831
+S'Gap junction'
+p832
+sS'map04011'
+p833
+S'MAPK signaling pathway - yeast'
+p834
+sS'map04010'
+p835
+S'MAPK signaling pathway'
+p836
+sS'map04013'
+p837
+S'MAPK signaling pathway - fly'
+p838
+sS'map04012'
+p839
+S'ErbB signaling pathway'
+p840
+sS'map04071'
+p841
+S'Sphingolipid signaling pathway'
+p842
+sS'map05321'
+p843
+S'Inflammatory bowel disease (IBD)'
+p844
+sS'map03008'
+p845
+S'Ribosome biogenesis in eukaryotes'
+p846
+sS'map02010'
+p847
+S'ABC transporters'
+p848
+sS'map04080'
+p849
+S'Neuroactive ligand-receptor interaction'
+p850
+sS'map07219'
+p851
+S'Cyclooxygenase inhibitors'
+p852
+sS'map04940'
+p853
+S'Type I diabetes mellitus'
+p854
+sS'map07212'
+p855
+S'Histamine H1 receptor antagonists'
+p856
+sS'map04120'
+p857
+S'Ubiquitin mediated proteolysis'
+p858
+sS'map04122'
+p859
+S'Sulfur relay system'
+p860
+sS'map07216'
+p861
+S'Catecholamine transferase inhibitors'
+p862
+sS'map07217'
+p863
+S'Renin-angiotensin system inhibitors'
+p864
+sS'map07214'
+p865
+S'beta-Adrenergic receptor agonists/antagonists'
+p866
+sS'map07215'
+p867
+S'alpha-Adrenergic receptor agonists/antagonists'
+p868
+sS'map05322'
+p869
+S'Systemic lupus erythematosus'
+p870
+sS'map04341'
+p871
+S'Hedgehog signaling pathway - fly'
+p872
+sS'map04260'
+p873
+S'Cardiac muscle contraction'
+p874
+sS'map04261'
+p875
+S'Adrenergic signaling in cardiomyocytes'
+p876
+sS'map04068'
+p877
+S'FoxO signaling pathway'
+p878
+sS'map03013'
+p879
+S'RNA transport'
+p880
+sS'map03015'
+p881
+S'mRNA surveillance pathway'
+p882
+sS'map03018'
+p883
+S'RNA degradation'
+p884
+sS'map04062'
+p885
+S'Chemokine signaling pathway'
+p886
+sS'map04064'
+p887
+S'NF-kappa B signaling pathway'
+p888
+sS'map04066'
+p889
+S'HIF-1 signaling pathway'
+p890
+sS'map00760'
+p891
+S'Nicotinate and nicotinamide metabolism'
+p892
+sS'map00440'
+p893
+S'Phosphonate and phosphinate metabolism'
+p894
+sS'map07041'
+p895
+S'Antineoplastics - antimetabolic agents'
+p896
+sS'map05166'
+p897
+S'HTLV-I infection'
+p898
+sS'map05167'
+p899
+S"Kaposi's sarcoma-associated herpesvirus infection"
+p900
+sS'map05164'
+p901
+S'Influenza A'
+p902
+sS'map01110'
+p903
+S'Biosynthesis of secondary metabolites'
+p904
+sS'map05162'
+p905
+S'Measles'
+p906
+sS'map05160'
+p907
+S'Hepatitis C'
+p908
+sS'map05161'
+p909
+S'Hepatitis B'
+p910
+sS'map05168'
+p911
+S'Herpes simplex infection'
+p912
+sS'map05169'
+p913
+S'Epstein-Barr virus infection'
+p914
+sS'map05145'
+p915
+S'Toxoplasmosis'
+p916
+sS'map05146'
+p917
+S'Amoebiasis'
+p918
+sS'map00909'
+p919
+S'Sesquiterpenoid and triterpenoid biosynthesis'
+p920
+sS'map00908'
+p921
+S'Zeatin biosynthesis'
+p922
+sS'map00906'
+p923
+S'Carotenoid biosynthesis'
+p924
+sS'map00905'
+p925
+S'Brassinosteroid biosynthesis'
+p926
+sS'map00904'
+p927
+S'Diterpenoid biosynthesis'
+p928
+sS'map00903'
+p929
+S'Limonene and pinene degradation'
+p930
+sS'map00902'
+p931
+S'Monoterpenoid biosynthesis'
+p932
+sS'map00901'
+p933
+S'Indole alkaloid biosynthesis'
+p934
+sS'map00900'
+p935
+S'Terpenoid backbone biosynthesis'
+p936
+sS'map05012'
+p937
+S"Parkinson's disease"
+p938
+sS'map05010'
+p939
+S"Alzheimer's disease"
+p940
+sS'map05016'
+p941
+S"Huntington's disease"
+p942
+sS'map05014'
+p943
+S'Amyotrophic lateral sclerosis (ALS)'
+p944
+sS'map01066'
+p945
+S'Biosynthesis of alkaloids derived from terpenoid and polyketide'
+p946
+sS'map01065'
+p947
+S'Biosynthesis of alkaloids derived from histidine and purine'
+p948
+sS'map01064'
+p949
+S'Biosynthesis of alkaloids derived from ornithine, lysine and nicotinic acid'
+p950
+sS'map01063'
+p951
+S'Biosynthesis of alkaloids derived from shikimate pathway'
+p952
+sS'map01062'
+p953
+S'Biosynthesis of terpenoids and steroids'
+p954
+sS'map01061'
+p955
+S'Biosynthesis of phenylpropanoids'
+p956
+sS'map01060'
+p957
+S'Biosynthesis of plant secondary metabolites'
+p958
+sS'map00220'
+p959
+S'Arginine biosynthesis'
+p960
+sS'map04016'
+p961
+S'MAPK signaling pathway - plant'
+p962
+sS'map00340'
+p963
+S'Histidine metabolism'
+p964
+sS'map01230'
+p965
+S'Biosynthesis of amino acids'
+p966
+sS'map00830'
+p967
+S'Retinol metabolism'
+p968
+sS'map01522'
+p969
+S'Endocrine resistance'
+p970
+sS'map01523'
+p971
+S'Antifolate resistance'
+p972
+sS'map01521'
+p973
+S'EGFR tyrosine kinase inhibitor resistance'
+p974
+sS'map01524'
+p975
+S'Platinum drug resistance'
+p976
+sS'map04110'
+p977
+S'Cell cycle'
+p978
+sS'map04111'
+p979
+S'Cell cycle - yeast'
+p980
+sS'map04112'
+p981
+S'Cell cycle - Caulobacter'
+p982
+sS'map04113'
+p983
+S'Meiosis - yeast'
+p984
+sS'map04114'
+p985
+S'Oocyte meiosis'
+p986
+sS'map04115'
+p987
+S'p53 signaling pathway'
+p988
+sS'map00121'
+p989
+S'Secondary bile acid biosynthesis'
+p990
+sS'map00120'
+p991
+S'Primary bile acid biosynthesis'
+p992
+sS'map00534'
+p993
+S'Glycosaminoglycan biosynthesis - heparan sulfate / heparin'
+p994
+sS'map00532'
+p995
+S'Glycosaminoglycan biosynthesis - chondroitin sulfate / dermatan sulfate'
+p996
+sS'map00910'
+p997
+S'Nitrogen metabolism'
+p998
+sS'map00531'
+p999
+S'Glycosaminoglycan degradation'
+p1000
+sS'map05340'
+p1001
+S'Primary immunodeficiency'
+p1002
+sS'map03050'
+p1003
+S'Proteasome'
+p1004
+sS'map04340'
+p1005
+S'Hedgehog signaling pathway'
+p1006
+sS'map04024'
+p1007
+S'cAMP signaling pathway'
+p1008
+sS'map00010'
+p1009
+S'Glycolysis / Gluconeogenesis'
+p1010
+sS'map04020'
+p1011
+S'Calcium signaling pathway'
+p1012
+sS'map04022'
+p1013
+S'cGMP-PKG signaling pathway'
+p1014
+sS'map00402'
+p1015
+S'Benzoxazinoid biosynthesis'
+p1016
+sS'map00403'
+p1017
+S'Indole diterpene alkaloid biosynthesis'
+p1018
+sS'map00400'
+p1019
+S'Phenylalanine, tyrosine and tryptophan biosynthesis'
+p1020
+sS'map00401'
+p1021
+S'Novobiocin biosynthesis'
+p1022
+sS'map00404'
+p1023
+S'Staurosporine biosynthesis'
+p1024
+sS'map00405'
+p1025
+S'Phenazine biosynthesis'
+p1026
+sS'map04932'
+p1027
+S'Non-alcoholic fatty liver disease (NAFLD)'
+p1028
+sS'map04933'
+p1029
+S'AGE-RAGE signaling pathway in diabetic complications'
+p1030
+sS'map04930'
+p1031
+S'Type II diabetes mellitus'
+p1032
+sS'map04931'
+p1033
+S'Insulin resistance'
+p1034
+s.

@@ -16,24 +16,27 @@
 #                                                                             #
 ###############################################################################
 
-__author__ = "Ben Woodcroft"
+__author__ = "Ben Woodcroft, Joel Boyd"
 __copyright__ = "Copyright 2015-2016"
-__credits__ = ["Ben Woodcroft"]
+__credits__ = ["Ben Woodcroft", "Joel Boyd"]
 __license__ = "GPL3+"
-__maintainer__ = "Ben Woodcroft"
-__email__ = "b.woodcroft near uq.edu.au"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
+__version__ = "0.0.1"
+
+###############################################################################
 
 import os, re
 import logging
 import pickle
 
 from module_description_parser import ModuleDescription
-from build_enrichment_matrix import BuildEncrichmentMatrix
+
+###############################################################################
 
 class KeggModuleGrabber:
-    ANNOTATE = 'annotate'
-    ENRICHMENT = 'enrichment'
+
     DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                              '..',
                              'data')
@@ -46,7 +49,6 @@ class KeggModuleGrabber:
     
     def __init__(self):
         self.ko_re = re.compile('^K\d+$')
-
         
         self.signature_modules = set(['M00611', 'M00612', 'M00613', 'M00614',
          'M00617', 'M00618', 'M00615', 'M00616', 'M00363', 'M00542', 'M00574',
@@ -73,7 +75,7 @@ class KeggModuleGrabber:
         for key in custom_modules_dict.keys():
             self.m[key] = 'Custom'
     
-    def _parse_genome_and_ko_file_lf(self, genome_and_ko_file):
+    def _parse_genome_and_annotation_file_lf(self, genome_and_ko_file):
         genome_to_ko_sets = {}
         for line in open(genome_and_ko_file):
             sline = line.strip().split("\t")
@@ -89,7 +91,7 @@ class KeggModuleGrabber:
                 raise Exception("Malformed ko line: %i" % line)
         return genome_to_ko_sets
     
-    def _parse_genome_and_ko_file_matrix(self, genome_and_ko_file):
+    def _parse_genome_and_annotation_file_matrix(self, genome_and_ko_file):
         genome_and_ko_file_io = open(genome_and_ko_file)
         headers=genome_and_ko_file_io.readline().strip().split('\t')[1:]
         genome_to_ko_sets = {genome_name:set() for genome_name in headers}
@@ -102,44 +104,64 @@ class KeggModuleGrabber:
                     genome_to_ko_sets[genome_name].add(ko)
         return genome_to_ko_sets
       
-    def main(self, args):
+    def _write_results(self, input, output):
+        '''
+        Parameters
+        ----------
         
-        if args.subparser_name == self.ANNOTATE:
-            if args.custom_modules:
-                self._update_with_custom_modules(args.custom_modules)
-            output_path = args.output_prefix + '_annotations.tsv'
-            if args.genome_and_ko_file:
-                genome_to_ko_sets = self._parse_genome_and_ko_file_lf(args.genome_and_ko_file)
-            elif args.genome_and_ko_matrix:
-                genome_to_ko_sets = self._parse_genome_and_ko_file_matrix(args.genome_and_ko_matrix)
-            logging.info("Read in KOs for %i genomes" % len(genome_to_ko_sets))
-            pathways2 = {}
-            for name, pathway_string in self.m2def.items():
-                if name not in self.signature_modules:   
-                    path = ModuleDescription(pathway_string)
-                    pathways2[name] = path
-    
-            logging.info('Writing results to file: %s' % output_path)
-            with open(output_path, 'w') as output_path_io:
-                header = ["Genome_name", "Module_id", "Module_name", "Steps_found",
-                          "Steps_needed", "Percent_Steps_found"]
-                output_path_io.write('\t'.join(header) + '\n')  
-                for genome, kos in genome_to_ko_sets.items():
-                    for name, path in pathways2.items():
-                        num_covered = path.num_covered_steps(kos)
-                        num_all = path.num_steps()
-                        perc_covered = num_covered / float(num_all)
-                        if perc_covered >= args.cutoff:
-                            output_line = "\t".join([genome, name, self.m[name],
-                                                      str(num_covered),  # 
-                                                      str(num_all),
-                                                      str(round(perc_covered * 100, 2))]) 
-                            output_path_io.write(output_line + '\n') 
-            logging.info("Done!")
-        elif args.subparser_name == self.ENRICHMENT:
-            bem = BuildEncrichmentMatrix()
-            bem.main(args.annotations, args.abundances, args.metadata, 
-                     args.modules, args.output_prefix)
-            
+        Output
+        ------
+        '''
+        pass
+
+    def do(self, 
+           custom_modules, 
+           output_prefix, 
+           genome_and_annotation_file, 
+           genome_and_annotation_matrix, 
+           cutoff):
+        '''
+        
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        if custom_modules:
+            self._update_with_custom_modules(custom_modules)
+
+        output_path = output_prefix + '_annotations.tsv'
+
+        if genome_and_ko_file:
+            genome_to_ko_sets = self._parse_genome_and_annotation_file_lf(genome_and_ko_file)
+        elif genome_and_ko_matrix:
+            genome_to_ko_sets = self._parse_genome_and_annotation_file_matrix(genome_and_ko_matrix)
+        ### ~ TODO: Add in an option for seamless input from Annotate function
+
+        logging.info("Read in annotations for %i genomes" % len(genome_to_ko_sets))
+        pathways = {}
+
+        for name, pathway_string in self.m2def.items():
+            if name not in self.signature_modules:   
+                path = ModuleDescription(pathway_string)
+                pathways[name] = path
+
+        logging.info('Writing results to file: %s' % output_path)
+        with open(output_path, 'w') as output_path_io:
+            header = ["Genome_name", "Module_id", "Module_name", "Steps_found",
+                      "Steps_needed", "Percent_Steps_found"]
+            output_path_io.write('\t'.join(header) + '\n')  
 
 
+            for genome, kos in genome_to_ko_sets.items():
+                for name, path in pathways.items():
+                    num_covered = path.num_covered_steps(kos)
+                    num_all = path.num_steps()
+                    perc_covered = num_covered / float(num_all)
+                    if perc_covered >= cutoff:
+                        output_line = "\t".join([genome, name, self.m[name],
+                                                  str(num_covered),  # 
+                                                  str(num_all),
+                                                  str(round(perc_covered * 100, 2))]) 
+                        output_path_io.write(output_line + '\n') 
