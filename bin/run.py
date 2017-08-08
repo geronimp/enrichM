@@ -108,10 +108,15 @@ class Run:
         args    - object. Argparse object
         '''
         # ensure either a list of genomes or a directory of genomes have been specified
-        if not(args.genome_files or args.genome_directory or args.proteins_directory):
-            raise Exception("Input error: Either a list of genomes or a directory of genomes \
-need to be specified.")
-    
+        if not(args.genome_files or args.genome_directory or args.protein_directory or args.protein_files):
+            raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
+        if len([x for x in [args.genome_files, args.genome_directory, args.protein_directory, args.protein_files] if x]) != 1:
+            raise Exception("Input error: Only one type of input can be specified (--genome_files, --genome_directory, --protein_directory, or --protein_files).")
+        if(args.genome_directory or args.genome_files):
+            args.suffix = '.fna'
+        elif(args.protein_directory or args.protein_files):
+            args.suffix = '.faa'
+
     def _check_enrichment(self, args):
         '''
         
@@ -203,7 +208,6 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
             a = Annotate(# Define inputs and outputs
-                         args.genome_files,
                          args.output,
                          # Define type of annotation to be carried out
                          args.ko,
@@ -217,9 +221,12 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
                          args.aln_query, 
                          args.aln_reference, 
                          # Parameters
-                         args.threads
+                         args.threads,
+                         args.suffix
                          )
-            a.do(args.genome_directory, args.proteins_directory)
+
+            a.do(args.genome_directory, args.protein_directory, 
+                 args.genome_files, args.protein_files)
 
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
