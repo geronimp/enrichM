@@ -120,6 +120,7 @@ class NetworkAnalyser:
             abundances_metabolome = None
 
         if subparser_name==self.TRAVERSE:
+            logging.info('Traversing network')
             output_lines = \
                             nb.traverse(abundances_metagenome,
                                         abundances_transcriptome,
@@ -144,7 +145,6 @@ class NetworkAnalyser:
             self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
 
         elif subparser_name==self.PATHWAY:
-            
             logging.info('Generating pathway network')
 
             network_lines, node_metadata = \

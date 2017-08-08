@@ -43,26 +43,38 @@ from genome import Genome, AnnotationParser
 
 class Annotate:
 
-    GENOME_BIN = 'genome_bin'
-    GENOME_PROTEINS = 'genome_proteins'    
-    GENOME_KO = 'annotations_ko'
-    GENOME_COG = 'annotations_cog'
-    GENOME_PFAM = 'annotations_pfam'
-    GENOME_TIGRFAM = 'annotations_tigrfam'
-    OUTPUT_KO = 'ko_frequency_table.tsv'
-    OUTPUT_PFAM = 'pfam_frequency_table.tsv'
-    OUTPUT_TIGRFAM = 'tigrfam_frequency_table.tsv'
+    GENOME_BIN          = 'genome_bin'
+    GENOME_PROTEINS     = 'genome_proteins'    
+    GENOME_KO           = 'annotations_ko'
+    GENOME_COG          = 'annotations_cog'
+    GENOME_PFAM         = 'annotations_pfam'
+    GENOME_TIGRFAM      = 'annotations_tigrfam'
+    GENOME_GFF          = 'annotations_gff'
+    OUTPUT_KO           = 'ko_frequency_table.tsv'
+    OUTPUT_PFAM         = 'pfam_frequency_table.tsv'
+    OUTPUT_TIGRFAM      = 'tigrfam_frequency_table.tsv'
 
-    GFF_SUFFIX = '.gff'
-    PROTEINS_SUFFIX = '.faa'
-    ANNOTATION_SUFFIX = '.tsv'
+    GFF_SUFFIX          = '.gff'
+    PROTEINS_SUFFIX     = '.faa'
+    ANNOTATION_SUFFIX   = '.tsv'
     
-    def __init__(self, genome_files, output_directory, ko, pfam, 
-                 tigrfam, cog, evalue, bit, id, aln_query, aln_reference, 
-                 threads):
+    def __init__(self,
+                 output_directory,
+                 ko,
+                 pfam,
+                 tigrfam,
+                 cog,
+                 evalue,
+                 bit,
+                 id,
+                 aln_query,
+                 aln_reference,
+                 threads,
+                 suffix):
+
         # Define inputs and outputs
-        self.genome_file_list = genome_files         
         self.output_directory = output_directory
+        self.gff_directory    = os.path.join(output_directory, )
 
         # Define type of annotation to be carried out
         self.ko               = ko 
@@ -77,12 +89,19 @@ class Annotate:
         self.aln_reference    = aln_reference
         # Parameters
         self.threads          = threads
+        self.suffix           = suffix
 
+        # Load databases
         self.databases        = Databases()
 
-    def prep(self):
+    def prep_genome(self, genome_file_list):
         '''
         Do any preparation specific to the genome annotation pipeline. 
+
+        Inputs
+        ------
+        genome_file_list - List. list of strings, each a path to a file
+        containing a genome 
 
         Outputs
         -------
@@ -90,11 +109,11 @@ class Annotate:
         '''
         # link all the genomes into one file    
         genome_directory=None
-        if self.genome_file_list:
+        if genome_file_list:
             genome_directory = os.path.join(self.output_directory, 
                                            self.GENOME_BIN)
             os.mkdir(os.path.join(self.output_directory, self.GENOME_BIN))
-            for genome_path in self.genome_file_list:
+            for genome_path in genome_file_list:
                 os.symlink(os.path.join(os.getcwd(),
                                         genome_path), 
                            os.path.join(genome_directory, 
@@ -102,6 +121,7 @@ class Annotate:
                                         )
                            )    
         return genome_directory
+
 
     def call_proteins(self, genome_directory):
         '''
@@ -123,20 +143,20 @@ class Annotate:
         genomes_list = []
 
         for genome in os.listdir(genome_directory):
-            
-            genome_path = os.path.join(genome_directory,
-                                       genome)
-            output_genome = os.path.splitext(genome)[0] + self.PROTEINS_SUFFIX 
-            output_genome_path = os.path.join(output_directory_path,
-                                              output_genome)
-            logging.info("    - Calling proteins for genome: %s" % (genome))
-            cmd = 'prodigal -q -p meta -o /dev/null -a %s -i %s' % (output_genome_path,
-                                                    genome_path)
-            
-            logging.debug(cmd)
-            subprocess.call(cmd, shell = True)
-            genome = Genome(output_genome_path)
-            genomes_list.append(genome)
+            if genome.endswith(self.suffix):
+                genome_path = os.path.join(genome_directory,
+                                           genome)
+                output_genome = os.path.splitext(genome)[0] + self.PROTEINS_SUFFIX 
+                output_genome_path = os.path.join(output_directory_path,
+                                                  output_genome)
+                logging.info("    - Calling proteins for genome: %s" % (genome))
+                cmd = 'prodigal -q -p meta -o /dev/null -a %s -i %s' % (output_genome_path,
+                                                        genome_path)
+                
+                logging.debug(cmd)
+                subprocess.call(cmd, shell = True)
+                genome = Genome(output_genome_path)
+                genomes_list.append(genome)
         return genomes_list
     
     def annotate_ko(self, genomes_list):
@@ -278,68 +298,92 @@ class Annotate:
         '''
         genomes_list = []
         for genome_proteins_file in os.listdir(directory):
-            genome = Genome(os.path.join(directory, genome_proteins_file))
-            genomes_list.append(genome) 
+            if genome_proteins_file.endswith(self.suffix):
+                genome = Genome(os.path.join(directory, genome_proteins_file))
+                genomes_list.append(genome) 
         return genomes_list
 
-    def do(self, genome_directory, proteins_directory):
+    def _generate_gff_files(self, genomes_list):
+        '''
+        Write GFF files for each of the genome objects in genomes_list
+        Parameters
+        ----------
+        genomes_list - List. List of Genome objects
+        '''
+        output_directory_path = os.path.join(self.output_directory, 
+                                             self.GENOME_GFF)
+        os.mkdir(output_directory_path)      
+        for genome in genomes_list:
+            logging.info('    - Generating .gff file for %s' % genome.name)
+            gff_output = os.path.join(output_directory_path, genome.name + self.GFF_SUFFIX)
+            gg = GffGenerator()
+            gg.write(genome, gff_output)
+
+    def do(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
         Run Annotate pipeline for enrichM
 
         Parameters
         ----------
-        genome_directory    - string. Path to directory containing genomes
-        proteins_directory  - string. Path to directory containing proteins (.faa files) for genomes
+        genome_directory    - String. Path to directory containing genomes
+        protein_directory   - String. Path to directory containing proteins (.faa files) for genomes
+        genome_files        - List. List of strings, each to a .fna genome file.
+        protein_files       - List. List of strings, each to a .faa proteins file.
         '''
+
         logging.info("Running pipeline: annotate")
         logging.info("Setting up for genome annotation")
-        if genome_directory:
-            self.genome_directory = genome_directory
-        else:
-            self.genome_directory = self.prep()
 
-        if proteins_directory:
-            logging.info('Using provided proteins.')
-            genomes_list = self._parse_genome_proteins_directory(proteins_directory)
-        else:
+        if protein_directory:
+            logging.info("Using provided proteins.")
+            genomes_list = self._parse_genome_proteins_directory(protein_directory)
+        elif protein_files:
+            logging.info("Using provided proteins.")
+            genomes_list = [Genome(protein_file) for protein_file in protein_files]
+        elif genome_directory:
             logging.info("Calling proteins for annotation")
-            genomes_list = self.call_proteins(self.genome_directory)
+            genomes_list = self.call_proteins(genome_directory)
+        elif genome_files:
+            logging.info("Calling proteins for annotation")            
+            genomes_list = self.call_proteins(self.prep_genome(genome_files))
 
         logging.info("Starting annotation:")
         if self.ko:
             logging.info('    - Annotating genomes with ko ids')
             self.annotate_ko(genomes_list)
+
             logging.info('    - Generating ko frequency table')
             mg = MatrixGenerator(MatrixGenerator.KO)
+            
             freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
             mg.write_matrix(genomes_list, freq_table)
 
         if self.cog:
-            logging.info('    - Annotating genomes with cog ids')
-            logging.info('    - cog annotation currently not implemented')
+            logging.info('    - Annotating genomes with COG ids')
+            logging.info('    - COG annotation currently not implemented')
 
         if self.pfam:
             logging.info('    - Annotating genomes with pfam ids')
             self.annotate_pfam(genomes_list)
+
             logging.info('    - Generating pfam frequency table')
             mg = MatrixGenerator(MatrixGenerator.PFAM)
+            
             freq_table = os.path.join(self.output_directory, self.OUTPUT_PFAM)
             mg.write_matrix(genomes_list, freq_table)
 
         if self.tigrfam:
             logging.info('    - Annotating genomes with tigrfam ids')
             self.annotate_tigrfam(genomes_list)
+            
             logging.info('    - Generating tigrfam frequency table')
             mg = MatrixGenerator(MatrixGenerator.TIGRFAM)
+            
             freq_table = os.path.join(self.output_directory, self.OUTPUT_TIGRFAM)
             mg.write_matrix(genomes_list, freq_table)
 
         logging.info('Generating .gff files:')
-        for genome in genomes_list:
-            logging.info('    - Generating .gff file for %s' % genome.name)
-            gff_output = os.path.join(self.output_directory, genome.name+self.GFF_SUFFIX)
-            gg = GffGenerator()
-            gg.write(genome, gff_output)
+        self._generate_gff_files(genomes_list)
 
-
+        logging.info('Finished annotation')
 
