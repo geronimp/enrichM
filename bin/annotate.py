@@ -347,43 +347,47 @@ class Annotate:
             logging.info("Calling proteins for annotation")            
             genomes_list = self.call_proteins(self.prep_genome(genome_files))
 
-        logging.info("Starting annotation:")
-        if self.ko:
-            logging.info('    - Annotating genomes with ko ids')
-            self.annotate_ko(genomes_list)
+        if len(genomes_list)==0:
+            logging.error('There were no genomes found with the suffix %s within the provided directory' \
+                                        %  (self.suffix))
+        else:
+            logging.info("Starting annotation:")
+            if self.ko:
+                logging.info('    - Annotating genomes with ko ids')
+                self.annotate_ko(genomes_list)
 
-            logging.info('    - Generating ko frequency table')
-            mg = MatrixGenerator(MatrixGenerator.KO)
-            
-            freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
-            mg.write_matrix(genomes_list, freq_table)
+                logging.info('    - Generating ko frequency table')
+                mg = MatrixGenerator(MatrixGenerator.KO)
+                
+                freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
+                mg.write_matrix(genomes_list, freq_table)
 
-        if self.cog:
-            logging.info('    - Annotating genomes with COG ids')
-            logging.info('    - COG annotation currently not implemented')
+            if self.cog:
+                logging.info('    - Annotating genomes with COG ids')
+                logging.info('    - COG annotation currently not implemented')
 
-        if self.pfam:
-            logging.info('    - Annotating genomes with pfam ids')
-            self.annotate_pfam(genomes_list)
+            if self.pfam:
+                logging.info('    - Annotating genomes with pfam ids')
+                self.annotate_pfam(genomes_list)
 
-            logging.info('    - Generating pfam frequency table')
-            mg = MatrixGenerator(MatrixGenerator.PFAM)
-            
-            freq_table = os.path.join(self.output_directory, self.OUTPUT_PFAM)
-            mg.write_matrix(genomes_list, freq_table)
+                logging.info('    - Generating pfam frequency table')
+                mg = MatrixGenerator(MatrixGenerator.PFAM)
+                
+                freq_table = os.path.join(self.output_directory, self.OUTPUT_PFAM)
+                mg.write_matrix(genomes_list, freq_table)
 
-        if self.tigrfam:
-            logging.info('    - Annotating genomes with tigrfam ids')
-            self.annotate_tigrfam(genomes_list)
-            
-            logging.info('    - Generating tigrfam frequency table')
-            mg = MatrixGenerator(MatrixGenerator.TIGRFAM)
-            
-            freq_table = os.path.join(self.output_directory, self.OUTPUT_TIGRFAM)
-            mg.write_matrix(genomes_list, freq_table)
+            if self.tigrfam:
+                logging.info('    - Annotating genomes with tigrfam ids')
+                self.annotate_tigrfam(genomes_list)
+                
+                logging.info('    - Generating tigrfam frequency table')
+                mg = MatrixGenerator(MatrixGenerator.TIGRFAM)
+                
+                freq_table = os.path.join(self.output_directory, self.OUTPUT_TIGRFAM)
+                mg.write_matrix(genomes_list, freq_table)
 
-        logging.info('Generating .gff files:')
-        self._generate_gff_files(genomes_list)
+            logging.info('Generating .gff files:')
+            self._generate_gff_files(genomes_list)
 
-        logging.info('Finished annotation')
+            logging.info('Finished annotation')
 
