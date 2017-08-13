@@ -32,7 +32,6 @@ import os
 
 from kegg_matrix import KeggMatrix
 from network_builder import NetworkBuilder
-from build_enrichment_matrix import Matrix
 
 ###############################################################################
 
@@ -115,7 +114,10 @@ class NetworkAnalyser:
             abundances_expression    = None
 
         if metabolome:
-            abundances_metabolome = Matrix(metabolome)
+            abundances_metabolome = Matrix(metabolome) 
+            ### ~ TODO: This WILL NOT WORK - MATRIX is no longer a mode.
+            ### ~ TODO: I've added a note in the holp for network analyzer 
+            ### ~ TODO: that warns the user about this.
         else:
             abundances_metabolome = None
 

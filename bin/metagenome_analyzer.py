@@ -32,7 +32,6 @@ import logging
 import math
 import numpy as np
 
-from build_enrichment_matrix import Matrix
 from kegg_module_grabber import KeggModuleGrabber
 from module_description_parser import ModuleDescription
 
