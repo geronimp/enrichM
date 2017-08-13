@@ -105,7 +105,7 @@ if __name__ == "__main__":
     base_input_options.add_argument('--transcriptome',
                 help='Transcriptome KO matrix.')
     base_input_options.add_argument('--metabolome',
-                help='Metabolome CID matrix.')
+                help='Metabolome CID matrix. (NOT IMPLEMENTED)')
     base_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     
