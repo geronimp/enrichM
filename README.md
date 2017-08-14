@@ -1,9 +1,9 @@
 ![logo](logo/logo.png)
 
 enrichM has three main purposes
-    1) To provide a very basic pipeline for annotating population genomes and assemblies. 
-    2) To compare user-defined groups of genomes and identify genes or metabolic pathways that are enriched within and between groups. 
-    3) To construct metabolic networks from annotated population genomes. 
+1. To provide a very basic pipeline for annotating population genomes and assemblies. 
+2. To compare user-defined groups of genomes and identify genes or metabolic pathways that are enriched within and between groups. 
+3. To construct metabolic networks from annotated population genomes. 
 
 enrichM is currently in a state of flux and currenty does not have unit tests so while you're welcome to use it, do so at your own risk.
 
@@ -21,7 +21,7 @@ enrichM currently has the following sub-commands:
     pathway     -> Generate a Cytoscape-readable metabolic network from specific KEGG module or compounds.
     explore     -> Explore a metabolic network from a given compound            
 ```
-    
+
 # annotate
 Annotate is a function that allows you to annotate your population genomes with [KO](http://www.kegg.jp/kegg/ko.html), [PFAM](http://pfam.xfam.org/), [TIGRFAM](http://www.jcvi.org/cgi-bin/tigrfams/index.cgi). The result will be a .gff file for each genome, and a frequency matrix for each annotation type where the rows are annotation IDs and the columns are genomes. 
 
