@@ -1,4 +1,6 @@
-![logo](logo/logo.png)
+<p align="center"> 
+<img src="logo/logo.png">
+</p>
 
 enrichM has three main purposes
 1. To provide a very basic pipeline for annotating population genomes and assemblies. 
