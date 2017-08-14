@@ -153,7 +153,6 @@ class KeggModuleGrabber:
                       "Steps_needed", "Percent_Steps_found"]
             output_path_io.write('\t'.join(header) + '\n')  
 
-
             for genome, kos in genome_to_ko_sets.items():
                 for name, path in pathways.items():
                     num_covered = path.num_covered_steps(kos)

@@ -58,6 +58,7 @@ class ModuleDescription:
 
 class ModuleDescriptionAndRelation:
     def satisfied_with(self, set_of_kos):
+        import IPython ; IPython.embed()
         return all(r.satisfied_with(set_of_kos) for r in self.relations)
 
 class ModuleDescriptionOrRelation:

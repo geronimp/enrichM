@@ -105,6 +105,7 @@ class Classify:
         with open(output_path, 'w') as output_path_io:
             for line in sorted(lines):
                 output_path_io.write(line)      
+
     def do(self, custom_modules, cutoff, genome_and_annotation_file, 
            genome_and_annotation_matrix, output_directory):
         '''
@@ -141,6 +142,7 @@ class Classify:
                 pathway[name] = path
                 for genome, annotations in genome_to_annotation_sets.items():
                     num_covered = path.num_covered_steps(annotations)
+                    path.amount_of_pathway_covered(annotations)
                     num_all = path.num_steps()
                     perc_covered = num_covered / float(num_all)
                     if perc_covered >= cutoff:

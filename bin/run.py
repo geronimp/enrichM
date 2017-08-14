@@ -33,9 +33,7 @@ import os
 import shutil
 import time
 
-from kegg_module_grabber import KeggModuleGrabber
 from network_analyzer import NetworkAnalyser
-from metagenome_analyzer import MetagenomeAnalyzer
 from enrichment import Enrichment
 from annotate import Annotate
 from classifier import Classify
