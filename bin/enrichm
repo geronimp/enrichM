@@ -55,7 +55,7 @@ def phelp():
     enrichment_wf   -> annotate - enrichment [NOT IMPLEMENTED]
 
   Annotation 
-    annotate        -> Basic annotation of genomes and metagenomes.
+    annotate        -> Basic annotation of bins and contigs.
 
   Enrichment analysis
     classify        -> Determine what KEGG modules a genome encodes.
@@ -182,9 +182,7 @@ if __name__ == "__main__":
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
-    enrichment_input_options.add_argument('--enrichm_annotations',
-                help='Input annotations file from enrichm.')
-    enrichment_input_options.add_argument('--annotation_matrix',
+    enrichment_input_options.add_argument('--annotation_matrix', required=True,
                 help='Input annotation matrix (PFAM, Tigrfam, etc).')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')

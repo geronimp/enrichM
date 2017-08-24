@@ -124,13 +124,7 @@ class Run:
         Output
         ------
         '''
-        if not(args.enrichm_annotations or args.annotation_matrix): 
-            raise Exception("Input error: Either enrichm annotations (--enrichm_annotations) or an \
-annotation matrix (--annotation_matrix) need to be specified.")
-        if(args.enrichm_annotations and args.annotation_matrix): 
-            raise Exception("Input error: Only one set of comparisons can be made at any time, so \
-please specify either enrichM annotations (--enrichm_annotations) OR an annotation matrix \
-(--annotation_matrix)")
+        pass
         ### ~ TODO: Check Multi test correction inputs...
         
     def _check_classify(self, args):
@@ -240,7 +234,6 @@ please specify either enrichM annotations (--enrichm_annotations) OR an annotati
             self._check_enrichment(args)
             e = Enrichment()
             e.do(# Inputs
-                 args.enrichm_annotations,
                  args.annotation_matrix,
                  args.metadata,
                  args.modules,

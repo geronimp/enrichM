@@ -1,4 +1,4 @@
-<p align="center"> 
+    <p align="center"> 
 <img src="logo/logo.png">
 </p>
 
@@ -7,9 +7,7 @@ enrichM has three main purposes
 2. To compare user-defined groups of genomes and identify genes or metabolic pathways that are enriched within and between groups. 
 3. To construct metabolic networks from annotated population genomes. 
 
-enrichM is currently in a state of flux and currenty does not have unit tests so while you're welcome to use it, do so at your own risk.
-
-enrichM currently has the following sub-commands:
+enrichM is currently in a state of flux and currenty does not have unit tests so while you're welcome to use it, do so at your own risk. Currently, there are the following sub-commands:
 
 ```
   Genome annotation

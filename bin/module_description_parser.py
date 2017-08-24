@@ -52,18 +52,21 @@ class ModuleDescription:
 
     def num_covered_steps(self, ko_set):
         if isinstance(self.parsed_module, ModuleDescriptionAndRelation):
+            if self.module_description_string == "(K00844,K12407,K00845,K00886,K08074,K00918) (K01810,K06859,K13810,K15916) (K00850,K16370,K00918) (K01623,K01624,K11645,K16305,K16306) K01803 ((K00134,K00150) K00927,K11389) (K01834,K15633,K15634,K15635) K01689 (K00873,K12406)":
+                import IPython ; IPython.embed()
             return sum([1 for m in self.parsed_module.relations if m.satisfied_with(ko_set)])
         else:
             raise Exception("Cannot work with non-AND type modules")
 
 class ModuleDescriptionAndRelation:
     def satisfied_with(self, set_of_kos):
-        import IPython ; IPython.embed()
-        return all(r.satisfied_with(set_of_kos) for r in self.relations)
+        result = [r.satisfied_with(set_of_kos) for r in self.relations]
+        return all(result), result
 
 class ModuleDescriptionOrRelation:
     def satisfied_with(self, set_of_kos):
-        return any(r.satisfied_with(set_of_kos) for r in self.relations)
+        result=[r.satisfied_with(set_of_kos) for r in self.relations]
+        return any(result), result
 
 class ModuleDescriptionPlusRelation(ModuleDescriptionAndRelation): pass
 
@@ -71,7 +74,7 @@ class ModuleDescriptionKoEntry:
     def __init__(self, ko):
         self.ko = ko
     def satisfied_with(self, set_of_kos):
-        return self.ko in set_of_kos
+        return self.ko in set_of_kos, 1
 
 class ParserHelper: pass
 

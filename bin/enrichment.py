@@ -243,7 +243,7 @@ class Enrichment:
                 out_io.write(string)
 
 
-    def do(self, enrichm_annotations, annotation_matrix, metadata,
+    def do(self, annotation_matrix, metadata,
            subset_modules, abundances, no_ivi, no_gvg, no_ivg, cutoff, 
            threshold, multi_test_correction, output_directory):
         '''
@@ -255,14 +255,10 @@ class Enrichment:
         ------
         '''
         logging.info('Parsing input annotations')
-        if enrichm_annotations:
-            annotations_dict, modules, genomes \
-                        = self._parse_enrichm_annotations(enrichm_annotations)
-        elif annotation_matrix:
-            annotations_dict, modules, genomes \
-                        = self._parse_annotation_matrix(annotation_matrix)
-        else:
-            raise Exception("Programming error")      
+
+        annotations_dict, modules, genomes \
+                    = self._parse_annotation_matrix(annotation_matrix)
+    
         if subset_modules:
             modules = subset_modules
 
@@ -411,7 +407,6 @@ class Test(Enrichment):
         mtc_dict = {'fdr_bh':'Benjamini/Hochberg (non-negative)'}
 
         logging.info('Applying multi-test correction using the %s method' % (mtc_dict[self.multi_test_correction]) )
-
         corrected_pvals \
             = sm.multipletests(pvalues,
                                alpha        = self.threshold,
@@ -512,7 +507,9 @@ class Test(Enrichment):
                     group_2_module_kos = self.gather_genome_annotations(group_2, module_list)
 
                     if(len(group_1_module_kos)>1 and len(group_2_module_kos)>1):
+                        
                         if(sum(group_1_module_kos)>0 and sum(group_2_module_kos)>0):
+
                             t_stat, p_value = \
                                 scipy.stats.ttest_ind(np.array(group_1_module_kos),
                                                       np.array(group_2_module_kos),
@@ -526,13 +523,15 @@ class Test(Enrichment):
                                                  str(t_stat),
                                                  str(p_value),
                                                  annotation_description[module]])
+        
         corrected_pvals = self.correct_multi_test(pvals)
         output_lines = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
 
     def zscore(self, ivg):
-        output_lines = [['module', 'group', 'genome', 'count', 'z_score', 'p_value','corrected_p_value', 'description']]
+        header       = [['module', 'group', 'genome', 'count', 'z_score', 'p_value','corrected_p_value', 'description']]
+        output_lines = []
         pvals        = []
 
         if self.annotation_type==Enrichment.TIGRFAM:
@@ -558,12 +557,11 @@ class Test(Enrichment):
                             = len(set(self.genome_annotations[genome]).intersection(module_list))
                         reference_group_comp_list \
                             = np.array([len(set(self.genome_annotations[reference_genome]).intersection(module_list))
-                                        for reference_genome in reference_group])
+                                        for reference_genome in reference_group])p_value
                         reference_group_comp_sd \
                             = np.std(reference_group_comp_list, axis=0)
                         reference_group_comp_mean \
                             = np.mean(reference_group_comp_list, axis=0)
-
                         z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
                         p_value = 2-2*scipy.stats.norm.cdf(z_score)
                         pvals.append(p_value)
@@ -576,7 +574,7 @@ class Test(Enrichment):
                                               annotation_description[module]])
 
         corrected_pvals = self.correct_multi_test(pvals)
-        output_lines = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
+        output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
 
