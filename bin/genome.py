@@ -46,7 +46,7 @@ class Genome:
 		self.sequences = {}
 		
 		for protein_count, protein in enumerate(SeqIO.parse(path, 'fasta')):
-			sequence = Sequence(protein.description, len(protein.seq))
+			sequence = Sequence(protein.description, protein.seq)
 		 	self.sequences[protein.name] = sequence
 			self.protein_ordered_dict[protein_count] = protein.name
 			
@@ -120,9 +120,10 @@ class Sequence(Genome):
 	Sequence object which collects all attributes of a sequence including its length,
 	and annotations. Can compare current annotation with new annotaitons.
 	'''
-	def __init__(self, description, length):
+	def __init__(self, description, sequence):
 		self.annotations = []	
-		self.length = int(length)
+		self.seq = str(sequence)
+		self.length = int(len(sequence))
 		try:
 			self.seqname, self.startpos, self.finishpos, self.direction, stats \
 								= description.split(' # ')

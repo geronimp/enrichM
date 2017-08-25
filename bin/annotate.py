@@ -306,6 +306,7 @@ class Annotate:
     def _generate_gff_files(self, genomes_list):
         '''
         Write GFF files for each of the genome objects in genomes_list
+
         Parameters
         ----------
         genomes_list - List. List of Genome objects
@@ -318,6 +319,23 @@ class Annotate:
             gff_output = os.path.join(output_directory_path, genome.name + self.GFF_SUFFIX)
             gg = GffGenerator()
             gg.write(genome, gff_output)
+
+    def _rename_fasta(self, genomes_list):
+        '''
+        Rename the called proteins with annotation ids.
+        
+        Parameters
+        ----------
+        genomes_list - List. List of Genome objects
+        '''
+        
+        for genome in genomes_list:
+            with open(genome.path, 'w') as genome_fasta_io:
+                for sequence_name in genome.protein_ordered_dict.values():
+                    annotations = ' '.join(genome.sequences[sequence_name].all_annotations())
+                    genome_fasta_io.write( ">%s %s\n" % (sequence_name, annotations) )
+                    genome_fasta_io.write( genome.sequences[sequence_name].seq + '\n' )
+
 
     def do(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
@@ -388,6 +406,9 @@ class Annotate:
 
             logging.info('Generating .gff files:')
             self._generate_gff_files(genomes_list)
+
+            logging.info('Renaming protein headers')
+            self._rename_fasta(genomes_list)
 
             logging.info('Finished annotation')
 

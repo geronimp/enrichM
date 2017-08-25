@@ -435,8 +435,8 @@ class Test(Enrichment):
         Output
         ------
         '''
-
-        output_lines = [['module', 'genome_1', 'genome_2', 'count', 'stat', 'p_value', 'corrected_p_value', 'description']]
+        header       = [['module', 'genome_1', 'genome_2', 'count', 'stat', 'p_value', 'corrected_p_value', 'description']]
+        output_lines = []
         
         pvals=[]
         
@@ -476,12 +476,13 @@ class Test(Enrichment):
                                          annotation_description[module]])
 
         corrected_pvals = self.correct_multi_test(pvals)
-        output_lines = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
+        output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
         
     def ttest(self, gvg):
-        output_lines = [['module', 'group_1', 'group_2', 'count', 't_stat', 'p_value','corrected_p_value', 'description']]
+        header       = [['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 't_stat', 'p_value','corrected_p_value', 'description']]
+        output_lines = []
         pvals        = []
 
         if self.annotation_type==Enrichment.TIGRFAM:
@@ -519,13 +520,15 @@ class Test(Enrichment):
                             output_lines.append([module,
                                                  group_1,
                                                  group_2,
+                                                 str(np.mean(np.array(group_1_module_kos))),
+                                                 str(np.mean(np.array(group_2_module_kos))),
                                                  str(len(module_list)),
                                                  str(t_stat),
                                                  str(p_value),
                                                  annotation_description[module]])
         
         corrected_pvals = self.correct_multi_test(pvals)
-        output_lines = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
+        output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
 
@@ -557,7 +560,7 @@ class Test(Enrichment):
                             = len(set(self.genome_annotations[genome]).intersection(module_list))
                         reference_group_comp_list \
                             = np.array([len(set(self.genome_annotations[reference_genome]).intersection(module_list))
-                                        for reference_genome in reference_group])p_value
+                                        for reference_genome in reference_group])
                         reference_group_comp_sd \
                             = np.std(reference_group_comp_list, axis=0)
                         reference_group_comp_mean \
