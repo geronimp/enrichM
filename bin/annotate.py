@@ -31,7 +31,7 @@ __status__ = "Development"
 import logging
 import subprocess
 import os 
-
+import pickle
 
 from databases import Databases
 from matrix_generator import MatrixGenerator
@@ -50,6 +50,7 @@ class Annotate:
     GENOME_PFAM         = 'annotations_pfam'
     GENOME_TIGRFAM      = 'annotations_tigrfam'
     GENOME_GFF          = 'annotations_gff'
+    GENOME_OBJ          = 'annotations_genomes'
     OUTPUT_KO           = 'ko_frequency_table.tsv'
     OUTPUT_PFAM         = 'pfam_frequency_table.tsv'
     OUTPUT_TIGRFAM      = 'tigrfam_frequency_table.tsv'
@@ -336,6 +337,16 @@ class Annotate:
                     genome_fasta_io.write( ">%s %s\n" % (sequence_name, annotations) )
                     genome_fasta_io.write( genome.sequences[sequence_name].seq + '\n' )
 
+    def _pickle_objects(self, genomes_list):
+        '''
+        Store annotated genome objects as pickles.
+        
+        Parameters
+        ----------
+        genomes_list - List. List of Genome objects
+        '''
+        output_directory = os.path.join(self.output_directory, self.GENOME_OBJ)
+        import IPython ; IPython.embed()
 
     def do(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
@@ -409,6 +420,9 @@ class Annotate:
 
             logging.info('Renaming protein headers')
             self._rename_fasta(genomes_list)
+
+            logging.info('Storing genome objects')
+            self._pickle_objects(genomes_list)
 
             logging.info('Finished annotation')
 

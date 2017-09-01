@@ -145,6 +145,7 @@ class Classify:
                     path.amount_of_pathway_covered(annotations)
                     num_all = path.num_steps()
                     perc_covered = num_covered / float(num_all)
+                    
                     if perc_covered >= cutoff:
                         output_line = "\t".join([genome, name, self.m[name],
                                                   str(num_covered),  # 
