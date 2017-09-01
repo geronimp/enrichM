@@ -37,6 +37,7 @@ from network_analyzer import NetworkAnalyser
 from enrichment import Enrichment
 from annotate import Annotate
 from classifier import Classify
+from comparer import Compare
 
 ###############################################################################
 
@@ -53,6 +54,7 @@ class Run:
     def __init__(self):
 
         self.ANNOTATE        = 'annotate'
+        self.COMPARE         = 'compare'
 
         self.CLASSIFY        = 'classify'
         self.BUILD           = 'build'
@@ -150,7 +152,9 @@ class Run:
         '''
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to build.")
-            
+    def _check_compare(self, args):
+        pass ### ~ TODO: Dunno yet
+    
     def _check_network(self, args):
         '''
         Check network (explore, pathway) input and output options are valid.
@@ -246,6 +250,10 @@ class Run:
                  args.multi_test_correction,
                  args.output
                  )
+        elif args.subparser_name == self.COMPARE:
+            self._check_compare(args)
+            c = Compare()
+            c.do(args.enrichm_annotate_output)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or

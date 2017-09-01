@@ -262,6 +262,12 @@ if __name__ == "__main__":
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
+    compare = subparsers.add_parser('compare', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    compare_options = compare.add_argument_group('Compare options')
+    compare_options.add_argument('--enrichm_annotate_output', 
+                help='Output of a previous run of enrichm annotate (> v0.0.7 )')
+
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
     else:
