@@ -58,6 +58,7 @@ class Annotate:
     GFF_SUFFIX          = '.gff'
     PROTEINS_SUFFIX     = '.faa'
     ANNOTATION_SUFFIX   = '.tsv'
+    PICKLE_SUFFIX       = '.pickle'
     
     def __init__(self,
                  output_directory,
@@ -345,8 +346,12 @@ class Annotate:
         ----------
         genomes_list - List. List of Genome objects
         '''
-        output_directory = os.path.join(self.output_directory, self.GENOME_OBJ)
-        import IPython ; IPython.embed()
+        output_directory_path = os.path.join(self.output_directory,
+                                             self.GENOME_OBJ)
+        os.mkdir(output_directory_path)
+        for genome in genomes_list:
+            with open(os.path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX), 'w') as output:
+                pickle.dump(genome, output)
 
     def do(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
