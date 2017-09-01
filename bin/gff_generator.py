@@ -43,20 +43,23 @@ class GffGenerator():
 
 		with open(output_file, 'w') as out_io:
 			for sequence in genome.ordered_sequences():
-
-				features = ['prodigal_id=%s' % sequence.prod_id,
-							'partial=%s' 	 % sequence.partial,
-							'start_type=%s'  % sequence.starttype,
-							'rbs_motif=%s'   % sequence.rbs_motif,
-							'rbs_spacer=%s'  % sequence.rbs_spacer,
-							'gc=%s'    		 % sequence.gc]
+				
+				contig_id = '_'.join(sequence.split('_')[:-1])
+				
+				features  = ['seq_id=%s'		% sequence.seqname,
+						 	 'prodigal_id=%s' 	% sequence.prod_id,
+							 'partial=%s' 	 	% sequence.partial,
+							 'start_type=%s'  	% sequence.starttype,
+							 'rbs_motif=%s'   	% sequence.rbs_motif,
+							 'rbs_spacer=%s'  	% sequence.rbs_spacer,
+							 'gc=%s'    		% sequence.gc]
 
 				if len(sequence.all_annotations())>0:
 					features.append('annotations=%s' % ','.join(sequence.all_annotations()))
 				else:
 					features.append('annotations=hypothetical_protein')
 
-				line = [sequence.seqname, 
+				line = [contig_id, 
 						'prodigal',
 						'CDS',
 						sequence.startpos,
