@@ -143,23 +143,26 @@ class Classify:
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
         
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found", 
-                             "Steps_needed", "Percent_Steps_found"]) + '\n']
+                             "Steps_needed", "Percent_steps_found", "KO_found", "KO_needed", "Percent_KO_found"]) + '\n']
         
         for name, pathway_string in self.m2def.items():
             if name not in self.signature_modules:   
                 path = ModuleDescription(pathway_string)
                 pathway[name] = path
                 for genome, annotations in genome_to_annotation_sets.items():
-                    num_covered = path.num_covered_steps(annotations)
+                    num_covered, ko_covered, ko_total = path.num_covered_steps(annotations)
                     path.amount_of_pathway_covered(annotations)
                     num_all = path.num_steps()
                     perc_covered = num_covered / float(num_all)
-                    
+                    ko_perc = ko_covered / float(ko_total)
                     if perc_covered >= cutoff:
                         output_line = "\t".join([genome, name, self.m[name],
                                                   str(num_covered),  # 
                                                   str(num_all),
-                                                  str(round(perc_covered * 100, 2))]) 
+                                                  str(round(perc_covered * 100, 2)),
+                                                  str(ko_covered),
+                                                  str(ko_total),
+                                                  str(round(ko_perc * 100, 2))]) 
                         output_lines.append(output_line + '\n') 
         self.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT)) ### ~ TODO: make output flexible
             

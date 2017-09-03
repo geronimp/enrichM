@@ -61,12 +61,14 @@ class ModuleDescription:
         if isinstance(self.parsed_module, ModuleDescriptionAndRelation):
             step_cov = 0
             path_cov = 0 
+            reac_cov = 0
             for m in self.parsed_module.relations:
-                step_passed, step_counts = m.satisfied_with(ko_set)
+                step_passed, step_counts, reaction_counts = m.satisfied_with(ko_set)
                 if step_passed:
                     step_cov+=1
                     path_cov+=step_counts
-            return step_cov, path_cov
+                reac_cov+=reaction_counts
+            return step_cov, path_cov, reac_cov
         
         else:
             raise Exception("Cannot work with non-AND type modules")
@@ -74,32 +76,35 @@ class ModuleDescription:
 class ModuleDescriptionAndRelation:
     def satisfied_with(self, set_of_kos):
         
-        counts      = 0
-        step_passed = False
-        founds      = []
+        counts          = 0
+        step_passed     = False
+        reaction_counts = 0
+        founds          = []
         
         for r in self.relations:
-            found, count = r.satisfied_with(set_of_kos)
+            found, count, reaction_count = r.satisfied_with(set_of_kos)
             if found:
                 founds.append(1)
                 counts += count
-        
+            reaction_counts+=reaction_count
         step_passed = len(self.relations) == sum(founds)
         
-        return step_passed, counts
+        return step_passed, counts, reaction_counts
 
 class ModuleDescriptionOrRelation:
     def satisfied_with(self, set_of_kos):
-        counts      = 0
-        step_passed = False
-        
+
+        counts          = 0
+        step_passed     = False
+        reaction_counts = 0
+
         for r in self.relations:
-            found, count = r.satisfied_with(set_of_kos)
+            found, count, reaction_count = r.satisfied_with(set_of_kos)
             if found:
                 step_passed = True
-                return step_passed, counts
-        
-        return step_passed, counts
+                return step_passed, counts, reaction_count
+            reaction_counts+=reaction_count
+        return step_passed, counts, reaction_counts
 
 class ModuleDescriptionPlusRelation(ModuleDescriptionAndRelation): pass
 
@@ -110,8 +115,8 @@ class ModuleDescriptionKoEntry:
     def satisfied_with(self, set_of_kos):
         found = self.ko in set_of_kos
         count = (1 if found else 0)
-        return found, count
-
+        reaction_count = 1
+        return found, count, reaction_count
 
 class ParserHelper: pass
 
