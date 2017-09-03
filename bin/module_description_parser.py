@@ -16,15 +16,16 @@
 #                                                                             #
 ###############################################################################
 
-__author__ = "Ben Woodcroft"
+__author__ = "Ben Woodcroft, Joel Boyd"
 __copyright__ = "Copyright 2017"
 __credits__ = ["Ben Woodcroft"]
 __license__ = "GPL3+"
-__maintainer__ = "Ben Woodcroft"
-__email__ = "b.woodcroft near uq.edu.au"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd3 near uq.edu.au"
 __status__ = "Development"
 
 ###############################################################################
+# Imports
 
 import re
 
@@ -58,27 +59,58 @@ class ModuleDescription:
 
     def num_covered_steps(self, ko_set):
         if isinstance(self.parsed_module, ModuleDescriptionAndRelation):
-            return sum([1 for m in self.parsed_module.relations if m.satisfied_with(ko_set)])
+            step_cov = 0
+            path_cov = 0 
+            for m in self.parsed_module.relations:
+                step_passed, step_counts = m.satisfied_with(ko_set)
+                if step_passed:
+                    step_cov+=1
+                    path_cov+=step_counts
+            return step_cov, path_cov
+        
         else:
             raise Exception("Cannot work with non-AND type modules")
 
 class ModuleDescriptionAndRelation:
     def satisfied_with(self, set_of_kos):
-        result = any(r.satisfied_with(set_of_kos) for r in self.relations)
-        return result
+        
+        counts      = 0
+        step_passed = False
+        founds      = []
+        
+        for r in self.relations:
+            found, count = r.satisfied_with(set_of_kos)
+            if found:
+                founds.append(1)
+                counts += count
+        
+        step_passed = len(self.relations) == sum(founds)
+        
+        return step_passed, counts
 
 class ModuleDescriptionOrRelation:
     def satisfied_with(self, set_of_kos):
-        result = any(r.satisfied_with(set_of_kos) for r in self.relations)
-        return result
+        counts      = 0
+        step_passed = False
+        
+        for r in self.relations:
+            found, count = r.satisfied_with(set_of_kos)
+            if found:
+                step_passed = True
+                return step_passed, counts
+        
+        return step_passed, counts
 
 class ModuleDescriptionPlusRelation(ModuleDescriptionAndRelation): pass
 
 class ModuleDescriptionKoEntry:
     def __init__(self, ko):
         self.ko = ko
+
     def satisfied_with(self, set_of_kos):
-        return self.ko in set_of_kos
+        found = self.ko in set_of_kos
+        count = (1 if found else 0)
+        return found, count
 
 
 class ParserHelper: pass

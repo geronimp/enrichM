@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 ###############################################################################
 #                                                                             #
 # This program is free software: you can redistribute it and/or modify        #
@@ -24,11 +24,16 @@ __maintainer__ = "Ben Woodcroft"
 __email__ = "b.woodcroft near uq.edu.au"
 __status__ = "Development"
 
+###############################################################################
+# Imports
+
 import os, re
 import logging
 import pickle
 
 from module_description_parser import ModuleDescription
+
+###############################################################################
 
 class Classify:
     
@@ -124,18 +129,22 @@ class Classify:
         output                          - string. Path to file to output results to.
 
         '''
+        
+        pathway = {}
+
         if custom_modules:
+            logging.info('Reading in custom modules: %s' % custom_modules)
             self._update_with_custom_modules(custom_modules)
         if genome_and_annotation_file:
             genome_to_annotation_sets = self._parse_genome_and_annotation_file_lf(genome_and_annotation_file)
         elif genome_and_annotation_matrix:
             genome_to_annotation_sets = self._parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix)
+
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
         
-        pathway = {}
-
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found", 
                              "Steps_needed", "Percent_Steps_found"]) + '\n']
+        
         for name, pathway_string in self.m2def.items():
             if name not in self.signature_modules:   
                 path = ModuleDescription(pathway_string)
