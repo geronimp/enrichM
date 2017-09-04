@@ -305,9 +305,9 @@ class Enrichment:
         portions_path       = os.path.join(output_directory, self.PROPORTIONS)
         self._write(proportions, portions_path)
 
-        #bit_proportions     = self.calculate_bit_portions(modules, annotations_dict)
-        #bit_portions_path   = os.path.join(output_directory, self.BIT_PROPORTIONS)
-        #self._write(bit_proportions, bit_portions_path)
+        bit_proportions     = self.calculate_bit_portions(modules, annotations_dict)
+        bit_portions_path   = os.path.join(output_directory, self.BIT_PROPORTIONS)
+        self._write(bit_proportions, bit_portions_path)
 
         ###############################################################################
         ###############################################################################
