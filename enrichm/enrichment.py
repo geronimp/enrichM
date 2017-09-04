@@ -39,80 +39,6 @@ from itertools import product, combinations, chain
 from databases import Databases
 
 ###############################################################################
-
-class Matrix:
-    '''
-    A custom class that parses the matrices the way I want it to. Kinda 
-    redundant work actually. Whoops I guess.
-    '''
-    
-    def __init__(self, matrix):
-
-        self.suffix_to_delim = {'.tsv':'\t', '.csv':','}
-        self.rownames        = []
-        self.colnames        = []
-        self.matrix          = {}
-
-        self._parse_matrix(open(matrix))
-        
-    def _parse_matrix(self, matrix_io):
-        
-        suffix = os.path.splitext(matrix_io.name)[-1]
-
-        try:
-            delim = self.suffix_to_delim[suffix]
-        except:
-            raise Exception('Unrecognised file suffix: %s\nPlease provide either a .csv or .tsv file' % suffix)
-
-        headers = matrix_io.readline().strip().split(delim)[1:]
-        
-        for header in headers:
-            self.matrix[header]={}
-            if header in self.colnames:
-                raise Exception("Duplicate column names found in %s" % \
-                                                         (matrix_io.name))
-            self.colnames.append(header)
-        
-        for row in matrix_io:
-            split_row         = row.strip().split(delim)
-            row_name, entries = split_row[0], split_row[1:]
-            for column_entry in split_row:
-                for column_name, entry in zip(self.colnames, entries):
-                    self.matrix[column_name][row_name]=entry
-            if row_name in self.rownames:
-                raise Exception("Duplicate row names found in %s" % \
-                                                         (matrix_io.name))
-            self.rownames.append(row_name)
-
-    def get_row(self, rowname):
-        if rowname in self.rownames:
-            row = [rowname]
-            for colname in self.colnames: 
-                row.append(self.matrix[colname][rowname])
-        return row
-    
-    def get_col(self, colname):      
-        if colname in self.colnames:
-            
-            return self.matrix[colname].values()
-        else:
-            return 0 # raise Exception("Colname %s not in matrix" % colname)
-
-    def get_entry(self, colname, rowname):
-        if colname in self.colnames:
-            if rowname in self.rownames:
-                return self.matrix[colname][rowname]
-            else:
-                return 0 # raise Exception("Rowname %s not in matrix" % rowname)
-        else:
-            return 0 # raise Exception("Colname %s not in matrix" % colname)
-    
-    def filter_by_cols(self, set):
-        current_list = []
-        for row in self.rownames:
-            if tuple(self.get_row(row)[1:]) == set:
-                current_list.append(row)
-        return current_list
         
 class Enrichment:
 
@@ -135,45 +61,72 @@ class Enrichment:
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
         self.PROPORTIONS             = 'proportions.tsv'
-
-    def _parse_enrichm_annotations(self, annotations_path):
-        modules              = set()
-        genomes              = set()
-        genome_to_annotation = {}
-        annotations_io = open(annotations_path)
-        annotations_io.next() # Skip header
-        for line in annotations_io:
-            sline = line.strip().split('\t')
-            genome_id, module_id = sline[:2]
-            modules.add(module_id)
-            genomes.add(genome_id)
-            if genome_id in genome_to_annotation:
-                genome_to_annotation[genome_id].add(module_id)
-            else:
-                genome_to_annotation[genome_id] = set([module_id])
-        return genome_to_annotation, modules, genomes
+        self.BIT_PROPORTIONS         = 'bit_proportions.tsv'
     
-    def _parse_annotation_matrix(self, annotation_matrix_path):
+    def _parse_matrix(self, matrix_file_io, colnames):
+        '''
+        
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        for line in matrix_file_io:
+            sline = line.strip().split('\t')
+            rowname, entries = sline[0], sline[1:]
+            for colname, entry in zip(colnames, entries):
+                yield colname, entry, rowname
 
+    def _parse_metadata_matrix(self, matrix_path):
         '''        
         Parameters
         ----------
-        annotation_matrix : String. Path to file containing a matrix of genome annotations.        
+        matrix_path : String. Path to file containing a matrix of genome rownames.        
         '''
 
-        genome_and_annotation_file_io = open(annotation_matrix_path)
-        genomes=genome_and_annotation_file_io.readline().strip().split('\t')[1:]
-        genome_to_annotation_sets = {genome_name:set() for genome_name in genomes}
-        annotations = set()
-        for line in genome_and_annotation_file_io:
-            sline = line.strip().split('\t')
-            annotation, entries = sline[0], sline[1:]
-            annotations.add(annotation)
-            for genome_name, entry in zip(genomes, entries):
-                if float(entry) > 0:
-                    genome_to_annotation_sets[genome_name].add(annotation)
+        matrix_file_io  = open(matrix_path)
+        colnames        = matrix_file_io.readline().strip().split('\t')[1:]
+        cols_to_rows    = {}
+        nr_value_dict   = {}
+        rownames        = []
 
-        return genome_to_annotation_sets, annotations, genomes
+        for colname, entry, rowname \
+                        in self._parse_matrix(matrix_file_io, colnames):
+            rownames.append(rowname)
+            
+            if colname not in nr_value_dict:
+                nr_value_dict[colname] = set([entry])
+            else:
+                nr_value_dict[colname].add(entry)
+
+            if rowname not in cols_to_rows:
+                cols_to_rows[rowname] = set([entry])
+            else:
+                cols_to_rows[rowname].add(entry)
+
+        return cols_to_rows, rownames, colnames, nr_value_dict
+
+    def _parse_annotation_matrix(self, matrix_path):
+        '''        
+        Parameters
+        ----------
+        matrix_path : String. Path to file containing a matrix of genome rownames.        
+        '''
+
+        matrix_file_io  = open(matrix_path)
+        colnames        = matrix_file_io.readline().strip().split('\t')[1:]
+        cols_to_rows    = {genome_name:set() for genome_name in colnames}
+        rownames        = set()
+
+        for genome_name, entry, rowname \
+                        in self._parse_matrix(matrix_file_io, colnames):
+            
+            rownames.add(rowname)
+            if float(entry) > 0:
+                cols_to_rows[genome_name].add(rowname)
+
+        return cols_to_rows, rownames, colnames
 
 
     def check_annotation_type(self, annotations):
@@ -202,6 +155,7 @@ class Enrichment:
     def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list):
         '''
         Calculates the portions of genome
+
         Parameters
         ----------
         modules             - List. List of all possible annotations for the given annotation
@@ -230,6 +184,20 @@ class Enrichment:
 
         return output_lines
 
+    def calculate_bit_portions(self, modules, annotations_dict):
+        '''
+        Calculates the portion of genomes within 
+
+        Parameters
+        ----------
+        modules             - List. List of all possible annotations for the given annotation
+                              type (eg, all ko ids, or all pfam ids). 
+        annotations_dict    - Dictionary. Annotation dictionary, with the the genome ids as keys,
+                              and a list of annotations as the entry for each.  
+
+        '''
+        pass
+
     def _write(self, output_lines_list, output_path):
         '''
         
@@ -250,8 +218,8 @@ class Enrichment:
 
 
     def do(self, annotation_matrix, metadata,
-           subset_modules, abundances, no_ivi, no_gvg, no_ivg, cutoff, 
-           threshold, multi_test_correction, output_directory):
+           subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
+           cutoff, threshold, multi_test_correction, output_directory):
         '''
         
         Parameters
@@ -267,15 +235,20 @@ class Enrichment:
     
         if subset_modules:
             modules = subset_modules
-
         logging.info("Comparing sets of genomes")
-        metadata = Matrix(metadata)
-        metadata_value_lists = \
-            [set(metadata.get_col(col)) for col in metadata.colnames]
+        
+        
+        cols_to_attributes, rownames, colnames, nr_value_dict \
+                    = self._parse_metadata_matrix(metadata)
+        metadata_value_lists = nr_value_dict.values()
         combination_dict = {}
 
         for combination in product(*metadata_value_lists):
-            genome_list = metadata.filter_by_cols(combination)
+            genome_list = []
+            for genome, attributes in cols_to_attributes.items():
+                for feature in combination:
+                    if feature in attributes:
+                        genome_list.append(genome)  
             combination_dict['_'.join(combination)]=genome_list
         
         t = Test(annotations_dict,
@@ -286,23 +259,28 @@ class Enrichment:
                  threshold,
                  multi_test_correction)
 
-        if no_gvg:
-            gvg = None
-        else:
-            gvg = list(combinations(combination_dict.keys(), 2)) # For fisher's exact
+        if do_all:
+            do_gvg = True
+            do_ivi = True
+            do_ivg = True
+        
+        if do_gvg:
+            gvg = list(combinations(combination_dict.keys(), 2)) # For Fisher's exact test
             if len(gvg)==0:
                 logging.info('No gvg comparison possible')
                 gvg=None
-        if no_ivi:
-            ivi = None
-        else:
+        else: 
+            gvg = None
+        
+        if do_ivi:
             ivi = list(combinations(chain(*combination_dict.values()), 2)) # For T-test
             if len(ivi)==0:
                 logging.info('No ivi comparison possible')
                 ivi=None
-        if no_ivg:
-            ivg = None
         else:
+            ivi = None
+        
+        if do_ivg:
             ivg = {} # For Z score test
             for group_name, genome_list in combination_dict.items():
                 if len(genome_list)>1:
@@ -313,6 +291,8 @@ class Enrichment:
             if len(ivg)==0:
                 logging.info('No ivg comparison possible')
                 ivg=None
+        else:
+            ivg = None
 
         test_results = t.do(ivi, ivg, gvg)
 
@@ -321,9 +301,13 @@ class Enrichment:
                                                    test_result_output_file)
             self._write(test_result_lines, test_result_output_path)
 
-        proportions     = self.calculate_portions(modules, combination_dict, annotations_dict, genome_list)
-        portions_path   = os.path.join(output_directory, self.PROPORTIONS)
+        proportions         = self.calculate_portions(modules, combination_dict, annotations_dict, genome_list)
+        portions_path       = os.path.join(output_directory, self.PROPORTIONS)
         self._write(proportions, portions_path)
+
+        #bit_proportions     = self.calculate_bit_portions(modules, annotations_dict)
+        #bit_portions_path   = os.path.join(output_directory, self.BIT_PROPORTIONS)
+        #self._write(bit_proportions, bit_portions_path)
 
         ###############################################################################
         ###############################################################################
@@ -620,4 +604,5 @@ class Test(Enrichment):
             logging.info('Running group vs group comparisons')
             results.append( (self.ttest(gvg), self.GVG_OUTPUT) )
         
+
         return results

@@ -126,7 +126,9 @@ class Run:
         Output
         ------
         '''
-        pass
+        if not any([args.do_all, args.do_gvg, args.do_ivg, args.do_ivi]):
+            raise Exception("Input error: No comparisons were specified. You will need to tell enrichM \
+which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all flags")
         ### ~ TODO: Check Multi test correction inputs...
         
     def _check_classify(self, args):
@@ -242,14 +244,16 @@ class Run:
                  args.metadata,
                  args.modules,
                  args.abundances,
-                 args.no_ivi, 
-                 args.no_gvg,
-                 args.no_ivg,
+                 args.do_all,
+                 args.do_ivi, 
+                 args.do_gvg,
+                 args.do_ivg,
                  args.cutoff,
                  args.threshold,
                  args.multi_test_correction,
                  args.output
                  )
+
         elif args.subparser_name == self.COMPARE:
             self._check_compare(args)
             c = Compare()

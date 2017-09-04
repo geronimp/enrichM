@@ -201,12 +201,14 @@ if __name__ == "__main__":
                 help='Modules to limit analysis to.')
     enrichment_runtime_options.add_argument('--abundances',
                 help='Genome abundance matrix.')
-    enrichment_runtime_options.add_argument('--no_ivi', action='store_true',
-                help='Do not conduct individual vs individual tests (Fisher).')
-    enrichment_runtime_options.add_argument('--no_gvg', action='store_true',
-                help='Do not conduct group vs group tests (T-test).')
-    enrichment_runtime_options.add_argument('--no_ivg', action='store_true',
-                help='Do not conduct individual vs group tests (Z score).')
+    enrichment_runtime_options.add_argument('--do_all', action='store_true',
+                help='Attempt to conduct all tests.')
+    enrichment_runtime_options.add_argument('--do_ivi', action='store_true',
+                help='Conduct individual vs individual tests (Fisher).')
+    enrichment_runtime_options.add_argument('--do_gvg', action='store_true',
+                help='Conduct group vs group tests (T-test).')
+    enrichment_runtime_options.add_argument('--do_ivg', action='store_true',
+                help='Conduct individual vs group tests (Z score).')
     enrichment_runtime_options.add_argument('--cutoff', type=float,
                 help='Only output results with a p-value below a this cutoff.')
     enrichment_runtime_options.add_argument('--threshold', type=float,
