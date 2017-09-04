@@ -20,7 +20,6 @@ __author__ = "Joel Boyd"
 __copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]
 __license__ = "GPL3"
-__version__ = "0.0.1"
 __maintainer__ = "Joel Boyd"
 __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
@@ -48,6 +47,7 @@ class Matrix:
     '''
     
     def __init__(self, matrix):
+
         self.suffix_to_delim = {'.tsv':'\t', '.csv':','}
         self.rownames        = []
         self.colnames        = []
@@ -56,18 +56,23 @@ class Matrix:
         self._parse_matrix(open(matrix))
         
     def _parse_matrix(self, matrix_io):
+        
         suffix = os.path.splitext(matrix_io.name)[-1]
+
         try:
             delim = self.suffix_to_delim[suffix]
         except:
             raise Exception('Unrecognised file suffix: %s\nPlease provide either a .csv or .tsv file' % suffix)
+
         headers = matrix_io.readline().strip().split(delim)[1:]
+        
         for header in headers:
             self.matrix[header]={}
             if header in self.colnames:
                 raise Exception("Duplicate column names found in %s" % \
                                                          (matrix_io.name))
             self.colnames.append(header)
+        
         for row in matrix_io:
             split_row         = row.strip().split(delim)
             row_name, entries = split_row[0], split_row[1:]
@@ -284,10 +289,16 @@ class Enrichment:
             gvg = None
         else:
             gvg = list(combinations(combination_dict.keys(), 2)) # For fisher's exact
+            if len(gvg)==0:
+                logging.info('No gvg comparison possible')
+                gvg=None
         if no_ivi:
             ivi = None
         else:
             ivi = list(combinations(chain(*combination_dict.values()), 2)) # For T-test
+            if len(ivi)==0:
+                logging.info('No ivi comparison possible')
+                ivi=None
         if no_ivg:
             ivg = None
         else:
@@ -298,6 +309,9 @@ class Enrichment:
                     for idx, genome in enumerate(genome_list):
                         other=genome_list[:idx] + genome_list[idx+1:]
                         ivg[group_name].append((genome, other))
+            if len(ivg)==0:
+                logging.info('No ivg comparison possible')
+                ivg=None
 
         test_results = t.do(ivi, ivg, gvg)
 

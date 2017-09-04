@@ -162,6 +162,7 @@ if __name__ == "__main__":
                 help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
     annotate_runtime_options.add_argument('--suffix', 
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Classify  
@@ -180,7 +181,7 @@ if __name__ == "__main__":
     classify_cutoff_options = classify.add_argument_group('Cutoff options')
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
                 help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
-    
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Enrichment  
