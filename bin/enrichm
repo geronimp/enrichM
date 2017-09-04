@@ -27,15 +27,17 @@ __status__ = "Development"
  
 ###############################################################################
 # Imports
-
-from kegg_module_grabber import KeggModuleGrabber
-from network_analyzer import NetworkAnalyser
-from run import Run
 import argparse
 import os
 import sys
 import textwrap
 import time
+
+# Local
+import enrichm
+from enrichm.run import Run
+from enrichm.network_analyzer import NetworkAnalyser
+from enrichm.kegg_module_grabber import KeggModuleGrabber
 
 ###############################################################################
       
@@ -72,11 +74,13 @@ def phelp():
                        metatranscriptome.
 
   Authors: J. Boyd, B. Woodcroft, A. Baker
-"""
+  Version: %s 
+""" % (enrichm.__version__)
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--version', action='version', version='enrichm v%s' % enrichm.__version__)
     subparsers = parser.add_subparsers(help="--", dest='subparser_name')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -84,6 +88,7 @@ if __name__ == "__main__":
     
     base_all             = argparse.ArgumentParser(add_help=False)
     base_logging_options = base_all.add_argument_group('Logging options')
+
     base_logging_options.add_argument('--log',
                 help='Output logging information to this file.')
     base_logging_options.add_argument('--verbosity', type = int, default = 4,
