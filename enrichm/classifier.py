@@ -101,6 +101,7 @@ class Classify:
             for genome_name, entry in zip(headers, entries):
                 if float(entry) > 0:
                     genome_to_annotation_sets[genome_name].add(annotation)
+
         return genome_to_annotation_sets
 
     def write(self, lines, output_path):

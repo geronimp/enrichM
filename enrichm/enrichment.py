@@ -25,7 +25,7 @@ __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
 
 ###############################################################################
-
+# System
 import logging
 import os
 import random
@@ -161,19 +161,20 @@ class Enrichment:
         annotation_matrix : String. Path to file containing a matrix of genome annotations.        
         '''
 
-        annotation_matrix = Matrix(annotation_matrix_path)
-        modules = set(annotation_matrix.rownames)
-        genomes = set(annotation_matrix.colnames)
-        genome_to_annotation = {}
+        genome_and_annotation_file_io = open(annotation_matrix_path)
+        genomes=genome_and_annotation_file_io.readline().strip().split('\t')[1:]
+        genome_to_annotation_sets = {genome_name:set() for genome_name in genomes}
+        annotations = set()
+        for line in genome_and_annotation_file_io:
+            sline = line.strip().split('\t')
+            annotation, entries = sline[0], sline[1:]
+            annotations.add(annotation)
+            for genome_name, entry in zip(genomes, entries):
+                if float(entry) > 0:
+                    genome_to_annotation_sets[genome_name].add(annotation)
 
-        for genome in genomes:
-            genome_to_annotation[genome] = set()
-            for module in modules:
-                if int(annotation_matrix.get_entry(genome, module))>0:
-                    genome_to_annotation[genome].add(module)
-        
-        return genome_to_annotation, modules, genomes
-    
+        return genome_to_annotation_sets, annotations, genomes
+
 
     def check_annotation_type(self, annotations):
         '''
@@ -421,6 +422,7 @@ class Test(Enrichment):
         mtc_dict = {'fdr_bh':'Benjamini/Hochberg (non-negative)'}
 
         logging.info('Applying multi-test correction using the %s method' % (mtc_dict[self.multi_test_correction]) )
+
         corrected_pvals \
             = sm.multipletests(pvalues,
                                alpha        = self.threshold,
@@ -434,11 +436,14 @@ class Test(Enrichment):
         return kos_list
 
     def gather_genome_annotations(self, group, target_kos):
+        
         genome_ko_list = []
+        
         for genome in self.groups[group]:
             genome_target_list = set(self.genome_annotations[genome])\
                                              .intersection(target_kos)
             genome_ko_list.append(len(genome_target_list))
+        
         return genome_ko_list
 
     def fisher(self, ivi):
@@ -488,8 +493,9 @@ class Test(Enrichment):
                                          str(stat),
                                          str(p_value),
                                          annotation_description[module]])
+        if len(pvals)>0:
+            corrected_pvals = self.correct_multi_test(pvals)
 
-        corrected_pvals = self.correct_multi_test(pvals)
         output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
@@ -541,7 +547,9 @@ class Test(Enrichment):
                                                  str(p_value),
                                                  annotation_description[module]])
         
-        corrected_pvals = self.correct_multi_test(pvals)
+        if len(pvals)>0:
+            corrected_pvals = self.correct_multi_test(pvals)
+
         output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
@@ -590,7 +598,9 @@ class Test(Enrichment):
                                               str(p_value), 
                                               annotation_description[module]])
 
-        corrected_pvals = self.correct_multi_test(pvals)
+        if len(pvals)>0:
+            corrected_pvals = self.correct_multi_test(pvals)
+
         output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
@@ -609,5 +619,5 @@ class Test(Enrichment):
         if gvg:
             logging.info('Running group vs group comparisons')
             results.append( (self.ttest(gvg), self.GVG_OUTPUT) )
-            
+        
         return results
