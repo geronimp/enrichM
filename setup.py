@@ -1,10 +1,7 @@
 from setuptools import setup, find_packages
-
 with open('README.md') as readme_file:
     readme = readme_file.read()
-
 exec(open('enrichm/version.py').read()) # loads __version__
-
 setup(name='enrichm',
       version=__version__,
       author='Joel Boyd, Ben Woodcroft, Alex Baker',
@@ -14,7 +11,7 @@ setup(name='enrichm',
       license='GPL3+',
       keywords=["MAGs", "Population genomes", "metagenomics", "Annotation", "Comparison"],
       packages=find_packages(exclude='docs'),
-      install_requires=('dateutil >=2.5.1',
+      install_requires=('python-dateutil >=2.5.1',
                         'statsmodels >=0.8.0rc1',
                         'numpy >=1.9.1',
                         'pandas >=0.17.1',
@@ -51,13 +48,3 @@ setup(name='enrichm',
                        'data/ids/TIGRFAM_IDS.txt']),
       ],
 )
-
-
-
-
-
-
-
-
-
-
