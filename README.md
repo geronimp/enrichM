@@ -35,8 +35,7 @@ EnrichM has the following non-python dependencies:
 
 ## PyPi 
 
-
-This can be done:
+This can be done, and super-user privileges may be needed:
 ```
 pip install enrichm
 ```

@@ -201,9 +201,8 @@ class Enrichment:
                                 else:
                                     compare_value = float("inf")
                                 compare_groups.append(compare_value)
-                    if all([x>proportions_cutoff for x in compare_groups]):
-                        
-                    import IPython ; IPython.embed()
+                    if all([x>proportions_cutoff for x in compare_groups]):                    
+                        import IPython ; IPython.embed()
 
             raw_proportions_output_lines.append(raw_proportions_output_line)
 
