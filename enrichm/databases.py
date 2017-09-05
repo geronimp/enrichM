@@ -38,8 +38,7 @@ import inspect
 
 class Databases:
 	"""docstring for Databases"""
-
-	DATA_PATH   			= os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data')
+	DATA_PATH   			= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
 	DATABASE_DIR			= os.path.join(DATA_PATH, 'databases')
 	IDS_DIR					= os.path.join(DATA_PATH, 'ids')
 	VERSION					= open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()

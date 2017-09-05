@@ -31,41 +31,20 @@ import os, re
 import logging
 import pickle
 
+from databases import Databases
 from module_description_parser import ModuleDescription
 
 ###############################################################################
 
 class KeggModuleGrabber:
-
-    DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             '..',
-                             'data')
-        
-    VERSION = open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()
-    PICKLE = 'pickle'
-
-    M2DEF = os.path.join(DATA_PATH, 'module_to_definition')
-    M = os.path.join(DATA_PATH, 'module_descriptions')
     
     def __init__(self):
+
+        d=Databases()
         self.ko_re = re.compile('^K\d+$')
-        
-        self.signature_modules = set(['M00611', 'M00612', 'M00613', 'M00614',
-         'M00617', 'M00618', 'M00615', 'M00616', 'M00363', 'M00542', 'M00574',
-         'M00575', 'M00564', 'M00660', 'M00664', 'M00625', 'M00627', 'M00745',
-         'M00651', 'M00652', 'M00704', 'M00725', 'M00726', 'M00730', 'M00744',
-         'M00718', 'M00639', 'M00641', 'M00642', 'M00643', 'M00769', 'M00649',
-         'M00696', 'M00697', 'M00698', 'M00700', 'M00702', 'M00714', 'M00705',
-         'M00746'])
-        
-        logging.info("Loading module definitions")
-        self.m2def = pickle.load(open('.'.join([self.M2DEF,
-                                                 self.VERSION, self.PICKLE])))
-        logging.info("Done!")
-        logging.info("Loading module descriptions")
-        self.m = pickle.load(open('.'.join([self.M,
-                                            self.VERSION, self.PICKLE])))
-        logging.info("Done!")
+        self.signature_modules = d.signature_modules
+        self.m2def = d.m2def
+        self.m = d.m
         
     def _update_with_custom_modules(self, custom_modules):
         custom_modules_dict = {line.split('\t')[0]:line.strip().split('\t')[1]
