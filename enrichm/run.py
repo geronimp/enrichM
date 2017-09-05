@@ -33,6 +33,8 @@ import os
 import shutil
 import time
 
+from data import Data
+from databases import Databases
 from network_analyzer import NetworkAnalyser
 from enrichment import Enrichment
 from annotate import Annotate
@@ -52,7 +54,8 @@ debug={1:logging.CRITICAL,
 class Run:
     
     def __init__(self):
-
+        
+        self.d=Databases()
         self.ANNOTATE        = 'annotate'
         self.COMPARE         = 'compare'
 
@@ -60,22 +63,24 @@ class Run:
         self.BUILD           = 'build'
         self.ENRICHMENT      = 'enrichment'
         self.MODULE_AB       = 'module_ab'
+        self.DATA            = 'data'
 
     def _logging_setup(self, args):
+        if args.subparser_name!=self.DATA:
 
-        logger = logging.getLogger('')
-        logger.setLevel(debug[args.verbosity])
-        log_format = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
-                                       datefmt="%Y-%m-%d %H:%M:%S %p")
+            logger = logging.getLogger('')
+            logger.setLevel(debug[args.verbosity])
+            log_format = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
+                                           datefmt="%Y-%m-%d %H:%M:%S %p")
 
-        stream_logger = logging.StreamHandler(sys.stdout)
-        stream_logger.setFormatter(log_format)
-        stream_logger.setLevel(debug[args.verbosity])
-        logger.addHandler(stream_logger)
+            stream_logger = logging.StreamHandler(sys.stdout)
+            stream_logger.setFormatter(log_format)
+            stream_logger.setLevel(debug[args.verbosity])
+            logger.addHandler(stream_logger)
 
-        file_logger = logging.FileHandler(os.path.join(args.output, args.log), 'a')
-        file_logger.setFormatter(log_format)
-        logger.addHandler(file_logger)
+            file_logger = logging.FileHandler(os.path.join(args.output, args.log), 'a')
+            file_logger.setFormatter(log_format)
+            logger.addHandler(file_logger)
 
     def _check_general(self, args):
         '''
@@ -85,19 +90,43 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        # Set up working directory
-        if not args.output:
-            args.output = '%s-enrichm_%s_output' % (time.strftime("%Y-%m-%d_%H-%M"), args.subparser_name)
 
-        if(os.path.isdir(args.output) or os.path.isfile(args.output)):
-            if args.force:
-                if os.path.isdir(args.output):
-                    shutil.rmtree(args.output)
+        # Check backend databases exist
+        for db in [self.d.KO_DB, self.d.PFAM_DB, self.d.TIGRFAM_DB]:
+            if not os.path.isfile(db):
+                raise Exception("Backend databases do not exist! Please install or update databases using 'enrichm data --update', or if you haven't already, run 'enrichm data --create' ")
+
+        if args.subparser_name!=self.DATA:
+            # Set up working directory
+            if not args.output:
+                args.output = '%s-enrichm_%s_output' % (time.strftime("%Y-%m-%d_%H-%M"), args.subparser_name)
+
+            if(os.path.isdir(args.output) or os.path.isfile(args.output)):
+                if args.force:
+                    if os.path.isdir(args.output):
+                        shutil.rmtree(args.output)
+                    else:
+                        os.remove(args.output)
                 else:
-                    os.remove(args.output)
-            else:
-                raise Exception("File '%s' exists." % args.output)
-        os.mkdir(args.output)   
+                    raise Exception("File '%s' exists." % args.output)
+
+            os.mkdir(args.output)   
+
+    def _check_data(self, args):
+        '''
+        Check data input and output options are valid.
+
+        Parameters
+        ----------
+        args    - object. Argparse object
+        '''
+        
+        if not any([args.create, args.update]):
+            raise Exception("Neither --create or --update was specified. enrichm data doesn't have anything to do!")
+        
+        if args.create:
+            if os.path.isdir(Databases.DATABASE_DIR):
+                raise Exception("Create cannot be run because a database directory already exists: %s Please run --update instead" % (Databases.DATABASE_DIR))
 
     def _check_annotate(self, args):
         '''
@@ -202,6 +231,12 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
         self._logging_setup(args)
 
         logging.info("Running command: %s" % ' '.join(command))
+        if args.subparser_name == self.DATA:
+            self._check_data(args)
+            d = Data()
+
+            d.do(args.create,
+                 args.update)
         
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)

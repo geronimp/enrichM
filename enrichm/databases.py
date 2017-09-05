@@ -20,7 +20,6 @@ __author__ = "Joel Boyd"
 __copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]
 __license__ = "GPL3"
-__version__ = "0.0.1"
 __maintainer__ = "Joel Boyd"
 __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
@@ -37,12 +36,18 @@ import inspect
 
 
 class Databases:
-	"""docstring for Databases"""
+	"""Databases yo"""
+
 	DATA_PATH   			= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
 	DATABASE_DIR			= os.path.join(DATA_PATH, 'databases')
+	OLD_DATABASE_PATH		= os.path.join(DATA_PATH, 'databases', 'old')
 	IDS_DIR					= os.path.join(DATA_PATH, 'ids')
 	VERSION					= open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()
 	PICKLE					= 'pickle'	
+
+	KO_DB_NAME				='uniref100'
+	PFAM_DB_NAME			='pfam'
+	TIGRFAM_DB_NAME			='tigrfam'
 
 	M2DEF       			= os.path.join(DATA_PATH, 'module_to_definition')
 	M           			= os.path.join(DATA_PATH, 'module_descriptions')
@@ -64,7 +69,6 @@ class Databases:
 	PFAM2NAME				= os.path.join(DATA_PATH, 'pfam_to_name')
 	PFAM2DESCRIPTION		= os.path.join(DATA_PATH, 'pfam_to_description')
 	CLAN2PFAM				= os.path.join(DATA_PATH, 'clan_to_pfam')
-
 
 	def __init__(self):
 
@@ -109,10 +113,6 @@ class Databases:
 		self.r2c = pickle.load(open('.'.join([self.R2C, 
 		                                      self.VERSION, self.PICKLE])))
 		logging.debug("Done")
-		#logging.debug("Loading reaction to rpair information")
-		#self.r2rpair = pickle.load(open('.'.join([self.R2RPAIR, 
-		#                                      self.VERSION, self.PICKLE])))
-		#logging.debug("Done")
 		logging.debug("Loading compound to reaction information")
 		self.c2r = pickle.load(open('.'.join([self.C2R,
 		                                      self.VERSION, self.PICKLE])))
@@ -160,8 +160,8 @@ class Databases:
 		                                      self.VERSION, self.PICKLE])))
 		logging.info("Done")
 		logging.info("Loading reference db paths")		
-		self.KO_DB 			= os.path.join(self.DATABASE_DIR, 'uniref100.dmnd')
-		self.PFAM_DB 		= os.path.join(self.DATABASE_DIR, 'pfam.hmm')
-		self.TIGRFAM_DB 	= os.path.join(self.DATABASE_DIR, 'tigrfam.hmm')
+		self.KO_DB 			= os.path.join(self.DATABASE_DIR, self.KO_DB_NAME)
+		self.PFAM_DB 		= os.path.join(self.DATABASE_DIR, self.PFAM_DB_NAME)
+		self.TIGRFAM_DB 	= os.path.join(self.DATABASE_DIR, self.TIGRFAM_DB_NAME)
 		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 	  'PFAM_CLANS.txt')
 		logging.info('Done')

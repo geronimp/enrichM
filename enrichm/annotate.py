@@ -207,7 +207,7 @@ class Annotate:
         '''  
          
         cmd = 'diamond blastp --quiet --outfmt 6 --max-target-seqs 1 --query %s --out %s --db %s --threads %s ' \
-                            % (input_genome_path,  output_path, database, self.threads)
+                            % (input_genome_path, output_path, database, self.threads)
         if self.evalue:
             cmd += '--evalue %f ' % (self.evalue) 
         if self.bit:
