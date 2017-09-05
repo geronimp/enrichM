@@ -40,8 +40,9 @@ class Databases:
 
 	DATA_PATH   			= os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data')
 	DATABASE_DIR			= os.path.join(DATA_PATH, 'databases')
-	VERSION     			= open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()
-	PICKLE 					= 'pickle'	
+	IDS_DIR					= os.path.join(DATA_PATH, 'ids')
+	VERSION					= open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()
+	PICKLE					= 'pickle'	
 
 	M2DEF       			= os.path.join(DATA_PATH, 'module_to_definition')
 	M           			= os.path.join(DATA_PATH, 'module_descriptions')
@@ -152,6 +153,6 @@ class Databases:
 		logging.info("Loading reference db paths")		
 		self.KO_DB 			= os.path.join(self.DATABASE_DIR, 'uniref100.dmnd')
 		self.PFAM_DB 		= os.path.join(self.DATABASE_DIR, 'pfam.hmm')
-		self.PFAM_CLAN_DB 	= os.path.join(self.DATABASE_DIR, 'pfam_clans.txt')
 		self.TIGRFAM_DB 	= os.path.join(self.DATABASE_DIR, 'tigrfam.hmm')
+		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 	  'PFAM_CLANS.txt')
 		logging.info('Done')

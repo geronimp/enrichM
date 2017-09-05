@@ -41,7 +41,6 @@ from databases import Databases
 ###############################################################################
         
 class Enrichment:
-
     '''
     Class contianing various functions to calculate the enrichment of funcitons
     and genes between two groups of genomes...
@@ -61,7 +60,7 @@ class Enrichment:
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
         self.PROPORTIONS             = 'proportions.tsv'
-        self.BIT_PROPORTIONS         = 'bit_proportions.tsv'
+        self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
     
     def _parse_matrix(self, matrix_file_io, colnames):
         '''
@@ -152,7 +151,7 @@ class Enrichment:
         else:
             return self.PFAM
 
-    def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list):
+    def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
         '''
         Calculates the portions of genome
 
@@ -165,24 +164,50 @@ class Enrichment:
         annotations_dict    - Dictionary. Annotation dictionary, with the the genome ids as keys,
                               and a list of annotations as the entry for each.  
         genome_list         - List. List of strings, each one a genome name
+        proportions_cutoff  - Float. Value with which to cutoff
         '''
         ### ~ TODO: Add a portion of genome column too?
 
-        output_lines = [['Module'] + combination_dict.keys()]
-        
+        raw_proportions_output_lines        = [['Module'] + combination_dict.keys()]
+        enriched_proportions_output_lines   = [['Module'] + combination_dict.keys()]
+
         for module in modules:
-            output_line = [module]
+            
+            module_values               = {}
+            raw_proportions_output_line = [module]
+            
             for group_name, genome_list in combination_dict.items():
                 if len(genome_list)>0:
                     coverage = len([genome for genome in genome_list 
                                     if module in annotations_dict[genome]])
-                    all      = float(len(genome_list))
-                    output_line.append(str(coverage/all))
+                    total    = float(len(genome_list))
+                    entry    = coverage/total
+                    module_values[group_name] = entry
+                    raw_proportions_output_line.append(str(entry))
                 else:
-                    output_line.append('0.0')
-            output_lines.append(output_line)
+                    raw_proportions_output_line.append('0.0')
+            
+            if max(module_values.values())>0:
+                groups = combination_dict.keys()
+                for group in groups:
+                    group_val = module_values[group]
+                    if group_val>0:
+                        compare_groups = []
+                        for other_group in groups:
+                            if other_group!=group:
+                                other_group_val = module_values[other_group]
+                                if other_group_val > 0:
+                                    compare_value = group_val/other_group_val
+                                else:
+                                    compare_value = float("inf")
+                                compare_groups.append(compare_value)
+                    if all([x>proportions_cutoff for x in compare_groups]):
+                        
+                    import IPython ; IPython.embed()
 
-        return output_lines
+            raw_proportions_output_lines.append(raw_proportions_output_line)
+
+        return raw_proportions_output_lines
 
     def calculate_bit_portions(self, modules, annotations_dict):
         '''
@@ -219,7 +244,8 @@ class Enrichment:
 
     def do(self, annotation_matrix, metadata,
            subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
-           cutoff, threshold, multi_test_correction, output_directory):
+           pval_cutoff, proportions_cutoff, threshold, 
+           multi_test_correction, output_directory):
         '''
         
         Parameters
@@ -237,9 +263,9 @@ class Enrichment:
             modules = subset_modules
         logging.info("Comparing sets of genomes")
         
-        
         cols_to_attributes, rownames, colnames, nr_value_dict \
                     = self._parse_metadata_matrix(metadata)
+        
         metadata_value_lists = nr_value_dict.values()
         combination_dict = {}
 
@@ -257,7 +283,8 @@ class Enrichment:
                  combination_dict,
                  self.check_annotation_type(modules),
                  threshold,
-                 multi_test_correction)
+                 multi_test_correction,
+                 pval_cutoff)
 
         if do_all:
             do_gvg = True
@@ -294,20 +321,19 @@ class Enrichment:
         else:
             ivg = None
 
-        test_results = t.do(ivi, ivg, gvg)
-
-        for test_result_lines, test_result_output_file in test_results:
+        for test_result_lines, test_result_output_file in t.do(ivi, ivg, gvg):
             test_result_output_path = os.path.join(output_directory,
                                                    test_result_output_file)
             self._write(test_result_lines, test_result_output_path)
-
-        proportions         = self.calculate_portions(modules, combination_dict, annotations_dict, genome_list)
-        portions_path       = os.path.join(output_directory, self.PROPORTIONS)
-        self._write(proportions, portions_path)
-
-        bit_proportions     = self.calculate_bit_portions(modules, annotations_dict)
-        bit_portions_path   = os.path.join(output_directory, self.BIT_PROPORTIONS)
-        self._write(bit_proportions, bit_portions_path)
+        
+        raw_portions_path \
+            = os.path.join(output_directory, self.PROPORTIONS)
+        unique_to_groups_path \
+            = os.path.join(output_directory, self.UNIQUE_TO_GROUPS)
+        raw_proportions_output_lines \
+            = self.calculate_portions(modules, combination_dict, annotations_dict, genome_list, proportions_cutoff)
+        
+        self._write(raw_proportions_output_lines, raw_portions_path)
 
         ###############################################################################
         ###############################################################################
@@ -363,8 +389,17 @@ class Enrichment:
 
 class Test(Enrichment):
 
-    def __init__(self, genome_annotations, modules, genomes, groups, annotation_type, threshold, multi_test_correction):
-
+    def __init__(self, genome_annotations, modules, genomes, groups, 
+                 annotation_type, threshold, multi_test_correction, pval_cutoff):
+        '''
+        
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        
         d=Databases()
         
         self.IVI_OUTPUT             = 'ivi_results.tsv'
@@ -381,7 +416,8 @@ class Test(Enrichment):
         self.genomes                = genomes
         self.annotation_type        = annotation_type
         self.groups                 = groups
-        
+        self.pval_cutoff            = pval_cutoff
+
         if annotation_type==Enrichment.PFAM:
             self.genome_annotations = {}
             for key, item in genome_annotations.items():
@@ -469,14 +505,16 @@ class Test(Enrichment):
                     stat, p_value = \
                             scipy.stats.fisher_exact([row_1,
                                                       row_2])
-                    pvals.append(p_value)
-                    output_lines.append([module,
-                                         genome_1,
-                                         genome_2,
-                                         str(len(module_kos)),
-                                         str(stat),
-                                         str(p_value),
-                                         annotation_description[module]])
+                    if self.pval_cutoff <= p_value:
+                        pvals.append(p_value)
+
+                        output_lines.append([module,
+                                             genome_1,
+                                             genome_2,
+                                             str(len(module_kos)),
+                                             str(stat),
+                                             str(p_value),
+                                             annotation_description[module]])
         if len(pvals)>0:
             corrected_pvals = self.correct_multi_test(pvals)
 
@@ -520,17 +558,19 @@ class Test(Enrichment):
                                                       np.array(group_2_module_kos),
                                                       equal_var  = False,
                                                       nan_policy = 'raise')
-                            pvals.append(p_value)
-                            output_lines.append([module,
-                                                 group_1,
-                                                 group_2,
-                                                 str(np.mean(np.array(group_1_module_kos))),
-                                                 str(np.mean(np.array(group_2_module_kos))),
-                                                 str(len(module_list)),
-                                                 str(t_stat),
-                                                 str(p_value),
-                                                 annotation_description[module]])
-        
+                            
+                            if self.pval_cutoff <= p_value:
+                                pvals.append(p_value)
+                                output_lines.append([module,
+                                                     group_1,
+                                                     group_2,
+                                                     str(np.mean(np.array(group_1_module_kos))),
+                                                     str(np.mean(np.array(group_2_module_kos))),
+                                                     str(len(module_list)),
+                                                     str(t_stat),
+                                                     str(p_value),
+                                                     annotation_description[module]])
+            
         if len(pvals)>0:
             corrected_pvals = self.correct_multi_test(pvals)
 
@@ -573,14 +613,16 @@ class Test(Enrichment):
                             = np.mean(reference_group_comp_list, axis=0)
                         z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
                         p_value = 2-2*scipy.stats.norm.cdf(z_score)
-                        pvals.append(p_value)
-                        output_lines.append([module, 
-                                              group, 
-                                              genome, 
-                                              str(len(module_list)), 
-                                              str(z_score), 
-                                              str(p_value), 
-                                              annotation_description[module]])
+
+                        if self.pval_cutoff <= p_value:
+                            pvals.append(p_value)
+                            output_lines.append([module, 
+                                                  group, 
+                                                  genome, 
+                                                  str(len(module_list)), 
+                                                  str(z_score), 
+                                                  str(p_value), 
+                                                  annotation_description[module]])
 
         if len(pvals)>0:
             corrected_pvals = self.correct_multi_test(pvals)

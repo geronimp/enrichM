@@ -23,7 +23,6 @@ __license__ = "GPL3"
 __maintainer__ = "Joel Boyd"
 __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
-__version__ = "0.0.1"
 
 ###############################################################################
 # imports

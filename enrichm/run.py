@@ -220,8 +220,7 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
                          args.aln_reference, 
                          # Parameters
                          args.threads,
-                         args.suffix
-                         )
+                         args.suffix)
 
             a.do(args.genome_directory, args.protein_directory, 
                  args.genome_files, args.protein_files)
@@ -233,8 +232,7 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
                  args.cutoff,
                  args.genome_and_annotation_file,
                  args.genome_and_annotation_matrix,
-                 args.output
-                 )
+                 args.output)
 
         elif args.subparser_name == self.ENRICHMENT: 
             self._check_enrichment(args)
@@ -248,11 +246,11 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
                  args.do_ivi, 
                  args.do_gvg,
                  args.do_ivg,
-                 args.cutoff,
+                 args.pval_cutoff,
+                 args.proportions_cutoff,
                  args.threshold,
                  args.multi_test_correction,
-                 args.output
-                 )
+                 args.output)
 
         elif args.subparser_name == self.COMPARE:
             self._check_compare(args)
@@ -276,6 +274,5 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
                   args.starting_compounds, 
                   args.steps,
                   args.number_of_queries,
-                  args.output
-                  )
+                  args.output)
         logging.info('Done!')
