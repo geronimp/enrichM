@@ -38,7 +38,7 @@ EnrichM has the following non-python dependencies:
 
 This can be done:
 ```
-
+pip install enrichm
 ```
 
 ## DockerHub

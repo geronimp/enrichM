@@ -1,7 +1,10 @@
 from setuptools import setup, find_packages
+
 with open('README.md') as readme_file:
     readme = readme_file.read()
+
 exec(open('enrichm/version.py').read()) # loads __version__
+
 setup(name='enrichm',
       version=__version__,
       author='Joel Boyd, Ben Woodcroft, Alex Baker',
