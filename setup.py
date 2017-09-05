@@ -25,7 +25,30 @@ setup(name='enrichm',
       url='https://github.com/geronimp/enrichM',
       download_url='https://github.com/geronimp/enrichm/archive/%s.tar.gz' % (__version__),
       scripts=['bin/enrichm'],
-      data_files=[('pickles', ['data/*.pickle',
+      data_files=[('pickles', ['data/br08001.07-08-2017.pickle',
+                               'data/clan_to_name.07-08-2017.pickle',
+                               'data/clan_to_pfam.07-08-2017.pickle',
+                               'data/compound_descriptions.07-08-2017.pickle',
+                               'data/compound_to_reaction.07-08-2017.pickle',
+                               'data/module_descriptions.07-08-2017.pickle',
+                               'data/module_to_definition.07-08-2017.pickle',
+                               'data/module_to_reaction.07-08-2017.pickle',
+                               'data/pathway_descriptions.07-08-2017.pickle',
+                               'data/pathway_to_reaction.07-08-2017.pickle',
+                               'data/pfam_to_clan.07-08-2017.pickle',
+                               'data/pfam_to_description.07-08-2017.pickle',
+                               'data/pfam_to_name.07-08-2017.pickle',
+                               'data/reaction_descriptions.07-08-2017.pickle',
+                               'data/reaction_to_compound.07-08-2017.pickle',
+                               'data/reaction_to_module.07-08-2017.pickle',
+                               'data/reaction_to_orthology.07-08-2017.pickle',
+                               'data/reaction_to_pathway.07-08-2017.pickle',
                                'data/VERSION']), 
-                  ('ids', ['data/ids/*.txt'])]
+                  ('ids', ['data/ids/KO_IDS.txt',
+                           'data/ids/PFAM_CLANS.txt',
+                           'data/ids/PFAM_IDS.txt',
+                           'data/ids/TIGRFAM_IDS.txt'])]
 )
+
+
+
