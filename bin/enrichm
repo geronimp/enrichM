@@ -126,13 +126,7 @@ if __name__ == "__main__":
     # Data
     
     data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
-    
-    data_input_options = data.add_argument_group('Input options')
-    data_input_options.add_argument('--create', default = None, action='store_true',
-                help = 'Create backend databases. You should only need to run this once')
-    data_input_options.add_argument('--update', default = None, action='store_true',
-                help = 'Update existing backend database.')
-    
+        
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Annotate

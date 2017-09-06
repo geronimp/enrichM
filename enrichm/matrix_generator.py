@@ -17,7 +17,7 @@
 ###############################################################################
  
 __author__ = "Joel Boyd"
-__copyright__ = "Copyright 2015"
+__copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]
 __license__ = "GPL3"
 __version__ = "0.0.1"
@@ -26,28 +26,26 @@ __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
  
 ###############################################################################
-
+#Local
 import logging
 import os
-import gzip
-
-from genome import Genome
 
 ###############################################################################
 
 class MatrixGenerator:
-    
-    COMPRESSED_SUFFIXES = set(['.gz', '.gzip'])
-    REFERENCE_PATH = '/srv/db/uniprot/201607/KO.idmapping.dat.gz' ### ~ TODO: Wrap this up
-    OLD_REFERENCE_PATH='/srv/db/uniprot/uniref_20151020/idmapping.KO.dat.gz'
-    MATRIX_SUFFIX  = '_matrix.tsv'
-    UR100 = 'UniRef100_'
-    
+        
     KO      = 'KO_IDS.txt'
     PFAM    = 'PFAM_IDS.txt'
     TIGRFAM = 'TIGRFAM_IDS.txt'
 
-    def __init__(self, annotation_type):        
+    def __init__(self, annotation_type):
+        '''
+        Interpret which annotation type to write a matrix for.
+
+        Parameters
+        ----------
+        annotation_type - String.
+        '''
         data_directory = os.path.join(os.path.split(os.path.realpath(__file__))[0], '../data/ids/')
         if annotation_type == self.KO:
             self.annotation_list = [x.strip() for x in open(os.path.join(data_directory, self.KO))]

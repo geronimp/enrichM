@@ -91,11 +91,6 @@ class Run:
         args    - object. Argparse object
         '''
 
-        # Check backend databases exist
-        for db in [self.d.KO_DB, self.d.PFAM_DB, self.d.TIGRFAM_DB]:
-            if not os.path.isfile(db):
-                raise Exception("Backend databases do not exist! Please install or update databases using 'enrichm data --update', or if you haven't already, run 'enrichm data --create' ")
-
         if args.subparser_name!=self.DATA:
             # Set up working directory
             if not args.output:
@@ -120,13 +115,7 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        
-        if not any([args.create, args.update]):
-            raise Exception("Neither --create or --update was specified. enrichm data doesn't have anything to do!")
-        
-        if args.create:
-            if os.path.isdir(Databases.DATABASE_DIR):
-                raise Exception("Create cannot be run because a database directory already exists: %s Please run --update instead" % (Databases.DATABASE_DIR))
+        pass
 
     def _check_annotate(self, args):
         '''
@@ -183,6 +172,7 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
         '''
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to build.")
+    
     def _check_compare(self, args):
         pass ### ~ TODO: Dunno yet
     
@@ -231,12 +221,12 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
         self._logging_setup(args)
 
         logging.info("Running command: %s" % ' '.join(command))
+
         if args.subparser_name == self.DATA:
             self._check_data(args)
             d = Data()
 
-            d.do(args.create,
-                 args.update)
+            d.do()
         
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)

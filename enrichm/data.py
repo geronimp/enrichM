@@ -29,70 +29,85 @@ __status__ = "Development"
 import os
 import urllib
 import shutil
+import subprocess
 
 from databases import Databases
 
 ###############################################################################
 
 class Data:
-	VERSION = 'VERSION'
-	def __init__(self):
-		
-		self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
-		self.d = Databases()
-		self.version_file = os.path.join(self.DATABASE_DIR, Databases.VERSION)
+	'''
+	Utilities for archiving, downloading and updating databases.
+	'''
 
-	def _rversion(self):
-		version=float(open(self.version_file).readline())
-		return version
-
-	def create(self):
-		logging.debug('Creating Database directory')
-		os.makedirs(Databases.DATABASE_DIR)
-
-		logging.debug('Downloading release version')	
-		urllib.urlretrieve(self.ftp + Databases.VERSION, self.version_file)
-
-		logging.debug('Downloading UniRef100 database')		
-		urllib.urlretrieve(self.ftp + Databases.KO_DB_NAME, self.d.KO_DB)
-		logging.debug('Downloading PFAM database')		
-		urllib.urlretrieve(self.ftp + Databases.PFAM_DB_NAME, self.d.PFAM_DB)
-		logging.debug('Downloading TIGRFAM database')		
-		urllib.urlretrieve(self.ftp + Databases.TIGRFAM_DB_NAME, self.d.TIGRFAM_DB)
-
-	def update(self):
-		# Check current database isnt being used
-
-		version_remote = float(urllib.request.urlopen(self.ftp + Databases.VERSION).readline().strip())
-		version_local = self._rversion()
-
-		if version_local<version_remote:
-			if not os.path.isdir(Databases.OLD_DATABASE_PATH):
-				os.makedirs(Databases.OLD_DATABASE_PATH)
-		
-			old_db_directory = os.path.join(Databases.OLD_DATABASE_PATH, str(version_local)) 
-			os.makedirs(old_db_directory)
-
-			for old_db_file in os.path.listdir(Databases.DATA_PATH):
-				old_db_path 			= os.path.join(Databases.DATA_PATH, old_db_file)
-				old_db_path_archived 	= os.path.join(old_db_directory, old_db_file)
-				shutil.move(old_db_path, old_db_path_archived)
-
-			logging.debug('Downloading UniRef100 database')		
-			urllib.urlretrieve(self.ftp + Databases.KO_DB_NAME, self.d.KO_DB)
-			logging.debug('Downloading PFAM database')		
-			urllib.urlretrieve(self.ftp + Databases.PFAM_DB_NAME, self.d.PFAM_DB)
-			logging.debug('Downloading TIGRFAM database')		
-			urllib.urlretrieve(self.ftp + Databases.TIGRFAM_DB_NAME, self.d.TIGRFAM_DB)
-		else:
-			logging.info('Databases are up to date!')
+	VERSION ='VERSION'
+	ARCHIVE_SUFFIX = '.tar.gz'
 	
-	def do(self, create, update):
+	def __init__(self):
+		self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
+
+	def _archive_db(self, old_db_file):
+		'''
+		Archive an old database file
 		
-		if create:
-			logging.info('Generating backend databases')
-			self.create()
+		Parameters
+		----------
+		old_db_file	- String. File name of old database file to archive
+		'''
 		
-		elif update:
-			logging.info('Updating backend databases')
-			self.update()
+		if not os.path.isdir(Databases.OLD_DATABASE_PATH):
+			logging.info('Creating directory to store databases: %s' % (Databases.OLD_DATABASE_PATH))
+			os.makedirs(Databases.OLD_DATABASE_PATH)
+	
+		old_db_path_archive \
+			= os.path.join(Databases.OLD_DATABASE_PATH, old_db_file + self.ARCHIVE_SUFFIX) 
+		old_db_path \
+			= os.path.join(Databases.DATABASE_PATH, old_db_file) 
+
+		logging.info('Compressing old database')
+		cmd = "tar -cvzf %s %s" % (old_db_path_archive, old_db_path)
+		subprocess.call(cmd, shell=True)
+
+		logging.info('Cleaning up')
+		shutil.rmtree(old_db_path)
+		subprocess.call(cmd, shell=True)
+
+	def _download_db(self, new_db_file):
+		'''
+		Download and decompress a new database file
+		
+		Parameters
+		----------
+		new_db_file	- String. File name of new database to download and decompress.
+		'''
+		new_db_path_archive \
+			= os.path.join(Databases.DATABASE_PATH, new_db_file)
+		new_db_path \
+			= os.path.join(Databases.DATABASE_PATH, new_db_file.replace(self.ARCHIVE_SUFFIX, ''))
+		
+		logging.info('Downloading new database')
+		urllib.urlretrieve(self.ftp + new_db_file, new_db_path_archive)
+		
+		logging.info('Decompressing new database')
+		cmd = 'tar xvzf file.tar.gz -C %s' % (new_db_path)
+		subprocess.call(cmd, shell = True)
+
+		logging.info('Cleaning up')
+		shutil.remove(new_db_path_archive)
+	
+	def do(self):
+		'''
+		Check database versions, if they're out of date, archive the old and download the new.
+		'''
+		version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip()
+		if os.path.isdir(Databases.DATABASE_DIR):
+			version_local  = open(os.path.join(Databases.DATABASE_DIR, Databases.VERSION)).readline().strip()
+			if version_local!=version_remote:
+				logging.info('New database found. Archiving old database.')
+				self._archive_db(version_local)
+			else:
+				logging.info('Database is up to date!')
+		else:
+			os.makedirs(Databases.DATABASE_DIR)
+		self._download_db(version_remote)
+		
