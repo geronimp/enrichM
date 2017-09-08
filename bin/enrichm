@@ -54,11 +54,6 @@ def phelp():
                            \___|_| |_|_|  |_|\___|_| |_|_|  |_|   
   ------------------------------------------------------------------------------------
 
-
-
-  Workflows
-    enrichment_wf   -> annotate - enrichment [NOT IMPLEMENTED]
-
   Annotation 
     annotate        -> Basic annotation of bins and contigs.
 
