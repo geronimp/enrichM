@@ -20,21 +20,24 @@ __author__ = "Joel Boyd"
 __copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]
 __license__ = "GPL3"
-__version__ = "0.0.1"
+__version__ = "0.0.7"
 __maintainer__ = "Joel Boyd"
 __email__ = "joel.boyd near uq.net.au"
 __status__ = "Development"
  
 ###############################################################################
-
-from kegg_module_grabber import KeggModuleGrabber
-from network_analyzer import NetworkAnalyser
-from run import Run
+# Imports
 import argparse
 import os
 import sys
 import textwrap
 import time
+
+# Local
+import enrichm
+from enrichm.run import Run
+from enrichm.network_analyzer import NetworkAnalyser
+from enrichm.kegg_module_grabber import KeggModuleGrabber
 
 ###############################################################################
       
@@ -51,11 +54,13 @@ def phelp():
                            \___|_| |_|_|  |_|\___|_| |_|_|  |_|   
   ------------------------------------------------------------------------------------
 
+
+
   Workflows
     enrichment_wf   -> annotate - enrichment [NOT IMPLEMENTED]
 
   Annotation 
-    annotate        -> Basic annotation of genomes and metagenomes.
+    annotate        -> Basic annotation of bins and contigs.
 
   Enrichment analysis
     classify        -> Determine what KEGG modules a genome encodes.
@@ -71,11 +76,13 @@ def phelp():
                        metatranscriptome.
 
   Authors: J. Boyd, B. Woodcroft, A. Baker
-"""
+  Version: %s 
+""" % (enrichm.__version__)
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
+    parser.add_argument('--version', action='version', version='enrichm v%s' % enrichm.__version__)
     subparsers = parser.add_subparsers(help="--", dest='subparser_name')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -83,6 +90,7 @@ if __name__ == "__main__":
     
     base_all             = argparse.ArgumentParser(add_help=False)
     base_logging_options = base_all.add_argument_group('Logging options')
+
     base_logging_options.add_argument('--log',
                 help='Output logging information to this file.')
     base_logging_options.add_argument('--verbosity', type = int, default = 4,
@@ -113,6 +121,12 @@ if __name__ == "__main__":
     base_network_options.add_argument('--rpair', action='store_true',
                 help='Use rpair to construct network, instead of the reaction database (AVAILABLE SOON)')
 
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Data
+    
+    data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
+        
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Annotate
@@ -156,6 +170,7 @@ if __name__ == "__main__":
                 help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
     annotate_runtime_options.add_argument('--suffix', 
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Classify  
@@ -174,7 +189,7 @@ if __name__ == "__main__":
     classify_cutoff_options = classify.add_argument_group('Cutoff options')
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
                 help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
-    
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Enrichment  
@@ -182,9 +197,7 @@ if __name__ == "__main__":
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
-    enrichment_input_options.add_argument('--enrichm_annotations',
-                help='Input annotations file from enrichm.')
-    enrichment_input_options.add_argument('--annotation_matrix',
+    enrichment_input_options.add_argument('--annotation_matrix', required=True,
                 help='Input annotation matrix (PFAM, Tigrfam, etc).')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
@@ -196,14 +209,18 @@ if __name__ == "__main__":
                 help='Modules to limit analysis to.')
     enrichment_runtime_options.add_argument('--abundances',
                 help='Genome abundance matrix.')
-    enrichment_runtime_options.add_argument('--no_ivi', action='store_true',
-                help='Do not conduct individual vs individual tests (Fisher).')
-    enrichment_runtime_options.add_argument('--no_gvg', action='store_true',
-                help='Do not conduct group vs group tests (T-test).')
-    enrichment_runtime_options.add_argument('--no_ivg', action='store_true',
-                help='Do not conduct individual vs group tests (Z score).')
-    enrichment_runtime_options.add_argument('--cutoff', type=float,
+    enrichment_runtime_options.add_argument('--do_all', action='store_true',
+                help='Attempt to conduct all tests.')
+    enrichment_runtime_options.add_argument('--do_ivi', action='store_true',
+                help='Conduct individual vs individual tests (Fisher).')
+    enrichment_runtime_options.add_argument('--do_gvg', action='store_true',
+                help='Conduct group vs group tests (T-test).')
+    enrichment_runtime_options.add_argument('--do_ivg', action='store_true',
+                help='Conduct individual vs group tests (Z score).')
+    enrichment_runtime_options.add_argument('--pval_cutoff', type=float,
                 help='Only output results with a p-value below a this cutoff.')
+    enrichment_runtime_options.add_argument('--proportions_cutoff', type=float, default=1,
+                help='Proportion enrichment cutoff.') ### ~ TODO: Fill in better description
     enrichment_runtime_options.add_argument('--threshold', type=float,
                 help='The threshold to control for in false discovery rate of familywise error rate.', default=0.1)
     enrichment_runtime_options.add_argument('--multi_test_correction',
@@ -263,6 +280,12 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
+    compare = subparsers.add_parser('compare', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    compare_options = compare.add_argument_group('Compare options')
+    compare_options.add_argument('--enrichm_annotate_output', 
+                help='Output of a previous run of enrichm annotate (> v0.0.7 )')
 
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
