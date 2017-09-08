@@ -191,8 +191,8 @@ class Enrichment:
                 groups = combination_dict.keys()
                 for group in groups:
                     group_val = module_values[group]
+                    compare_groups = []
                     if group_val>0:
-                        compare_groups = []
                         for other_group in groups:
                             if other_group!=group:
                                 other_group_val = module_values[other_group]
@@ -201,8 +201,9 @@ class Enrichment:
                                 else:
                                     compare_value = float("inf")
                                 compare_groups.append(compare_value)
+                    
                     if all([x>proportions_cutoff for x in compare_groups]):                    
-                        import IPython ; IPython.embed()
+                        pass # import IPython ; IPython.embed()
 
             raw_proportions_output_lines.append(raw_proportions_output_line)
 
@@ -361,7 +362,6 @@ class Enrichment:
                             % output_sample_enrichment_matrix)
             with open(output_sample_enrichment_matrix, 'w') as output_enrichment_matrix_io:
                 output_enrichment_matrix_io.write('\n'.join(output_lines))
-            logging.info('Done!')
             
             output_enrichment_matrix = output_directory + self.MATRIX_SUFFIX
             output_lines = ['\t'.join(['Module', 'Sample', 
@@ -384,7 +384,6 @@ class Enrichment:
             logging.info("Writing results to file: %s" % output_enrichment_matrix)
             with open(output_enrichment_matrix, 'w') as output_enrichment_matrix_io:
                 output_enrichment_matrix_io.write('\n'.join(output_lines))
-            logging.info('Done!')
 
 class Test(Enrichment):
 
@@ -441,7 +440,6 @@ class Test(Enrichment):
         mtc_dict = {'fdr_bh':'Benjamini/Hochberg (non-negative)'}
 
         logging.info('Applying multi-test correction using the %s method' % (mtc_dict[self.multi_test_correction]) )
-
         corrected_pvals \
             = sm.multipletests(pvalues,
                                alpha        = self.threshold,
@@ -473,7 +471,7 @@ class Test(Enrichment):
         Output
         ------
         '''
-        header       = [['module', 'genome_1', 'genome_2', 'count', 'stat', 'p_value', 'corrected_p_value', 'description']]
+        header       = [['module', 'genome_1', 'genome_2', 'group_1_count', 'group_2_count', 'count', 'stat', 'p_value', 'corrected_p_value', 'description']]
         output_lines = []
         
         pvals=[]
@@ -501,21 +499,27 @@ class Test(Enrichment):
                              len(genome_2_comp)]
                     row_2 = [(len(self.genome_annotations[genome_1]) - len(genome_1_comp)),
                              (len(self.genome_annotations[genome_2]) - len(genome_2_comp))]
-                    stat, p_value = \
-                            scipy.stats.fisher_exact([row_1,
-                                                      row_2])
-                    if self.pval_cutoff <= p_value:
-                        pvals.append(p_value)
+                    if sum(row_1)>0:
+                        stat, p_value = \
+                                scipy.stats.fisher_exact([row_1,
+                                                          row_2])
 
-                        output_lines.append([module,
-                                             genome_1,
-                                             genome_2,
-                                             str(len(module_kos)),
-                                             str(stat),
-                                             str(p_value),
-                                             annotation_description[module]])
+                        if self.pval_cutoff <= p_value:
+                            pvals.append(p_value)
+
+                            output_lines.append([module,
+                                                 genome_1,
+                                                 genome_2,
+                                                 str(len(genome_1_comp)),
+                                                 str(len(genome_2_comp)),
+                                                 str(len(module_kos)),
+                                                 str(stat),
+                                                 str(p_value),
+                                                 annotation_description[module]])
         if len(pvals)>0:
             corrected_pvals = self.correct_multi_test(pvals)
+        else:
+            corrected_pvals = ['nan' for x in output_lines]
 
         output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
@@ -557,7 +561,6 @@ class Test(Enrichment):
                                                       np.array(group_2_module_kos),
                                                       equal_var  = False,
                                                       nan_policy = 'raise')
-                            
                             if self.pval_cutoff <= p_value:
                                 pvals.append(p_value)
                                 output_lines.append([module,
@@ -572,13 +575,14 @@ class Test(Enrichment):
             
         if len(pvals)>0:
             corrected_pvals = self.correct_multi_test(pvals)
-
+        else:
+            corrected_pvals = ['nan' for x in output_lines]
         output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
 
     def zscore(self, ivg):
-        header       = [['module', 'group', 'genome', 'count', 'z_score', 'p_value','corrected_p_value', 'description']]
+        header       = [['module', 'group', 'genome', 'group_mean', 'genome_count', 'count', 'z_score', 'p_value','corrected_p_value', 'description']]
         output_lines = []
         pvals        = []
 
@@ -610,22 +614,27 @@ class Test(Enrichment):
                             = np.std(reference_group_comp_list, axis=0)
                         reference_group_comp_mean \
                             = np.mean(reference_group_comp_list, axis=0)
-                        z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
-                        p_value = 2-2*scipy.stats.norm.cdf(z_score)
-
-                        if self.pval_cutoff <= p_value:
-                            pvals.append(p_value)
-                            output_lines.append([module, 
-                                                  group, 
-                                                  genome, 
-                                                  str(len(module_list)), 
-                                                  str(z_score), 
-                                                  str(p_value), 
-                                                  annotation_description[module]])
+                        if genome_comp>0:
+                            if (genome_comp-reference_group_comp_mean)>0:
+                                z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
+                                p_value = 2-2*scipy.stats.norm.cdf(z_score)
+                                if str(p_value)=='nan':import IPython ; IPython.embed()
+                                if self.pval_cutoff <= p_value:
+                                    pvals.append(p_value)
+                                    output_lines.append([module, 
+                                                          group, 
+                                                          genome, 
+                                                          str(reference_group_comp_mean),
+                                                          str(genome_comp),
+                                                          str(len(module_list)), 
+                                                          str(z_score), 
+                                                          str(p_value), 
+                                                          annotation_description[module]])
 
         if len(pvals)>0:
             corrected_pvals = self.correct_multi_test(pvals)
-
+        else:
+            corrected_pvals = ['nan' for x in output_lines]
         output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines

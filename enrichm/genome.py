@@ -30,6 +30,8 @@ import os
 import logging
 from Bio import SeqIO
 
+from databases import Databases
+
 ###############################################################################
 
 class Genome:
@@ -246,7 +248,7 @@ class AnnotationParser:
 	def __init__(self, annotation_type):        
 		
 
-		data_directory = os.path.join(os.path.split(os.path.realpath(__file__))[0], '../data/ids/')
+		data_directory = Databases.IDS_DIR
 		if annotation_type == self.KO:
 			ids = [x.strip() for x in open(os.path.join(data_directory,self.KO))]
 		elif annotation_type == self.PFAM:
