@@ -48,6 +48,13 @@ EnrichM will be available on DockerHub soon (Sorry!).
 
 EnrichM will also be packaged using GNU Guix soon (Sorry!).
 
+# Setup
+Before running enrichm, you'll need to download the back-end databases. This can be done using a command in enrichm:
+```
+enrichm data
+```
+To check for updates and install updates, simply run the same command. 
+
 # Subcommands
 
 ## annotate

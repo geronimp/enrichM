@@ -30,6 +30,7 @@ import os
 import urllib
 import shutil
 import subprocess
+import logging
 
 from databases import Databases
 
@@ -62,15 +63,14 @@ class Data:
 		old_db_path_archive \
 			= os.path.join(Databases.OLD_DATABASE_PATH, old_db_file + self.ARCHIVE_SUFFIX) 
 		old_db_path \
-			= os.path.join(Databases.DATABASE_PATH, old_db_file) 
+			= os.path.join(Databases.DATABASE_DIR, old_db_file) 
 
 		logging.info('Compressing old database')
-		cmd = "tar -cvzf %s %s" % (old_db_path_archive, old_db_path)
+		cmd = "tar -cvzf %s %s > /dev/null" % (old_db_path_archive, old_db_path)
 		subprocess.call(cmd, shell=True)
 
 		logging.info('Cleaning up')
 		shutil.rmtree(old_db_path)
-		subprocess.call(cmd, shell=True)
 
 	def _download_db(self, new_db_file):
 		'''
@@ -81,33 +81,35 @@ class Data:
 		new_db_file	- String. File name of new database to download and decompress.
 		'''
 		new_db_path_archive \
-			= os.path.join(Databases.DATABASE_PATH, new_db_file)
-		new_db_path \
-			= os.path.join(Databases.DATABASE_PATH, new_db_file.replace(self.ARCHIVE_SUFFIX, ''))
-		
-		logging.info('Downloading new database')
-		urllib.urlretrieve(self.ftp + new_db_file, new_db_path_archive)
+			= os.path.join(Databases.DATABASE_DIR, new_db_file)
+		logging.info('Downloading new database: %s' % new_db_file)
+		cmd = 'wget -q %s -O %s' % (self.ftp + new_db_file, new_db_path_archive)
+		subprocess.call(cmd, shell = True)
+		cmd = 'wget -q %s -O %s' % (self.ftp + self.VERSION, os.path.join(Databases.DATABASE_DIR, self.VERSION))
+		subprocess.call(cmd, shell = True)
 		
 		logging.info('Decompressing new database')
-		cmd = 'tar xvzf file.tar.gz -C %s' % (new_db_path)
+		cmd = 'tar -xvzf %s -C %s > /dev/null' % (new_db_path_archive, Databases.DATABASE_DIR)
 		subprocess.call(cmd, shell = True)
 
 		logging.info('Cleaning up')
-		shutil.remove(new_db_path_archive)
+		os.remove(new_db_path_archive)
 	
 	def do(self):
 		'''
 		Check database versions, if they're out of date, archive the old and download the new.
 		'''
-		version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip()
+		version_remote = urllib.urlopen(self.ftp + self.VERSION).readline().strip()
 		if os.path.isdir(Databases.DATABASE_DIR):
-			version_local  = open(os.path.join(Databases.DATABASE_DIR, Databases.VERSION)).readline().strip()
+			version_local  = open(os.path.join(Databases.DATABASE_DIR, self.VERSION)).readline().strip()
 			if version_local!=version_remote:
 				logging.info('New database found. Archiving old database.')
-				self._archive_db(version_local)
+				self._archive_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
+				self._download_db(version_remote)
 			else:
 				logging.info('Database is up to date!')
 		else:
+			logging.info('Creating file to store databases.')
 			os.makedirs(Databases.DATABASE_DIR)
-		self._download_db(version_remote)
+			self._download_db(version_remote)
 		

@@ -43,8 +43,7 @@ class GffGenerator():
 
 		with open(output_file, 'w') as out_io:
 			for sequence in genome.ordered_sequences():
-				
-				contig_id = '_'.join(sequence.split('_')[:-1])
+				contig_id = '_'.join(sequence.seqname.split('_')[:-1])
 				
 				features  = ['seq_id=%s'		% sequence.seqname,
 						 	 'prodigal_id=%s' 	% sequence.prod_id,

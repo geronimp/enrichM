@@ -55,7 +55,6 @@ class Run:
     
     def __init__(self):
         
-        self.d=Databases()
         self.ANNOTATE        = 'annotate'
         self.COMPARE         = 'compare'
 
@@ -66,17 +65,17 @@ class Run:
         self.DATA            = 'data'
 
     def _logging_setup(self, args):
+        logger = logging.getLogger('')
+        logger.setLevel(debug[args.verbosity])
+        log_format = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
+                                       datefmt="%Y-%m-%d %H:%M:%S %p")
+
+        stream_logger = logging.StreamHandler(sys.stdout)
+        stream_logger.setFormatter(log_format)
+        stream_logger.setLevel(debug[args.verbosity])
+        logger.addHandler(stream_logger)
         if args.subparser_name!=self.DATA:
 
-            logger = logging.getLogger('')
-            logger.setLevel(debug[args.verbosity])
-            log_format = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",
-                                           datefmt="%Y-%m-%d %H:%M:%S %p")
-
-            stream_logger = logging.StreamHandler(sys.stdout)
-            stream_logger.setFormatter(log_format)
-            stream_logger.setLevel(debug[args.verbosity])
-            logger.addHandler(stream_logger)
 
             file_logger = logging.FileHandler(os.path.join(args.output, args.log), 'a')
             file_logger.setFormatter(log_format)

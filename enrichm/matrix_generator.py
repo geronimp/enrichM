@@ -30,6 +30,8 @@ __status__ = "Development"
 import logging
 import os
 
+from databases import Databases
+
 ###############################################################################
 
 class MatrixGenerator:
@@ -46,13 +48,13 @@ class MatrixGenerator:
         ----------
         annotation_type - String.
         '''
-        data_directory = os.path.join(os.path.split(os.path.realpath(__file__))[0], '../data/ids/')
+
         if annotation_type == self.KO:
-            self.annotation_list = [x.strip() for x in open(os.path.join(data_directory, self.KO))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.KO))]
         elif annotation_type == self.PFAM:
-            self.annotation_list = [x.strip() for x in open(os.path.join(data_directory, self.PFAM))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.PFAM))]
         elif annotation_type == self.TIGRFAM:
-            self.annotation_list = [x.strip() for x in open(os.path.join(data_directory, self.TIGRFAM))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.TIGRFAM))]
 
     def write_matrix(self, genomes_list, output_path):
         '''

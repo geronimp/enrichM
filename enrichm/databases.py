@@ -40,35 +40,38 @@ class Databases:
 
 	DATA_PATH   			= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
 	DATABASE_DIR			= os.path.join(DATA_PATH, 'databases')
+	DB_VERSION				= open(os.path.join(DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
+	CUR_DATABASE_DIR		= os.path.join(DATABASE_DIR, DB_VERSION)
+	PICKLE_VERSION			= open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
 	OLD_DATABASE_PATH		= os.path.join(DATA_PATH, 'databases', 'old')
-	IDS_DIR					= os.path.join(DATA_PATH, 'ids')
-	VERSION					= open(os.path.join(DATA_PATH, 'VERSION')).readline().strip()
+	IDS_DIR					= os.path.join(CUR_DATABASE_DIR, 'ids')
+	REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
 	PICKLE					= 'pickle'	
 
-	KO_DB_NAME				='uniref100'
-	PFAM_DB_NAME			='pfam'
-	TIGRFAM_DB_NAME			='tigrfam'
+	KO_DB_NAME				= 'uniref100'
+	PFAM_DB_NAME			= 'pfam'
+	TIGRFAM_DB_NAME			= 'tigrfam'
 
-	M2DEF       			= os.path.join(DATA_PATH, 'module_to_definition')
-	M           			= os.path.join(DATA_PATH, 'module_descriptions')
-	COMPOUND_DESC_PICKLE 	= os.path.join(DATA_PATH, 'br08001')    
-	R2RPAIR 				= os.path.join(DATA_PATH, 'reaction_to_rpair')
-	R2K     				= os.path.join(DATA_PATH, 'reaction_to_orthology')
-	R2C 					= os.path.join(DATA_PATH, 'reaction_to_compound')
-	R2M 					= os.path.join(DATA_PATH, 'reaction_to_module')
-	M2R 					= os.path.join(DATA_PATH, 'module_to_reaction')
-	R2P 					= os.path.join(DATA_PATH, 'reaction_to_pathway')
-	P2R 					= os.path.join(DATA_PATH, 'pathway_to_reaction')
-	C2R 					= os.path.join(DATA_PATH, 'compound_to_reaction')
-	C   					= os.path.join(DATA_PATH, 'compound_descriptions')    
-	R   					= os.path.join(DATA_PATH, 'reaction_descriptions')
-	P   					= os.path.join(DATA_PATH, 'pathway_descriptions')
+	M2DEF       			= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
+	M           			= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
+	COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
+	R2RPAIR 				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_rpair')
+	R2K     				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
+	R2C 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
+	R2M 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
+	M2R 					= os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
+	R2P 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
+	P2R 					= os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
+	C2R 					= os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
+	C   					= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
+	R   					= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
+	P   					= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
 
-	PFAM2CLAN				= os.path.join(DATA_PATH, 'pfam_to_clan')
-	CLAN2NAME				= os.path.join(DATA_PATH, 'clan_to_name')
-	PFAM2NAME				= os.path.join(DATA_PATH, 'pfam_to_name')
-	PFAM2DESCRIPTION		= os.path.join(DATA_PATH, 'pfam_to_description')
-	CLAN2PFAM				= os.path.join(DATA_PATH, 'clan_to_pfam')
+	PFAM2CLAN				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
+	CLAN2NAME				= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
+	PFAM2NAME				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
+	PFAM2DESCRIPTION		= os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
+	CLAN2PFAM				= os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
 
 	def __init__(self):
 
@@ -83,85 +86,85 @@ class Databases:
 		logging.info("Loading databases")
 		logging.debug("Loading module definitions")
 		self.m2def = pickle.load(open('.'.join([self.M2DEF,
-		                                         self.VERSION, self.PICKLE])))
+		                                         self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done!")
 		logging.debug("Loading module descriptions")
 		self.m = pickle.load(open('.'.join([self.M,
-		                                    self.VERSION, self.PICKLE])))
+		                                    self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done!")	
 		logging.debug("Loading reaction to pathway information")
 		self.r2p = pickle.load(open('.'.join([self.R2P, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading pathway to reaction information")
 		self.p2r = pickle.load(open('.'.join([self.P2R, 
-		                                         self.VERSION, self.PICKLE])))
+		                                         self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading reaction to orthology information")
-		self.r2k = pickle.load(open('.'.join([self.R2K, self.VERSION, 
+		self.r2k = pickle.load(open('.'.join([self.R2K, self.PICKLE_VERSION, 
 		                                      self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading reaction to module information")
 		self.r2m = pickle.load(open('.'.join([self.R2M, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading reaction to module information")
 		self.m2r = pickle.load(open('.'.join([self.M2R, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading reaction to compound information")
 		self.r2c = pickle.load(open('.'.join([self.R2C, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading compound to reaction information")
 		self.c2r = pickle.load(open('.'.join([self.C2R,
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading compound descriptions")
 		self.c   = pickle.load(open('.'.join([self.C, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading pathway descriptions")
 		self.p   = pickle.load(open('.'.join([self.P, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading reaction descriptions")
 		self.r   = pickle.load(open('.'.join([self.R, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading compound classifications")
 		self.compound_desc_dict \
 		         = pickle.load(open('.'.join([self.COMPOUND_DESC_PICKLE, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading pfam to clan debugrmation")
 		self.pfam2clan \
 		         = pickle.load(open('.'.join([self.PFAM2CLAN, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading clan descriptions")
 		self.clan2name \
 		         = pickle.load(open('.'.join([self.CLAN2NAME, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading pfam descriptions")
 		self.pfam2name \
 		         = pickle.load(open('.'.join([self.PFAM2NAME, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Done")
 		logging.debug("Loading pfam")
 		self.pfam2description \
 		         = pickle.load(open('.'.join([self.PFAM2DESCRIPTION, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.info("Done")
 		logging.debug("Loading pfam")
 		self.clan2pfam \
 		         = pickle.load(open('.'.join([self.CLAN2PFAM, 
-		                                      self.VERSION, self.PICKLE])))
+		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.info("Done")
 		logging.info("Loading reference db paths")		
-		self.KO_DB 			= os.path.join(self.DATABASE_DIR, self.KO_DB_NAME)
-		self.PFAM_DB 		= os.path.join(self.DATABASE_DIR, self.PFAM_DB_NAME)
-		self.TIGRFAM_DB 	= os.path.join(self.DATABASE_DIR, self.TIGRFAM_DB_NAME)
+		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME)
+		self.PFAM_DB 		= os.path.join(self.REF_DIR, self.PFAM_DB_NAME)
+		self.TIGRFAM_DB 	= os.path.join(self.REF_DIR, self.TIGRFAM_DB_NAME)
 		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 	  'PFAM_CLANS.txt')
 		logging.info('Done')
