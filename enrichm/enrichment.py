@@ -203,7 +203,7 @@ class Enrichment:
                                 compare_groups.append(compare_value)
                     
                     if all([x>proportions_cutoff for x in compare_groups]):                    
-                        pass # import IPython ; IPython.embed()
+                        pass 
 
             raw_proportions_output_lines.append(raw_proportions_output_line)
 
@@ -618,7 +618,6 @@ class Test(Enrichment):
                             if (genome_comp-reference_group_comp_mean)>0:
                                 z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
                                 p_value = 2-2*scipy.stats.norm.cdf(z_score)
-                                if str(p_value)=='nan':import IPython ; IPython.embed()
                                 if self.pval_cutoff <= p_value:
                                     pvals.append(p_value)
                                     output_lines.append([module, 
