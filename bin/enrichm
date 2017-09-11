@@ -68,7 +68,7 @@ def phelp():
     explore         -> Explore a metabolic network from a given compound.
     traverse        -> Which nodes in the network are more likely to be visited given
                        the abundance of reactions in the metagenome and 
-                       metatranscriptome.
+                       metatranscriptome. [UNDER DEVELOPMENT]
 
   Authors: J. Boyd, B. Woodcroft, A. Baker
   Version: %s 
@@ -264,9 +264,9 @@ if __name__ == "__main__":
     traverse_options = traverse.add_argument_group('Traverse options')
     traverse_options.add_argument('--starting_compounds',  default=[],  nargs='+',
                 help='start from these compounds in the network only. DEFAULT = start from a ')
-    traverse_options.add_argument('--steps', type=int, default = 10000,
+    traverse_options.add_argument('--steps', type=int, default = 1000,
                 help='number of steps into the network taken by each query')
-    traverse_options.add_argument('--number_of_queries', type=int, default = 10000,
+    traverse_options.add_argument('--number_of_queries', type=int, default = 1000,
                 help='number of queries to drop into the network')
     traverse_options.add_argument('--limit', default=[], nargs='+',
                 help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')

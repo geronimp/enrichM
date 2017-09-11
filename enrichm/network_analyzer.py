@@ -55,6 +55,7 @@ class NetworkAnalyser:
     def __init__(self, metadata):
         self.metadata = {}
         for line in open(metadata):
+            if line.startswith('#'):continue
             sample_id, group = line.strip().split('\t')
             if group in self.metadata:
                 self.metadata[group].append(sample_id)
@@ -115,7 +116,7 @@ class NetworkAnalyser:
 
         if metabolome:
             abundances_metabolome = Matrix(metabolome) 
-            ### ~ TODO: This WILL NOT WORK - MATRIX is no longer a mode.
+            ### ~ TODO: This WILL NOT WORK - MATRIX is no longer an existing class.
             ### ~ TODO: I've added a note in the holp for network analyzer 
             ### ~ TODO: that warns the user about this.
         else:
