@@ -53,7 +53,7 @@ Before running enrichm, you'll need to download the back-end databases. This can
 ```
 enrichm data
 ```
-To check for updates and install updates, simply run the same command. 
+This should take approx. 15 minutes. To check for updates and install updates, simply run the same command. 
 
 # Subcommands
 

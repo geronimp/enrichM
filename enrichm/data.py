@@ -31,6 +31,7 @@ import urllib
 import shutil
 import subprocess
 import logging
+import inspect
 
 ###############################################################################
 
@@ -39,7 +40,7 @@ class Data:
 	Utilities for archiving, downloading and updating databases.
 	'''
 	DATA_PATH 		= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
-	DATABASE_DIR	= os.path.join(self.DATA_PATH, 'databases')
+	DATABASE_DIR	= os.path.join(DATA_PATH, 'databases')
 	VERSION 		= 'VERSION'
 	ARCHIVE_SUFFIX 	= '.tar.gz'
 	

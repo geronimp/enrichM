@@ -34,7 +34,6 @@ import shutil
 import time
 
 from data import Data
-from databases import Databases
 from network_analyzer import NetworkAnalyser
 from enrichment import Enrichment
 from annotate import Annotate

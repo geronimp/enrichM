@@ -40,38 +40,39 @@ class Databases:
 
 	DATA_PATH   			= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
 	DATABASE_DIR			= os.path.join(DATA_PATH, 'databases')
-	DB_VERSION				= open(os.path.join(DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
-	CUR_DATABASE_DIR		= os.path.join(DATABASE_DIR, DB_VERSION)
-	PICKLE_VERSION			= open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
-	OLD_DATABASE_PATH		= os.path.join(DATA_PATH, 'databases', 'old')
-	IDS_DIR					= os.path.join(CUR_DATABASE_DIR, 'ids')
-	REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
-	PICKLE					= 'pickle'	
+	if os.path.isfile(os.path.join(DATABASE_DIR, 'VERSION')):
+		DB_VERSION				= open(os.path.join(DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
+		CUR_DATABASE_DIR		= os.path.join(DATABASE_DIR, DB_VERSION)
+		PICKLE_VERSION			= open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
+		OLD_DATABASE_PATH		= os.path.join(DATA_PATH, 'databases', 'old')
+		IDS_DIR					= os.path.join(CUR_DATABASE_DIR, 'ids')
+		REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
+		PICKLE					= 'pickle'	
 
-	KO_DB_NAME				= 'uniref100'
-	PFAM_DB_NAME			= 'pfam'
-	TIGRFAM_DB_NAME			= 'tigrfam'
+		KO_DB_NAME				= 'uniref100'
+		PFAM_DB_NAME			= 'pfam'
+		TIGRFAM_DB_NAME			= 'tigrfam'
 
-	M2DEF       			= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
-	M           			= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
-	COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
-	R2RPAIR 				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_rpair')
-	R2K     				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
-	R2C 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
-	R2M 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
-	M2R 					= os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
-	R2P 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
-	P2R 					= os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
-	C2R 					= os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
-	C   					= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
-	R   					= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
-	P   					= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
+		M2DEF       			= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
+		M           			= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
+		COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
+		R2RPAIR 				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_rpair')
+		R2K     				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
+		R2C 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
+		R2M 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
+		M2R 					= os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
+		R2P 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
+		P2R 					= os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
+		C2R 					= os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
+		C   					= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
+		R   					= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
+		P   					= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
 
-	PFAM2CLAN				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
-	CLAN2NAME				= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
-	PFAM2NAME				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
-	PFAM2DESCRIPTION		= os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
-	CLAN2PFAM				= os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
+		PFAM2CLAN				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
+		CLAN2NAME				= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
+		PFAM2NAME				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
+		PFAM2DESCRIPTION		= os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
+		CLAN2PFAM				= os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
 
 	def __init__(self):
 
@@ -148,4 +149,4 @@ class Databases:
 		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME)
 		self.PFAM_DB 		= os.path.join(self.REF_DIR, self.PFAM_DB_NAME)
 		self.TIGRFAM_DB 	= os.path.join(self.REF_DIR, self.TIGRFAM_DB_NAME)
-		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 	  'PFAM_CLANS.txt')
+		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 'PFAM_CLANS.txt')
