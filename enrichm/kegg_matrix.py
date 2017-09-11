@@ -31,56 +31,41 @@ import logging
 import pickle
 import os
 
+from databases import Databases
+
 ###############################################################################
 
 class KeggMatrix:
     
-    DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                             '..', 
-                             'data')
-    VERSION   = os.path.join(DATA_PATH, 'VERSION')
-    R2K       = os.path.join(DATA_PATH, 'reaction_to_orthology')
-    PICKLE    = 'pickle'
-    
     def __init__(self, matrix, transcriptome):
-        self.VERSION = open(self.VERSION).readline().strip()
-
-        logging.info("Loading reaction to pathway information")
-        self.r2k = pickle.load(open('.'.join([self.R2K, self.VERSION, 
-                                              self.PICKLE])))
-        logging.info("Done")
+        d = Databases()
+        self.r2k = d.r2k
         logging.info("Parsing input matrix: %s" % matrix)
         self.orthology_matrix \
                  = self._parse_matrix(matrix)
-        logging.info("Done")
         logging.info("Calculating reaction abundances")
         self.reaction_matrix  \
                  = self._calculate_abundances(self.r2k, self.orthology_matrix)
-        logging.info("Done")
         
         if transcriptome:
             logging.info("Parsing input transcriptome: %s" % transcriptome)
             self.orthology_matrix_transcriptome \
                         = self._parse_matrix(transcriptome)
-            logging.info("Done")
             
             logging.info("Calculating reaction transcriptome abundances")
             self.reaction_matrix_transcriptome \
                  = self._calculate_abundances(self.r2k, 
                                               self.orthology_matrix_transcriptome)
-            logging.info("Done")
             
             logging.info("Calculating normalized expression abundances")
             self.orthology_matrix_expression \
                 = self._calculate_expression_matrix(self.orthology_matrix, 
                                         self.orthology_matrix_transcriptome)
-            logging.info("Done")
             
             logging.info("Calculating reaction expression abundances")
             self.reaction_matrix_expression  \
                  = self._calculate_abundances(self.r2k, 
                                               self.orthology_matrix_expression)
-            logging.info("Done")
    
     def _calculate_expression_matrix(self, matrix, transcriptome_matrix):
         '''
@@ -127,7 +112,10 @@ class KeggMatrix:
         for sample in samples:
             new_dict = {key:entry for key,entry in reference_dict.items() if 
                         key in samples}
-            reference_list = new_dict[new_dict.keys()[0]].keys()
+            try:
+                reference_list = new_dict[new_dict.keys()[0]].keys()
+            except:
+                import IPython ; IPython.embed()
             for reference in reference_list:
                 # If samples are missing from stored data, this will crash 
                 try:
