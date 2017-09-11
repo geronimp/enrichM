@@ -32,17 +32,16 @@ import shutil
 import subprocess
 import logging
 
-from databases import Databases
-
 ###############################################################################
 
 class Data:
 	'''
 	Utilities for archiving, downloading and updating databases.
 	'''
-
-	VERSION ='VERSION'
-	ARCHIVE_SUFFIX = '.tar.gz'
+	DATA_PATH 		= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
+	DATABASE_DIR	= os.path.join(self.DATA_PATH, 'databases')
+	VERSION 		= 'VERSION'
+	ARCHIVE_SUFFIX 	= '.tar.gz'
 	
 	def __init__(self):
 		self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
@@ -55,7 +54,8 @@ class Data:
 		----------
 		old_db_file	- String. File name of old database file to archive
 		'''
-		
+		from databases import Databases
+
 		if not os.path.isdir(Databases.OLD_DATABASE_PATH):
 			logging.info('Creating directory to store databases: %s' % (Databases.OLD_DATABASE_PATH))
 			os.makedirs(Databases.OLD_DATABASE_PATH)
@@ -63,7 +63,7 @@ class Data:
 		old_db_path_archive \
 			= os.path.join(Databases.OLD_DATABASE_PATH, old_db_file + self.ARCHIVE_SUFFIX) 
 		old_db_path \
-			= os.path.join(Databases.DATABASE_DIR, old_db_file) 
+			= os.path.join(self.DATABASE_DIR, old_db_file) 
 
 		logging.info('Compressing old database')
 		cmd = "tar -cvzf %s %s > /dev/null" % (old_db_path_archive, old_db_path)
@@ -81,15 +81,15 @@ class Data:
 		new_db_file	- String. File name of new database to download and decompress.
 		'''
 		new_db_path_archive \
-			= os.path.join(Databases.DATABASE_DIR, new_db_file)
+			= os.path.join(self.DATABASE_DIR, new_db_file)
 		logging.info('Downloading new database: %s' % new_db_file)
 		cmd = 'wget -q %s -O %s' % (self.ftp + new_db_file, new_db_path_archive)
 		subprocess.call(cmd, shell = True)
-		cmd = 'wget -q %s -O %s' % (self.ftp + self.VERSION, os.path.join(Databases.DATABASE_DIR, self.VERSION))
+		cmd = 'wget -q %s -O %s' % (self.ftp + self.VERSION, os.path.join(self.DATABASE_DIR, self.VERSION))
 		subprocess.call(cmd, shell = True)
 		
 		logging.info('Decompressing new database')
-		cmd = 'tar -xvzf %s -C %s > /dev/null' % (new_db_path_archive, Databases.DATABASE_DIR)
+		cmd = 'tar -xvzf %s -C %s > /dev/null' % (new_db_path_archive, self.DATABASE_DIR)
 		subprocess.call(cmd, shell = True)
 
 		logging.info('Cleaning up')
@@ -100,8 +100,8 @@ class Data:
 		Check database versions, if they're out of date, archive the old and download the new.
 		'''
 		version_remote = urllib.urlopen(self.ftp + self.VERSION).readline().strip()
-		if os.path.isdir(Databases.DATABASE_DIR):
-			version_local  = open(os.path.join(Databases.DATABASE_DIR, self.VERSION)).readline().strip()
+		if os.path.isdir(self.DATABASE_DIR):
+			version_local  = open(os.path.join(self.DATABASE_DIR, self.VERSION)).readline().strip()
 			if version_local!=version_remote:
 				logging.info('New database found. Archiving old database.')
 				self._archive_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
@@ -110,6 +110,6 @@ class Data:
 				logging.info('Database is up to date!')
 		else:
 			logging.info('Creating file to store databases.')
-			os.makedirs(Databases.DATABASE_DIR)
+			os.makedirs(self.DATABASE_DIR)
 			self._download_db(version_remote)
 		
