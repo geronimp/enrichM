@@ -27,10 +27,11 @@ __status__ = "Development"
 ###############################################################################
 # Imports
 
-import os, re
+import os
+import re
 import logging
 import pickle
-
+from itertools import chain
 from databases import Databases
 from module_description_parser import ModuleDescription
 
@@ -38,15 +39,16 @@ from module_description_parser import ModuleDescription
 
 class Classify:
     
-    KO_OUTPUT   = "KO_interpretations.tsv"
+    KO_OUTPUT       = "module_completeness.tsv"
+    MODULE_PATHS    = "module_paths.tsv"
     
     def __init__(self):
 
         d=Databases()
-        self.ko_re = re.compile('^K\d+$')
-        self.signature_modules = d.signature_modules
-        self.m2def  = d.m2def
-        self.m      = d.m
+        self.ko_re              = re.compile('^K\d+$')
+        self.signature_modules  = d.signature_modules
+        self.m2def              = d.m2def
+        self.m                  = d.m
 
     def _update_with_custom_modules(self, custom_modules):
         custom_modules_dict = {line.split('\t')[0]:line.strip().split('\t')[1]
@@ -114,7 +116,7 @@ class Classify:
         '''
         
         pathway = {}
-
+        genome_output_lines = []
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
             self._update_with_custom_modules(custom_modules)
@@ -128,26 +130,31 @@ class Classify:
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found", 
                              "Steps_needed", "Percent_steps_found", "KO_found", "KO_needed", "Percent_KO_found"]) + '\n']
         
+        genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"])]
+
         for name, pathway_string in self.m2def.items():
             if name not in self.signature_modules:   
                 path = ModuleDescription(pathway_string)
                 pathway[name] = path
                 for genome, annotations in genome_to_annotation_sets.items():
-                    num_covered, ko_covered, ko_total = path.num_covered_steps(annotations)
-                    path.amount_of_pathway_covered(annotations)
+                    
+                    num_covered, ko_covered, ko_total, ko_path= path.num_covered_steps(annotations)
                     num_all = path.num_steps()
                     perc_covered = num_covered / float(num_all)
                     ko_perc = ko_covered / float(ko_total)
                     if perc_covered >= cutoff:
+                        genome_output_lines.append('\t'.join([genome, name, self.m[name], 
+                                                              ','.join(chain(*ko_path.values())) + '\n']))
                         output_line = "\t".join([genome, name, self.m[name],
-                                                  str(num_covered),  # 
+                                                  str(num_covered),   
                                                   str(num_all),
                                                   str(round(perc_covered * 100, 2)),
                                                   str(ko_covered),
                                                   str(ko_total),
                                                   str(round(ko_perc * 100, 2))]) 
                         output_lines.append(output_line + '\n') 
-        self.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT)) ### ~ TODO: make output flexible
-            
+        self.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT))
+        self.write(genome_output_lines, os.path.join(output_directory, self.MODULE_PATHS)) 
+        
 
 
