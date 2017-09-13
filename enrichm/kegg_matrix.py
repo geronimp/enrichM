@@ -112,10 +112,8 @@ class KeggMatrix:
         for sample in samples:
             new_dict = {key:entry for key,entry in reference_dict.items() if 
                         key in samples}
-            try:
-                reference_list = new_dict[new_dict.keys()[0]].keys()
-            except:
-                import IPython ; IPython.embed()
+
+            reference_list = new_dict[new_dict.keys()[0]].keys()
             for reference in reference_list:
                 # If samples are missing from stored data, this will crash 
                 try:
