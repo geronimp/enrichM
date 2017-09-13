@@ -192,8 +192,10 @@ if __name__ == "__main__":
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
-    enrichment_input_options.add_argument('--annotation_matrix', required=True,
+    enrichment_input_options.add_argument('--annotation_matrix', default=None,
                 help='Input annotation matrix (PFAM, Tigrfam, etc).')
+    enrichment_input_options.add_argument('--annotation_file', default=None,
+                help='Input annotation file (PFAM, Tigrfam, etc).')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     enrichment_input_options.add_argument('--taxonomy',

@@ -127,6 +127,31 @@ class Enrichment:
 
         return cols_to_rows, rownames, colnames
 
+    def _parse_annotation_file(self, annotations_path):
+        '''        
+        Parameters
+        ----------
+        annotations_path : String. Path to file containing genome annotations        
+        '''
+        colnames        = []
+        cols_to_rows    = {}
+        rownames        = []
+        for line in open(annotations_path):
+            genome, annotation = line.strip().split()
+            
+            if annotation not in rownames:
+                rownames.append(annotation)
+            if genome not in colnames:
+                colnames.append(genome)
+
+            if genome not in cols_to_rows:
+                cols_to_rows[genome] = set([annotation])
+                colnames.append(genome)
+            else:
+                cols_to_rows[genome].add(annotation)
+
+        return cols_to_rows, rownames, colnames
+
 
     def check_annotation_type(self, annotations):
         '''
@@ -242,7 +267,7 @@ class Enrichment:
                 out_io.write(string)
 
 
-    def do(self, annotation_matrix, metadata,
+    def do(self, annotation_matrix, annotation_file, metadata,
            subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
            pval_cutoff, proportions_cutoff, threshold, 
            multi_test_correction, output_directory):
@@ -255,10 +280,13 @@ class Enrichment:
         ------
         '''
         logging.info('Parsing input annotations')
+        if annotation_matrix:
+            annotations_dict, modules, genomes \
+                        = self._parse_annotation_matrix(annotation_matrix)
+        elif annotation_file:
+            annotations_dict, modules, genomes \
+                        = self._parse_annotation_file(annotation_file)
 
-        annotations_dict, modules, genomes \
-                    = self._parse_annotation_matrix(annotation_matrix)
-    
         if subset_modules:
             modules = subset_modules
         logging.info("Comparing sets of genomes")
