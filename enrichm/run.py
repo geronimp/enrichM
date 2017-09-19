@@ -64,6 +64,10 @@ class Run:
         self.DATA            = 'data'
 
     def _logging_setup(self, args):
+
+        if args.verbosity not in range(1, 6):
+            raise Exception("Logging verbosity must be a positive integer between 1 and 5.")
+
         logger = logging.getLogger('')
         logger.setLevel(debug[args.verbosity])
         log_format = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s",

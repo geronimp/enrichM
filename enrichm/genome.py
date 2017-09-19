@@ -278,7 +278,7 @@ class AnnotationParser:
 		blast_output_path that pass a series of specified cutoffs
 		'''
 
-		logging.info("Parsing blast output file: %s" % blast_output_path)
+		logging.info("    - Parsing blast output file: %s" % blast_output_path)
 
 		for line in open(blast_output_path):
 			# Parse out important information from each line in blast output

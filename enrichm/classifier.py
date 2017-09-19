@@ -93,7 +93,7 @@ class Classify:
         logging.info('Writing results to file: %s' % output_path)
 
         with open(output_path, 'w') as output_path_io:
-            for line in sorted(lines):
+            for line in lines:
                 output_path_io.write(line)      
 
     def do(self, custom_modules, cutoff, genome_and_annotation_file, 
@@ -130,7 +130,7 @@ class Classify:
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found", 
                              "Steps_needed", "Percent_steps_found", "KO_found", "KO_needed", "Percent_KO_found"]) + '\n']
         
-        genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"])]
+        genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"]) + '\n']
 
         for name, pathway_string in self.m2def.items():
             if name not in self.signature_modules:   
