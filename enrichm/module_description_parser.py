@@ -58,7 +58,6 @@ class ModuleDescription:
             raise Exception("Cannot work with non-AND type modules")
 
     def num_covered_steps(self, ko_set):
-        wd='(K00164+K00658+K00382,K00174+K00175-K00177-K00176) (K01902+K01903,K01899+K01900,K18118) (K00234+K00235+K00236+K00237,K00239+K00240+K00241-(K00242,K18859,K18860),K00244+K00245+K00246-K00247) (K01676,K01679,K01677+K01678) (K00026,K00025,K00024,K00116)'
         if isinstance(self.parsed_module, ModuleDescriptionAndRelation):
             step_cov = 0
             path_cov = 0 
@@ -94,7 +93,7 @@ class ModuleDescriptionAndRelation:
             reaction_counts+=reaction_count
         step_passed = len(self.relations) == sum(founds)
         
-        return step_passed, counts, reaction_counts, ko
+        return step_passed, counts, reaction_counts, kos
 
 class ModuleDescriptionOrRelation:
     def satisfied_with(self, set_of_kos, kos):

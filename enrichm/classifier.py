@@ -138,7 +138,7 @@ class Classify:
                 pathway[name] = path
                 for genome, annotations in genome_to_annotation_sets.items():
                     
-                    num_covered, ko_covered, ko_total, ko_path= path.num_covered_steps(annotations)
+                    num_covered, ko_covered, ko_total, ko_path = path.num_covered_steps(annotations)
                     num_all = path.num_steps()
                     perc_covered = num_covered / float(num_all)
                     ko_perc = ko_covered / float(ko_total)
