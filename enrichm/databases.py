@@ -52,7 +52,8 @@ class Databases:
 		KO_DB_NAME				= 'uniref100'
 		PFAM_DB_NAME			= 'pfam'
 		TIGRFAM_DB_NAME			= 'tigrfam'
-
+		GTDB_DB_NAME			= 'GTDB_R80_DB'
+		
 		M2DEF       			= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
 		M           			= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
 		COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
@@ -146,6 +147,7 @@ class Databases:
 		         = pickle.load(open('.'.join([self.CLAN2PFAM, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.info("Loading reference db paths")		
+		self.GTDB_DB		= os.path.join(self.REF_DIR, self.GTDB_DB_NAME)
 		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME)
 		self.PFAM_DB 		= os.path.join(self.REF_DIR, self.PFAM_DB_NAME + self.HMM_SUFFIX)
 		self.TIGRFAM_DB 	= os.path.join(self.REF_DIR, self.TIGRFAM_DB_NAME + self.HMM_SUFFIX)

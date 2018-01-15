@@ -206,6 +206,10 @@ if __name__ == "__main__":
                 help='Modules to limit analysis to.')
     enrichment_runtime_options.add_argument('--abundances',
                 help='Genome abundance matrix.')
+    enrichment_runtime_options.add_argument('--gtdb_public', action='store_true',
+                help='Conduct enrichment analysis using public genomes from GTDB as a reference (UNDER DEVELOPMENT).')
+    enrichment_runtime_options.add_argument('--gtdb_all', action='store_true',
+                help='Conduct enrichment analysis using all genomes from GTDB as a reference (UNDER DEVELOPMENT).')
     enrichment_runtime_options.add_argument('--do_all', action='store_true',
                 help='Attempt to conduct all tests.')
     enrichment_runtime_options.add_argument('--do_ivi', action='store_true',

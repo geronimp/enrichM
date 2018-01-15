@@ -146,13 +146,12 @@ class Run:
         Output
         ------
         '''
-        if not any([args.do_all, args.do_gvg, args.do_ivg, args.do_ivi]):
-            raise Exception("Input error: No comparisons were specified. You will need to tell enrichM \
-which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all flags")
-        ### ~ TODO: Check Multi test correction inputs...
+          ### ~ TODO: Check Multi test correction inputs...
         if not(args.annotation_matrix or args.annotation_file):
             raise Exception("Input error: No input file was specified. Please specify annotations to either the --annotation_matrix --annotation_file flags")
-    
+        if (args.gtdb_all and args.gtdb_public):
+            raise Exception("Only gtdb_all OR gtdb_public can be used")
+
     def _check_classify(self, args):  
         '''
         Check classify input and output options are valid.
@@ -266,8 +265,7 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
         elif args.subparser_name == self.ENRICHMENT: 
             self._check_enrichment(args)
             e = Enrichment()
-            e.do(# Inputs
-                 args.annotation_matrix,
+            e.do(args.annotation_matrix,
                  args.annotation_file,
                  args.metadata,
                  args.modules,
@@ -280,7 +278,9 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
                  args.proportions_cutoff,
                  args.threshold,
                  args.multi_test_correction,
-                 args.output)
+                 args.output,
+                 args.gtdb_all,
+                 args.gtdb_public)
 
         elif args.subparser_name == self.COMPARE:
             self._check_compare(args)

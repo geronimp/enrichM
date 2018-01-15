@@ -270,7 +270,8 @@ class Enrichment:
     def do(self, annotation_matrix, annotation_file, metadata,
            subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
            pval_cutoff, proportions_cutoff, threshold, 
-           multi_test_correction, output_directory):
+           multi_test_correction, output_directory, gtdb_all,
+           gtdb_public):
         '''
         
         Parameters
@@ -304,7 +305,7 @@ class Enrichment:
                     if feature in attributes:
                         genome_list.append(genome)  
             combination_dict['_'.join(combination)]=genome_list
-        
+
         t = Test(annotations_dict,
                  modules,
                  genomes ,
@@ -431,7 +432,7 @@ class Test(Enrichment):
         self.IVI_OUTPUT             = 'ivi_results.tsv'
         self.IVG_OUTPUT             = 'ivg_results.tsv'
         self.GVG_OUTPUT             = 'gvg_results.tsv'
-
+        self.CHI_OUTPUT             = 'chi_results.tsv'
         self.threshold              = threshold
         self.multi_test_correction  = multi_test_correction
         self.m2def                  = d.m2def
@@ -478,6 +479,7 @@ class Test(Enrichment):
 
     def _strip_kegg_definitions(self, definition):
         kos_list = [ko for ko in re.split("[^\w]", definition) if ko]
+        results = []
         return kos_list
 
     def gather_genome_annotations(self, group, target_kos):
@@ -488,8 +490,43 @@ class Test(Enrichment):
             genome_target_list = set(self.genome_annotations[genome])\
                                              .intersection(target_kos)
             genome_ko_list.append(len(genome_target_list))
-        
+
         return genome_ko_list
+
+    def chi2(self):
+        output_lines = [['group_1', 'group_2', 'ko', 'group_1_true', 'group_1_false', 'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
+        kos=set(chain(*self.genome_annotations.values()))
+        pvalues = []
+        logging.info('Comparing gene frequency among genoms (presence/absence)')
+        for group_1, group_2 in combinations(self.groups.keys(), 2):
+            for ko in kos:
+                group_1_true  = sum([(ko in self.genome_annotations[genome]) 
+                                      for genome in self.groups[group_1]])
+                group_1_false = len(self.groups[group_1]) - group_1_true
+                group_2_true = sum([(ko in self.genome_annotations[genome]) 
+                                      for genome in self.groups[group_2]])
+                group_2_false = len(self.groups[group_2]) - group_2_true 
+                score, pvalue \
+                    = scipy.stats.chisquare(f_obs = np.array([group_1_true,group_1_false]), 
+                                            f_exp = np.array([group_2_true,66]))
+                
+                if str(pvalue) != 'nan':
+                    pvalues.append(pvalue)
+                    output_line = [group_1,
+                                   group_2,
+                                   ko,
+                                   str(group_1_true),
+                                   str(group_1_false),
+                                   str(group_2_true),
+                                   str(group_2_false),
+                                   str(score),
+                                   str(pvalue)]
+                    output_lines.append(output_line)
+
+        for idx, corrected_pval in enumerate(self.correct_multi_test(pvalues)):
+            output_lines[idx+1].append(str(corrected_pval))
+                
+        return output_lines
 
     def fisher(self, ivi):
         '''
@@ -619,8 +656,6 @@ class Test(Enrichment):
         else:
             for group, comparisons in ivg.items():
                 for genome, reference_group in comparisons:
-                    
-
                     if self.annotation_type == Enrichment.KEGG:
                         annotation_dict = self.m2def.items()
                         annotation_description = self.m
@@ -631,7 +666,6 @@ class Test(Enrichment):
                         raise Exception("Programming error")
 
                     for module, definition in annotation_dict:
-                        
                         module_list = self._strip_kegg_definitions(definition)
                         genome_comp \
                             = len(set(self.genome_annotations[genome]).intersection(module_list))
@@ -670,6 +704,8 @@ class Test(Enrichment):
         
         logging.info('Running genome comparisons')
         results=[]
+        
+        results.append( (self.chi2(), self.CHI_OUTPUT) )
 
         if ivi:
             logging.info('Running individual vs individual comparisons')
