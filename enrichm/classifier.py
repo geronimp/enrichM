@@ -134,10 +134,8 @@ class Classify:
 
         for name, pathway_string in self.m2def.items():
             if name not in self.signature_modules:   
-                try:
-                    path = ModuleDescription(pathway_string)
-                except:
-                    import IPython ; IPython.embed()
+
+                path = ModuleDescription(pathway_string)
 
                 pathway[name] = path
                 for genome, annotations in genome_to_annotation_sets.items():
