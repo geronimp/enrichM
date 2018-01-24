@@ -126,7 +126,7 @@ class Databases:
 		self.compound_desc_dict \
 		         = pickle.load(open('.'.join([self.COMPOUND_DESC_PICKLE, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
-		logging.debug("Loading pfam to clan debugrmation")
+		logging.debug("Loading pfam to clan information")
 		self.pfam2clan \
 		         = pickle.load(open('.'.join([self.PFAM2CLAN, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
