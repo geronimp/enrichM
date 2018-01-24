@@ -147,6 +147,8 @@ if __name__ == "__main__":
                 help='Annotate with tigrfam HMMs')
     annotate_annotation_options.add_argument('--cog', action='store_true',
                 help='Annotate with COG ids [NOT IMPLEMENTED]')
+    annotate_annotation_options.add_argument('--hypothetical', action='store_true',
+                help='Annotate with hypothetical clusters')
 
     annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
     annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-3,
@@ -159,7 +161,13 @@ if __name__ == "__main__":
                 help='This fraction of the query must align to the reference (default: 0)')
     annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0,
                 help='This fraction of the reference must align to the query (default: 0)')
-    
+
+    annotate_cluster_options = annotate.add_argument_group('Cluster specific options')
+    annotate_cluster_options.add_argument('--cascaded', action = 'store_true',
+                help='Use cascaded workflow in Mmseq2')
+    annotate_cluster_options.add_argument('--c', type = float, default = 0.8,
+                help='Use matches above this fraction of aligned (covered) query and target residues')
+
     annotate_runtime_options = annotate.add_argument_group('Runtime options')
     annotate_runtime_options.add_argument('--threads', default = '1',
                 help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')

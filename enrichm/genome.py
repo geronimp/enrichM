@@ -41,6 +41,7 @@ class Genome:
 	'''
 	def __init__(self, path):
 
+		self.clusters = set()
 		self.protein_ordered_dict = {}
 		self.path = path
 		self.name = os.path.split(os.path.splitext(path)[0])[1]
@@ -52,22 +53,23 @@ class Genome:
 			self.protein_ordered_dict[protein_count] = protein.name
 			
 	def add(self, annotations, evalue_cutoff, bitscore_cutoff, 
-		percent_aln_query_cutoff, percent_aln_reference_cutoff, annotation_type):
+		    percent_aln_query_cutoff, percent_aln_reference_cutoff, 
+		    annotation_type):
 		'''
 		Adds a series of annotations to the proteins within a genome.
 
 		Parameters
 		----------
 		annotations						- String. Path to file containing either blast or
-										  domtblout hmmsearch results. 
+										  domtblout hmmsearch, or mmseqs cluster results. 
 		evalue_cutoff					- Float. E-value threshold for annotations.
 		bitscore_cutoff					- Float. Bit score threshold for annotations.
 		percent_aln_query_cutoff		- Float. Threshold for the percent of the query 
 										  that must be aligned to consider the annotation.
 		percent_aln_reference_cutoff	- Float. Threshold for the percent of the reference
 										  that must be aligned to consider the annotation.
-		annotation_type					- String. Either 'KO', 'TIGRFAM', 'PFAM' or 'COG'
-
+		annotation_type					- String. Either 'KO', 'TIGRFAM', 'PFAM', 	
+										  'HYPOTHETICAL' or 'COG'
 		'''
 			
 		# Load up annotation parser, and tell it what annotation type to expect
@@ -80,6 +82,12 @@ class Genome:
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
 												 percent_aln_reference_cutoff)
+			if annotation_type == AnnotationParser.PFAM:
+				self.pfam_dict = {}
+				refdict = self.pfam_dict
+			elif annotation_type == AnnotationParser.TIGRFAM:
+				self.tigrfam_dict = {}
+				refdict = self.tigrfam_dict
 
 		# If annotation type is a blast result
 		elif(annotation_type == AnnotationParser.KO or
@@ -87,12 +95,22 @@ class Genome:
 			# Set up an iterator to produce the results
 			iterator = ap.from_blast_results(annotations, evalue_cutoff, 
 											 bitscore_cutoff, percent_aln_query_cutoff)
-
+			if annotation_type == AnnotationParser.KO:
+				self.ko_dict = {}
+				refdict = self.ko_dict
+			elif annotation_type == AnnotationParser.COG:
+				self.cog_dict = {}
+				refdict = self.cog_dict
 
 		for seqname, annotation, evalue, annotation_range in iterator:
-			self.sequences[seqname].add(annotation, evalue, annotation_range, annotation_type)		
+			self.sequences[seqname].add(annotation, evalue, annotation_range, annotation_type)
+			
+			if annotation in refdict:
+				refdict[annotation].append(seqname)
+			else:
+				refdict[annotation]=[seqname]
 
-	def count(self, annotation):
+	def count(self, annotation, type):
 		'''
 		
 		Parameters
@@ -103,11 +121,19 @@ class Genome:
 		------
 		The number of times this annotation was encountered in the genome
 		'''
-		count = 0
-		for sequence in self.sequences.values():
-			if annotation in sequence.all_annotations():
-				count+=1
-		return count 
+
+		if type==AnnotationParser.HYPOTHETICAL:
+			reference_dict = self.cluster_dict
+		elif type==AnnotationParser.KO:
+			reference_dict = self.ko_dict
+		elif type==AnnotationParser.PFAM:
+			reference_dict = self.pfam_dict
+		elif type==AnnotationParser.TIGRFAM:
+			reference_dict = self.tigrfam_dict
+		if annotation in reference_dict:
+			return len(reference_dict[annotation])
+		else:
+			return 0
 	
 	def ordered_sequences(self):
 		'''
@@ -115,6 +141,34 @@ class Genome:
 		'''
 		for sequence_id in sorted(self.protein_ordered_dict.keys()):
 			yield self.sequences[self.protein_ordered_dict[sequence_id]]
+
+	def add_clusters(self, cluster_list):
+		'''
+		Add hypothetical clusters to genome sequences
+		
+		Inputs
+		------
+		cluster_list - array. list where each entry is a list
+					   of n = 2: sequence_name, cluster_name
+		'''
+
+		self.cluster_dict = {}
+
+		for seq_cluster in cluster_list:
+
+			sequence_id, cluster_id = seq_cluster[0], seq_cluster[1]
+			
+			if cluster_id in self.cluster_dict:
+				self.cluster_dict[cluster_id].append(sequence_id)
+			else:
+				self.cluster_dict[cluster_id] = [sequence_id]
+			
+			annotation = Annotation(cluster_id, 0, [-1,0], AnnotationParser.HYPOTHETICAL)
+			
+			self.sequences[sequence_id].cluster = cluster_id
+			self.sequences[sequence_id].annotations.append(annotation)
+			
+			self.clusters.add(cluster_id)
 
 class Sequence(Genome):
 	'''
@@ -243,18 +297,19 @@ class AnnotationParser:
 	KO      	= 'KO_IDS.txt'
 	PFAM    	= 'PFAM_IDS.txt'
 	TIGRFAM 	= 'TIGRFAM_IDS.txt'
+	HYPOTHETICAL = 'HYPOTHETICAL'
 	COG 		= None ### ~ TODO: Not currently implemented
 
 	def __init__(self, annotation_type):        
 		
-
 		data_directory = Databases.IDS_DIR
+
 		if annotation_type == self.KO:
-			ids = [x.strip() for x in open(os.path.join(data_directory,self.KO))]
+			ids = [x.strip() for x in open(os.path.join(data_directory, self.KO))]
 		elif annotation_type == self.PFAM:
-			ids = [x.strip() for x in open(os.path.join(data_directory,self.PFAM))]
+			ids = [x.strip() for x in open(os.path.join(data_directory, self.PFAM))]
 		elif annotation_type == self.TIGRFAM:
-			ids = [x.strip() for x in open(os.path.join(data_directory,self.TIGRFAM))]
+			ids = [x.strip() for x in open(os.path.join(data_directory, self.TIGRFAM))]
 
 	def from_blast_results(self,
 						   blast_output_path,
@@ -274,11 +329,11 @@ class AnnotationParser:
 		
 		Yields
 		------
-		A sequence name, annotation, E-value and region hit for every annottation result in 
+		A sequence name, annotation, E-value and region hit for every annotation result in 
 		blast_output_path that pass a series of specified cutoffs
 		'''
 
-		logging.info("Parsing blast output file: %s" % blast_output_path)
+		logging.info("    - Parsing blast output file: %s" % blast_output_path)
 
 		for line in open(blast_output_path):
 			# Parse out important information from each line in blast output
@@ -291,7 +346,7 @@ class AnnotationParser:
 			# If the annotation passes the specified cutoffs
 			if(float(evalue) <= evalue_cutoff and
 				float(bit) >= bitscore_cutoff and
-				float(perc_id)  >= percent_id_cutoff):
+				float(perc_id) >= percent_id_cutoff):
 					seqname = sline[0]
 					annotation = sline[1].split('~')[1]
 					yield seqname, annotation, evalue, range(min(seq_list), max(seq_list))

@@ -239,6 +239,7 @@ class ModuleDescriptionParser:
         if remove_end_brackets and string[0] == '(':
             if string[-1] != ')': raise Exception("Parse error")
             return self.split_on(string[1:-1], characters)
+
         return fragments
 
     def split_on_space(self, string):

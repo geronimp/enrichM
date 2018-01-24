@@ -132,13 +132,17 @@ class Run:
             args.suffix = '.fna'
         elif(args.protein_directory or args.protein_files):
             args.suffix = '.faa'
+        if(args.id>1 or args.id<0):
+            raise Exception("Identity (--id) must be between 0 and 1.")
 
     def _check_enrichment(self, args):
         '''
-        
+        Check enrichment input and output options are valid.
+
         Parameters
         ----------
-        
+        args    - object. Argparse object
+
         Output
         ------
         '''
@@ -237,12 +241,15 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
                          args.pfam,
                          args.tigrfam,
                          args.cog,
+                         args.hypothetical,
                          # Cutoffs
                          args.evalue,
                          args.bit,
                          args.id,
                          args.aln_query, 
                          args.aln_reference, 
+                         args.cascaded,
+                         args.c,
                          # Parameters
                          args.threads,
                          args.suffix)
