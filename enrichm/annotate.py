@@ -295,6 +295,7 @@ class Annotate:
         with tempfile.NamedTemporaryFile() as tmp_file:
 
             for genome in genomes_list:
+                
                 cmd = "sed \"s/>/>%s~/g\" %s >> %s" % (genome.name, genome.path, tmp_file.name)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
@@ -308,23 +309,25 @@ class Annotate:
                 
                 db_path = os.path.join(output_directory_path, "db")
                 clu_path = os.path.join(output_directory_path, "clu")
-                clu_tsv_path = os.path.join(output_directory_path, "clu.tsv")
+                clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
 
-                logging.info('Generating MMSeqs2 database')
-                cmd = 'mmseqs createdb %s %s -v 0' % (tmp_file.name, db_path)
+                logging.info('    - Generating MMSeqs2 database')
+                cmd = 'mmseqs createdb %s %s -v 0 > /dev/null 2>&1' % (tmp_file.name, db_path)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
 
-                logging.info('Clustering genome proteins')
-                cmd = 'mmseqs cluster %s %s %s --threads %s --min-seq-id %s -c %s' \
+                logging.info('    - Clustering genome proteins')
+                cmd = 'mmseqs cluster %s %s %s --threads %s --min-seq-id %s -c %s > /dev/null 2>&1 ' \
                             % (db_path, clu_path, tmp_dir, self.threads, self.id, self.c)
+                
                 if self.cascaded:
                     cmd += ' --cascaded'
+                cmd += ' > /dev/null 2>&1 '
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
 
-                logging.info('Extracting clusters')
-                cmd = 'mmseqs createtsv %s %s %s %s' % (db_path, db_path, clu_path, clu_tsv_path)
+                logging.info('    - Extracting clusters')
+                cmd = 'mmseqs createtsv %s %s %s %s  > /dev/null 2>&1 ' % (db_path, db_path, clu_path, clu_tsv_path)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
         
@@ -333,7 +336,25 @@ class Annotate:
         for genome in genomes_list:
             genome.add_clusters(clusters[genome.name])
 
+        self._write_genome_cluster_files(clusters, output_directory_path)
+
         return cluster_ids
+
+    def _write_genome_cluster_files(self, clusters, output_directory_path):
+        '''
+        Write out cluster annotations for each protein for each genome
+        
+        Inputs
+        ------
+        
+        Outputs
+        -------
+        
+        '''
+        for genome, annotations in clusters.items():
+            with open(os.path.join(output_directory_path, genome + '.tsv'), 'w') as out_io:
+                for annotation in annotations:
+                    out_io.write( '\t'.join(annotation) + '\n' )
 
     def _from_cluster_results(self, 
                               cluster_output_path):
@@ -349,7 +370,7 @@ class Annotate:
         A cluster name, and a list of sequences in that cluster.
         
         '''
-        logging.info('Parsing input cluster file: %s' % cluster_output_path)
+        logging.info('    - Parsing input cluster file: %s' % cluster_output_path)
         
         cluster_ids             = set()
         genome_dictionary       = {}
@@ -481,10 +502,10 @@ class Annotate:
         logging.info("Setting up for genome annotation")
 
         if protein_directory:
-            logging.info("Using provided proteins.")
+            logging.info("Using provided proteins")
             genomes_list = self._parse_genome_proteins_directory(protein_directory)
         elif protein_files:
-            logging.info("Using provided proteins.")
+            logging.info("Using provided proteins")
             genomes_list = [Genome(protein_file) for protein_file in protein_files]
         elif genome_directory:
             logging.info("Calling proteins for annotation")

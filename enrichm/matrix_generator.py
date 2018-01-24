@@ -69,7 +69,9 @@ class MatrixGenerator:
         genomes_list        - list. List of Genome objects
         output_path         - string. Path to file to which the results are written.
         '''
+        
         logging.info("    - Writing results to file: %s" % output_path)
+        
         with open(output_path, 'w') as out_io:
             colnames = ['ID'] + [genome.name for genome in genomes_list]
             out_io.write('\t'.join(colnames) + '\n')

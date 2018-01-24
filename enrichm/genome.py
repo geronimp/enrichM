@@ -150,9 +150,10 @@ class Genome:
 		------
 		cluster_list - array. list where each entry is a list
 					   of n = 2: sequence_name, cluster_name
-		
 		'''
+
 		self.cluster_dict = {}
+
 		for seq_cluster in cluster_list:
 
 			sequence_id, cluster_id = seq_cluster[0], seq_cluster[1]
@@ -332,7 +333,7 @@ class AnnotationParser:
 		blast_output_path that pass a series of specified cutoffs
 		'''
 
-		logging.info("Parsing blast output file: %s" % blast_output_path)
+		logging.info("    - Parsing blast output file: %s" % blast_output_path)
 
 		for line in open(blast_output_path):
 			# Parse out important information from each line in blast output
