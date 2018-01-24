@@ -49,6 +49,7 @@ class Databases:
 		REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
 		PICKLE					= 'pickle'	
 		HMM_SUFFIX 				= '.hmm'
+		DMND_SUFFIX				= '.dmnd'
 		KO_DB_NAME				= 'uniref100'
 		PFAM_DB_NAME			= 'pfam'
 		TIGRFAM_DB_NAME			= 'tigrfam'
@@ -146,7 +147,7 @@ class Databases:
 		         = pickle.load(open('.'.join([self.CLAN2PFAM, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.info("Loading reference db paths")		
-		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME + self.HMM_SUFFIX)
+		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
 		self.PFAM_DB 		= os.path.join(self.REF_DIR, self.PFAM_DB_NAME + self.HMM_SUFFIX)
 		self.TIGRFAM_DB 	= os.path.join(self.REF_DIR, self.TIGRFAM_DB_NAME + self.HMM_SUFFIX)
 		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 'PFAM_CLANS.txt')

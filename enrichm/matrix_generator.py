@@ -39,8 +39,9 @@ class MatrixGenerator:
     KO      = 'KO_IDS.txt'
     PFAM    = 'PFAM_IDS.txt'
     TIGRFAM = 'TIGRFAM_IDS.txt'
+    HYPOTHETICAL = 'HYPOTHETICAL'
 
-    def __init__(self, annotation_type):
+    def __init__(self, annotation_type, clusters = None):
         '''
         Interpret which annotation type to write a matrix for.
 
@@ -48,13 +49,16 @@ class MatrixGenerator:
         ----------
         annotation_type - String.
         '''
+        self.annotation_type = annotation_type
 
-        if annotation_type == self.KO:
+        if self.annotation_type == self.KO:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.KO))]
-        elif annotation_type == self.PFAM:
+        elif self.annotation_type == self.PFAM:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.PFAM))]
-        elif annotation_type == self.TIGRFAM:
+        elif self.annotation_type == self.TIGRFAM:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.TIGRFAM))]
+        elif self.annotation_type == self.HYPOTHETICAL:
+            self.annotation_list = clusters
 
     def write_matrix(self, genomes_list, output_path):
         '''
@@ -69,8 +73,10 @@ class MatrixGenerator:
         with open(output_path, 'w') as out_io:
             colnames = ['ID'] + [genome.name for genome in genomes_list]
             out_io.write('\t'.join(colnames) + '\n')
+
             for annotation in self.annotation_list:
                 output_line = [annotation]
                 for genome in genomes_list:
-                    output_line.append( str(genome.count(annotation)) )
+                    output_line.append(str(genome.count(annotation, self.annotation_type)))
+
                 out_io.write( '\t'.join(output_line) + '\n' )

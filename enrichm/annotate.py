@@ -32,6 +32,9 @@ import logging
 import subprocess
 import os 
 import pickle
+import tempfile
+import tempdir
+import shutil
 
 from databases import Databases
 from matrix_generator import MatrixGenerator
@@ -49,11 +52,13 @@ class Annotate:
     GENOME_COG          = 'annotations_cog'
     GENOME_PFAM         = 'annotations_pfam'
     GENOME_TIGRFAM      = 'annotations_tigrfam'
+    GENOME_HYPOTHETICAL = 'annotations_hypothetical'
     GENOME_GFF          = 'annotations_gff'
     GENOME_OBJ          = 'annotations_genomes'
     OUTPUT_KO           = 'ko_frequency_table.tsv'
     OUTPUT_PFAM         = 'pfam_frequency_table.tsv'
     OUTPUT_TIGRFAM      = 'tigrfam_frequency_table.tsv'
+    OUTPUT_HYPOTHETICAL = 'hypothetical_frequency_table.tsv'
 
     GFF_SUFFIX          = '.gff'
     PROTEINS_SUFFIX     = '.faa'
@@ -66,11 +71,14 @@ class Annotate:
                  pfam,
                  tigrfam,
                  cog,
+                 hypothetical,
                  evalue,
                  bit,
                  id,
                  aln_query,
                  aln_reference,
+                 cascaded,
+                 c,
                  threads,
                  suffix):
 
@@ -83,12 +91,17 @@ class Annotate:
         self.pfam             = pfam 
         self.tigrfam          = tigrfam 
         self.cog              = cog 
+        self.hypothetical     = hypothetical 
+        
         # Cutoffs
         self.evalue           = evalue 
         self.bit              = bit 
         self.id               = id 
         self.aln_query        = aln_query
         self.aln_reference    = aln_reference
+        self.cascaded         = cascaded
+        self.c                = c
+
         # Parameters
         self.threads          = threads
         self.suffix           = suffix
@@ -116,7 +129,7 @@ class Annotate:
                                            self.GENOME_BIN)
             os.mkdir(os.path.join(self.output_directory, self.GENOME_BIN))
             for genome_path in genome_file_list:
-                os.symlink(os.path.join(os.getcwd(),
+                shutil.copy(os.path.join(os.getcwd(),
                                         genome_path), 
                            os.path.join(genome_directory, 
                                         os.path.basename(genome_path)
@@ -262,6 +275,105 @@ class Annotate:
                          self.aln_reference,
                          AnnotationParser.TIGRFAM)
 
+    def annotate_hypothetical(self, genomes_list):
+        '''
+        Sort proteins coded by each genome into homologous clusters.  
+        
+        Inputs
+        ------
+        genomes_list  - list. list of Genome objects        
+
+        '''
+        output_directory_path = os.path.join(self.output_directory, 
+                                             self.GENOME_HYPOTHETICAL)
+        os.mkdir(output_directory_path)      
+        
+
+        protein_directory = os.path.join(self.output_directory, self.GENOME_PROTEINS) 
+        protein_dict = {} 
+
+        with tempfile.NamedTemporaryFile() as tmp_file:
+
+            for genome in genomes_list:
+                cmd = "sed \"s/>/>%s~/g\" %s >> %s" % (genome.name, genome.path, tmp_file.name)
+                logging.debug(cmd)
+                subprocess.call(cmd, shell = True)
+
+                for sequence_id in genome.sequences.keys():
+                    protein_dict[sequence_id] = genome.name
+
+            with tempdir.TempDir() as tmp_dir: 
+                ## TODO: Add in options to customise the number of threads, percent identity and sensitivity of clustering.
+                ## Also the type of clustering?
+                
+                db_path = os.path.join(output_directory_path, "db")
+                clu_path = os.path.join(output_directory_path, "clu")
+                clu_tsv_path = os.path.join(output_directory_path, "clu.tsv")
+
+                logging.info('Generating MMSeqs2 database')
+                cmd = 'mmseqs createdb %s %s -v 0' % (tmp_file.name, db_path)
+                logging.debug(cmd)
+                subprocess.call(cmd, shell = True)
+
+                logging.info('Clustering genome proteins')
+                cmd = 'mmseqs cluster %s %s %s --threads %s --min-seq-id %s -c %s' \
+                            % (db_path, clu_path, tmp_dir, self.threads, self.id, self.c)
+                if self.cascaded:
+                    cmd += ' --cascaded'
+                logging.debug(cmd)
+                subprocess.call(cmd, shell = True)
+
+                logging.info('Extracting clusters')
+                cmd = 'mmseqs createtsv %s %s %s %s' % (db_path, db_path, clu_path, clu_tsv_path)
+                logging.debug(cmd)
+                subprocess.call(cmd, shell = True)
+        
+        clusters, cluster_ids = self._from_cluster_results(clu_tsv_path)
+
+        for genome in genomes_list:
+            genome.add_clusters(clusters[genome.name])
+
+        return cluster_ids
+
+    def _from_cluster_results(self, 
+                              cluster_output_path):
+        '''
+        Parse cluster output in tab format.
+        
+        Inputs
+        ------
+        from_cluster_results    - String. Path to mmseqs2 clustering output file
+        
+        Yields
+        -------
+        A cluster name, and a list of sequences in that cluster.
+        
+        '''
+        logging.info('Parsing input cluster file: %s' % cluster_output_path)
+        
+        cluster_ids             = set()
+        genome_dictionary       = {}
+        previous_cluster_name   = None
+        counter                 = 0
+
+        for line in open(cluster_output_path):
+
+            cluster_id, member      = line.strip().split('\t')
+            genome_id, sequence_id  = member.split('~')
+            
+            if genome_id not in genome_dictionary:
+                genome_dictionary[genome_id] = []
+
+            if cluster_id == previous_cluster_name:
+                genome_dictionary[genome_id].append([sequence_id, "cluster_%i" % counter])
+            else:
+                counter += 1
+                previous_cluster_name = cluster_id 
+                cluster_ids.add("cluster_%i" % counter)
+                genome_dictionary[genome_id].append([sequence_id, "cluster_%i" % counter])
+        
+        return genome_dictionary, cluster_ids
+
     def _hmm_search(self, input_genome_path, output_path, database):
         '''
         Carry out a hmmsearch. 
@@ -385,7 +497,19 @@ class Annotate:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
                                         %  (self.suffix))
         else:
+            
             logging.info("Starting annotation:")
+
+            if self.hypothetical:
+                logging.info('    - Annotating genomes with hypothetical clusters')
+                cluster_ids = self.annotate_hypothetical(genomes_list)
+                
+                logging.info('    - Generating hypotheticals frequency table') ## TODO: Check that prev annotation exists ploise
+                mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)
+
+                freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL)
+                mg.write_matrix(genomes_list, freq_table)
+
             if self.ko:
                 logging.info('    - Annotating genomes with ko ids')
                 self.annotate_ko(genomes_list)
@@ -419,12 +543,13 @@ class Annotate:
                 
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_TIGRFAM)
                 mg.write_matrix(genomes_list, freq_table)
-
+            
             logging.info('Generating .gff files:')
             self._generate_gff_files(genomes_list)
 
-            logging.info('Renaming protein headers')
-            self._rename_fasta(genomes_list)
+            if not(protein_directory or protein_files):
+                logging.info('Renaming protein headers')
+                self._rename_fasta(genomes_list)
 
             logging.info('Storing genome objects')
             self._pickle_objects(genomes_list)
