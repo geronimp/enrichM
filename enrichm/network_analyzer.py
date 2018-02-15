@@ -56,7 +56,14 @@ class NetworkAnalyser:
         self.metadata = {}
         for line in open(metadata):
             if line.startswith('#'):continue
-            sample_id, group = line.strip().split('\t')
+            
+            split_line = line.strip().split('\t')
+            
+            if len(split_line) == 1:
+                raise Exception("Only one column detected in metadata file, please check that your file is tab separated")
+            else:
+                sample_id, group = split_line 
+
             if group in self.metadata:
                 self.metadata[group].append(sample_id)
             else:
