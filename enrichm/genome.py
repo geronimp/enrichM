@@ -249,8 +249,6 @@ class Sequence(Genome):
 
 		if len([x for x in self.annotations if x.type == new_annotation.type]) > 0:
 			
-			if self.seqname == 'contig_125404_23': import IPython ; IPython.embed()
-			
 			to_remove 	= []
 			to_check 	= [ann for ann in self.annotations if ann.type == new_annotation.type]
 
@@ -268,7 +266,7 @@ class Sequence(Genome):
 					self.annotations.append(new_annotation)
 			else:
 					self.annotations.append(new_annotation)
-					
+
 		else:
 			self.annotations.append(new_annotation)
 	
