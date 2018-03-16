@@ -252,6 +252,7 @@ which statistical tests to run using the --do_ivi --do_gvg --do_ivg, or --do_all
                          args.c,
                          # Parameters
                          args.threads,
+                         args.parallel,
                          args.suffix)
 
             a.do(args.genome_directory, args.protein_directory, 

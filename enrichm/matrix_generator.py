@@ -29,6 +29,7 @@ __status__ = "Development"
 #Local
 import logging
 import os
+import itertools
 
 from databases import Databases
 
@@ -76,9 +77,13 @@ class MatrixGenerator:
             colnames = ['ID'] + [genome.name for genome in genomes_list]
             out_io.write('\t'.join(colnames) + '\n')
 
+            genome_annotations = {genome.name:list(itertools.chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
+                                  for genome in genomes_list}
+
             for annotation in self.annotation_list:
                 output_line = [annotation]
                 for genome in genomes_list:
-                    output_line.append(str(genome.count(annotation, self.annotation_type)))
+
+                    output_line.append(str(genome_annotations[genome.name].count(annotation)))
 
                 out_io.write( '\t'.join(output_line) + '\n' )

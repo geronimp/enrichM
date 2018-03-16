@@ -70,7 +70,7 @@ def phelp():
                        the abundance of reactions in the metagenome and 
                        metatranscriptome. [UNDER DEVELOPMENT]
 
-  Authors: J. Boyd, B. Woodcroft, A. Baker
+  Authors: Joel Boyd, Boyd Woodcroft, Alex Baker
   Version: %s 
 """ % (enrichm.__version__)
 
@@ -171,6 +171,8 @@ if __name__ == "__main__":
     annotate_runtime_options = annotate.add_argument_group('Runtime options')
     annotate_runtime_options.add_argument('--threads', default = '1',
                 help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
+    annotate_runtime_options.add_argument('--parallel', default = '5',
+                help='Run this number of jobs in parallelwhen annotating with HMMsearch (default: 5)')
     annotate_runtime_options.add_argument('--suffix', 
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
 
@@ -285,6 +287,7 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
 
     compare = subparsers.add_parser('compare', formatter_class=CustomHelpFormatter, parents=[base_all])
 
