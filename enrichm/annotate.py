@@ -80,6 +80,7 @@ class Annotate:
                  cascaded,
                  c,
                  threads,
+                 parallel,
                  suffix):
 
         # Define inputs and outputs
@@ -104,6 +105,7 @@ class Annotate:
 
         # Parameters
         self.threads          = threads
+        self.parallel         = parallel
         self.suffix           = suffix
 
         # Load databases
@@ -242,9 +244,14 @@ class Annotate:
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_PFAM)
         os.mkdir(output_directory_path)
-        for genome in genomes_list:
-            output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._hmm_search(genome.path, output_annotation_path, self.databases.PFAM_DB)
+        genome_dict = {genome.name: genome for genome in genomes_list}
+        self._hmm_search(genome_dict.keys(), output_directory_path, self.databases.PFAM_DB)
+
+        for genome_annotation in os.listdir(output_directory_path):
+            genome_id = os.path.splitext(genome_annotation)[0]
+            genome = genome_dict[genome_id]
+            output_annotation_path = os.path.join(output_directory_path, genome_annotation)
+
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 
@@ -264,10 +271,14 @@ class Annotate:
         '''    
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_TIGRFAM)
-        os.mkdir(output_directory_path)      
-        for genome in genomes_list:
-            output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            self._hmm_search(genome.path, output_annotation_path, self.databases.TIGRFAM_DB)
+        os.mkdir(output_directory_path)     
+        genome_dict = {genome.name: genome for genome in genomes_list}
+        self._hmm_search(genome_dict.keys(), output_directory_path, self.databases.TIGRFAM_DB)
+
+        for genome_annotation in os.listdir(output_directory_path):
+            genome_id = os.path.splitext(genome_annotation)[0]
+            genome = genome_dict[genome_id]
+            output_annotation_path = os.path.join(output_directory_path, genome_annotation)
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 
@@ -395,7 +406,7 @@ class Annotate:
         
         return genome_dictionary, cluster_ids
 
-    def _hmm_search(self, input_genome_path, output_path, database):
+    def _hmm_search(self, genome_names, output_path, database):
         '''
         Carry out a hmmsearch. 
 
@@ -406,15 +417,19 @@ class Annotate:
         output_path           - string. Path to file to output results into   
         databases             - string. Path to HMM to use for searching          
         '''  
-        cmd = "hmmsearch --cpu %s -o /dev/null --noali --domtblout %s " \
-                          % (self.threads, output_path)
+        
+        input_genome_path = os.path.join(self.output_directory, self.GENOME_PROTEINS)
+        cmd = "ls %s | sed 's/%s//g' | parallel -j %s hmmsearch --cpu %s -o /dev/null --noali --domtblout %s/{}%s " \
+                          % (input_genome_path, self.PROTEINS_SUFFIX, self.parallel, 
+                             self.threads, output_path, self.ANNOTATION_SUFFIX)
         if self.evalue:
             cmd += '-E %f ' % (self.evalue) 
         if self.bit:
             cmd += '-T %f ' % (self.bit)
         if self.id:
             logging.warning("--id flag not used for hmmsearch")
-        cmd += "%s %s " % (database, input_genome_path)
+
+        cmd += "%s %s/{}.faa 2> /dev/null" % (database, input_genome_path)
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)        
 
