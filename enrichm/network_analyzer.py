@@ -122,9 +122,10 @@ class NetworkAnalyser:
             abundances_expression    = None
 
         if metabolome:
-            abundances_metabolome = Matrix(metabolome) 
-            ### ~ TODO: This WILL NOT WORK - MATRIX is no longer an existing class.
-            ### ~ TODO: I've added a note in the holp for network analyzer 
+
+            abundances_metabolome = km._parse_matrix(metabolome)
+            ### ~ TODO: This is a TEMPORARY WORKAROUND
+            ### ~ TODO: I've added a note in the help for network analyzer 
             ### ~ TODO: that warns the user about this.
         else:
             abundances_metabolome = None

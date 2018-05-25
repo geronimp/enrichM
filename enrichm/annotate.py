@@ -85,7 +85,6 @@ class Annotate:
 
         # Define inputs and outputs
         self.output_directory = output_directory
-        self.gff_directory    = os.path.join(output_directory, )
 
         # Define type of annotation to be carried out
         self.ko               = ko 
@@ -416,7 +415,7 @@ class Annotate:
                                 an input genome
         output_path           - string. Path to file to output results into   
         databases             - string. Path to HMM to use for searching          
-        '''  
+        '''
         
         input_genome_path = os.path.join(self.output_directory, self.GENOME_PROTEINS)
         cmd = "ls %s | sed 's/%s//g' | parallel -j %s hmmsearch --cpu %s -o /dev/null --noali --domtblout %s/{}%s " \
@@ -425,7 +424,7 @@ class Annotate:
         if self.evalue:
             cmd += '-E %f ' % (self.evalue) 
         if self.bit:
-            cmd += '-T %f ' % (self.bit)
+            cmd += '-T %f ' % (self.bit)    
         if self.id:
             logging.warning("--id flag not used for hmmsearch")
 

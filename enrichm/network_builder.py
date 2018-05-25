@@ -260,9 +260,10 @@ class NetworkBuilder:
                             # by the user. TODO: Integrate compounds into kegg_matrix
                             # module.
                             for sample in self.metadata_keys:
-                                c_ab = abundances_metabolome.get_entry(sample, compound)
-                                if c_ab == 0:
-                                    c_ab = '-5'
+                                if compound in abundances_metabolome[sample]:
+                                    c_ab = abundances_metabolome[sample][compound]
+                                else:
+                                    c_ab = 0    
                                 metadata_list.append(str(c_ab))
                         node_metadata_lines.append('\t'.join(metadata_list))
                         seen_nodes.add(compound)
@@ -425,7 +426,13 @@ class NetworkBuilder:
         return network_lines, node_metadata_lines
     
     
-    def pathway_matrix(self, abundances_metagenome,  abundances_transcriptome, abundances_expression, abundances_metabolome, limit, filter):
+    def pathway_matrix(self,
+                       abundances_metagenome,
+                       abundances_transcriptome,
+                       abundances_expression,
+                       abundances_metabolome,
+                       limit,
+                       filter):
 
         
         possible_reactions=set()
