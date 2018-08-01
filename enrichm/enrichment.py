@@ -465,7 +465,17 @@ class Test(Enrichment):
 
     def correct_multi_test(self, pvalues):
 
-        mtc_dict = {'fdr_bh':'Benjamini/Hochberg (non-negative)'}
+        mtc_dict = {'b': 'Bonferroni',
+                    's': 'Sidak',
+                    'h': 'Holm',
+                    'hs': 'Holm-Sidak',
+                    'sh': 'Simes-Hochberg',
+                    'ho': 'Hommel',
+                    'fdr_bh': 'FDR Benjamini-Hochberg',
+                    'fdr_by': 'FDR Benjamini-Yekutieli',
+                    'fdr_tsbh': 'FDR 2-stage Benjamini-Hochberg',
+                    'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
+                    'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'}
 
         logging.info('Applying multi-test correction using the %s method' % (mtc_dict[self.multi_test_correction]) )
         corrected_pvals \
