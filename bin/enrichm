@@ -151,8 +151,8 @@ if __name__ == "__main__":
                 help='Annotate with hypothetical clusters')
 
     annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
-    annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-3,
-                help='Use this evalue cutoff to filter false positives (default: 1e-05)')
+    annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-03,
+                help='Use this evalue cutoff to filter false positives (default: 1e-03)')
     annotate_cutoff_options.add_argument('--bit', type = float, default = 0,
                 help='Use this bit score cutoff to filter false positives (default: 0)')
     annotate_cutoff_options.add_argument('--id', type = float, default = 0,
@@ -216,6 +216,10 @@ if __name__ == "__main__":
                 help='Modules to limit analysis to.')
     enrichment_runtime_options.add_argument('--abundances',
                 help='Genome abundance matrix.')
+    enrichment_runtime_options.add_argument('--gtdb_public', action='store_true',
+                help='Conduct enrichment analysis using public genomes from GTDB as a reference (UNDER DEVELOPMENT).')
+    enrichment_runtime_options.add_argument('--gtdb_all', action='store_true',
+                help='Conduct enrichment analysis using all genomes from GTDB as a reference (UNDER DEVELOPMENT).')
     enrichment_runtime_options.add_argument('--do_all', action='store_true',
                 help='Attempt to conduct all tests.')
     enrichment_runtime_options.add_argument('--do_ivi', action='store_true',
