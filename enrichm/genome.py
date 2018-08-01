@@ -16,13 +16,14 @@
 #                                                                             #
 ###############################################################################
 
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
+__author__      = "Joel Boyd"
+__copyright__   = "Copyright 2017"
+__credits__     = ["Joel Boyd"]
+__license__     = "GPL3"
+__version__     = "0.0.7"
+__maintainer__  = "Joel Boyd"
+__email__       = "joel.boyd near uq.net.au"
+__status__      = "Development"
 
 ###############################################################################
 # imports
@@ -245,27 +246,35 @@ class Sequence(Genome):
 		region		- list. List of integers specifying the positions in the 
 					  sequence to annotate
 		'''
-		new_annotation = Annotation(annotation, evalue, region, annotation_type)
-
-		if len([x for x in self.annotations if x.type == new_annotation.type]) > 0:
+		
+		new_annotation 	= Annotation(annotation, evalue, region, annotation_type)
+		annotation_list = [annot for annot in self.annotations if annot.type == new_annotation.type]
+		
+		if len(annotation_list) > 0:
 			
 			to_remove 	= []
-			to_check 	= [ann for ann in self.annotations if ann.type == new_annotation.type]
+			to_check 	= annotation_list
 
 			overlap 	= [previous_annotation for previous_annotation in to_check
 						   if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
-
-			if len(overlap)>0:
-				for overlapping_previous_annotation in overlap:
-					if new_annotation.compare(overlapping_previous_annotation):
-						to_remove.append(overlapping_previous_annotation)
-
-				if len(to_remove)>0:
-					self.annotations = [annotation for annotation in self.annotations 
-										if annotation not in to_remove]
-					self.annotations.append(new_annotation)
+			
+			if annotation_type==AnnotationParser.PFAM:
+				self.annotations.append(new_annotation)
 			else:
-					self.annotations.append(new_annotation)
+				
+				if len(overlap)>0:
+					
+					for overlapping_previous_annotation in overlap:
+						
+						if new_annotation.compare(overlapping_previous_annotation):
+							to_remove.append(overlapping_previous_annotation)
+
+					if len(to_remove)>0:
+						self.annotations = [annotation for annotation in self.annotations 
+											if annotation not in to_remove]
+						self.annotations.append(new_annotation)
+				else:
+						self.annotations.append(new_annotation)
 
 		else:
 			self.annotations.append(new_annotation)

@@ -1,28 +1,29 @@
-#!usr/bin/env python
+#!/usr/bin/env python
 ###############################################################################
 #                                                                             #
-# This program is free software: you can redistribute it and/or modify        #
-# it under the terms of the GNU General Public License as published by        #
-# the Free Software Foundation, either version 3 of the License, or           #
-# (at your option) any later version.                                         #
+#    This program is free software: you can redistribute it and/or modify     #
+#    it under the terms of the GNU General Public License as published by     #
+#    the Free Software Foundation, either version 3 of the License, or        #
+#    (at your option) any later version.                                      #
 #                                                                             #
-# This program is distributed in the hope that it will be useful,             #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
-# GNU General Public License for more details.                                #
+#    This program is distributed in the hope that it will be useful,          #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+#    GNU General Public License for more details.                             #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program. If not, see <http://www.gnu.org/licenses/>.        #
+#    You should have received a copy of the GNU General Public License        #
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
- 
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
+
+__author__      = "Joel Boyd"
+__copyright__   = "Copyright 2017"
+__credits__     = ["Joel Boyd"]
+__license__     = "GPL3"
+__version__     = "0.0.7"
+__maintainer__  = "Joel Boyd"
+__email__       = "joel.boyd near uq.net.au"
+__status__      = "Development"
 
 ###############################################################################
 # System
@@ -431,8 +432,10 @@ class Test(Enrichment):
         
         self.IVI_OUTPUT             = 'ivi_results.tsv'
         self.IVG_OUTPUT             = 'ivg_results.tsv'
-        self.GVG_OUTPUT             = 'gvg_results.tsv'
         self.CHI_OUTPUT             = 'chi_results.tsv'
+        self.GVG_OUTPUT             = 'gvg_results.mannwhitneyu.tsv'
+        self.GVG_OUTPUT_FISHER      = 'gvg_results.fisher.tsv'
+
         self.threshold              = threshold
         self.multi_test_correction  = multi_test_correction
         self.m2def                  = d.m2def
@@ -466,7 +469,17 @@ class Test(Enrichment):
 
     def correct_multi_test(self, pvalues):
 
-        mtc_dict = {'fdr_bh':'Benjamini/Hochberg (non-negative)'}
+        mtc_dict = {'b': 'Bonferroni',
+                    's': 'Sidak',
+                    'h': 'Holm',
+                    'hs': 'Holm-Sidak',
+                    'sh': 'Simes-Hochberg',
+                    'ho': 'Hommel',
+                    'fdr_bh': 'FDR Benjamini-Hochberg',
+                    'fdr_by': 'FDR Benjamini-Yekutieli',
+                    'fdr_tsbh': 'FDR 2-stage Benjamini-Hochberg',
+                    'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
+                    'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'}
 
         logging.info('Applying multi-test correction using the %s method' % (mtc_dict[self.multi_test_correction]) )
         corrected_pvals \
@@ -482,16 +495,16 @@ class Test(Enrichment):
         results = []
         return kos_list
 
-    def gather_genome_annotations(self, group, target_kos):
+    def gather_genome_annotations(self, group, target_annotations):
         
-        genome_ko_list = []
+        genome_annotation_list = []
         
         for genome in self.groups[group]:
             genome_target_list = set(self.genome_annotations[genome])\
-                                             .intersection(target_kos)
-            genome_ko_list.append(len(genome_target_list))
-
-        return genome_ko_list
+                                             .intersection(target_annotations)
+            genome_annotation_list.append(len(genome_target_list))
+        
+        return genome_annotation_list
 
     def chi2(self):
         output_lines = [['group_1', 'group_2', 'ko', 'group_1_true', 'group_1_false', 'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
@@ -591,9 +604,12 @@ class Test(Enrichment):
         return output_lines
         
     def ttest(self, gvg):
-        header       = [['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 't_stat', 'p_value','corrected_p_value', 'description']]
+        header       = [['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 
+                         't_test_t_stat', 't_test_p_value', 'mann_whitney_t_stat', 'mann_whitney_p_value',
+                         't_test_corrected_p_value', 'mann_whitney_corrected_p_value', 'description']]
         output_lines = []
-        pvals        = []
+        tt_pvals     = []
+        mw_pvals     = []
 
         if self.annotation_type==Enrichment.TIGRFAM:
             logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications are needed (like in KEGG, COG or PFAM).')
@@ -621,28 +637,49 @@ class Test(Enrichment):
                         
                         if(sum(group_1_module_kos)>0 and sum(group_2_module_kos)>0):
 
-                            t_stat, p_value = \
+                            # T Test
+                            tt_t_stat, tt_p_value = \
                                 scipy.stats.ttest_ind(np.array(group_1_module_kos),
                                                       np.array(group_2_module_kos),
                                                       equal_var  = False,
                                                       nan_policy = 'raise')
-                            if self.pval_cutoff <= p_value:
-                                pvals.append(p_value)
+
+                            # Mann Whitney U test
+                            if(len(set(group_1_module_kos)) == 1
+                                or
+                               len(set(group_2_module_kos)) == 1):
+                                mw_t_stat, mw_p_value = 'NA', 1
+                            else:                            
+                                mw_t_stat, mw_p_value = \
+                                    scipy.stats.mannwhitneyu(np.array(group_1_module_kos),
+                                                             np.array(group_2_module_kos))
+                            
+
+                            if(tt_p_value <= self.pval_cutoff 
+                               or
+                               mw_p_value <= self.pval_cutoff):
+                                tt_pvals.append(tt_p_value)
+                                mw_pvals.append(mw_p_value)
                                 output_lines.append([module,
                                                      group_1,
                                                      group_2,
                                                      str(np.mean(np.array(group_1_module_kos))),
                                                      str(np.mean(np.array(group_2_module_kos))),
                                                      str(len(module_list)),
-                                                     str(t_stat),
-                                                     str(p_value),
+                                                     str(tt_t_stat),
+                                                     str(tt_p_value),
+                                                     str(mw_t_stat),
+                                                     str(mw_p_value),
                                                      annotation_description[module]])
             
-        if len(pvals)>0:
-            corrected_pvals = self.correct_multi_test(pvals)
+        if(len(tt_pvals)>0 and len(mw_pvals)>0):
+            tt_corrected_pvals = self.correct_multi_test(tt_pvals)
+            mw_corrected_pvals = self.correct_multi_test(mw_pvals)
         else:
-            corrected_pvals = ['nan' for x in output_lines]
-        output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
+            tt_corrected_pvals = ['nan' for x in output_lines]
+            mw_corrected_pvals = ['nan' for x in output_lines]
+
+        output_lines = header + [x[:len(x)-1]+[str(tt_p), str(mw_p)]+x[len(x)-1:] for x, (tt_p, mw_p) in zip(output_lines, zip(list(tt_corrected_pvals), list(mw_corrected_pvals)))]
 
         return output_lines
 
@@ -699,6 +736,100 @@ class Test(Enrichment):
         output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
 
         return output_lines
+    
+    def fisher_ind(self, gvg):
+        '''
+        description
+        
+        Inputs
+        ------
+        gvg : List. Pairwise groups to compare
+        
+        Outputs
+        -------
+        Output lines written to file.
+        '''
+        
+        header          = [['module', 'group_1', 'group_2', 'group_1_frequency', 'group_2_frequency',
+                            'fisher_stat', 'fisher_pvalue', 't-test_stat', 't-test_pvalue',
+                            'mannwhitney_stat', 'mannwhitney_pvalue', 'fisher_corrected_pvals',
+                            't-test_corrected_pvals', 'mannwhitney_corrected_pvals']]
+        output_lines    = []
+        fisher_pvals    = []
+        tt_pvals        = []
+        mw_pvals        = []
+
+        for group_1, group_2 in gvg:
+            values = set(list(chain.from_iterable([x[1] for x in self.genome_annotations.items()])))
+            
+            for value in values:
+
+                group_1_module_kos = self.gather_genome_annotations(group_1, [value])
+                group_2_module_kos = self.gather_genome_annotations(group_2, [value])
+                
+                group_1_module_freq = [len([x for x in group_1_module_kos if x==0]),
+                                       len([x for x in group_1_module_kos if x>0])]
+                group_2_module_freq = [len([x for x in group_2_module_kos if x==0]),
+                                       len([x for x in group_2_module_kos if x>0])]
+                
+                if sum([group_1_module_freq[1], group_2_module_freq[1]])>0:
+                    if sum([group_1_module_freq[0], group_2_module_freq[0]])>0:
+
+                        # Fisher exact
+                        fisher_stat, fisher_p = \
+                            scipy.stats.fisher_exact([group_1_module_freq,
+                                                      group_2_module_freq])
+                        # T test
+                        tt_t_stat, tt_p_value = \
+                           scipy.stats.ttest_ind(np.array(group_1_module_kos),
+                                                 np.array(group_2_module_kos),
+                                                 equal_var  = False,
+                                                 nan_policy = 'raise')
+                        # Mann whitney test
+                        mw_t_stat, mw_p_value = \
+                           scipy.stats.mannwhitneyu(np.array(group_1_module_kos),
+                                                    np.array(group_2_module_kos))
+
+                        if(fisher_p <= self.pval_cutoff
+                           or
+                           tt_p_value <= self.pval_cutoff 
+                           or
+                           mw_p_value <= self.pval_cutoff):
+
+                            fisher_pvals.append(fisher_p)
+                            tt_pvals.append(tt_p_value)
+                            mw_pvals.append(mw_p_value)
+
+                            output_lines.append([value,
+                                                 group_1,
+                                                 group_2,
+                                                 str(float(group_1_module_freq[1])/len(group_1_module_kos)),
+                                                 str(float(group_2_module_freq[1])/len(group_2_module_kos)),
+                                                 str(fisher_stat),
+                                                 str(fisher_p),
+                                                 str(tt_t_stat),
+                                                 str(tt_p_value),
+                                                 str(mw_t_stat),
+                                                 str(mw_p_value)
+                                                 ])
+
+        if len(fisher_pvals)>0:
+            fisher_corrected_pvals  = self.correct_multi_test(fisher_pvals)
+            tt_corrected_pvals      = self.correct_multi_test(tt_pvals)
+            mw_corrected_pvals      = self.correct_multi_test(mw_pvals)
+        else:
+            fisher_corrected_pvals  = ['nan' for x in output_lines]
+            tt_corrected_pvals      = ['nan' for x in output_lines]
+            mw_corrected_pvals      = ['nan' for x in output_lines]
+
+        output_lines = header + [x[:len(x)-1]+[str(i) for i in list(y)]+x[len(x)-1:] 
+                                 for x, y in 
+                                 zip(output_lines,
+                                     zip(list(fisher_corrected_pvals),
+                                     list(tt_corrected_pvals),
+                                     list(mw_corrected_pvals)))]
+
+        return output_lines
 
     def do(self, ivi, ivg, gvg):
         
@@ -716,6 +847,6 @@ class Test(Enrichment):
         if gvg:
             logging.info('Running group vs group comparisons')
             results.append( (self.ttest(gvg), self.GVG_OUTPUT) )
+            results.append( (self.fisher_ind(gvg), self.GVG_OUTPUT_FISHER) )
         
-
         return results

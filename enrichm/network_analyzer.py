@@ -1,29 +1,29 @@
 #!/usr/bin/env python
 ###############################################################################
 #                                                                             #
-# This program is free software: you can redistribute it and/or modify        #
-# it under the terms of the GNU General Public License as published by        #
-# the Free Software Foundation, either version 3 of the License, or           #
-# (at your option) any later version.                                         #
+#    This program is free software: you can redistribute it and/or modify     #
+#    it under the terms of the GNU General Public License as published by     #
+#    the Free Software Foundation, either version 3 of the License, or        #
+#    (at your option) any later version.                                      #
 #                                                                             #
-# This program is distributed in the hope that it will be useful,             #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
-# GNU General Public License for more details.                                #
+#    This program is distributed in the hope that it will be useful,          #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+#    GNU General Public License for more details.                             #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program. If not, see <http://www.gnu.org/licenses/>.        #
+#    You should have received a copy of the GNU General Public License        #
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
- 
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__version__ = "0.0.1"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
+
+__author__      = "Joel Boyd"
+__copyright__   = "Copyright 2017"
+__credits__     = ["Joel Boyd"]
+__license__     = "GPL3"
+__version__     = "0.0.7"
+__maintainer__  = "Joel Boyd"
+__email__       = "joel.boyd near uq.net.au"
+__status__      = "Development"
 
 ###############################################################################
 
@@ -122,9 +122,10 @@ class NetworkAnalyser:
             abundances_expression    = None
 
         if metabolome:
-            abundances_metabolome = Matrix(metabolome) 
-            ### ~ TODO: This WILL NOT WORK - MATRIX is no longer an existing class.
-            ### ~ TODO: I've added a note in the holp for network analyzer 
+
+            abundances_metabolome = km._parse_matrix(metabolome)
+            ### ~ TODO: This is a TEMPORARY WORKAROUND
+            ### ~ TODO: I've added a note in the help for network analyzer 
             ### ~ TODO: that warns the user about this.
         else:
             abundances_metabolome = None

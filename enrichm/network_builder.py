@@ -1,29 +1,29 @@
 #!/usr/bin/env python
 ###############################################################################
 #                                                                             #
-# This program is free software: you can redistribute it and/or modify        #
-# it under the terms of the GNU General Public License as published by        #
-# the Free Software Foundation, either version 3 of the License, or           #
-# (at your option) any later version.                                         #
+#    This program is free software: you can redistribute it and/or modify     #
+#    it under the terms of the GNU General Public License as published by     #
+#    the Free Software Foundation, either version 3 of the License, or        #
+#    (at your option) any later version.                                      #
 #                                                                             #
-# This program is distributed in the hope that it will be useful,             #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
-# GNU General Public License for more details.                                #
+#    This program is distributed in the hope that it will be useful,          #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+#    GNU General Public License for more details.                             #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program. If not, see <http://www.gnu.org/licenses/>.        #
+#    You should have received a copy of the GNU General Public License        #
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
- 
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__version__ = "0.0.1"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
+
+__author__      = "Joel Boyd"
+__copyright__   = "Copyright 2017"
+__credits__     = ["Joel Boyd"]
+__license__     = "GPL3"
+__version__     = "0.0.7"
+__maintainer__  = "Joel Boyd"
+__email__       = "joel.boyd near uq.net.au"
+__status__      = "Development"
  
 ###############################################################################
 
@@ -260,9 +260,10 @@ class NetworkBuilder:
                             # by the user. TODO: Integrate compounds into kegg_matrix
                             # module.
                             for sample in self.metadata_keys:
-                                c_ab = abundances_metabolome.get_entry(sample, compound)
-                                if c_ab == 0:
-                                    c_ab = '-5'
+                                if compound in abundances_metabolome[sample]:
+                                    c_ab = abundances_metabolome[sample][compound]
+                                else:
+                                    c_ab = 0    
                                 metadata_list.append(str(c_ab))
                         node_metadata_lines.append('\t'.join(metadata_list))
                         seen_nodes.add(compound)
@@ -425,7 +426,13 @@ class NetworkBuilder:
         return network_lines, node_metadata_lines
     
     
-    def pathway_matrix(self, abundances_metagenome,  abundances_transcriptome, abundances_expression, abundances_metabolome, limit, filter):
+    def pathway_matrix(self,
+                       abundances_metagenome,
+                       abundances_transcriptome,
+                       abundances_expression,
+                       abundances_metabolome,
+                       limit,
+                       filter):
 
         
         possible_reactions=set()

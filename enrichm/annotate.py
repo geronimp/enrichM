@@ -1,29 +1,29 @@
 #!/usr/bin/env python
 ###############################################################################
 #                                                                             #
-# This program is free software: you can redistribute it and/or modify        #
-# it under the terms of the GNU General Public License as published by        #
-# the Free Software Foundation, either version 3 of the License, or           #
-# (at your option) any later version.                                         #
+#    This program is free software: you can redistribute it and/or modify     #
+#    it under the terms of the GNU General Public License as published by     #
+#    the Free Software Foundation, either version 3 of the License, or        #
+#    (at your option) any later version.                                      #
 #                                                                             #
-# This program is distributed in the hope that it will be useful,             #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of              #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the                #
-# GNU General Public License for more details.                                #
+#    This program is distributed in the hope that it will be useful,          #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+#    GNU General Public License for more details.                             #
 #                                                                             #
-# You should have received a copy of the GNU General Public License           #
-# along with this program. If not, see <http://www.gnu.org/licenses/>.        #
+#    You should have received a copy of the GNU General Public License        #
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
- 
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__version__ = "0.0.1"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
+
+__author__      = "Joel Boyd"
+__copyright__   = "Copyright 2017"
+__credits__     = ["Joel Boyd"]
+__license__     = "GPL3"
+__version__     = "0.0.7"
+__maintainer__  = "Joel Boyd"
+__email__       = "joel.boyd near uq.net.au"
+__status__      = "Development"
  
 ###############################################################################
 
@@ -85,7 +85,6 @@ class Annotate:
 
         # Define inputs and outputs
         self.output_directory = output_directory
-        self.gff_directory    = os.path.join(output_directory, )
 
         # Define type of annotation to be carried out
         self.ko               = ko 
@@ -416,7 +415,7 @@ class Annotate:
                                 an input genome
         output_path           - string. Path to file to output results into   
         databases             - string. Path to HMM to use for searching          
-        '''  
+        '''
         
         input_genome_path = os.path.join(self.output_directory, self.GENOME_PROTEINS)
         cmd = "ls %s | sed 's/%s//g' | parallel -j %s hmmsearch --cpu %s -o /dev/null --noali --domtblout %s/{}%s " \
@@ -425,7 +424,7 @@ class Annotate:
         if self.evalue:
             cmd += '-E %f ' % (self.evalue) 
         if self.bit:
-            cmd += '-T %f ' % (self.bit)
+            cmd += '-T %f ' % (self.bit)    
         if self.id:
             logging.warning("--id flag not used for hmmsearch")
 
