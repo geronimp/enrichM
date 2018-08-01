@@ -78,3 +78,9 @@ See the [pathway help page](https://github.com/geronimp/enrichM/wiki/pathway) fo
 Explore is similar to pathway, but rather than generating a specified pathway it will start from a given query compound ID, and explore the possible reactions that use that compound given the enzymes present in the input KO matrix.
 
 See the [explore help page](https://github.com/geronimp/enrichM/wiki/explore) for more
+
+# Contact
+If you have any feedback about EnrichM, drop an email to the [SupportM](https://groups.google.com/forum/?hl=en#!forum/supportm) public help forum. Software by [Joel A. Boyd](https://ecogenomic.org/personnel/mr-joel-boyd) (@geronimp) at the Australian Centre for Ecogenomics.
+
+# License
+EnrichM is licensed under the GNU GPL v3+. See LICENSE.txt for further details. 
