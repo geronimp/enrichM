@@ -283,7 +283,8 @@ class Run:
         elif args.subparser_name == self.COMPARE:
             self._check_compare(args)
             c = Compare(args.threads)
-            c.do(args.enrichm_annotate_output)
+            c.do(args.enrichm_annotate_output,
+                 args.metadata)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or

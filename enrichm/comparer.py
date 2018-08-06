@@ -33,6 +33,7 @@ import os
 import subprocess
 import pickle
 import tempfile
+from itertools import chain
 
 ################################################################################
 
@@ -119,7 +120,8 @@ class Compare:
 		return results
 	
 	def calc_synt(self, tot, proteins):
-		import IPython ; IPython.embed()
+		pass
+
 
 	def _synteny(self, genome_list):
 		best_hits = self._self_blast(genome_list)
@@ -147,18 +149,50 @@ class Compare:
 						downstream_synt = 1			
 				else:
 					downstream_synt = 1
+	def _metadata_parser(self, metadata_path):
+		metadata = dict()
+		seen = set()
+		for line in open(metadata_path):
+			genome, group = line.strip().split('\t')
+			if genome in seen:
+				raise Exception("Duplicate entry in metadata file: %s " % genome)
+			if group in metadata:
+				metadata[group].add(genome)
+			else:
+				metadata[group] = set([genome])
+			seen.add(genome)
+		return metadata
 
 
-	def do(self, enrichm_annotate_output):
+	def _pan_genome(self, genome_dict, metadata):
+		result = dict()
+		for group, genomes in metadata.items():
+			group_genomes = [genome_dict[genome] for genome in genomes]
+			group_core_genome_size = len(set.intersection(*[genome.clusters for genome in group_genomes]))
+			group_genome_lengths = [len(genome.sequences) for genome in group_genomes]
+			group_genome_mean = float(sum(group_genome_lengths)) / float(len(group_genome_lengths))
+			group_core_size = round((float(group_core_genome_size) / group_genome_mean)*100, 2)
+			result[group] = [group_core_genome_size, group_core_size]
+		return result
+
+	def do(self, enrichm_annotate_output, metadata_path):
 		'''
 		Parameters
 		----------
 		enrichm_annotate_output - String. Output directory of a previous run 
 								  of enrichm annotate (At lease version 0.0.7)
 								  or above
-		'''	
+		'''
+
+		metadata = self._metadata_parser(metadata_path)	
+
 		logging.info('Parsing pickled genomes from previous enrichm run: %s' \
 						% (enrichm_annotate_output))
+		
 		genome_list = self._parse_pickles(enrichm_annotate_output)
-		self._synteny(genome_list)
+		genome_dict = {genome.name:genome for genome in genome_list}
+
+		pan_genome_results = self._pan_genome(genome_dict, metadata)
+		import IPython ; IPython.embed()
+		#self._synteny(genome_list)
 		

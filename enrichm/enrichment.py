@@ -112,7 +112,7 @@ class Enrichment:
             for colname, entry in zip(colnames, entries):
                 yield colname, entry, rowname
 
-    def _parse_metadata_matrix(self, matrix_path):
+    def parse_metadata_matrix(self, matrix_path):
         '''        
         Parameters
         ----------
@@ -310,7 +310,7 @@ class Enrichment:
 
         logging.info('Parsing metadata')
         cols_to_attributes, rownames, colnames, metadata_value_lists \
-                    = self._parse_metadata_matrix(metadata)
+                    = self.parse_metadata_matrix(metadata)
         ################################################################################
 
         logging.info("Comparing sets of genomes")        
