@@ -30,7 +30,11 @@ __status__      = "Development"
 
 import logging
 import os
+import subprocess
 import pickle
+import tempfile
+
+################################################################################
 
 from genome import Genome, AnnotationParser
 from annotate import Annotate
@@ -39,6 +43,8 @@ from annotate import Annotate
 
 class Compare:
 
+	def __init__(self, threads):
+		self.threads = threads
 
 	def _parse_pickles(self, enrichm_annotate_output):
 		'''
@@ -61,15 +67,90 @@ class Compare:
 
 		for pickled_genome in os.listdir(genome_pickle_file_path):
 			pickled_genome_path = os.path.join(genome_pickle_file_path, pickled_genome)
-			logging.debug('Parsing genome: %s' % (pickled_genome_path))
+			logging.info('Parsing genome: %s' % (pickled_genome_path))
 			output_genome_list.append(pickle.load(open(pickled_genome_path)))
 
 		return output_genome_list
 
+	def _parse_blast(self, result_path):
+		result = dict()
+		for line in open(result_path):
+			qseqid, sseqid, pident, length, mismatch, gapopen, qstart, qend, sstart, send, evalue, bitscore	\
+				= line.strip().split('\t')
+			genome, sequence_id = qseqid.split('~')
+			hit_genome, hit_sequence_id = sseqid.split('~')
+			if genome not in result:
+				result[genome] = {sequence_id:{hit_genome:[hit_genome, hit_sequence_id, evalue]}}
+			else:
+				if sequence_id not in result[genome]:
+					result[genome][sequence_id] = {hit_genome:[hit_genome, hit_sequence_id, evalue]}
+				else:
+					if hit_genome not in result[genome][sequence_id]:
+						result[genome][sequence_id][hit_genome] = [hit_genome, hit_sequence_id, evalue]
+					else:
+						p_genome, p_hit, p_eval = result[genome][sequence_id][hit_genome]
+						if float(evalue)<float(p_eval):
+							result[genome][sequence_id][hit_genome] = [hit_genome, hit_sequence_id, evalue]
+		return result
+
+	def _self_blast(self, genome_list):
+		with tempfile.NamedTemporaryFile() as fasta:
+
+			for genome in genome_list:
+				for sequence_name, sequence in genome.sequences.items():
+					fasta.write('>%s~%s\n' % (genome.name, sequence.seqname))
+					fasta.write('%s\n' % (sequence.seq))
+			fasta.flush()
+
+			with tempfile.NamedTemporaryFile() as dmnd:
+				cmd = 'diamond makedb --quiet --in %s --db %s ' % (fasta.name, dmnd.name)
+				
+				logging.debug(cmd)
+				subprocess.call(cmd, shell=True)
+
+				with tempfile.NamedTemporaryFile() as result:
+
+					cmd = 'diamond blastp --quiet -q %s --db %s -e 1e-05 --query-cover 70 --subject-cover 70 --id 0.3 -f 6 -o %s --threads %s' \
+							% (fasta.name, dmnd.name, result.name, self.threads)
+					logging.debug(cmd)
+					subprocess.call(cmd, shell=True)
+					results = self._parse_blast(result.name)
+					
+		return results
+	
+	def calc_synt(self, tot, proteins):
+		import IPython ; IPython.embed()
+
+	def _synteny(self, genome_list):
+		best_hits = self._self_blast(genome_list)
+		tot_genomes = len(genome_list)
+		for genome in genome_list:
+			for position, sequence_name in genome.protein_ordered_dict.items():
+				
+				upstream, downstream = position-1, position+1
+				if upstream in genome.protein_ordered_dict:
+					upstream_id = genome.protein_ordered_dict[upstream]
+					if upstream_id in best_hits[genome.name]:
+						up_best_hits = best_hits[genome.name][downstream_id]
+						upstream_synt = self.calc_synt(tot_genomes, up_best_hits)
+					else:
+						upstream_synt = 1
+				else:
+					upstream_synt = 1
+				if downstream in genome.protein_ordered_dict:
+					downstream_id = genome.protein_ordered_dict[downstream]
+					if downstream_id in best_hits[genome.name]:
+						down_best_hits = best_hits[genome.name][downstream_id]
+						downstream_synt = self.calc_synt(tot_genomes, down_best_hits)
+						
+					else:
+						downstream_synt = 1			
+				else:
+					downstream_synt = 1
+
+
 	def do(self, enrichm_annotate_output):
 		'''
-		### ~ TODO: Not sure what this does yet.		
-
 		Parameters
 		----------
 		enrichm_annotate_output - String. Output directory of a previous run 
@@ -79,5 +160,5 @@ class Compare:
 		logging.info('Parsing pickled genomes from previous enrichm run: %s' \
 						% (enrichm_annotate_output))
 		genome_list = self._parse_pickles(enrichm_annotate_output)
-		import IPython ; IPython.embed()
+		self._synteny(genome_list)
 		

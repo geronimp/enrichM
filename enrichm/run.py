@@ -171,7 +171,9 @@ class Run:
         '''
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to build.")
-    
+    def _check_compare(self, args):
+            pass
+
     def _check_network(self, args):
         '''
         Check network (explore, pathway) input and output options are valid.
@@ -280,7 +282,7 @@ class Run:
 
         elif args.subparser_name == self.COMPARE:
             self._check_compare(args)
-            c = Compare()
+            c = Compare(args.threads)
             c.do(args.enrichm_annotate_output)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or

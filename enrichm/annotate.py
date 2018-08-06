@@ -202,7 +202,7 @@ class Annotate:
         os.mkdir(output_directory_path)
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
-            logging.info('message')
+            logging.info('    - BLASTing genome: %s' % (genome.name))
             self._diamond_search(genome.path, output_annotation_path, self.databases.KO_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 

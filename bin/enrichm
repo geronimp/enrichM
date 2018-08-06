@@ -295,6 +295,8 @@ if __name__ == "__main__":
                 help='Output of a previous run of enrichm annotate (> v0.0.7)')
     compare_options.add_argument('--metadata',
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+    compare_options.add_argument('--threads', default = '1',
+                help='Use this number of threads when self BLASTing')
 
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
