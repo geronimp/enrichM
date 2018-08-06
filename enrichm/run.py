@@ -78,6 +78,7 @@ class Run:
         stream_logger.setFormatter(log_format)
         stream_logger.setLevel(debug[args.verbosity])
         logger.addHandler(stream_logger)
+
         if args.subparser_name!=self.DATA:
 
 
@@ -93,7 +94,7 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-
+        # We dont need an output directory for the DATA pipeline
         if args.subparser_name!=self.DATA:
             # Set up working directory
             if not args.output:
@@ -109,16 +110,6 @@ class Run:
                     raise Exception("File '%s' exists." % args.output)
 
             os.mkdir(args.output)   
-
-    def _check_data(self, args):
-        '''
-        Check data input and output options are valid.
-
-        Parameters
-        ----------
-        args    - object. Argparse object
-        '''
-        pass
 
     def _check_annotate(self, args):
         '''
@@ -181,9 +172,6 @@ class Run:
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to build.")
     
-    def _check_compare(self, args):
-        pass ### ~ TODO: Dunno yet
-    
     def _check_network(self, args):
         '''
         Check network (explore, pathway) input and output options are valid.
@@ -233,7 +221,6 @@ class Run:
         if args.subparser_name == self.DATA:
             self._check_data(args)
             d = Data()
-
             d.do()
         
         if args.subparser_name == self.ANNOTATE:
@@ -244,7 +231,6 @@ class Run:
                          args.ko,
                          args.pfam,
                          args.tigrfam,
-                         args.cog,
                          args.hypothetical,
                          # Cutoffs
                          args.evalue,
@@ -289,7 +275,8 @@ class Run:
                  args.multi_test_correction,
                  args.output,
                  args.gtdb_all,
-                 args.gtdb_public)
+                 args.gtdb_public,
+                 args.processes)
 
         elif args.subparser_name == self.COMPARE:
             self._check_compare(args)

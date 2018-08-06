@@ -122,7 +122,6 @@ class KeggMatrix:
                     if average > 0:
                         output_dict[reference] = average
                 except:
-                    import IPython ; IPython.embed()
                     raise Exception("metadata description does not match \
 input matrix")
         return output_dict

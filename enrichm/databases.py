@@ -105,7 +105,7 @@ class Databases:
 		logging.debug("Loading reaction to module information")
 		self.r2m = pickle.load(open('.'.join([self.R2M, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
-		logging.debug("Loading reaction to module information")
+		logging.debug("Loading module to reaction information")
 		self.m2r = pickle.load(open('.'.join([self.M2R, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.debug("Loading reaction to compound information")
@@ -135,15 +135,15 @@ class Databases:
 		self.clan2name \
 		         = pickle.load(open('.'.join([self.CLAN2NAME, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
-		logging.debug("Loading pfam descriptions")
+		logging.debug("Loading pfam names")
 		self.pfam2name \
 		         = pickle.load(open('.'.join([self.PFAM2NAME, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
-		logging.debug("Loading pfam")
+		logging.debug("Loading pfam descriptions")
 		self.pfam2description \
 		         = pickle.load(open('.'.join([self.PFAM2DESCRIPTION, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))
-		logging.debug("Loading pfam")
+		logging.debug("Loading pfam hierarchy")
 		self.clan2pfam \
 		         = pickle.load(open('.'.join([self.CLAN2PFAM, 
 		                                      self.PICKLE_VERSION, self.PICKLE])))

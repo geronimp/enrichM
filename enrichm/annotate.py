@@ -49,7 +49,6 @@ class Annotate:
     GENOME_BIN          = 'genome_bin'
     GENOME_PROTEINS     = 'genome_proteins'    
     GENOME_KO           = 'annotations_ko'
-    GENOME_COG          = 'annotations_cog'
     GENOME_PFAM         = 'annotations_pfam'
     GENOME_TIGRFAM      = 'annotations_tigrfam'
     GENOME_HYPOTHETICAL = 'annotations_hypothetical'
@@ -70,7 +69,6 @@ class Annotate:
                  ko,
                  pfam,
                  tigrfam,
-                 cog,
                  hypothetical,
                  evalue,
                  bit,
@@ -90,7 +88,6 @@ class Annotate:
         self.ko               = ko 
         self.pfam             = pfam 
         self.tigrfam          = tigrfam 
-        self.cog              = cog 
         self.hypothetical     = hypothetical 
         
         # Cutoffs
@@ -156,24 +153,33 @@ class Annotate:
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_PROTEINS) 
         os.mkdir(output_directory_path)
-        genomes_list = []
+        genome_list = list()
+        genome_paths = list()
 
         for genome in os.listdir(genome_directory):
             if genome.endswith(self.suffix):
-                genome_path = os.path.join(genome_directory,
-                                           genome)
-                output_genome = os.path.splitext(genome)[0] + self.PROTEINS_SUFFIX 
-                output_genome_path = os.path.join(output_directory_path,
-                                                  output_genome)
-                logging.info("    - Calling proteins for genome: %s" % (genome))
-                cmd = 'prodigal -q -p meta -o /dev/null -a %s -i %s' % (output_genome_path,
-                                                        genome_path)
-                
-                logging.debug(cmd)
-                subprocess.call(cmd, shell = True)
-                genome = Genome(output_genome_path)
-                genomes_list.append(genome)
-        return genomes_list
+                genome_paths.append(os.path.splitext(genome)[0])
+        
+        logging.info("    - Calling proteins for %i genomes" % (len(genome_paths)))
+        cmd = "ls %s/*%s | sed 's/%s//g' | grep -o '[^/]*$' | parallel -j %s prodigal -q -p meta -o /dev/null -a %s/{}%s -i %s/{}%s  > /dev/null 2>&1" \
+                % (genome_directory,
+                   self.suffix,
+                   self.suffix,
+                   self.parallel,
+                   output_directory_path,
+                   self.PROTEINS_SUFFIX,
+                   genome_directory,
+                   self.suffix)
+
+        logging.debug(cmd)
+        subprocess.call(cmd, shell = True)
+
+        for genome in os.listdir(output_directory_path):
+            output_genome_path = os.path.join(output_directory_path, genome)
+            genome = Genome(output_genome_path)
+            genome_list.append(genome)
+        
+        return genome_list
     
     def annotate_ko(self, genomes_list):
         '''
@@ -196,6 +202,7 @@ class Annotate:
         os.mkdir(output_directory_path)
         for genome in genomes_list:
             output_annotation_path = os.path.join(output_directory_path, genome.name) + self.ANNOTATION_SUFFIX
+            logging.info('message')
             self._diamond_search(genome.path, output_annotation_path, self.databases.KO_DB)
             genome.add(output_annotation_path, 
                          self.evalue, 
@@ -203,10 +210,6 @@ class Annotate:
                          self.aln_query, 
                          self.aln_reference,
                          AnnotationParser.KO)
-
-    def annotate_cog(self): 
-        pass
-        # TODO haven't prepared the reference database yet
 
     def _diamond_search(self, input_genome_path, output_path, database):
         '''
@@ -228,6 +231,11 @@ class Annotate:
             cmd += '--min-score %f ' % (self.bit)
         if self.id:
             cmd += '--id %f ' % (self.id)
+        if self.aln_query:
+            cmd += "--query-cover %f " % (self.aln_query * 100)
+        if self.aln_reference:
+            cmd += "--subject-cover %f " % (self.aln_reference * 100)
+
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)
 
@@ -257,7 +265,6 @@ class Annotate:
                          self.aln_query, 
                          self.aln_reference,
                          AnnotationParser.PFAM)
-    ### ~ TODO: arCOG
     
     def annotate_tigrfam(self, genomes_list):
         '''
@@ -314,8 +321,6 @@ class Annotate:
                     protein_dict[sequence_id] = genome.name
 
             with tempdir.TempDir() as tmp_dir: 
-                ## TODO: Add in options to customise the number of threads, percent identity and sensitivity of clustering.
-                ## Also the type of clustering?
                 
                 db_path = os.path.join(output_directory_path, "db")
                 clu_path = os.path.join(output_directory_path, "clu")
@@ -327,8 +332,8 @@ class Annotate:
                 subprocess.call(cmd, shell = True)
 
                 logging.info('    - Clustering genome proteins')
-                cmd = 'mmseqs cluster %s %s %s --threads %s --min-seq-id %s -c %s > /dev/null 2>&1 ' \
-                            % (db_path, clu_path, tmp_dir, self.threads, self.id, self.c)
+                cmd = 'mmseqs cluster %s %s %s --threads %s --min-seq-id %s -e %f -c %s > /dev/null 2>&1 ' \
+                            % (db_path, clu_path, tmp_dir, self.threads, self.id, self.evalue, self.c)
                 
                 if self.cascaded:
                     cmd += ' --cascaded'
@@ -539,7 +544,7 @@ class Annotate:
                 logging.info('    - Annotating genomes with hypothetical clusters')
                 cluster_ids = self.annotate_hypothetical(genomes_list)
                 
-                logging.info('    - Generating hypotheticals frequency table') ## TODO: Check that prev annotation exists ploise
+                logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)
 
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL)
@@ -554,10 +559,6 @@ class Annotate:
                 
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
                 mg.write_matrix(genomes_list, freq_table)
-
-            if self.cog:
-                logging.info('    - Annotating genomes with COG ids')
-                logging.info('    - COG annotation currently not implemented')
 
             if self.pfam:
                 logging.info('    - Annotating genomes with pfam ids')

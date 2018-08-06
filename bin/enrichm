@@ -55,20 +55,16 @@ def phelp():
   ------------------------------------------------------------------------------------
 
   Annotation 
-    annotate        -> Basic annotation of bins and contigs.
+    annotate        -> Basic annotation of genomes.
 
   Enrichment analysis
     classify        -> Determine what KEGG modules a genome encodes.
-    enrichment      -> Generate an enrichment matrix from modules produced by 
-                       annotate.
+    enrichment      -> Calculate enrichment of functional genes between groups.
     
   Network analysis
     pathway         -> Generate a metabolic network from specific KEGG module or 
                        compounds.
     explore         -> Explore a metabolic network from a given compound.
-    traverse        -> Which nodes in the network are more likely to be visited given
-                       the abundance of reactions in the metagenome and 
-                       metatranscriptome. [UNDER DEVELOPMENT]
 
   Authors: Joel Boyd, Boyd Woodcroft, Alex Baker
   Version: %s 
@@ -142,37 +138,35 @@ if __name__ == "__main__":
     annotate_annotation_options.add_argument('--ko', action='store_true',
                 help='Annotate with KO ids')   
     annotate_annotation_options.add_argument('--pfam', action='store_true',
-                help='Annotate with pfam HMMs')
+                help='Annotate with Pfam HMMs')
     annotate_annotation_options.add_argument('--tigrfam', action='store_true',
-                help='Annotate with tigrfam HMMs')
-    annotate_annotation_options.add_argument('--cog', action='store_true',
-                help='Annotate with COG ids [NOT IMPLEMENTED]')
+                help='Annotate with TIGRFAM HMMs')
     annotate_annotation_options.add_argument('--hypothetical', action='store_true',
                 help='Annotate with hypothetical clusters')
 
     annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
-    annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-03,
-                help='Use this evalue cutoff to filter false positives (default: 1e-03)')
+    annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-05,
+                help='Use this evalue cutoff to filter false positives (default: 1e-05)')
     annotate_cutoff_options.add_argument('--bit', type = float, default = 0,
                 help='Use this bit score cutoff to filter false positives (default: 0)')
-    annotate_cutoff_options.add_argument('--id', type = float, default = 0,
-                help='Use this percent identity cutoff to filter false positives (default: 0)')
-    annotate_cutoff_options.add_argument('--aln_query', type = float, default = 0,
-                help='This fraction of the query must align to the reference (default: 0)')
-    annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0,
-                help='This fraction of the reference must align to the query (default: 0)')
+    annotate_cutoff_options.add_argument('--id', type = float, default = 0.3,
+                help='Use this percent identity cutoff to filter false positives (default: 0.3)')
+    annotate_cutoff_options.add_argument('--aln_query', type = float, default = 0.7,
+                help='This fraction of the query must align to the reference (default: 0.7)')
+    annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0.7,
+                help='This fraction of the reference must align to the query (default: 0.7)')
 
     annotate_cluster_options = annotate.add_argument_group('Cluster specific options')
     annotate_cluster_options.add_argument('--cascaded', action = 'store_true',
-                help='Use cascaded workflow in Mmseq2')
-    annotate_cluster_options.add_argument('--c', type = float, default = 0.8,
-                help='Use matches above this fraction of aligned (covered) query and target residues')
+                help='Use cascaded workflow in mmseqs2')
+    annotate_cluster_options.add_argument('--c', type = float, default = 0.7,
+                help='Use matches above this fraction of aligned (covered) query and target residues (default: 0.7)')
 
     annotate_runtime_options = annotate.add_argument_group('Runtime options')
     annotate_runtime_options.add_argument('--threads', default = '1',
                 help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
     annotate_runtime_options.add_argument('--parallel', default = '5',
-                help='Run this number of jobs in parallelwhen annotating with HMMsearch (default: 5)')
+                help='Run this number of jobs in parallel when annotating with HMMsearch (default: 5)')
     annotate_runtime_options.add_argument('--suffix', 
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
 
@@ -236,7 +230,8 @@ if __name__ == "__main__":
                 help='The threshold to control for in false discovery rate of familywise error rate.', default=0.1)
     enrichment_runtime_options.add_argument('--multi_test_correction',
                 help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.', default='fdr_bh')
-
+    enrichment_runtime_options.add_argument('--processes', type = int,
+                help='Number of processes to use for enrichment.', default=1)
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Pathway
@@ -296,8 +291,10 @@ if __name__ == "__main__":
     compare = subparsers.add_parser('compare', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     compare_options = compare.add_argument_group('Compare options')
-    compare_options.add_argument('--enrichm_annotate_output', 
-                help='Output of a previous run of enrichm annotate (> v0.0.7 )')
+    compare_options.add_argument('--enrichm_annotate_output',  required = True,
+                help='Output of a previous run of enrichm annotate (> v0.0.7)')
+    compare_options.add_argument('--metadata',
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
 
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()

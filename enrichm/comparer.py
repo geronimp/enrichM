@@ -54,7 +54,7 @@ class Compare:
 		-------
 		List of Genome objects
 		'''	
-		output_genome_list = []
+		output_genome_list = list()
 
 		genome_pickle_file_path \
 			= os.path.join(enrichm_annotate_output, Annotate.GENOME_OBJ)
@@ -79,4 +79,5 @@ class Compare:
 		logging.info('Parsing pickled genomes from previous enrichm run: %s' \
 						% (enrichm_annotate_output))
 		genome_list = self._parse_pickles(enrichm_annotate_output)
+		import IPython ; IPython.embed()
 		
