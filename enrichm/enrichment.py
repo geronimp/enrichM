@@ -70,6 +70,18 @@ def group_mannwhitneyu_calc(x):
                                              group_2_module_kos)
             return [module, group_1, group_2, str(np.mean(group_1_module_kos)), str(np.mean(group_2_module_kos)), str(len(module_list)), mw_t_stat, mw_p_value]
 
+def zscore_calc(x):
+    module, group, genome, genome_comp, reference_group_comp_list, module_list, description = x
+    if genome_comp>0:
+        reference_group_comp_sd \
+            = np.std(reference_group_comp_list, axis=0)
+        reference_group_comp_mean \
+            = np.mean(reference_group_comp_list, axis=0)
+        
+        if (genome_comp-reference_group_comp_mean)>0:
+            z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
+            p_value = 2-2*scipy.stats.norm.cdf(z_score)
+            return [module, group, genome, str(reference_group_comp_mean), str(genome_comp), module_list, str(z_score), str(p_value), description]
 
 
 
@@ -294,7 +306,6 @@ class Enrichment:
            multi_test_correction, output_directory, gtdb_all,
            gtdb_public, processes):
         """"""
-        ################################################################################
         logging.info('Parsing inputs')
         logging.info('Parsing annotations')
         if annotation_matrix:
@@ -311,7 +322,6 @@ class Enrichment:
         logging.info('Parsing metadata')
         cols_to_attributes, rownames, colnames, metadata_value_lists \
                     = self.parse_metadata_matrix(metadata)
-        ################################################################################
 
         logging.info("Comparing sets of genomes")        
         combination_dict = dict()
@@ -369,7 +379,7 @@ class Enrichment:
         else:
             ivg = None
 
-            ################################################################################
+        ################################################################################
 
         for test_result_lines, test_result_output_file in t.do(ivi, ivg, gvg):
             test_result_output_path = os.path.join(output_directory,
@@ -607,50 +617,44 @@ class Test(Enrichment):
 
     def zscore(self, ivg):
         header       = [['module', 'group', 'genome', 'group_mean', 'genome_count', 'count', 'z_score', 'p_value','corrected_p_value', 'description']]
-        output_lines = []
-        pvals        = []
+        output_lines = list()
+        pvals        = list()
+        res_list     = list()
 
         if self.annotation_type==Enrichment.TIGRFAM:
             logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications are needed (like in KEGG, COG or PFAM).')
         else:
+            if self.annotation_type == Enrichment.KEGG:
+                annotation_dict = self.m2def.items()
+                annotation_description = self.m
+            elif self.annotation_type == Enrichment.PFAM:
+                annotation_dict = self.clan2pfam.items()
+                annotation_description = self.clan_to_description
+            else:
+                raise Exception("Programming error")
+
             for group, comparisons in ivg.items():
                 for genome, reference_group in comparisons:
-                    if self.annotation_type == Enrichment.KEGG:
-                        annotation_dict = self.m2def.items()
-                        annotation_description = self.m
-                    elif self.annotation_type == Enrichment.PFAM:
-                        annotation_dict = self.clan2pfam.items()
-                        annotation_description = self.clan_to_description
-                    else:
-                        raise Exception("Programming error")
-
                     for module, definition in annotation_dict:
                         module_list = self._strip_kegg_definitions(definition)
+                        
                         genome_comp \
-                            = len(set(self.genome_annotations[genome]).intersection(module_list))
+                            = len(self.genome_annotations[genome].intersection(module_list))
                         reference_group_comp_list \
                             = np.array([len(set(self.genome_annotations[reference_genome]).intersection(module_list))
                                         for reference_genome in reference_group])
-                        reference_group_comp_sd \
-                            = np.std(reference_group_comp_list, axis=0)
-                        reference_group_comp_mean \
-                            = np.mean(reference_group_comp_list, axis=0)
-                        if genome_comp>0:
-                            if (genome_comp-reference_group_comp_mean)>0:
-                                z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
-                                p_value = 2-2*scipy.stats.norm.cdf(z_score)
-                                if self.pval_cutoff <= p_value:
-                                    pvals.append(p_value)
-                                    output_lines.append([module, 
-                                                          group, 
-                                                          genome, 
-                                                          str(reference_group_comp_mean),
-                                                          str(genome_comp),
-                                                          str(len(module_list)), 
-                                                          str(z_score), 
-                                                          str(p_value), 
-                                                          annotation_description[module]])
 
+                        res_list.append([module,
+                                         group,
+                                         genome,
+                                         genome_comp,
+                                         reference_group_comp_list,
+                                         str(len(module_list)),
+                                         annotation_description[module]])
+        
+        output_lines = self.pool.map(zscore_calc, res_list)
+        output_lines = [x for x in output_lines if x]
+        pvals = [float(x[-2]) for x in output_lines]
         if len(pvals)>0:
             corrected_pvals = self.correct_multi_test(pvals)
         else:
