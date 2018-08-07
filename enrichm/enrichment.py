@@ -553,7 +553,7 @@ class Test(Enrichment):
         ''''''
         header       = [['module', 'genome_1', 'genome_2', 'group_1_count', 'group_2_count',
                          'count', 'stat', 'p_value', 'corrected_p_value', 'description']]
-        res_lines    = list()
+        res_list    = list()
         
         iterator, annotation_description = self.get_annotations()
 
@@ -574,7 +574,7 @@ class Test(Enrichment):
                 row_2 = [(len(genome_1_annotations) - len(genome_1_comp)),
                          (len(genome_2_annotations) - len(genome_2_comp))]
 
-                res_lines.append([module, genome_1, genome_2, row_1, row_2])
+                res_list.append([module, genome_1, genome_2, row_1, row_2])
 
         output_lines = self.pool.map(gene_fisher_calc, res_list)
         pvalues      = [x[-1] for x in output_lines]
