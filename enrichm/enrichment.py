@@ -487,25 +487,41 @@ class Test(Enrichment):
         
         return genome_annotation_list
 
-    def gene_fisher(self):
-        
-        header    = [['group_1', 'group_2', 'ko', 'group_1_true', 'group_1_false', 'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
-        kos             = set(chain(*self.genome_annotations.values()))
-        pvalues         = list()
+    def get_annotations(self, annotation_type):
 
-        res_list = list()
-        
+        if self.annotation_type==Enrichment.TIGRFAM:
+            logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications are needed (like in KEGG, COG or PFAM).')
+        elif self.annotation_type==Enrichment.KEGG:
+            iterator = self.m2def
+            annotation_description = self.m
+        elif self.annotation_type==Enrichment.PFAM:
+            iterator = self.clan2pfam
+            annotation_description = self.clan_to_description
+        return iterator, annotation_description
+
+    def gene_fisher(self):
+        """"""
+        header      = [['group_1', 'group_2', 'ko', 'group_1_true', 'group_1_false', 'group_2_true',
+                        'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
+        kos         = set(chain(*self.genome_annotations.values()))
+        res_list    = list()
+
         for group_1, group_2 in combinations(self.groups.keys(), 2):
             for ko in kos:
-                group_1_true, group_1_false, group_2_true, group_2_false = 0,0,0,0
+
+                group_1_true, group_1_false, group_2_true, group_2_false = 0, 0, 0, 0
 
                 if (len(self.groups[group_1])>5 and len(self.groups[group_2])>5):
+                    
                     for genome_1 in self.groups[group_1]:
+                    
                         if ko in self.genome_annotations[genome_1]:
                             group_1_true+=1
                         else:
                             group_1_false+=1
+                    
                     for genome_2 in self.groups[group_2]:
+                        
                         if ko in self.genome_annotations[genome_2]:
                             group_2_true+=1
                         else:
@@ -519,153 +535,114 @@ class Test(Enrichment):
         for idx, corrected_pval in enumerate(self.correct_multi_test(pvalues)):
             output_lines[idx].append(str(corrected_pval))
                 
-        return header+output_lines
+        return header + output_lines
 
     def ivi_fisher(self, ivi):
-        '''
-        Parameters
-        ----------
+        ''''''
+        header       = [['module', 'genome_1', 'genome_2', 'group_1_count', 'group_2_count',
+                         'count', 'stat', 'p_value', 'corrected_p_value', 'description']]
+        res_lines    = list()
         
-        Output
-        ------
-        '''
-        header       = ['module', 'genome_1', 'genome_2', 'group_1_count', 'group_2_count', 'count', 'stat', 'p_value', 'corrected_p_value', 'description']
-        output_lines = list()
-        pvals        = list()
-        
-        if self.annotation_type==Enrichment.TIGRFAM:
-            logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications are needed (like in KEGG, COG or PFAM).')
-        
-        else:
-            if self.annotation_type==Enrichment.KEGG:
-                iterator = self.m2def
-                annotation_description = self.m
+        iterator, annotation_description = self.get_annotations()
 
-            elif self.annotation_type==Enrichment.PFAM:
-                iterator = self.clan2pfam
-                annotation_description = self.clan_to_description
-            
-            res_lines = list()
+        for genome_1, genome_2 in ivi:
 
-            for genome_1, genome_2 in ivi:
+            for module, module_definition in iterator.items():
+                module_kos    = self._strip_kegg_definitions(module_definition)
+                
+                genome_1_annotations = self.genome_annotations[genome_1]
+                genome_2_annotations = self.genome_annotations[genome_2]
 
-                for module, module_definition in iterator.items():
-                    module_kos    = self._strip_kegg_definitions(module_definition)
-                    
-                    genome_1_comp = module_kos.intersection(self.genome_annotations[genome_1])
-                    genome_2_comp = module_kos.intersection(self.genome_annotations[genome_2])
+                genome_1_comp = module_kos.intersection(genome_1_annotations)
+                genome_2_comp = module_kos.intersection(genome_2_annotations)
 
-                    row_1 = [len(genome_1_comp), 
-                             len(genome_2_comp)]
-                    row_2 = [(len(self.genome_annotations[genome_1]) - len(genome_1_comp)),
-                             (len(self.genome_annotations[genome_2]) - len(genome_2_comp))]
-                    res_lines.append([module, genome_1, genome_2, row_1, row_2])
+                row_1 = [len(genome_1_comp), 
+                         len(genome_2_comp)]
+
+                row_2 = [(len(genome_1_annotations) - len(genome_1_comp)),
+                         (len(genome_2_annotations) - len(genome_2_comp))]
+
+                res_lines.append([module, genome_1, genome_2, row_1, row_2])
 
         output_lines = self.pool.map(gene_fisher_calc, res_list)
-        pvalues = [x[-1] for x in output_lines]
+        pvalues      = [x[-1] for x in output_lines]
 
-        if len(pvals)>0:
-            corrected_pvals = self.correct_multi_test(pvals)
+        if len(pvalues)>0:
+            corrected_pvalues = self.correct_multi_test(pvalues)
         else:
-            corrected_pvals = ['nan' for x in output_lines]
+            corrected_pvalues = ['nan' for x in output_lines]
 
-        output_lines_list = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
+        output_lines_list = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvalues))]
 
-        return output_lines
+        return header + output_lines
         
     def ttest(self, gvg):
         
-        header = ['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 
-                   'mann_whitney_t_stat', 'mann_whitney_p_value', 'mann_whitney_corrected_p_value',
-                   'description']
+        header      = [['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 
+                               'mann_whitney_t_stat', 'mann_whitney_p_value', 'mann_whitney_corrected_p_value',
+                               'description']]
+        res_list    = list()
 
-        output_lines    = list()
-        res_list        = list()
-
-        if self.annotation_type==Enrichment.TIGRFAM:
-            logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications are needed (like in KEGG, COG or PFAM).')
-        else:
-            if self.annotation_type == Enrichment.KEGG:
-                annotation_dict = self.m2def.items()
-                annotation_description = self.m
-
-            elif self.annotation_type == Enrichment.PFAM:
-                annotation_dict = self.clan2pfam.items()
-                annotation_description = self.clan_to_description
-            else:
-                raise Exception("Programming error")
+        iterator, annotation_description = self.get_annotations()
                 
-            for group_1, group_2 in gvg:
+        for group_1, group_2 in gvg:
 
-                for module, definition in annotation_dict:
+            for module, definition in annotation_dict:
+                module_list = self._strip_kegg_definitions(definition)
+                
+                group_1_module_kos = self.gather_genome_annotations(group_1, module_list)
+                group_2_module_kos = self.gather_genome_annotations(group_2, module_list)
+                
+                res_list.append([module, group_1, group_2, group_1_module_kos, group_2_module_kos, module_list])
 
-                    module_list = self._strip_kegg_definitions(definition)
-                    
-                    group_1_module_kos = self.gather_genome_annotations(group_1, module_list)
-                    group_2_module_kos = self.gather_genome_annotations(group_2, module_list)
-                    
-                    res_list.append([module, group_1, group_2, group_1_module_kos, group_2_module_kos, module_list])
+        output_lines = [x for x in self.pool.map(group_mannwhitneyu_calc, res_list) if x]
+        pvalues      = [x[-1] for x in output_lines]      
 
-        output_lines = self.pool.map(group_mannwhitneyu_calc, res_list)
-        output_lines = [x for x in output_lines if x]
-        mw_pvals = [x[-1] for x in output_lines]      
-
-        for idx, corrected_p in enumerate(self.correct_multi_test(mw_pvals)):
+        for idx, corrected_p in enumerate(self.correct_multi_test(pvalues)):
             output_lines[idx] = [str(x) for x in output_lines[idx]] + [str(corrected_p), annotation_description[output_lines[idx][0]]]
 
-        return [header] + output_lines
+        return header + output_lines
 
     def zscore(self, ivg):
-        header       = [['module', 'group', 'genome', 'group_mean', 'genome_count', 'count', 'z_score', 'p_value','corrected_p_value', 'description']]
-        output_lines = list()
-        pvals        = list()
+        header       = [['module', 'group', 'genome', 'group_mean', 'genome_count',
+                         'count', 'z_score', 'p_value','corrected_p_value', 'description']]
         res_list     = list()
 
-        if self.annotation_type==Enrichment.TIGRFAM:
-            logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications are needed (like in KEGG, COG or PFAM).')
-        else:
-            if self.annotation_type == Enrichment.KEGG:
-                annotation_dict = self.m2def.items()
-                annotation_description = self.m
-            elif self.annotation_type == Enrichment.PFAM:
-                annotation_dict = self.clan2pfam.items()
-                annotation_description = self.clan_to_description
-            else:
-                raise Exception("Programming error")
+        iterator, annotation_description = self.get_annotations()
 
-            for group, comparisons in ivg.items():
-                for genome, reference_group in comparisons:
-                    for module, definition in annotation_dict:
-                        module_list = self._strip_kegg_definitions(definition)
-                        
-                        genome_comp \
-                            = len(self.genome_annotations[genome].intersection(module_list))
-                        reference_group_comp_list \
-                            = np.array([len(set(self.genome_annotations[reference_genome]).intersection(module_list))
-                                        for reference_genome in reference_group])
+        for group, comparisons in ivg.items():
+            for genome, reference_group in comparisons:
+                for module, definition in annotation_dict:
+                    module_list = self._strip_kegg_definitions(definition)
+                    
+                    genome_comp \
+                        = len(self.genome_annotations[genome].intersection(module_list))
+                    reference_group_comp_list \
+                        = np.array([len(set(self.genome_annotations[reference_genome]).intersection(module_list))
+                                    for reference_genome in reference_group])
 
-                        res_list.append([module,
-                                         group,
-                                         genome,
-                                         genome_comp,
-                                         reference_group_comp_list,
-                                         str(len(module_list)),
-                                         annotation_description[module]])
+                    res_list.append([module,
+                                     group,
+                                     genome,
+                                     genome_comp,
+                                     reference_group_comp_list,
+                                     str(len(module_list)),
+                                     annotation_description[module]])
         
-        output_lines = self.pool.map(zscore_calc, res_list)
-        output_lines = [x for x in output_lines if x]
-        pvals = [float(x[-2]) for x in output_lines]
-        if len(pvals)>0:
-            corrected_pvals = self.correct_multi_test(pvals)
-        else:
-            corrected_pvals = ['nan' for x in output_lines]
-        output_lines = header + [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvals))]
+        output_lines = [x for x in self.pool.map(zscore_calc, res_list) if x]
+        pvalues      = [float(x[-2]) for x in output_lines]
 
-        return output_lines
+        if len(pvalues)>0:
+            corrected_pvalues = self.correct_multi_test(pvalues)
+        else:
+            corrected_pvalues = ['nan' for x in output_lines]
+
+        output_lines = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvalues))]
+
+        return header + output_lines
 
 
     def do(self, ivi, ivg, gvg):
-
 
         logging.info('Running enrichent tests')
         results=[]
@@ -682,7 +659,6 @@ class Test(Enrichment):
         if gvg:
             logging.info('Running group vs group comparisons')
             results.append( (self.ttest(gvg), self.GVG_OUTPUT) )
-
         
         return results
 
