@@ -115,8 +115,9 @@ class Classify:
 
         '''
         
-        pathway = {}
-        genome_output_lines = []
+        pathway             = dict()
+        genome_output_lines = list()
+
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
             self._update_with_custom_modules(custom_modules)
@@ -128,7 +129,7 @@ class Classify:
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
         
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found", 
-                             "Steps_needed", "Percent_steps_found", "KO_found", "KO_needed", "Percent_KO_found"]) + '\n']
+                             "Steps_needed", "Percent_steps_found"]) + '\n'] # "KO_found", "KO_needed", "Percent_KO_found"
         
         genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"]) + '\n']
 
@@ -141,20 +142,23 @@ class Classify:
                 for genome, annotations in genome_to_annotation_sets.items():
                     
                     num_covered, ko_covered, ko_total, ko_path = path.num_covered_steps(annotations)
-                    num_all = path.num_steps()
-                    perc_covered = num_covered / float(num_all)
-                    ko_perc = ko_covered / float(ko_total)
+                    num_all         = path.num_steps()
+                    perc_covered    = num_covered / float(num_all)
+                    ko_perc         = ko_covered / float(ko_total)
+
                     if perc_covered >= cutoff:
                         genome_output_lines.append('\t'.join([genome, name, self.m[name], 
                                                               ','.join(chain(*ko_path.values())) + '\n']))
                         output_line = "\t".join([genome, name, self.m[name],
                                                   str(num_covered),   
                                                   str(num_all),
-                                                  str(round(perc_covered * 100, 2)),
-                                                  str(ko_covered),
-                                                  str(ko_total),
-                                                  str(round(ko_perc * 100, 2))]) 
+                                                  str(round(perc_covered * 100, 2))
+                                                  # str(ko_covered),
+                                                  # str(ko_total),
+                                                  # str(round(ko_perc * 100, 2))
+                                                  ]) 
                         output_lines.append(output_line + '\n') 
+                        
         self.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT))
         self.write(genome_output_lines, os.path.join(output_directory, self.MODULE_PATHS)) 
         

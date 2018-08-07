@@ -26,16 +26,17 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
+
 # System
 import logging
 import os
 import random
 import re
-import scipy.stats
 import numpy as np
 import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
 
+from scipy import stats
 from itertools import product, combinations, chain
 
 # Local
@@ -44,10 +45,13 @@ from databases import Databases
 ################################################################################
 
 def gene_fisher_calc(x):
+    
     ko, group_1, group_2 = x[0], x[1], x[2]
+    
     dat = x[3:]
+    
     if (dat[0][0]>0 or dat[1][0]>0) and (dat[0][1]>0 or dat[1][1]>0):
-        score, pval = scipy.stats.fisher_exact(dat)
+        score, pval = stats.fisher_exact(dat)
     else:
         score, pval = 'nan', 1.0
 
@@ -56,6 +60,7 @@ def gene_fisher_calc(x):
 def group_mannwhitneyu_calc(x):
     # Mann Whitney U test
     module, group_1, group_2, group_1_module_kos, group_2_module_kos, module_list = x
+
     if(len(group_1_module_kos)>1 and len(group_2_module_kos)>1):
         if(sum(group_1_module_kos)>0 and sum(group_2_module_kos)>0):
             if(len(set(group_1_module_kos)) == 1
@@ -66,12 +71,17 @@ def group_mannwhitneyu_calc(x):
                 group_1_module_kos = np.array(group_1_module_kos)       
                 group_2_module_kos = np.array(group_2_module_kos)           
                 mw_t_stat, mw_p_value = \
-                    scipy.stats.mannwhitneyu(group_1_module_kos,
+                    stats.mannwhitneyu(group_1_module_kos,
                                              group_2_module_kos)
-            return [module, group_1, group_2, str(np.mean(group_1_module_kos)), str(np.mean(group_2_module_kos)), str(len(module_list)), mw_t_stat, mw_p_value]
+            
+            return [module, group_1, group_2, str(np.mean(group_1_module_kos)),
+                    str(np.mean(group_2_module_kos)), str(len(module_list)), 
+                    mw_t_stat, mw_p_value]
 
 def zscore_calc(x):
+    
     module, group, genome, genome_comp, reference_group_comp_list, module_list, description = x
+    
     if genome_comp>0:
         reference_group_comp_sd \
             = np.std(reference_group_comp_list, axis=0)
@@ -80,10 +90,11 @@ def zscore_calc(x):
         
         if (genome_comp-reference_group_comp_mean)>0:
             z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
-            p_value = 2-2*scipy.stats.norm.cdf(z_score)
-            return [module, group, genome, str(reference_group_comp_mean), str(genome_comp), module_list, str(z_score), str(p_value), description]
-
-
+            p_value = 2-2*stats.norm.cdf(z_score)
+            
+            return [module, group, genome, str(reference_group_comp_mean), 
+                    str(genome_comp), module_list, str(z_score), 
+                    str(p_value), description]
 
 ################################################################################
 
@@ -305,9 +316,10 @@ class Enrichment:
            pval_cutoff, proportions_cutoff, threshold, 
            multi_test_correction, output_directory, gtdb_all,
            gtdb_public, processes):
-        """"""
+
         logging.info('Parsing inputs')
         logging.info('Parsing annotations')
+
         if annotation_matrix:
             annotations_dict, modules, genomes \
                         = self._parse_annotation_matrix(annotation_matrix)
@@ -487,7 +499,7 @@ class Test(Enrichment):
         
         return genome_annotation_list
 
-    def get_annotations(self, annotation_type):
+    def get_annotations(self):
 
         if self.annotation_type==Enrichment.TIGRFAM:
             logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications are needed (like in KEGG, COG or PFAM).')
@@ -587,7 +599,7 @@ class Test(Enrichment):
                 
         for group_1, group_2 in gvg:
 
-            for module, definition in annotation_dict:
+            for module, definition in iterator.items():
                 module_list = self._strip_kegg_definitions(definition)
                 
                 group_1_module_kos = self.gather_genome_annotations(group_1, module_list)
@@ -612,7 +624,7 @@ class Test(Enrichment):
 
         for group, comparisons in ivg.items():
             for genome, reference_group in comparisons:
-                for module, definition in annotation_dict:
+                for module, definition in iterator.items():
                     module_list = self._strip_kegg_definitions(definition)
                     
                     genome_comp \
