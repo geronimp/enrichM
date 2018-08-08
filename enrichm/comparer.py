@@ -193,6 +193,5 @@ class Compare:
 		genome_dict = {genome.name:genome for genome in genome_list}
 
 		pan_genome_results = self._pan_genome(genome_dict, metadata)
-		import IPython ; IPython.embed()
 		#self._synteny(genome_list)
 		
