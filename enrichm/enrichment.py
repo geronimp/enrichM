@@ -41,7 +41,7 @@ from itertools import product, combinations, chain
 
 # Local
 from databases import Databases
-
+from draw_plots import Plot
 ################################################################################
 
 def gene_fisher_calc(x):
@@ -311,11 +311,13 @@ class Enrichment:
                 out_io.write(string)
 
 
+
     def do(self, annotation_matrix, annotation_file, metadata,
            subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
            pval_cutoff, proportions_cutoff, threshold, 
            multi_test_correction, output_directory, gtdb_all,
            gtdb_public, processes):
+
 
         logging.info('Parsing inputs')
         logging.info('Parsing annotations')
@@ -346,11 +348,12 @@ class Enrichment:
                         genome_list.append(genome)  
             combination_dict['_'.join(combination)]=genome_list
 
+        annotation_type = self.check_annotation_type(modules)
         t = Test(annotations_dict,
                  modules,
                  genomes ,
                  combination_dict,
-                 self.check_annotation_type(modules),
+                 annotation_type,
                  threshold,
                  multi_test_correction,
                  pval_cutoff, 
@@ -392,8 +395,8 @@ class Enrichment:
             ivg = None
 
         ################################################################################
-
-        for test_result_lines, test_result_output_file in t.do(ivi, ivg, gvg):
+        results = t.do(ivi, ivg, gvg)
+        for test_result_lines, test_result_output_file in results:
             test_result_output_path = os.path.join(output_directory,
                                                    test_result_output_file)
             self._write(test_result_lines, test_result_output_path)
@@ -406,6 +409,15 @@ class Enrichment:
             = self.calculate_portions(modules, combination_dict, annotations_dict, genome_list, proportions_cutoff)
         
         self._write(raw_proportions_output_lines, raw_portions_path)
+
+
+        p = Plot()
+
+        logging.info('Generating summary plots')
+
+        if annotation_type==self.KEGG:
+            p.draw_barplots(os.path.join(output_directory,t.GENE_FISHER_OUTPUT), pval_cutoff, output_directory)
+        p.draw_pca_plot(annotation_matrix, metadata, output_directory)
 
 
 class Test(Enrichment):
