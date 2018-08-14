@@ -33,12 +33,16 @@ import os
 import subprocess
 import pickle
 import tempfile
-from itertools import chain
+import numpy as np
+
+from scipy import stats
+from itertools import chain, combinations
 
 ################################################################################
 
 from genome import Genome, AnnotationParser
 from annotate import Annotate
+
 
 ###############################################################################
 
@@ -46,6 +50,11 @@ class Compare:
 
 	def __init__(self, threads):
 		self.threads = threads
+
+		# Result types
+		self.gc = "GC content"
+		self.length = "Genome length"
+		self.tests = "Tests"
 
 	def _parse_pickles(self, enrichm_annotate_output):
 		'''
@@ -149,6 +158,7 @@ class Compare:
 						downstream_synt = 1			
 				else:
 					downstream_synt = 1
+	
 	def _metadata_parser(self, metadata_path):
 		metadata = dict()
 		seen = set()
@@ -163,7 +173,6 @@ class Compare:
 			seen.add(genome)
 		return metadata
 
-
 	def _pan_genome(self, genome_dict, metadata):
 		result = dict()
 		for group, genomes in metadata.items():
@@ -174,6 +183,60 @@ class Compare:
 			group_core_size = round((float(group_core_genome_size) / group_genome_mean)*100, 2)
 			result[group] = [group_core_genome_size, group_core_size]
 		return result
+
+	def gather_stats(self, number_list):
+		number_array = np.array(number_list)
+		mean = number_array.mean()
+		median = np.median(number_array)
+		minimum = min(number_array)
+		maximum = max(number_array)
+		p90 = np.percentile(number_array, 90)
+		p10 = np.percentile(number_array, 10)
+
+		return [mean, median, minimum, maximum, p90, p10]
+
+	def run_mannwhitneyu(self, feature, feature_list):
+		
+		test_results = dict()
+
+		for combination in combinations(feature_list.keys(), 2):
+
+			group_1 = np.array(feature_list[combination[0]])
+			group_2 = np.array(feature_list[combination[1]])
+
+			test_results[combination] \
+				= stats.mannwhitneyu(group_1, group_2)
+		
+		return test_results
+
+	def _compare_features(self, genome_dict, metadata):
+		# GC, size, coding density
+		keys = metadata.keys()+[self.tests]
+
+		results = {self.gc:		{x:[] for x in keys},
+				   self.length:	{x:[] for x in keys}}
+
+		for group, genomes in metadata.items():
+			group_genomes = [genome_dict[genome] for genome in genomes]
+			group_lengths = list()
+			group_gc = list()
+			
+			for genome in group_genomes:
+				group_gc.append(genome.gc)
+				group_lengths.append(genome.length)
+
+			results[self.gc][group].append([group_gc, self.gather_stats(group_gc)]) 
+			results[self.length][group].append([group_lengths, self.gather_stats(group_lengths)]) 
+
+		for feature, feature_list in results.items():
+			test_result = self.run_mannwhitneyu(feature, feature_list)
+			results[self.tests].append([feature, test_result])
+		
+		return results
+	
+	def write_compare_features_results(self, compare_features_results, output_tests_path, output_summary_path):
+		tests_header 	= ["Group 1", "Group 2", ""]
+		summary_header 	= []
 
 	def do(self, enrichm_annotate_output, metadata_path):
 		'''
@@ -193,5 +256,10 @@ class Compare:
 		genome_dict = {genome.name:genome for genome in genome_list}
 
 		pan_genome_results = self._pan_genome(genome_dict, metadata)
-		#self._synteny(genome_list)
+		#self.write_pan_genome_results(pan_genome_results)
+
+		compare_features_results = self._compare_features(genome_dict, metadata)
+		self.write_compare_features_results(compare_features_results)
 		
+		# synteny_results = self.synteny(genome_list)
+		# self.write_synteny_results(synteny_results)

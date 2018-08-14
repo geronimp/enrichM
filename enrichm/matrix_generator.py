@@ -32,6 +32,7 @@ import os
 import itertools
 
 from databases import Databases
+from collections import Counter
 
 ###############################################################################
 
@@ -76,14 +77,14 @@ class MatrixGenerator:
         with open(output_path, 'w') as out_io:
             colnames = ['ID'] + [genome.name for genome in genomes_list]
             out_io.write('\t'.join(colnames) + '\n')
-
-            genome_annotations = {genome.name:list(itertools.chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
+            genome_annotations = {genome.name:Counter(itertools.chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
                                   for genome in genomes_list}
 
             for annotation in self.annotation_list:
                 output_line = [annotation]
                 for genome in genomes_list:
-
-                    output_line.append(str(genome_annotations[genome.name].count(annotation)))
-
+                    if annotation in genome_annotations[genome.name]:
+                        output_line.append(str(genome_annotations[genome.name][annotation]))
+                    else:
+                        output_line.append('0')
                 out_io.write( '\t'.join(output_line) + '\n' )

@@ -157,8 +157,6 @@ if __name__ == "__main__":
                 help='This fraction of the reference must align to the query (default: 0.7)')
 
     annotate_cluster_options = annotate.add_argument_group('Cluster specific options')
-    annotate_cluster_options.add_argument('--cascaded', action = 'store_true',
-                help='Use cascaded workflow in mmseqs2')
     annotate_cluster_options.add_argument('--c', type = float, default = 0.7,
                 help='Use matches above this fraction of aligned (covered) query and target residues (default: 0.7)')
 
@@ -169,7 +167,8 @@ if __name__ == "__main__":
                 help='Run this number of jobs in parallel when annotating with HMMsearch (default: 5)')
     annotate_runtime_options.add_argument('--suffix', 
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
-
+    annotate_runtime_options.add_argument('--light', action='store_true',
+                help="Don't store metadata for genome files (can't use enrichM compare downstream, default=False)")
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Classify  

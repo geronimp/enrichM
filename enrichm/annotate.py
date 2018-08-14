@@ -40,6 +40,7 @@ from databases import Databases
 from matrix_generator import MatrixGenerator
 from gff_generator import GffGenerator
 from genome import Genome, AnnotationParser
+from Bio import SeqIO
 
 ###############################################################################
 ################################ - Classes - ##################################
@@ -58,6 +59,7 @@ class Annotate:
     OUTPUT_PFAM         = 'pfam_frequency_table.tsv'
     OUTPUT_TIGRFAM      = 'tigrfam_frequency_table.tsv'
     OUTPUT_HYPOTHETICAL = 'hypothetical_frequency_table.tsv'
+    OUTPUT_HYPOTHETICAL_ANNOTATIONS = 'hypothetical_annotations.tsv'
 
     GFF_SUFFIX          = '.gff'
     PROTEINS_SUFFIX     = '.faa'
@@ -75,11 +77,11 @@ class Annotate:
                  id,
                  aln_query,
                  aln_reference,
-                 cascaded,
                  c,
                  threads,
                  parallel,
-                 suffix):
+                 suffix,
+                 light):
 
         # Define inputs and outputs
         self.output_directory = output_directory
@@ -96,13 +98,13 @@ class Annotate:
         self.id               = id 
         self.aln_query        = aln_query
         self.aln_reference    = aln_reference
-        self.cascaded         = cascaded
         self.c                = c
 
         # Parameters
         self.threads          = threads
         self.parallel         = parallel
         self.suffix           = suffix
+        self.light            = light
 
         # Load databases
         self.databases        = Databases()
@@ -159,7 +161,6 @@ class Annotate:
         for genome in os.listdir(genome_directory):
             if genome.endswith(self.suffix):
                 genome_paths.append(os.path.splitext(genome)[0])
-        
         logging.info("    - Calling proteins for %i genomes" % (len(genome_paths)))
         cmd = "ls %s/*%s | sed 's/%s//g' | grep -o '[^/]*$' | parallel -j %s prodigal -q -p meta -o /dev/null -a %s/{}%s -i %s/{}%s  > /dev/null 2>&1" \
                 % (genome_directory,
@@ -174,9 +175,10 @@ class Annotate:
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)
 
-        for genome in os.listdir(output_directory_path):
-            output_genome_path = os.path.join(output_directory_path, genome)
-            genome = Genome(output_genome_path)
+        for genome_protein, genome_nucl in zip(os.listdir(output_directory_path), os.listdir(genome_directory)):
+            output_genome_protein_path = os.path.join(output_directory_path, genome_protein)
+            output_genome_nucl_path = os.path.join(genome_directory, genome_nucl)
+            genome = Genome(self.light, output_genome_protein_path, output_genome_nucl_path)
             genome_list.append(genome)
         
         return genome_list
@@ -304,21 +306,14 @@ class Annotate:
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_HYPOTHETICAL)
         os.mkdir(output_directory_path)      
-        
-
-        protein_directory = os.path.join(self.output_directory, self.GENOME_PROTEINS) 
-        protein_dict = {} 
 
         with tempfile.NamedTemporaryFile() as tmp_file:
 
             for genome in genomes_list:
-                
                 cmd = "sed \"s/>/>%s~/g\" %s >> %s" % (genome.name, genome.path, tmp_file.name)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
 
-                for sequence_id in genome.sequences.keys():
-                    protein_dict[sequence_id] = genome.name
 
             with tempdir.TempDir() as tmp_dir: 
                 
@@ -330,14 +325,10 @@ class Annotate:
                 cmd = 'mmseqs createdb %s %s -v 0 > /dev/null 2>&1' % (tmp_file.name, db_path)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
-
-                logging.info('    - Clustering genome proteins')
-                cmd = 'mmseqs cluster %s %s %s --threads %s --min-seq-id %s -e %f -c %s > /dev/null 2>&1 ' \
-                            % (db_path, clu_path, tmp_dir, self.threads, self.id, self.evalue, self.c)
                 
-                if self.cascaded:
-                    cmd += ' --cascaded'
-                cmd += ' > /dev/null 2>&1 '
+                logging.info('    - Clustering genome proteins')
+                cmd = 'mmseqs cluster %s %s %s --max-seqs 1000 --threads %s --min-seq-id %s -e %f -c %s > /dev/null 2>&1 ' \
+                            % (db_path, clu_path, tmp_dir, self.threads, self.id, self.evalue, self.c)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
 
@@ -345,34 +336,15 @@ class Annotate:
                 cmd = 'mmseqs createtsv %s %s %s %s  > /dev/null 2>&1 ' % (db_path, db_path, clu_path, clu_tsv_path)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
-        
-        clusters, cluster_ids = self._from_cluster_results(clu_tsv_path)
-
-        for genome in genomes_list:
-            genome.add_clusters(clusters[genome.name])
-
-        self._write_genome_cluster_files(clusters, output_directory_path)
+                
+        cluster_ids = self.parse_cluster_results(clu_tsv_path, genomes_list, output_directory_path)
 
         return cluster_ids
 
-    def _write_genome_cluster_files(self, clusters, output_directory_path):
-        '''
-        Write out cluster annotations for each protein for each genome
-        
-        Inputs
-        ------
-        
-        Outputs
-        -------
-        
-        '''
-        for genome, annotations in clusters.items():
-            with open(os.path.join(output_directory_path, genome + '.tsv'), 'w') as out_io:
-                for annotation in annotations:
-                    out_io.write( '\t'.join(annotation) + '\n' )
-
-    def _from_cluster_results(self, 
-                              cluster_output_path):
+    def parse_cluster_results(self, 
+                              cluster_output_path,
+                              genomes_list,
+                              output_directory_path):
         '''
         Parse cluster output in tab format.
         
@@ -388,27 +360,28 @@ class Annotate:
         logging.info('    - Parsing input cluster file: %s' % cluster_output_path)
         
         cluster_ids             = set()
-        genome_dictionary       = {}
         previous_cluster_name   = None
         counter                 = 0
+        genome_dictionary       = {genome.name:genome for genome in genomes_list}
 
-        for line in open(cluster_output_path):
+        with open(os.path.join(output_directory_path, self.OUTPUT_HYPOTHETICAL_ANNOTATIONS), 'w') as out_io:
 
-            cluster_id, member      = line.strip().split('\t')
-            genome_id, sequence_id  = member.split('~')
-            
-            if genome_id not in genome_dictionary:
-                genome_dictionary[genome_id] = []
-
-            if cluster_id == previous_cluster_name:
-                genome_dictionary[genome_id].append([sequence_id, "cluster_%i" % counter])
-            else:
-                counter += 1
-                previous_cluster_name = cluster_id 
-                cluster_ids.add("cluster_%i" % counter)
-                genome_dictionary[genome_id].append([sequence_id, "cluster_%i" % counter])
-        
-        return genome_dictionary, cluster_ids
+            for line in open(cluster_output_path):
+    
+                cluster_id, member      = line.strip().split('\t')
+                genome_id, sequence_id  = member.split('~')
+                    
+                if cluster_id == previous_cluster_name:
+                    genome_dictionary[genome_id].add_cluster(sequence_id, "cluster_%i" % counter)
+                else:
+                    counter += 1
+                    previous_cluster_name = cluster_id 
+                    cluster_ids.add("cluster_%i" % counter)
+                    genome_dictionary[genome_id].add_cluster(sequence_id, "cluster_%i" % counter)
+                
+                out_io.write('\t'.join([genome_id, sequence_id, "cluster_%i" % counter]) + '\n')
+        import IPython ; IPython.embed()
+        return cluster_ids
 
     def _hmm_search(self, genome_names, output_path, database):
         '''
@@ -453,7 +426,7 @@ class Annotate:
         genomes_list = []
         for genome_proteins_file in os.listdir(directory):
             if genome_proteins_file.endswith(self.suffix):
-                genome = Genome(os.path.join(directory, genome_proteins_file))
+                genome = Genome(self.light, os.path.join(directory, genome_proteins_file))
                 genomes_list.append(genome) 
         return genomes_list
 
@@ -482,13 +455,16 @@ class Annotate:
         ----------
         genomes_list - List. List of Genome objects
         '''
-        
+
         for genome in genomes_list:
-            with open(genome.path, 'w') as genome_fasta_io:
-                for sequence_name in genome.protein_ordered_dict.values():
-                    annotations = ' '.join(genome.sequences[sequence_name].all_annotations())
-                    genome_fasta_io.write( ">%s %s\n" % (sequence_name, annotations) )
-                    genome_fasta_io.write( genome.sequences[sequence_name].seq + '\n' )
+            fd, fname = tempfile.mkstemp(suffix='.faa', text=True)
+            with open(fname, 'w') as out_io:
+                for sequence in SeqIO.parse(genome.path, 'fasta'):
+                    annotations = ' '.join(genome.sequences[sequence.name].all_annotations())
+                    out_io.write( ">%s %s\n" % (sequence.name, annotations) )
+                    out_io.write( str(sequence.seq) + '\n' )
+                
+            shutil.move(fname, genome.path)
 
     def _pickle_objects(self, genomes_list):
         '''
@@ -525,7 +501,7 @@ class Annotate:
             genomes_list = self._parse_genome_proteins_directory(protein_directory)
         elif protein_files:
             logging.info("Using provided proteins")
-            genomes_list = [Genome(protein_file) for protein_file in protein_files]
+            genomes_list = [Genome(self.light, protein_file) for protein_file in protein_files]
         elif genome_directory:
             logging.info("Calling proteins for annotation")
             genomes_list = self.call_proteins(genome_directory)
@@ -586,9 +562,12 @@ class Annotate:
             if not(protein_directory or protein_files):
                 logging.info('Renaming protein headers')
                 self._rename_fasta(genomes_list)
-
-            logging.info('Storing genome objects')
-            self._pickle_objects(genomes_list)
+            
+            if self.light:
+                pass
+            else:
+                logging.info('Storing genome objects')
+                self._pickle_objects(genomes_list)
 
             logging.info('Finished annotation')
 

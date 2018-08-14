@@ -240,12 +240,12 @@ class Run:
                          args.id,
                          args.aln_query, 
                          args.aln_reference, 
-                         args.cascaded,
                          args.c,
                          # Parameters
                          args.threads,
                          args.parallel,
-                         args.suffix)
+                         args.suffix,
+                         args.light)
 
             a.do(args.genome_directory, args.protein_directory, 
                  args.genome_files, args.protein_files)

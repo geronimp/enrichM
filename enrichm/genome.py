@@ -40,19 +40,36 @@ class Genome:
 	A genome object which collects all the attirbutes of an imput genome,
 	including protein sequences and their annotations
 	'''
-	def __init__(self, path):
+	def __init__(self, light, path, nucl=None):
 
 		self.clusters = set()
-		self.protein_ordered_dict = {}
+		self.protein_ordered_dict = dict()
+		self.sequences = dict()
+		self.cluster_dict = dict()
 		self.path = path
 		self.name = os.path.split(os.path.splitext(path)[0])[1]
-		self.sequences = {}
 		
-		for protein_count, protein in enumerate(SeqIO.parse(path, 'fasta')):
-			sequence = Sequence(protein.description, protein.seq)
-		 	self.sequences[protein.name] = sequence
-			self.protein_ordered_dict[protein_count] = protein.name
-			
+		if light == False:
+			if nucl != None:
+				self.nucl = nucl
+				self.length = 0
+				gc_list = 0.0
+				for contig in SeqIO.parse(nucl, 'fasta'):
+					self.length += len(str(contig.seq))
+					gc_list += (str(contig.seq).count('G') + str(contig.seq).count('C'))
+				
+				self.gc = round((gc_list/float(self.length))*100, 2)
+		
+			for protein_count, protein in enumerate(SeqIO.parse(path, 'fasta')):
+				sequence = Sequence(protein.description, protein.seq)
+			 	self.sequences[protein.name] = sequence
+				self.protein_ordered_dict[protein_count] = protein.name
+		else:
+			for protein_count, protein in enumerate(SeqIO.parse(path, 'fasta')):
+				sequence = Sequence(protein.description)
+			 	self.sequences[protein.name] = sequence
+				self.protein_ordered_dict[protein_count] = protein.name
+
 	def add(self, annotations, evalue_cutoff, bitscore_cutoff, 
 		    percent_aln_query_cutoff, percent_aln_reference_cutoff, 
 		    annotation_type):
@@ -134,7 +151,7 @@ class Genome:
 			return len(reference_dict[annotation])
 		else:
 			return 0
-	
+
 	def ordered_sequences(self):
 		'''
 		Iterator that yields that all protein coding Sequence objects in a genome in order.
@@ -142,7 +159,7 @@ class Genome:
 		for sequence_id in sorted(self.protein_ordered_dict.keys()):
 			yield self.sequences[self.protein_ordered_dict[sequence_id]]
 
-	def add_clusters(self, cluster_list):
+	def add_cluster(self, sequence_id, cluster_id):
 		'''
 		Add hypothetical clusters to genome sequences
 		
@@ -151,34 +168,29 @@ class Genome:
 		cluster_list - array. list where each entry is a list
 					   of n = 2: sequence_name, cluster_name
 		'''
-
-		self.cluster_dict = {}
-
-		for seq_cluster in cluster_list:
-
-			sequence_id, cluster_id = seq_cluster[0], seq_cluster[1]
-			
-			if cluster_id in self.cluster_dict:
-				self.cluster_dict[cluster_id].append(sequence_id)
-			else:
-				self.cluster_dict[cluster_id] = [sequence_id]
-			
-			annotation = Annotation(cluster_id, 0, [-1,0], AnnotationParser.HYPOTHETICAL)
-			
-			self.sequences[sequence_id].cluster = cluster_id
-			self.sequences[sequence_id].annotations.append(annotation)
-			
-			self.clusters.add(cluster_id)
+	
+		if cluster_id in self.cluster_dict:
+			self.cluster_dict[cluster_id].append(sequence_id)
+		else:
+			self.cluster_dict[cluster_id] = [sequence_id]
+		
+		annotation = Annotation(cluster_id, 0, [-1,0], AnnotationParser.HYPOTHETICAL)
+		
+		self.sequences[sequence_id].cluster = cluster_id
+		self.sequences[sequence_id].annotations.append(annotation)
+		
+		self.clusters.add(cluster_id)
 
 class Sequence(Genome):
 	'''
 	Sequence object which collects all attributes of a sequence including its length,
 	and annotations. Can compare current annotation with new annotaitons.
 	'''
-	def __init__(self, description, sequence):
+	def __init__(self, description, sequence=None):
 		self.annotations = []	
-		self.seq = str(sequence)
-		self.length = int(len(sequence))
+		if sequence:
+			self.seq = str(sequence)
+			self.length = int(len(sequence))
 		try:
 			self.seqname, self.startpos, self.finishpos, self.direction, stats \
 								= description.split(' # ')
