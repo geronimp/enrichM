@@ -41,6 +41,7 @@ class MatrixGenerator:
     KO      = 'KO_IDS.txt'
     PFAM    = 'PFAM_IDS.txt'
     TIGRFAM = 'TIGRFAM_IDS.txt'
+    CAZY = 'CAZY_IDS.txt'
     HYPOTHETICAL = 'HYPOTHETICAL'
 
     def __init__(self, annotation_type, clusters = None):
@@ -59,6 +60,8 @@ class MatrixGenerator:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.PFAM))]
         elif self.annotation_type == self.TIGRFAM:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.TIGRFAM))]
+        elif self.annotation_type == self.CAZY:
+            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.CAZY))]
         elif self.annotation_type == self.HYPOTHETICAL:
             self.annotation_list = clusters
 

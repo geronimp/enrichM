@@ -234,6 +234,7 @@ class Run:
                          args.pfam,
                          args.tigrfam,
                          args.hypothetical,
+                         args.cazy,
                          # Cutoffs
                          args.evalue,
                          args.bit,
@@ -241,6 +242,7 @@ class Run:
                          args.aln_query, 
                          args.aln_reference, 
                          args.c,
+                         args.inflation,
                          # Parameters
                          args.threads,
                          args.parallel,
@@ -284,7 +286,8 @@ class Run:
             self._check_compare(args)
             c = Compare(args.threads)
             c.do(args.enrichm_annotate_output,
-                 args.metadata)
+                 args.metadata,
+                 args.output)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or

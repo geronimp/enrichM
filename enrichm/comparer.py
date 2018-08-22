@@ -131,7 +131,6 @@ class Compare:
 	def calc_synt(self, tot, proteins):
 		pass
 
-
 	def _synteny(self, genome_list):
 		best_hits = self._self_blast(genome_list)
 		tot_genomes = len(genome_list)
@@ -238,7 +237,76 @@ class Compare:
 		tests_header 	= ["Group 1", "Group 2", ""]
 		summary_header 	= []
 
-	def do(self, enrichm_annotate_output, metadata_path):
+	def gather_stats(self, number_list):
+		number_array = np.array(number_list)
+		mean = number_array.mean()
+		median = np.median(number_array)
+		std = np.std(number_array)
+		minimum = min(number_array)
+		maximum = max(number_array)
+		p90 = np.percentile(number_array, 90)
+		p10 = np.percentile(number_array, 10)
+
+		return [mean, median, std, minimum, maximum, p90, p10]
+
+	def saturate(self, genomes_list, orthologs, output):
+		total = float(len(orthologs))
+		result = dict()
+
+		for group in range(1, len(genomes_list)+1):
+			
+			core_counts = list()
+			accessory_counts = list()
+
+			for combination in combinations(genomes_list, group):
+
+				core_count = 0
+				accessory_count = 0
+
+				combination_length = len(combination)
+
+				for ortholog in orthologs:
+					hits = len([True for genome in combination if ortholog in genome.orthologs])
+					if hits==combination_length:
+						core_count+=1
+					else:
+						accessory_count+=1
+				core_counts.append(core_count)
+				accessory_counts.append(accessory_count)
+
+			result[group] = {"core":self.gather_stats(core_counts), 'accessory':self.gather_stats(accessory_counts)}
+
+		with open(output, 'w') as out_io:
+			out_io.write('\t'.join(["Group size",
+									"Core mean",
+									"Core median",
+									"Core standard deviation",
+									"Core minimum",
+									"Core maximum",
+									"Core p90",
+									"Core p10",
+									"Accessory mean",
+									"Accessory median",
+									"Accessory standard deviation",
+									"Accessory minimum",
+									"Accessory maximum",
+									"Accessory p90",
+									"Accessory p10"]) +'\n')
+			for group, stats in result.items():
+				output_line = [str(group)]
+				output_line += [str(x) for x in stats["core"]]
+				output_line += [str(x) for x in stats["accessory"]]
+				out_io.write('\t'.join(output_line) +'\n')
+
+	def write_pan_genome_results(self, results, output_path):
+		header = ['Genome', "Core genome size", "Percent of average genome size"]
+		with open(output_path, 'w') as out_io:
+			out_io.write('\t'.join(header) + '\n')
+			for genome, results_list in results.items():
+				output_line = [genome] + [str(x) for x in results_list]
+				out_io.write('\t'.join(output_line) + '\n')
+
+	def do(self, enrichm_annotate_output, metadata_path, output_directory):
 		'''
 		Parameters
 		----------
@@ -254,12 +322,20 @@ class Compare:
 		
 		genome_list = self._parse_pickles(enrichm_annotate_output)
 		genome_dict = {genome.name:genome for genome in genome_list}
+		ortholog_list = set.union(*[genome.orthologs for genome in genome_list])
+
+		for group_name, genome_list in metadata.items():	
+			logging.info('Generating pan genome saturation curve for group: %s' % group_name)
+			group_list = [genome_dict[g] for g in genome_list]
+			output = os.path.join(output_directory, "%s_saturation.tsv" % (group_name))
+			self.saturate(group_list, ortholog_list, output)
 
 		pan_genome_results = self._pan_genome(genome_dict, metadata)
-		#self.write_pan_genome_results(pan_genome_results)
+		self.write_pan_genome_results(pan_genome_results, os.path.join(output_directory, "core_genome_size.tsv"))
 
-		compare_features_results = self._compare_features(genome_dict, metadata)
-		self.write_compare_features_results(compare_features_results)
+		if hasattr(genome_dict.values()[0], "gc"):
+			compare_features_results = self._compare_features(genome_dict, metadata)
+			self.write_compare_features_results(compare_features_results)
 		
 		# synteny_results = self.synteny(genome_list)
 		# self.write_synteny_results(synteny_results)

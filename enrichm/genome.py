@@ -29,8 +29,8 @@ __status__      = "Development"
 # imports
 import os
 import logging
-from Bio import SeqIO
 
+from sequence_io import SequenceIO
 from databases import Databases
 
 ###############################################################################
@@ -40,35 +40,40 @@ class Genome:
 	A genome object which collects all the attirbutes of an imput genome,
 	including protein sequences and their annotations
 	'''
-	def __init__(self, light, path, nucl=None):
-
+	def __init__(self, light, path, nucl):
+		seqio = SequenceIO()
 		self.clusters = set()
+		self.orthologs = set()
 		self.protein_ordered_dict = dict()
 		self.sequences = dict()
 		self.cluster_dict = dict()
+		self.ortholog_dict = dict()
 		self.path = path
 		self.name = os.path.split(os.path.splitext(path)[0])[1]
 		
 		if light == False:
-			if nucl != None:
-				self.nucl = nucl
+			if nucl is not None:
+				self.nucl 	= nucl
 				self.length = 0
-				gc_list = 0.0
-				for contig in SeqIO.parse(nucl, 'fasta'):
-					self.length += len(str(contig.seq))
-					gc_list += (str(contig.seq).count('G') + str(contig.seq).count('C'))
+				gc_list 	= 0.0
+
+				for description, sequence in seqio.each(open(nucl)):
+					self.length += len(str(sequence))
+					gc_list 	+= (str(sequence).count('G') + str(sequence).count('C'))
 				
 				self.gc = round((gc_list/float(self.length))*100, 2)
 		
-			for protein_count, protein in enumerate(SeqIO.parse(path, 'fasta')):
-				sequence = Sequence(protein.description, protein.seq)
-			 	self.sequences[protein.name] = sequence
-				self.protein_ordered_dict[protein_count] = protein.name
+			for protein_count, (description, sequence) in enumerate(seqio.each(open(path))):
+				name = description.partition(' ')[0]
+				sequence = Sequence(description, sequence)
+			 	self.sequences[name] = sequence
+				self.protein_ordered_dict[protein_count] = name
 		else:
-			for protein_count, protein in enumerate(SeqIO.parse(path, 'fasta')):
-				sequence = Sequence(protein.description)
-			 	self.sequences[protein.name] = sequence
-				self.protein_ordered_dict[protein_count] = protein.name
+			for protein_count, (description, _) in enumerate(seqio.each(open(path))):
+				name = description.partition(' ')[0]
+				sequence = Sequence(description)
+			 	self.sequences[name] = sequence
+				self.protein_ordered_dict[protein_count] = name
 
 	def add(self, annotations, evalue_cutoff, bitscore_cutoff, 
 		    percent_aln_query_cutoff, percent_aln_reference_cutoff, 
@@ -94,31 +99,36 @@ class Genome:
 		ap = AnnotationParser(annotation_type)
 
 		# If annotation type is a hmmsearch result
+
 		if(annotation_type == AnnotationParser.PFAM or
-		   annotation_type == AnnotationParser.TIGRFAM):
+		   annotation_type == AnnotationParser.TIGRFAM or
+		   annotation_type == AnnotationParser.CAZY):
 			# Set up an iterator to produce the results
+			logging.debug("    - Parsing hmmsearch output file")
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
 												 percent_aln_reference_cutoff)
 			if annotation_type == AnnotationParser.PFAM:
-				self.pfam_dict = {}
+				self.pfam_dict = dict()
 				refdict = self.pfam_dict
 			elif annotation_type == AnnotationParser.TIGRFAM:
-				self.tigrfam_dict = {}
+				self.tigrfam_dict = dict()
 				refdict = self.tigrfam_dict
+			elif annotation_type == AnnotationParser.CAZY:
+				self.cazy_dict = dict()
+				refdict = self.cazy_dict
 
 		# If annotation type is a blast result
-		elif(annotation_type == AnnotationParser.KO or
-			 annotation_type == AnnotationParser.COG):
+		
+		elif(annotation_type == AnnotationParser.KO):
 			# Set up an iterator to produce the results
+			logging.info("    - Parsing blast output file")
 			iterator = ap.from_blast_results(annotations, evalue_cutoff, 
 											 bitscore_cutoff, percent_aln_query_cutoff)
+			
 			if annotation_type == AnnotationParser.KO:
-				self.ko_dict = {}
+				self.ko_dict = dict()
 				refdict = self.ko_dict
-			elif annotation_type == AnnotationParser.COG:
-				self.cog_dict = {}
-				refdict = self.cog_dict
 
 		for seqname, annotation, evalue, annotation_range in iterator:
 			self.sequences[seqname].add(annotation, evalue, annotation_range, annotation_type)
@@ -126,7 +136,7 @@ class Genome:
 				refdict[annotation].append(seqname)
 			else:
 				refdict[annotation]=[seqname]
-
+		
 	def count(self, annotation, type):
 		'''
 		
@@ -180,6 +190,28 @@ class Genome:
 		self.sequences[sequence_id].annotations.append(annotation)
 		
 		self.clusters.add(cluster_id)
+	
+	def add_ortholog(self, sequence_id, ortholog_id):
+		'''
+		Add hypothetical ortholog to genome sequences
+		
+		Inputs
+		------
+		cluster_list - array. list where each entry is a list
+					   of n = 2: sequence_name, cluster_name
+		'''
+	
+		if ortholog_id in self.ortholog_dict:
+			self.ortholog_dict[ortholog_id].append(sequence_id)
+		else:
+			self.ortholog_dict[ortholog_id] = [sequence_id]
+		
+		annotation = Annotation(ortholog_id, 0, [-1,0], AnnotationParser.ORTHOLOG)
+		
+		self.sequences[sequence_id].ortholog = ortholog_id
+		self.sequences[sequence_id].annotations.append(annotation)
+		
+		self.orthologs.add(ortholog_id)
 
 class Sequence(Genome):
 	'''
@@ -293,7 +325,7 @@ class Sequence(Genome):
 	
 class Annotation(Sequence):
 	'''
-	Annotation object that collects all attributes assocaited with a given
+	Annotation object that collects all attributes associated with a given
 	annotation, like where it is in the sequence, its e-value and bit score,
 	and what type of annotation it is.
 	'''
@@ -327,11 +359,12 @@ class AnnotationParser:
 	Annotation parser class contains fucntions to parse hmmsearch domtblouts and blast results 
 	currently for: KO, PFAM and TIGRFAM. COG to come	
 	'''
-	KO      	= 'KO_IDS.txt'
-	PFAM    	= 'PFAM_IDS.txt'
-	TIGRFAM 	= 'TIGRFAM_IDS.txt'
-	HYPOTHETICAL = 'HYPOTHETICAL'
-	COG 		= None ### ~ TODO: Not currently implemented
+	KO      		= 'KO_IDS.txt'
+	PFAM    		= 'PFAM_IDS.txt'
+	TIGRFAM 		= 'TIGRFAM_IDS.txt'
+	CAZY      		= 'CAZY_IDS.txt'
+	HYPOTHETICAL 	= 'HYPOTHETICAL.txt'
+	ORTHOLOG 		= 'ORTHOLOG.txt'
 
 	def __init__(self, annotation_type):        
 		
@@ -345,7 +378,7 @@ class AnnotationParser:
 			ids = [x.strip() for x in open(os.path.join(data_directory, self.TIGRFAM))]
 
 	def from_blast_results(self,
-						   blast_output_path,
+						   blast_output,
 						   evalue_cutoff,
 						   bitscore_cutoff, 
 						   percent_id_cutoff):
@@ -354,7 +387,7 @@ class AnnotationParser:
 
 		Parameters
 		----------
-		blast_output_path 	- String. Path to blast output file containing results.
+		blast_output 		- String. Path to blast output file containing results.
 							  Must be in blast output format 6
 		evalue_cutoff		- Float. E-value threshold for annotations.
 		bitscore_cutoff		- Float. Bit score threshold for annotations.
@@ -363,14 +396,11 @@ class AnnotationParser:
 		Yields
 		------
 		A sequence name, annotation, E-value and region hit for every annotation result in 
-		blast_output_path that pass a series of specified cutoffs
+		blast_output that pass a series of specified cutoffs
 		'''
 
-		logging.info("    - Parsing blast output file: %s" % blast_output_path)
-
-		for line in open(blast_output_path):
+		for sline in blast_output:
 			# Parse out important information from each line in blast output
-			sline    = line.strip().split()
 			evalue   = sline[10]
 			bit      = sline[11]
 			perc_id  = sline[2]
@@ -380,7 +410,7 @@ class AnnotationParser:
 			if(float(evalue) <= evalue_cutoff and
 				float(bit) >= bitscore_cutoff and
 				float(perc_id) >= percent_id_cutoff):
-					seqname = sline[0]
+					seqname = sline[0].split('~')[1]
 					annotation = sline[1].split('~')[1]
 					yield seqname, annotation, evalue, range(min(seq_list), max(seq_list))
 
@@ -408,8 +438,6 @@ class AnnotationParser:
 		A sequence name, accession, E-value and region hit for every annottation result in 
 		blast_output_path that pass a set of cutoffs
 		'''
-
-		logging.debug("    - Parsing hmmsearch output file: %s" % hmmsearch_output_path)
 
 		# Filling in column
 		for line in open(hmmsearch_output_path):

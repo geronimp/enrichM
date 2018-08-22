@@ -410,13 +410,13 @@ class Enrichment:
         
         self._write(raw_proportions_output_lines, raw_portions_path)
 
-
         p = Plot()
 
         logging.info('Generating summary plots')
 
         if annotation_type==self.KEGG:
             p.draw_barplots(os.path.join(output_directory,t.GENE_FISHER_OUTPUT), pval_cutoff, output_directory)
+        
         p.draw_pca_plot(annotation_matrix, metadata, output_directory)
 
 
@@ -495,6 +495,7 @@ class Test(Enrichment):
                                method       = self.multi_test_correction,
                                returnsorted = False,
                                is_sorted    = False)[1]        
+
         return corrected_pvals
 
     def _strip_kegg_definitions(self, definition):
