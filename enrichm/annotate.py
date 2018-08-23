@@ -49,7 +49,6 @@ from databases import Databases
 from matrix_generator import MatrixGenerator
 from gff_generator import GffGenerator
 from genome import Genome, AnnotationParser
-from Bio import SeqIO
 
 ###############################################################################
 ###############################################################################
@@ -63,46 +62,33 @@ def parse_genomes(params):
 
 class Annotate:
 
-    GENOME_BIN          = 'genome_bin'
-    GENOME_PROTEINS     = 'genome_proteins'    
-    GENOME_KO           = 'annotations_ko'
-    GENOME_PFAM         = 'annotations_pfam'
-    GENOME_TIGRFAM      = 'annotations_tigrfam'
-    GENOME_HYPOTHETICAL = 'annotations_hypothetical'
-    GENOME_CAZY         = 'annotations_cazy'
-    GENOME_GFF          = 'annotations_gff'
-    GENOME_OBJ          = 'annotations_genomes'
-    OUTPUT_KO           = 'ko_frequency_table.tsv'
-    OUTPUT_PFAM         = 'pfam_frequency_table.tsv'
-    OUTPUT_TIGRFAM      = 'tigrfam_frequency_table.tsv'
-    OUTPUT_CAZY         = 'cazy_frequency_table.tsv'
-    OUTPUT_HYPOTHETICAL_CLUSTER = 'cluster_frequency_table.tsv'
-    OUTPUT_HYPOTHETICAL_ORTHOLOG = 'ortholog_frequency_table.tsv'
+    GENOME_BIN                      = 'genome_bin'
+    GENOME_PROTEINS                 = 'genome_proteins'    
+    GENOME_KO                       = 'annotations_ko'
+    GENOME_PFAM                     = 'annotations_pfam'
+    GENOME_TIGRFAM                  = 'annotations_tigrfam'
+    GENOME_HYPOTHETICAL             = 'annotations_hypothetical'
+    GENOME_CAZY                     = 'annotations_cazy'
+    GENOME_GFF                      = 'annotations_gff'
+    GENOME_OBJ                      = 'annotations_genomes'
+    OUTPUT_KO                       = 'ko_frequency_table.tsv'
+    OUTPUT_PFAM                     = 'pfam_frequency_table.tsv'
+    OUTPUT_TIGRFAM                  = 'tigrfam_frequency_table.tsv'
+    OUTPUT_CAZY                     = 'cazy_frequency_table.tsv'
+    OUTPUT_HYPOTHETICAL_CLUSTER     = 'cluster_frequency_table.tsv'
+    OUTPUT_HYPOTHETICAL_ORTHOLOG    = 'ortholog_frequency_table.tsv'
     OUTPUT_HYPOTHETICAL_ANNOTATIONS = 'hypothetical_annotations.tsv'
-    OUTPUT_DIAMOND = "DIAMOND_search"
-    GFF_SUFFIX          = '.gff'
-    PROTEINS_SUFFIX     = '.faa'
-    ANNOTATION_SUFFIX   = '.tsv'
-    PICKLE_SUFFIX       = '.pickle'
+    OUTPUT_DIAMOND                  = "DIAMOND_search"
+    GFF_SUFFIX                      = '.gff'
+    PROTEINS_SUFFIX                 = '.faa'
+    ANNOTATION_SUFFIX               = '.tsv'
+    PICKLE_SUFFIX                   = '.pickle'
     
     def __init__(self,
                  output_directory,
-                 ko,
-                 pfam,
-                 tigrfam,
-                 hypothetical,
-                 cazy,
-                 evalue,
-                 bit,
-                 id,
-                 aln_query,
-                 aln_reference,
-                 c,
-                 inflation,
-                 threads,
-                 parallel,
-                 suffix,
-                 light):
+                 ko, pfam, tigrfam, hypothetical, cazy,
+                 evalue, bit, id, aln_query, aln_reference, c,
+                 inflation, threads, parallel, suffix, light):
 
         # Define inputs and outputs
         self.output_directory = output_directory
@@ -123,12 +109,14 @@ class Annotate:
         self.c                = c
 
         # Parameters
+        self.inflation        = inflation
         self.threads          = threads
         self.parallel         = parallel
         self.suffix           = suffix
         self.light            = light
-        self.pool             = mp.Pool(processes = int(parallel))
-        self.inflation        = inflation
+
+        # Set up multiprocesses pool
+        self.pool             = mp.Pool(processes = int(self.parallel))
 
         # Load databases
         self.databases        = Databases()
@@ -343,6 +331,8 @@ class Annotate:
                 
                 db_path = os.path.join(output_directory_path, "db")
                 clu_path = os.path.join(output_directory_path, "clu")
+                align_path = os.path.join(output_directory_path, "alignDb")
+                blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
                 clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
         
                 logging.info('    - Generating MMSeqs2 database')
@@ -361,7 +351,18 @@ class Annotate:
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
             
-        ortholog_dict = self.run_mcl(clu_tsv_path, os.path.join(output_directory_path, "mcl_clusters.tsv"))
+                # logging.info('    - Computing Smith-Waterman alignments for clustering results')
+                # cmd = "mmseqs align %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
+                # logging.debug(cmd)
+                # subprocess.call(cmd, shell = True)
+
+                # logging.info('    - Converting to BLAST-like output')
+                # cmd = "mmseqs convertalis %s %s %s %s  > /dev/null 2>&1 " % (db_path, db_path, align_path, blast_output_path)
+                # logging.debug(cmd)
+                # subprocess.call(cmd, shell = True)
+
+        #ortholog_dict = self.run_mcl(clu_tsv_path, os.path.join(output_directory_path, "mcl_clusters.tsv"))
+        ortholog_dict = dict()
         cluster_ids = self.parse_cluster_results(clu_tsv_path, genomes_list, ortholog_dict, output_directory_path)
 
         return cluster_ids, ortholog_dict.keys()
@@ -423,10 +424,10 @@ class Annotate:
                     genome_dictionary[genome_id].add_cluster(sequence_id, "cluster_%i" % counter)
                 out_io.write('\t'.join([genome_id, sequence_id, "cluster_%i" % counter]) + '\n')
         
-        for ortholog, group in ortholog_dict.items():
-            for member in group:
-                genome, protein = member.split('~')
-                genome_dictionary[genome].add_ortholog(protein, ortholog)
+        #for ortholog, group in ortholog_dict.items():
+        #    for member in group:
+        #        genome, protein = member.split('~')
+        #        genome_dictionary[genome].add_ortholog(protein, ortholog)
         
         return cluster_ids
 
@@ -574,9 +575,9 @@ class Annotate:
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_CLUSTER)
                 mg.write_matrix(genomes_list, freq_table)
 
-                mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, ortholog_ids)
-                freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_ORTHOLOG)
-                mg.write_matrix(genomes_list, freq_table)
+                #mg = matrix_generatornerator(MatrixGenerator.HYPOTHETICAL, ortholog_ids)
+                #freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_ORTHOLOG)
+                #mg.write_matrix(genomes_list, freq_table)
 
 
             if self.ko:

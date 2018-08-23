@@ -104,7 +104,7 @@ class Genome:
 		   annotation_type == AnnotationParser.TIGRFAM or
 		   annotation_type == AnnotationParser.CAZY):
 			# Set up an iterator to produce the results
-			logging.debug("    - Parsing hmmsearch output file")
+			logging.debug("    - Parsing hmmsearch chunk")
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
 												 percent_aln_reference_cutoff)
@@ -122,7 +122,7 @@ class Genome:
 		
 		elif(annotation_type == AnnotationParser.KO):
 			# Set up an iterator to produce the results
-			logging.info("    - Parsing blast output file")
+			logging.debug("    - Parsing blast chunk")
 			iterator = ap.from_blast_results(annotations, evalue_cutoff, 
 											 bitscore_cutoff, percent_aln_query_cutoff)
 			
