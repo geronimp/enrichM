@@ -87,8 +87,8 @@ class Annotate:
     def __init__(self,
                  output_directory,
                  ko, pfam, tigrfam, hypothetical, cazy,
-                 evalue, bit, id, aln_query, aln_reference, c,
-                 inflation, threads, parallel, suffix, light):
+                 evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, 
+                 threads, parallel, suffix, light):
 
         # Define inputs and outputs
         self.output_directory = output_directory
@@ -107,9 +107,12 @@ class Annotate:
         self.aln_query        = aln_query
         self.aln_reference    = aln_reference
         self.c                = c
+        self.cut_ga           = cut_ga
+        self.cut_nc           = cut_nc
+        self.cut_tc           = cut_tc
+        self.inflation        = inflation
 
         # Parameters
-        self.inflation        = inflation
         self.threads          = threads
         self.parallel         = parallel
         self.suffix           = suffix
@@ -170,6 +173,7 @@ class Annotate:
         for genome in os.listdir(genome_directory):
             if genome.endswith(self.suffix):
                 genome_paths.append(os.path.splitext(genome)[0])
+
         logging.info("    - Calling proteins for %i genomes" % (len(genome_paths)))
         cmd = "ls %s/*%s | sed 's/%s//g' | grep -o '[^/]*$' | parallel -j %s prodigal -q -p meta -o /dev/null -a %s/{}%s -i %s/{}%s  > /dev/null 2>&1" \
                 % (genome_directory,
@@ -294,7 +298,14 @@ class Annotate:
         '''    
         os.mkdir(output_directory_path)
         genome_dict = {genome.name: genome for genome in genomes_list}
-        self._hmm_search(output_directory_path, database)
+
+        if (parser == AnnotationParser.TIGRFAM or 
+            parser == AnnotationParser.PFAM):
+            hmmcutoff=True
+        else:
+            hmmcutoff=False
+        
+        self._hmm_search(output_directory_path, database, hmmcutoff)
 
         for genome_annotation in os.listdir(output_directory_path):
             genome_id = os.path.splitext(genome_annotation)[0]
@@ -380,7 +391,6 @@ class Annotate:
             ortholog_dict[ortholog_idx] = set()
             for protein in line.strip().split('\t'):
                 ortholog_dict[ortholog_idx].add(protein)
-
             ortholog += 1
         return ortholog_dict
 
@@ -431,7 +441,18 @@ class Annotate:
         
         return cluster_ids
 
-    def _hmm_search(self, output_path, database):
+
+    def _default_hmmsearch_options(self):
+        cmd = ''
+        if self.evalue:
+            cmd += '-E %f ' % (self.evalue) 
+        if self.bit:
+            cmd += '-T %f ' % (self.bit)    
+        if self.id:
+            logging.warning("--id flag not used for hmmsearch")
+        return cmd
+
+    def _hmm_search(self, output_path, database, hmmcutoff):
         '''
         Carry out a hmmsearch. 
 
@@ -447,14 +468,22 @@ class Annotate:
         cmd = "ls %s | sed 's/%s//g' | parallel -j %s hmmsearch --cpu %s -o /dev/null --noali --domtblout %s/{}%s " \
                           % (input_genome_path, self.PROTEINS_SUFFIX, self.parallel, 
                              self.threads, output_path, self.ANNOTATION_SUFFIX)
-        if self.evalue:
-            cmd += '-E %f ' % (self.evalue) 
-        if self.bit:
-            cmd += '-T %f ' % (self.bit)    
-        if self.id:
-            logging.warning("--id flag not used for hmmsearch")
+        if hmmcutoff:
+            if(self.cut_ga or self.cut_nc or self.cut_tc):
+
+                if self.cut_ga:
+                    cmd += " --cut_ga "
+                if self.cut_nc:
+                    cmd += " --cut_nc "
+                if self.cut_tc:
+                    cmd += " --cut_tc "
+            else:
+                cmd += self._default_hmmsearch_options()
+        else:
+            cmd += self._default_hmmsearch_options()   
 
         cmd += "%s %s/{}.faa 2> /dev/null" % (database, input_genome_path)
+
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)        
 

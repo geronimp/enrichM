@@ -331,7 +331,7 @@ class Enrichment:
 
         if (taxonomy or batchfile):
             pass
-            ## TODO: Parse gtdb genome objects, add to "annotations_dict"
+            ## TODO: Parse gtdb genome objects, add to "annotations_dict"   
 
         if subset_modules:
             logging.info('Limiting to %i modules' % len(subset_modules))

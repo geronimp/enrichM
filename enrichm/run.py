@@ -130,7 +130,11 @@ class Run:
             args.suffix = '.faa'
         if(args.id>1 or args.id<0):
             raise Exception("Identity (--id) must be between 0 and 1.")
-
+        if any([args.cut_ga, args.cut_nc, args.cut_tc]):
+            if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
+                raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
+            if args.evalue:
+                logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
     def _check_enrichment(self, args):
         '''
         Check enrichment input and output options are valid.
@@ -242,6 +246,9 @@ class Run:
                          args.aln_query, 
                          args.aln_reference, 
                          args.c,
+                         args.cut_ga,
+                         args.cut_nc,
+                         args.cut_tc,
                          args.inflation,
                          # Parameters
                          args.threads,
