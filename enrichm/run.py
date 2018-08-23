@@ -130,7 +130,11 @@ class Run:
             args.suffix = '.faa'
         if(args.id>1 or args.id<0):
             raise Exception("Identity (--id) must be between 0 and 1.")
-
+        if any([args.cut_ga, args.cut_nc, args.cut_tc]):
+            if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
+                raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
+            if args.evalue:
+                logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
     def _check_enrichment(self, args):
         '''
         Check enrichment input and output options are valid.
@@ -145,8 +149,6 @@ class Run:
           ### ~ TODO: Check Multi test correction inputs...
         if not(args.annotation_matrix or args.annotation_file):
             raise Exception("Input error: No input file was specified. Please specify annotations to either the --annotation_matrix --annotation_file flags")
-        if (args.gtdb_all and args.gtdb_public):
-            raise Exception("Only gtdb_all OR gtdb_public can be used")
 
     def _check_classify(self, args):  
         '''
@@ -242,6 +244,9 @@ class Run:
                          args.aln_query, 
                          args.aln_reference, 
                          args.c,
+                         args.cut_ga,
+                         args.cut_nc,
+                         args.cut_tc,
                          args.inflation,
                          # Parameters
                          args.threads,
@@ -278,8 +283,8 @@ class Run:
                  args.threshold,
                  args.multi_test_correction,
                  args.output,
-                 args.gtdb_all,
-                 args.gtdb_public,
+                 args.taxonomy,
+                 args.batchfile,
                  args.processes)
 
         elif args.subparser_name == self.COMPARE:

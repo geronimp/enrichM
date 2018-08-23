@@ -147,6 +147,12 @@ if __name__ == "__main__":
                 help='Annotate with dbCAN HMMs')
     
     annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
+    annotate_cutoff_options.add_argument('--cut_ga', action='store_true',
+                help='For PFAM and TIGRfam searches: use profiles GA gathering cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_nc', action='store_true',
+                help='For PFAM and TIGRfam searches: use profiles NC noise cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_tc', action='store_true',
+                help='For PFAM and TIGRfam searches: use profiles TC trusted cutoffs to set all thresholding')
     annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-05,
                 help='Use this evalue cutoff to filter false positives (default: 1e-05)')
     annotate_cutoff_options.add_argument('--bit', type = float, default = 0,
@@ -205,18 +211,18 @@ if __name__ == "__main__":
                 help='Input annotation file (PFAM, Tigrfam, etc).')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    enrichment_input_options.add_argument('--taxonomy',
-                help='Taxonomy of genomes')
+
+    enrichment_gtdb_options = enrichment.add_argument_group('Genome Taxonomy DataBase (GTDB) options')
+    enrichment_gtdb_options.add_argument('--batchfile',
+                help='metadata file to compare with.')
+    enrichment_gtdb_options.add_argument('--taxonomy',
+                help='Taxonomy of lineages to compare with.')
 
     enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
     enrichment_runtime_options.add_argument('--modules',
                 help='Modules to limit analysis to.')
     enrichment_runtime_options.add_argument('--abundances',
                 help='Genome abundance matrix.')
-    enrichment_runtime_options.add_argument('--gtdb_public', action='store_true',
-                help='Conduct enrichment analysis using public genomes from GTDB as a reference (UNDER DEVELOPMENT).')
-    enrichment_runtime_options.add_argument('--gtdb_all', action='store_true',
-                help='Conduct enrichment analysis using all genomes from GTDB as a reference (UNDER DEVELOPMENT).')
     enrichment_runtime_options.add_argument('--do_all', action='store_true',
                 help='Attempt to conduct all tests.')
     enrichment_runtime_options.add_argument('--do_ivi', action='store_true',

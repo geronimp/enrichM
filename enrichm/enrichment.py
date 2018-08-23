@@ -315,8 +315,8 @@ class Enrichment:
     def do(self, annotation_matrix, annotation_file, metadata,
            subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
            pval_cutoff, proportions_cutoff, threshold, 
-           multi_test_correction, output_directory, gtdb_all,
-           gtdb_public, processes):
+           multi_test_correction, output_directory, taxonomy,
+           batchfile, processes):
 
 
         logging.info('Parsing inputs')
@@ -328,6 +328,10 @@ class Enrichment:
         elif annotation_file:
             annotations_dict, modules, genomes \
                         = self._parse_annotation_file(annotation_file)
+
+        if (taxonomy or batchfile):
+            pass
+            ## TODO: Parse gtdb genome objects, add to "annotations_dict"   
 
         if subset_modules:
             logging.info('Limiting to %i modules' % len(subset_modules))
