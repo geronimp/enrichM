@@ -30,11 +30,13 @@ Network analysis
 ## Dependencies 
 
 EnrichM has the following non-python dependencies:
-* [fxtract](https://github.com/ctSkennerton/fxtract) >= 2.3
 * [hmmer](http://hmmer.org/) >= 3.1b
 * [seqmagick](https://fhcrc.github.io/seqmagick/) >= 0.6.1
 * [diamond](https://github.com/bbuchfink/diamond) >= 0.9.6
 * [prodigal](http://prodigal.ornl.gov/) >= 2.6.3
+* [parallel](https://www.gnu.org/software/parallel/) >= 20180222
+* [mmseqs](https://github.com/soedinglab/MMseqs2) >= 2-23394
+* [R](https://www.r-project.org/) >= 3.0.1
 
 ## PyPi 
 ```
