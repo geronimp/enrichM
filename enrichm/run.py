@@ -278,8 +278,8 @@ class Run:
                  args.threshold,
                  args.multi_test_correction,
                  args.output,
-                 args.gtdb_all,
-                 args.gtdb_public,
+                 args.taxonomy,
+                 args.batchfile,
                  args.processes)
 
         elif args.subparser_name == self.COMPARE:
