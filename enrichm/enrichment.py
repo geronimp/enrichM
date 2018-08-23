@@ -311,6 +311,12 @@ class Enrichment:
                 out_io.write(string)
 
 
+    def parse_batchfile(self, args):
+        pass
+    def parse_taxonomy(self, args):
+        pass
+    def get_gtdb_genomes(self, genome_list):
+        pass
 
     def do(self, annotation_matrix, annotation_file, metadata,
            subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
@@ -330,8 +336,13 @@ class Enrichment:
                         = self._parse_annotation_file(annotation_file)
 
         if (taxonomy or batchfile):
-            pass
-            ## TODO: Parse gtdb genome objects, add to "annotations_dict"   
+
+            if taxonomy:
+                gtdb_dict = self.parse_taxonomy(taxonomy)
+            if batchfile:
+                gtdb_dict = self.parse_batchfile(batchfile)
+            
+            gtdb_dict = self.get_gtdb_genomes(gtdb_dict)
 
         if subset_modules:
             logging.info('Limiting to %i modules' % len(subset_modules))
