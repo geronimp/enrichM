@@ -149,8 +149,6 @@ class Run:
           ### ~ TODO: Check Multi test correction inputs...
         if not(args.annotation_matrix or args.annotation_file):
             raise Exception("Input error: No input file was specified. Please specify annotations to either the --annotation_matrix --annotation_file flags")
-        if (args.gtdb_all and args.gtdb_public):
-            raise Exception("Only gtdb_all OR gtdb_public can be used")
 
     def _check_classify(self, args):  
         '''
