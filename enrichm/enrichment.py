@@ -32,6 +32,7 @@ import logging
 import os
 import random
 import re
+
 import numpy as np
 import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
@@ -40,8 +41,11 @@ from scipy import stats
 from itertools import product, combinations, chain
 
 # Local
+from parse_annotate import ParseAnnotate
 from databases import Databases
 from draw_plots import Plot
+from comparer import Compare
+
 ################################################################################
 
 def gene_fisher_calc(x):
@@ -143,23 +147,25 @@ class Enrichment:
         '''
 
         matrix_file_io  = open(matrix_path)
-        colnames        = matrix_file_io.readline().strip().split('\t')[1:]
         cols_to_rows    = dict()
-        nr_value_dict   = dict()
-        rownames        = list()
         nr_values       = set()
+        attribute_dict  = dict()
         
         for line in matrix_file_io:
             rowname, entry = line.strip().split('\t')
-            rownames.append(rowname)
             nr_values.add(entry)
+
+            if entry in attribute_dict:
+                attribute_dict[entry].add(rowname)
+            else:
+                attribute_dict[entry] = set([rowname])
 
             if rowname not in cols_to_rows:
                 cols_to_rows[rowname] = set([entry])
             else:
                 cols_to_rows[rowname].add(entry)
 
-        return cols_to_rows, rownames, colnames, nr_values
+        return cols_to_rows, nr_values, attribute_dict
 
     def _parse_annotation_matrix(self, matrix_path):
         '''        
@@ -181,35 +187,6 @@ class Enrichment:
                 cols_to_rows[genome_name].add(rowname)
 
         return cols_to_rows, rownames, colnames
-
-    def _parse_annotation_file(self, annotations_path):
-        '''        
-        Parameters
-        ----------
-        annotations_path : String. Path to file containing genome annotations        
-        '''
-
-        colnames        = list()
-        rownames        = list()
-        cols_to_rows    = dict()
-        
-        for line in open(annotations_path):
-
-            genome, annotation = line.strip().split()
-            
-            if annotation not in rownames:
-                rownames.append(annotation)
-            if genome not in colnames:
-                colnames.append(genome)
-
-            if genome not in cols_to_rows:
-                cols_to_rows[genome] = set([annotation])
-                colnames.append(genome)
-            else:
-                cols_to_rows[genome].add(annotation)
-
-        return cols_to_rows, rownames, colnames
-
 
     def check_annotation_type(self, annotations):
         '''
@@ -318,22 +295,35 @@ class Enrichment:
     def get_gtdb_genomes(self, genome_list):
         pass
 
-    def do(self, annotation_matrix, annotation_file, metadata,
-           subset_modules, abundances, do_all, do_ivi, do_gvg, do_ivg, 
-           pval_cutoff, proportions_cutoff, threshold, 
-           multi_test_correction, output_directory, taxonomy,
-           batchfile, processes):
+    def do(# Input options
+           self, annotate_output, metadata_path, modules, abundances, 
+           # Runtime options
+           do_all, do_ivi, do_gvg, do_ivg, pval_cutoff, proportions_cutoff, threshold, 
+           multi_test_correction, taxonomy, batchfile, processes, ko, pfam, tigrfam, 
+           hypothetical, cazy,
+           # Output options
+           output_directory):
 
+        p  = Plot()
+        c  = Compare()
 
         logging.info('Parsing inputs')
-        logging.info('Parsing annotations')
+        pa = ParseAnnotate(annotate_output, processes)
 
-        if annotation_matrix:
-            annotations_dict, modules, genomes \
-                        = self._parse_annotation_matrix(annotation_matrix)
-        elif annotation_file:
-            annotations_dict, modules, genomes \
-                        = self._parse_annotation_file(annotation_file)
+        if ko:
+            annotation_matrix = pa.ko
+        elif pfam:
+            annotation_matrix = pa.pfam
+        elif tigrfam:
+            annotation_matrix = pa.tigrfam
+        elif hypothetical:
+            annotation_matrix = pa.hypothetical_cluster
+        elif cazy:
+            annotation_matrix = pa.cazy
+
+        logging.info('Parsing annotations')
+        annotations_dict, modules, genomes \
+                    = self._parse_annotation_matrix(annotation_matrix)
 
         if (taxonomy or batchfile):
 
@@ -344,24 +334,23 @@ class Enrichment:
             
             gtdb_dict = self.get_gtdb_genomes(gtdb_dict)
 
-        if subset_modules:
-            logging.info('Limiting to %i modules' % len(subset_modules))
-            modules = subset_modules
+        if modules:
+            logging.info('Limiting to %i modules' % len(modules))
+            modules = modules
 
         logging.info('Parsing metadata')
-        cols_to_attributes, rownames, colnames, metadata_value_lists \
-                    = self.parse_metadata_matrix(metadata)
+        metadata, metadata_value_lists, attribute_dict \
+                    = self.parse_metadata_matrix(metadata_path)
 
         logging.info("Comparing sets of genomes")        
         combination_dict = dict()
-
         for combination in product(*list([metadata_value_lists])):
-            genome_list = []
-            for genome, attributes in cols_to_attributes.items():
+            genome_list = list()
+            for genome, attributes in metadata.items():
                 for feature in combination:
                     if feature in attributes:
                         genome_list.append(genome)  
-            combination_dict['_'.join(combination)]=genome_list
+            combination_dict['_'.join(combination)] = genome_list
 
         annotation_type = self.check_annotation_type(modules)
         t = Test(annotations_dict,
@@ -396,10 +385,10 @@ class Enrichment:
             ivi = None
         
         if do_ivg:
-            ivg = {} # For Z score test
+            ivg = dict() # For Z score test
             for group_name, genome_list in combination_dict.items():
                 if len(genome_list)>1:
-                    ivg[group_name] = []
+                    ivg[group_name] = list()
                     for idx, genome in enumerate(genome_list):
                         other=genome_list[:idx] + genome_list[idx+1:]
                         ivg[group_name].append((genome, other))
@@ -409,7 +398,6 @@ class Enrichment:
         else:
             ivg = None
 
-        ################################################################################
         results = t.do(ivi, ivg, gvg)
         for test_result_lines, test_result_output_file in results:
             test_result_output_path = os.path.join(output_directory,
@@ -425,14 +413,18 @@ class Enrichment:
         
         self._write(raw_proportions_output_lines, raw_portions_path)
 
-        p = Plot()
 
         logging.info('Generating summary plots')
 
         if annotation_type==self.KEGG:
-            p.draw_barplots(os.path.join(output_directory,t.GENE_FISHER_OUTPUT), pval_cutoff, output_directory)
-        
-        p.draw_pca_plot(annotation_matrix, metadata, output_directory)
+            p.draw_barplots(os.path.join(output_directory, t.GENE_FISHER_OUTPUT), pval_cutoff, output_directory)
+            
+        p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
+
+        c.do(pa.genome_objects,
+             attribute_dict,
+             output_directory)
+
 
 
 class Test(Enrichment):

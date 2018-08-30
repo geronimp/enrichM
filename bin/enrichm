@@ -179,6 +179,12 @@ if __name__ == "__main__":
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
     annotate_runtime_options.add_argument('--light', action='store_true',
                 help="Don't store metadata for genome files (can't use enrichM compare downstream, default=False)")
+    annotate_runtime_options.add_argument('--chunk_number', type = float, default = 4,
+                help='Split loading of genomes into this many chunks (default = 4)')
+    annotate_runtime_options.add_argument('--chunk_max', type = float, default = 2500,
+                help='Maximum number of genomes to load per chunk (default = 2500)')
+
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Classify  
@@ -205,10 +211,8 @@ if __name__ == "__main__":
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
-    enrichment_input_options.add_argument('--annotation_matrix', default=None,
+    enrichment_input_options.add_argument('--annotate_output', required=True,
                 help='Input annotation matrix (PFAM, Tigrfam, etc).')
-    enrichment_input_options.add_argument('--annotation_file', default=None,
-                help='Input annotation file (PFAM, Tigrfam, etc).')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
 
@@ -241,6 +245,17 @@ if __name__ == "__main__":
                 help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.', default='fdr_bh')
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
+    enrichment_runtime_options.add_argument('--ko', action='store_true',
+                help='Compare KO ids')   
+    enrichment_runtime_options.add_argument('--pfam', action='store_true',
+                help='Compare Pfam ids')
+    enrichment_runtime_options.add_argument('--tigrfam', action='store_true',
+                help='Compare TIGRFAM ids')
+    enrichment_runtime_options.add_argument('--hypothetical', action='store_true',
+                help='Compare hypothetical ids')
+    enrichment_runtime_options.add_argument('--cazy', action='store_true',
+                help='Compare dbCAN ids')
+    
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Pathway
@@ -295,18 +310,7 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
-
-    compare = subparsers.add_parser('compare', formatter_class=CustomHelpFormatter, parents=[base_all])
-
-    compare_options = compare.add_argument_group('Compare options')
-    compare_options.add_argument('--enrichm_annotate_output',  required = True,
-                help='Output of a previous run of enrichm annotate (> v0.0.7)')
-    compare_options.add_argument('--metadata',
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    compare_options.add_argument('--threads', default = '1',
-                help='Use this number of threads when self BLASTing')
-
+    
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
     else:

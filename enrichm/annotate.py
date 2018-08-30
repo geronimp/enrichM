@@ -31,7 +31,6 @@ __status__      = "Development"
 import logging
 import subprocess
 import os 
-import pickle
 import tempfile
 import tempdir
 import shutil
@@ -41,6 +40,7 @@ import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
 import numpy as np
 
+import cPickle as pickle
 from itertools import combinations
 from collections import Counter
 
@@ -87,7 +87,7 @@ class Annotate:
     def __init__(self,
                  output_directory,
                  ko, pfam, tigrfam, hypothetical, cazy,
-                 evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, 
+                 evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, chunk_number, chunk_max,
                  threads, parallel, suffix, light):
 
         # Define inputs and outputs
@@ -111,6 +111,8 @@ class Annotate:
         self.cut_nc           = cut_nc
         self.cut_tc           = cut_tc
         self.inflation        = inflation
+        self.chunk_number     = chunk_number
+        self.chunk_max        = chunk_max
 
         # Parameters
         self.threads          = threads
@@ -137,16 +139,20 @@ class Annotate:
         -------
         returns the directory with all genome ids sym-linked into it.
         '''
-        # link all the genomes into one file    
+        # link all the genomes into one file
+        logging.info('Preparing genomes for annotation')
         if genome_file_list:
             os.mkdir(genome_directory)
+            genome_paths = list()
             for genome_path in genome_file_list:
-                shutil.copy(os.path.join(os.getcwd(),
-                                        genome_path), 
-                           os.path.join(genome_directory, 
-                                        os.path.basename(genome_path)
-                                        )
-                           )    
+                if genome_path.endswith(self.suffix):
+                    genome_paths.append(genome_path) 
+            cmd = "xargs --arg-file=/dev/stdin cp --target-directory=%s" % genome_directory
+            process = subprocess.Popen(["bash", "-c", cmd], 
+                                       stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE)
+            process.communicate('\n'.join(genome_paths))
+
         return genome_directory
 
 
@@ -345,11 +351,11 @@ class Annotate:
                 align_path = os.path.join(output_directory_path, "alignDb")
                 blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
                 clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
-        
+                
                 logging.info('    - Generating MMSeqs2 database')
                 cmd = "bash %s | seqmagick convert - - | mmseqs createdb /dev/stdin %s -v 0 " % (temp.name, db_path)
-                subprocess.call(cmd, shell = True)
                 logging.debug(cmd)
+                subprocess.call(cmd, shell = True)
 
                 logging.info('    - Clustering genome proteins')
                 cmd = 'mmseqs cluster %s %s %s --max-seqs 1000 --threads %s --min-seq-id %s -e %f -c %s > /dev/null 2>&1 ' \
@@ -521,6 +527,7 @@ class Annotate:
                     annotations = ' '.join(genome.sequences[name].all_annotations())
                     out_io.write( ">%s %s\n" % (name, annotations) )
                     out_io.write( str(sequence) + '\n' )
+            os.close(fd)
             shutil.move(fname, genome.path)
 
     def _pickle_objects(self, genomes_list):
@@ -538,6 +545,30 @@ class Annotate:
             with open(os.path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX), 'w') as output:
                 pickle.dump(genome, output)
 
+    def list_splitter(self, input_list, chunk_number, chunk_max):
+        list_size   = float( len(input_list) )
+        chunk_size  = int(round( (list_size/chunk_number), 0 ))
+
+
+        if chunk_size > chunk_max:
+            chunk_size = chunk_max
+        elif chunk_size < 1:
+            chunk_size = list_size
+
+        while list_size > 0:
+
+            if len(input_list)<=chunk_size:
+                yield input_list
+                del input_list
+            else:
+                yield input_list[:chunk_size]
+                del input_list[:chunk_size]
+
+            try:
+                list_size = len(input_list)
+            except NameError:
+                list_size = 0
+
 
     def do(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
@@ -554,26 +585,26 @@ class Annotate:
         logging.info("Running pipeline: annotate")
         logging.info("Setting up for genome annotation")
         
-        prep_genomes_list = list()
+        prep_genomes_list = list()  
 
         if protein_directory:
             logging.info("Using provided proteins")
-            for idx, genome_proteins_file in enumerate(os.listdir(protein_directory)):
-                if genome_proteins_file.endswith(self.suffix):
-                    genome = (self.light, os.path.join(protein_directory, genome_proteins_file), None)
-                    prep_genomes_list.append(genome)
             protein_genome_list = [os.path.join(protein_directory, x) for x in os.listdir(protein_directory)]
             directory = self.prep_genome(protein_genome_list,
                                          os.path.join(self.output_directory,
                                                       self.GENOME_PROTEINS))
+            for genome_proteins_file in os.listdir(directory):
+                if genome_proteins_file.endswith(self.suffix):
+                    genome = (self.light, os.path.join(directory, genome_proteins_file), None)
+                    prep_genomes_list.append(genome)
 
         elif protein_files:
             logging.info("Using provided proteins")
-            for idx, protein_file in enumerate(protein_files):
-                prep_genomes_list.append((self.light, protein_file, None))
-            directory = self.prep_genome(protein_genome_list,
+            directory = self.prep_genome(protein_files,
                              os.path.join(self.output_directory,
                                           self.GENOME_PROTEINS))
+            for protein_file in os.listdir(directory):
+                prep_genomes_list.append((self.light, os.path.join(directory, os.path.basename(protein_file)), None))
 
         elif genome_directory:
             logging.info("Calling proteins for annotation")
@@ -586,7 +617,9 @@ class Annotate:
                                                       self.GENOME_BIN))      
             prep_genomes_list = self.call_proteins(directory)
         
-        genomes_list = self.pool.map(parse_genomes, prep_genomes_list)
+        genomes_list = list()
+        for chunk in self.list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
+            genomes_list += self.pool.map(parse_genomes, chunk)
         
         if len(genomes_list)==0:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
