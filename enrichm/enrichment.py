@@ -112,6 +112,8 @@ class Enrichment:
     PFAM                    = "pfam"
     KEGG                    = "kegg"
     
+
+
     def __init__(self):
 
         self.BACKGROUND              = 'background'
@@ -123,7 +125,14 @@ class Enrichment:
         self.KEGG_PREFIX             = 'K'
         self.PROPORTIONS             = 'proportions.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
-    
+        
+        self.taxonomy_index_dictionary = {"d__":0,
+                         "p__":1,
+                         "c__":2,
+                         "o__":3,
+                         "f__":4,
+                         "g__":5,
+                         "s__":6}    
     def _parse_matrix(self, matrix_file_io, colnames):
         '''
         
@@ -288,12 +297,29 @@ class Enrichment:
                 out_io.write(string)
 
 
-    def parse_batchfile(self, args):
-        pass
-    def parse_taxonomy(self, args):
-        pass
-    def get_gtdb_genomes(self, genome_list):
-        pass
+    def parse_batchfile(self, batchfile):
+        genomes_set = set()
+        for line in open(batchfile):
+            genomes_set.add(line.strip())
+        return genomes_set
+    
+    def parse_taxonomy(self, taxonomy, taxonomy_dict):
+        genomes_set = set()
+        rank = taxonomy[:3]
+        
+        if rank in self.taxonomy_index_dictionary:
+            rank_index = self.taxonomy_index_dictionary[rank]
+        else:
+            raise Exception("Rank doesnt exist (%s) Does your taxonomy have a GTDB rank prefix?" % (taxonomy))
+        
+        for genome_id, taxonomy_list in taxonomy_dict.items():
+            if taxonomy_list[rank] == taxonomy:
+                genomes_set.add(genome_id)
+
+        return genomes_set
+
+    def get_gtdb_genomes(self, genome_list, path):
+        pass    
 
     def do(# Input options
            self, annotate_output, metadata_path, modules, abundances, 
@@ -306,7 +332,8 @@ class Enrichment:
 
         p  = Plot()
         c  = Compare()
-
+        d  = Databases()
+        
         logging.info('Parsing inputs')
         pa = ParseAnnotate(annotate_output, processes)
 
@@ -328,11 +355,13 @@ class Enrichment:
         if (taxonomy or batchfile):
 
             if taxonomy:
-                gtdb_dict = self.parse_taxonomy(taxonomy)
+                genomes_set_from_tax = self.parse_taxonomy(taxonomy, d.taxonomy)
             if batchfile:
-                gtdb_dict = self.parse_batchfile(batchfile)
+                genomes_set_from_batchfile = self.parse_batchfile(batchfile)
             
-            gtdb_dict = self.get_gtdb_genomes(gtdb_dict)
+            geomes_set = genomes_set_from_tax.union(genomes_set_from_batchfile)
+            
+            gtdb_dict = self.get_gtdb_genomes(geomes_set, d.GTDB_DIR)
 
         if modules:
             logging.info('Limiting to %i modules' % len(modules))
@@ -341,6 +370,9 @@ class Enrichment:
         logging.info('Parsing metadata')
         metadata, metadata_value_lists, attribute_dict \
                     = self.parse_metadata_matrix(metadata_path)
+
+        # Load pickles
+        pa.parse_pickles(metadata.keys())
 
         logging.info("Comparing sets of genomes")        
         combination_dict = dict()
@@ -361,7 +393,8 @@ class Enrichment:
                  threshold,
                  multi_test_correction,
                  pval_cutoff, 
-                 processes)
+                 processes,
+                 d)
 
         if do_all:
             do_gvg = True
@@ -399,6 +432,7 @@ class Enrichment:
             ivg = None
 
         results = t.do(ivi, ivg, gvg)
+
         for test_result_lines, test_result_output_file in results:
             test_result_output_path = os.path.join(output_directory,
                                                    test_result_output_file)
@@ -413,7 +447,6 @@ class Enrichment:
         
         self._write(raw_proportions_output_lines, raw_portions_path)
 
-
         logging.info('Generating summary plots')
 
         if annotation_type==self.KEGG:
@@ -421,17 +454,15 @@ class Enrichment:
             
         p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
-        c.do(pa.genome_objects,
-             attribute_dict,
-             output_directory)
-
-
+        #c.do(pa.genome_objects,
+        #     attribute_dict,
+        #     output_directory)
 
 class Test(Enrichment):
 
     def __init__(self, genome_annotations, modules, genomes, groups, 
                  annotation_type, threshold, multi_test_correction, 
-                 pval_cutoff, processes):
+                 pval_cutoff, processes, d):
         '''
         
         Parameters
@@ -440,9 +471,7 @@ class Test(Enrichment):
         Output
         ------
         '''
-        
-        d = Databases()
-        
+               
         self.IVI_OUTPUT             = 'ivi_results.fisher.tsv'
         self.IVG_OUTPUT             = 'ivg_results.tsv'
         self.GENE_FISHER_OUTPUT     = 'gvg_results.fisher.tsv'
@@ -537,8 +566,9 @@ class Test(Enrichment):
                         'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
         kos         = set(chain(*self.genome_annotations.values()))
         res_list    = list()
-
+        
         for group_1, group_2 in combinations(self.groups.keys(), 2):
+            
             for ko in kos:
 
                 group_1_true, group_1_false, group_2_true, group_2_false = 0, 0, 0, 0
@@ -560,7 +590,7 @@ class Test(Enrichment):
                             group_2_false+=1
                 
                 res_list.append([ko, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
-        
+
         output_lines = self.pool.map(gene_fisher_calc, res_list)
         pvalues = [x[-1] for x in output_lines]
 

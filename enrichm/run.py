@@ -17,7 +17,7 @@
 ###############################################################################
 
 __author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
+__copyright__   = "Copyright 2018"
 __credits__     = ["Joel Boyd"]
 __license__     = "GPL3"
 __version__     = "0.0.7"
@@ -39,6 +39,8 @@ from network_analyzer import NetworkAnalyser
 from enrichment import Enrichment
 from annotate import Annotate
 from classifier import Classify
+from generate import GenerateModel
+from predict import Predict
 
 ###############################################################################
 
@@ -62,6 +64,8 @@ class Run:
         self.ENRICHMENT      = 'enrichment'
         self.MODULE_AB       = 'module_ab'
         self.DATA            = 'data'
+        self.PREDICT         = 'predict'
+        self.GENERATE        = 'generate'
 
     def _logging_setup(self, args):
 
@@ -134,6 +138,7 @@ class Run:
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
             if args.evalue:
                 logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
+
     def _check_enrichment(self, args):
         '''
         Check enrichment input and output options are valid.
@@ -207,7 +212,26 @@ class Run:
         if args.subparser_name==NetworkAnalyser.TRAVERSE:
             args.depth              = None
             args.queries            = None
+    
+    def _check_predict(self, args):
+        '''
+        Inputs
+        ------
+        
+        Outputs
+        -------
+        '''
+        pass
 
+    def _check_generate(self, args):
+        '''
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        pass
 
     def main(self, args, command):
         '''
@@ -315,4 +339,26 @@ class Run:
                   args.steps,
                   args.number_of_queries,
                   args.output)
+        
+        if args.subparser_name == self.PREDICT:
+            self._check_predict(args)
+            p = Predict()
+            p.do(args.forester_model_directory,
+                 args.input_matrix,
+                 args.output_directory)
+
+        elif args.subparser_name == self.GENERATE:
+            self._check_generate(args)
+            gm = GenerateModel()
+            gm.do(args.input_matrix,
+                  args.groups,
+                  args.model_type,
+                  args.testing_portion,
+                  args.grid_search,
+                  args.threads,
+                  args.output_directory)
+
+        
+        logging.info('Forester has finished foresting')
+        
         logging.info('Done!')

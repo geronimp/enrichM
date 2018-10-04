@@ -26,7 +26,7 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
 ###############################################################################
-
+    
 # System imports
 import logging
 import subprocess
@@ -193,7 +193,7 @@ class Annotate:
 
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)
-
+        logging.debug('Finished')
         for genome_protein, genome_nucl in zip(os.listdir(output_directory_path), os.listdir(genome_directory)):
             output_genome_protein_path = os.path.join(output_directory_path, genome_protein)
             output_genome_nucl_path = os.path.join(genome_directory, genome_nucl)
@@ -242,6 +242,7 @@ class Annotate:
                                  self.aln_query, 
                                  self.aln_reference,
                                  AnnotationParser.KO)
+    
     def get_batches(self, input_file):
         last = None
         input_file_io = open(input_file)
@@ -290,7 +291,9 @@ class Annotate:
             cmd += "--subject-cover %f " % (self.aln_reference * 100)
 
         logging.debug(cmd)
+
         subprocess.call(cmd, shell = True)
+        logging.debug('Finished')
 
 
     def hmmsearch_annotation(self, genomes_list, output_directory_path, database, parser):
@@ -356,18 +359,18 @@ class Annotate:
                 cmd = "bash %s | seqmagick convert - - | mmseqs createdb /dev/stdin %s -v 0 " % (temp.name, db_path)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
-
+                logging.debug('Finished')
                 logging.info('    - Clustering genome proteins')
                 cmd = 'mmseqs cluster %s %s %s --max-seqs 1000 --threads %s --min-seq-id %s -e %f -c %s > /dev/null 2>&1 ' \
                             % (db_path, clu_path, tmp_dir, self.threads, self.id, self.evalue, self.c)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
-        
+                logging.debug('Finished')
                 logging.info('    - Extracting clusters')
                 cmd = 'mmseqs createtsv %s %s %s %s  > /dev/null 2>&1 ' % (db_path, db_path, clu_path, clu_tsv_path)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
-            
+                logging.debug('Finished')
                 # logging.info('    - Computing Smith-Waterman alignments for clustering results')
                 # cmd = "mmseqs align %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
                 # logging.debug(cmd)
@@ -391,6 +394,7 @@ class Annotate:
         cmd = 'mcl %s -te %s --abc -I %f -o %s > /dev/null 2>&1' % (clu_tsv_path, self.threads, self.inflation, output_path)
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)
+        logging.debug('Finished')
         ortholog = 1
         for line in open(output_path):
             ortholog_idx = "ortholog_%i" % ortholog
@@ -492,7 +496,8 @@ class Annotate:
 
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)        
-
+        logging.debug('Finished')
+    
     def _generate_gff_files(self, genomes_list):
         '''
         Write GFF files for each of the genome objects in genomes_list

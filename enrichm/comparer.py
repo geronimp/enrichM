@@ -86,7 +86,7 @@ class Compare:
 
 			test_results[combination] \
 				= stats.mannwhitneyu(group_1, group_2)
-		
+
 		return test_results
 
 	def _compare_features(self, genome_dict, metadata):
