@@ -345,7 +345,7 @@ class Run:
             p = Predict()
             p.do(args.forester_model_directory,
                  args.input_matrix,
-                 args.output_directory)
+                 args.output)
 
         elif args.subparser_name == self.GENERATE:
             self._check_generate(args)
@@ -356,7 +356,7 @@ class Run:
                   args.testing_portion,
                   args.grid_search,
                   args.threads,
-                  args.output_directory)
+                  args.output)
 
         
         logging.info('Forester has finished foresting')

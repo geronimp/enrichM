@@ -33,7 +33,7 @@ import os
 
 import numpy as np
 
-from generate_model import GenerateModel
+from generate import GenerateModel
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 
 ################################################################################
