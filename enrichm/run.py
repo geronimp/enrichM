@@ -17,7 +17,7 @@
 ###############################################################################
 
 __author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
+__copyright__   = "Copyright 2018"
 __credits__     = ["Joel Boyd"]
 __license__     = "GPL3"
 __version__     = "0.0.7"
@@ -39,7 +39,8 @@ from network_analyzer import NetworkAnalyser
 from enrichment import Enrichment
 from annotate import Annotate
 from classifier import Classify
-from comparer import Compare
+from generate import GenerateModel
+from predict import Predict
 
 ###############################################################################
 
@@ -63,6 +64,8 @@ class Run:
         self.ENRICHMENT      = 'enrichment'
         self.MODULE_AB       = 'module_ab'
         self.DATA            = 'data'
+        self.PREDICT         = 'predict'
+        self.GENERATE        = 'generate'
 
     def _logging_setup(self, args):
 
@@ -135,6 +138,7 @@ class Run:
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
             if args.evalue:
                 logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
+
     def _check_enrichment(self, args):
         '''
         Check enrichment input and output options are valid.
@@ -146,9 +150,13 @@ class Run:
         Output
         ------
         '''
-          ### ~ TODO: Check Multi test correction inputs...
-        if not(args.annotation_matrix or args.annotation_file):
-            raise Exception("Input error: No input file was specified. Please specify annotations to either the --annotation_matrix --annotation_file flags")
+        ### ~ TODO: Check Multi test correction inputs...
+        types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy]
+        if not any(types):
+            raise Exception("Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --hypothetical --cazy")
+        if len([x for x in types if x])>1:
+            import IPython ; IPython.embed()
+            raise Exception("Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
 
     def _check_classify(self, args):  
         '''
@@ -173,8 +181,6 @@ class Run:
         '''
         if not(args.metadata or args.abundances):
             raise Exception("No metadata or abundance information provided to build.")
-    def _check_compare(self, args):
-            pass
 
     def _check_network(self, args):
         '''
@@ -206,7 +212,26 @@ class Run:
         if args.subparser_name==NetworkAnalyser.TRAVERSE:
             args.depth              = None
             args.queries            = None
+    
+    def _check_predict(self, args):
+        '''
+        Inputs
+        ------
+        
+        Outputs
+        -------
+        '''
+        pass
 
+    def _check_generate(self, args):
+        '''
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        pass
 
     def main(self, args, command):
         '''
@@ -248,6 +273,8 @@ class Run:
                          args.cut_nc,
                          args.cut_tc,
                          args.inflation,
+                         args.chunk_number,
+                         args.chunk_max,
                          # Parameters
                          args.threads,
                          args.parallel,
@@ -269,11 +296,12 @@ class Run:
         elif args.subparser_name == self.ENRICHMENT: 
             self._check_enrichment(args)
             e = Enrichment()
-            e.do(args.annotation_matrix,
-                 args.annotation_file,
+            e.do(# Input options
+                 args.annotate_output,
                  args.metadata,
                  args.modules,
                  args.abundances,
+                 # Runtime options
                  args.do_all,
                  args.do_ivi, 
                  args.do_gvg,
@@ -282,16 +310,15 @@ class Run:
                  args.proportions_cutoff,
                  args.threshold,
                  args.multi_test_correction,
-                 args.output,
                  args.taxonomy,
                  args.batchfile,
-                 args.processes)
-
-        elif args.subparser_name == self.COMPARE:
-            self._check_compare(args)
-            c = Compare(args.threads)
-            c.do(args.enrichm_annotate_output,
-                 args.metadata,
+                 args.processes,
+                 args.ko,
+                 args.pfam,
+                 args.tigrfam,
+                 args.hypothetical,
+                 args.cazy,
+                 # Outputs
                  args.output)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
@@ -312,4 +339,26 @@ class Run:
                   args.steps,
                   args.number_of_queries,
                   args.output)
+        
+        if args.subparser_name == self.PREDICT:
+            self._check_predict(args)
+            p = Predict()
+            p.do(args.forester_model_directory,
+                 args.input_matrix,
+                 args.output_directory)
+
+        elif args.subparser_name == self.GENERATE:
+            self._check_generate(args)
+            gm = GenerateModel()
+            gm.do(args.input_matrix,
+                  args.groups,
+                  args.model_type,
+                  args.testing_portion,
+                  args.grid_search,
+                  args.threads,
+                  args.output_directory)
+
+        
+        logging.info('Forester has finished foresting')
+        
         logging.info('Done!')

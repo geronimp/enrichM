@@ -32,7 +32,16 @@ import re
 
 ###############################################################################
 
+KEGG = '(K\d+)'
+GH = '(GH\d+)'
+PL = '(PL\d+)'
+TIGRFAM = '(TIGR\d+)'
+PFAM = '(PF\d+)'
+CE = '(CE\d+)'
+
 class ModuleDescription:
+
+
 
     def __init__(self, module_description_string):
         self.module_description_string = module_description_string
@@ -49,8 +58,25 @@ class ModuleDescription:
 
     def kos(self):
         '''Return an iterable over the total list of KOs in the module'''
-        r = re.compile('(K\d+)')
-        return re.findall(r, self.module_description_string)
+        r_kegg = re.compile(KEGG)
+        r_gh = re.compile(GH)
+        r_pl = re.compile(PL)
+        r_tigrfam = re.compile(TIGRFAM)
+        r_pfam = re.compile(PFAM)
+        r_ce = re.compile(CE)
+        
+        if any(r_kegg):
+            return r_kegg
+        elif any(r_gh):
+            return r_gh
+        elif any(r_pl):
+            return r_pl
+        elif any(r_tigrfam):
+            return r_tigrfam
+        elif any(r_pfam):
+            return r_pfam
+        elif any(r_ce):
+            return r_ce
 
     def num_steps(self):
         if isinstance(self.parsed_module, ModuleDescriptionAndRelation):
@@ -172,7 +198,14 @@ class ModuleDescriptionParser:
             new_stuff = []
             for e in current.understuff:
                 if isinstance(e, str):
-                    if re.match('^K\d+$', e):
+                    
+                    if (re.match(KEGG, e) or 
+                        re.match(GH, e) or
+                        re.match(PL, e) or
+                        re.match(CE, e) or
+                        re.match(TIGRFAM, e) or
+                        re.match(PFAM, e)):
+
                         new_stuff.append(ModuleDescriptionKoEntry(e))
                     else:
                         #TOREMOVE frags = self.split_on_space(e)

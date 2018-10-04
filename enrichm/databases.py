@@ -38,8 +38,9 @@ import inspect
 
 class Databases:
 
-	DATA_PATH   			= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
+	DATA_PATH				= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
 	DATABASE_DIR			= os.path.join(DATA_PATH, 'databases')
+	
 	if os.path.isfile(os.path.join(DATABASE_DIR, 'VERSION')):
 		DB_VERSION				= open(os.path.join(DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
 		CUR_DATABASE_DIR		= os.path.join(DATABASE_DIR, DB_VERSION)
@@ -47,6 +48,7 @@ class Databases:
 		OLD_DATABASE_PATH		= os.path.join(DATA_PATH, 'databases', 'old')
 		IDS_DIR					= os.path.join(CUR_DATABASE_DIR, 'ids')
 		REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
+		GTDB_DIR				= os.path.join(CUR_DATABASE_DIR, 'gtdb')
 		PICKLE					= 'pickle'	
 		HMM_SUFFIX 				= '.hmm'
 		DMND_SUFFIX				= '.dmnd'
@@ -56,20 +58,21 @@ class Databases:
 		CAZY_DB_NAME			= 'cazy'
 		GTDB_DB_NAME			= 'GTDB_R80_DB'
 		
-		M2DEF       			= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
-		M           			= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
+		TAXONOMY				= os.path.join(CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
+		M2DEF					= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
+		M						= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
 		COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
-		R2RPAIR 				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_rpair')
-		R2K     				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
+		R2RPAIR					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_rpair')
+		R2K						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
 		R2C 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
-		R2M 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
-		M2R 					= os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
-		R2P 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
-		P2R 					= os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
-		C2R 					= os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
-		C   					= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
-		R   					= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
-		P   					= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
+		R2M						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
+		M2R						= os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
+		R2P						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
+		P2R						= os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
+		C2R						= os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
+		C						= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
+		R						= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
+		P						= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
 
 		PFAM2CLAN				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
 		CLAN2NAME				= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
@@ -150,6 +153,8 @@ class Databases:
 		                                      self.PICKLE_VERSION, self.PICKLE])))
 		logging.info("Loading reference db paths")		
 
+		self.taxonomy 		= self.parse_taxonomy(self.TAXONOMY)
+
 		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
 		self.GTDB_DB		= os.path.join(self.REF_DIR, self.GTDB_DB_NAME)
 
@@ -157,3 +162,13 @@ class Databases:
 		self.TIGRFAM_DB 	= os.path.join(self.REF_DIR, self.TIGRFAM_DB_NAME + self.HMM_SUFFIX)
 		self.CAZY_DB 		= os.path.join(self.REF_DIR, self.CAZY_DB_NAME + self.HMM_SUFFIX)
 		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 'PFAM_CLANS.txt')
+
+	def parse_taxonomy(self, taxonomy_path):
+		
+		output_taxonomy_dictionary = dict()
+
+		for line in open(taxonomy_path):
+			genome, taxonomy_string = line.strip().split('\t')
+			output_taxonomy_dictionary[genome] = taxonomy_string.split(';')
+			
+		return output_taxonomy_dictionary

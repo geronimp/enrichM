@@ -136,7 +136,7 @@ class Classify:
 
         for name, pathway_string in self.m2def.items():
             if name not in self.signature_modules:   
-
+                
                 path = ModuleDescription(pathway_string)
 
                 pathway[name] = path

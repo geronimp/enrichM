@@ -34,7 +34,7 @@ class Plot:
 
 	def __init__(self):
 		path_to_scripts = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','enrichm')
-		path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','share', 'enrichm', "databases", "enrichm_database_v1")
+		path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','share', 'enrichm', "databases", "enrichm_database_v3")
 		self.draw_pca_script_path 		= os.path.join(path_to_scripts, "PLOT_ko_pca.r") 
 		self.draw_heatmap_script_path 	= os.path.join(path_to_scripts, "PLOT_ko_heatmap.r") 
 		self.draw_barplots_script_path 	= os.path.join(path_to_scripts, "PLOT_ko_breakdown.r") 
