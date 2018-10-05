@@ -87,7 +87,7 @@ class ParseAnnotate:
 		else:
 			self.hypothetical_ortholog = None
 
-	def parse_pickles(self, genome_list):
+	def parse_pickles(self, path, genome_list):
 		'''
 		Opens the pickled genome objects from a previous run of enrichm 
 		annotate
@@ -109,11 +109,13 @@ class ParseAnnotate:
 
 
 		for pickled_genome in genome_list:
-			pickled_genome_path = os.path.join(self.genome_pickle_file_path, pickled_genome + '.pickle')
-			paths.append(pickled_genome_path)
+			pickled_genome_path = os.path.join(path, pickled_genome + '.pickle')
+			if os.path.isfile(pickled_genome_path):
+				paths.append(pickled_genome_path)
 		
 		self.pool = mp.Pool(processes = self.processes)
 		output_genome_list = self.pool.map_async(parse_genomes, paths)
 		output_genome_list.wait()
-		self.genome_objects = output_genome_list.get()
+		genome_objects = output_genome_list.get()
 		self.pool.close()
+		return genome_objects

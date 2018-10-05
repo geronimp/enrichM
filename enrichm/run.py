@@ -39,8 +39,8 @@ from network_analyzer import NetworkAnalyser
 from enrichment import Enrichment
 from annotate import Annotate
 from classifier import Classify
-from generate import GenerateModel
-from predict import Predict
+#from generate import GenerateModel
+#from predict import Predict
 
 ###############################################################################
 
@@ -155,7 +155,6 @@ class Run:
         if not any(types):
             raise Exception("Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --hypothetical --cazy")
         if len([x for x in types if x])>1:
-            import IPython ; IPython.embed()
             raise Exception("Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
 
     def _check_classify(self, args):  
@@ -357,8 +356,5 @@ class Run:
                   args.grid_search,
                   args.threads,
                   args.output)
-
-        
-        logging.info('Forester has finished foresting')
         
         logging.info('Done!')
