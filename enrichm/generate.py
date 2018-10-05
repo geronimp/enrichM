@@ -186,7 +186,7 @@ class GenerateModel():
 
         return labels_list, features_list
 
-    def grid_search_cv(self, random_search_cv, threads):
+    def grid_search_cv(self, random_search_cv, threads, rf):
         '''
         Inputs
         ------
@@ -214,14 +214,13 @@ class GenerateModel():
         }
         
 
-        rf = RandomForestRegressor()
         grid_search = GridSearchCV(estimator = rf,
                                    param_grid = param_grid, 
                                    cv = 3,
                                    n_jobs = threads)
         return grid_search
 
-    def random_search_cv(self, threads):
+    def random_search_cv(self, threads, rf):
         '''
         Inputs
         ------
@@ -246,7 +245,6 @@ class GenerateModel():
                        'min_samples_leaf': min_samples_leaf,
                        'bootstrap': bootstrap}
 
-        rf = RandomForestRegressor()
         rf_random = RandomizedSearchCV(estimator = rf,
                                         param_distributions = random_grid,
                                         n_iter = 100,
@@ -255,7 +253,7 @@ class GenerateModel():
                                         n_jobs = threads)
         return rf_random
 
-    def tune(self, features_list, labels_list_numeric, testing_portion, grid_search, threads):
+    def tune(self, features_list, labels_list_numeric, testing_portion, grid_search, threads, rf):
         '''     
         Inputs
         ------
@@ -272,7 +270,7 @@ class GenerateModel():
                                random_state = 7)
 
 
-        rf_random_model = self.random_search_cv(threads)
+        rf_random_model = self.random_search_cv(threads, rf)
         logging.info('Fitting model')
         rf_random_trained_model = rf_random_model.fit(train_features, train_labels)
 
@@ -280,7 +278,7 @@ class GenerateModel():
         for x,y in rf_random_trained_model.best_params_.items():
             logging.info("\t\t%s: %s" % (x, str(y)))
         if grid_search:
-            rf_grid_model = self.grid_search_cv(rf_random_model, threads)   
+            rf_grid_model = self.grid_search_cv(rf_random_model, threads, rf)   
             logging.info('Fitting model')
             rf_grid_trained_model = rf_grid_model.fit(train_features, train_labels)
 
@@ -307,9 +305,9 @@ class GenerateModel():
         logging.info('Using %f%% of the input data for testing' % (testing_portion*100))
 
         if model_type == self.REGRESSOR:
-            model = RandomForestRegressor
+            model = RandomForestRegressor()
         elif model_type == self.CLASSIFIER:
-            model = RandomForestClassifier
+            model = RandomForestClassifier()
         else:
             raise Exception("Model type not recognised: %s" % (model_type))
 
@@ -331,7 +329,8 @@ class GenerateModel():
                                                    labels_list_numeric,
                                                    testing_portion,
                                                    grid_search,
-                                                   threads)
+                                                   threads,
+                                                   model)
 
         logging.info('Making predictions on test data:')
         predictions = rf.predict(test_features)

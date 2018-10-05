@@ -39,8 +39,8 @@ from network_analyzer import NetworkAnalyser
 from enrichment import Enrichment
 from annotate import Annotate
 from classifier import Classify
-#from generate import GenerateModel
-#from predict import Predict
+from generate import GenerateModel
+from predict import Predict
 
 ###############################################################################
 

@@ -33,6 +33,8 @@ import sys
 import textwrap
 import time
 
+sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
+
 # Local
 import enrichm
 
