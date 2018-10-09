@@ -33,8 +33,9 @@ import os
 
 import numpy as np
 
-from generate import GenerateModel
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+# Local
+from enrichm.generate import GenerateModel
 
 ################################################################################
 

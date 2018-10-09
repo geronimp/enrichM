@@ -30,8 +30,8 @@ __status__      = "Development"
 import os
 import logging
 
-from sequence_io import SequenceIO
-from databases import Databases
+from enrichm.sequence_io import SequenceIO
+from enrichm.databases import Databases
 
 ###############################################################################
 
@@ -66,13 +66,13 @@ class Genome:
 			for protein_count, (description, sequence) in enumerate(seqio.each(open(path))):
 				name = description.partition(' ')[0]
 				sequence = Sequence(description, sequence)
-			 	self.sequences[name] = sequence
+				self.sequences[name] = sequence
 				self.protein_ordered_dict[protein_count] = name
 		else:
 			for protein_count, (description, _) in enumerate(seqio.each(open(path))):
 				name = description.partition(' ')[0]
 				sequence = Sequence(description)
-			 	self.sequences[name] = sequence
+				self.sequences[name] = sequence
 				self.protein_ordered_dict[protein_count] = name
 
 	def add(self, annotations, evalue_cutoff, bitscore_cutoff, 

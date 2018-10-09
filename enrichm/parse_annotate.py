@@ -30,10 +30,10 @@ __status__      = "Development"
 import logging
 import os
 
-import cPickle as pickle
+import pickle
 import multiprocessing as mp
 
-from annotate import Annotate
+from enrichm.annotate import Annotate
 
 ################################################################################
 

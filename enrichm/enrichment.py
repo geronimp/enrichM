@@ -41,10 +41,10 @@ from scipy import stats
 from itertools import product, combinations, chain
 
 # Local
-from parse_annotate import ParseAnnotate
-from databases import Databases
-from draw_plots import Plot
-from comparer import Compare
+from enrichm.parse_annotate import ParseAnnotate
+from enrichm.databases import Databases
+from enrichm.draw_plots import Plot
+from enrichm.comparer import Compare
 
 ################################################################################
 

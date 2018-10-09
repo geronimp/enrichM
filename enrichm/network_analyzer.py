@@ -30,8 +30,8 @@ __status__      = "Development"
 import logging
 import os
 
-from kegg_matrix import KeggMatrix
-from network_builder import NetworkBuilder
+from enrichm.kegg_matrix import KeggMatrix
+from enrichm.network_builder import NetworkBuilder
 
 ###############################################################################
 

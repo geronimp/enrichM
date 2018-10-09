@@ -31,8 +31,8 @@ import logging
 import math
 import numpy as np
 
-from kegg_module_grabber import KeggModuleGrabber
-from module_description_parser import ModuleDescription
+from enrichm.kegg_module_grabber import KeggModuleGrabber
+from enrichm.module_description_parser import ModuleDescription
 
 class MetagenomeAnalyzer:
     

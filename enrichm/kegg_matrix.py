@@ -31,7 +31,7 @@ import logging
 import pickle
 import os
 
-from databases import Databases
+from enrichm.databases import Databases
 
 ###############################################################################
 
