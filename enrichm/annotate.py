@@ -148,6 +148,7 @@ class Annotate:
                 if genome_path.endswith(self.suffix):
                     genome_paths.append(genome_path) 
             cmd = "xargs --arg-file=/dev/stdin cp --target-directory=%s" % genome_directory
+            logging.debug(cmd)
             process = subprocess.Popen(["bash", "-c", cmd], 
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE)
@@ -367,10 +368,12 @@ class Annotate:
                 subprocess.call(cmd, shell = True)
                 logging.debug('Finished')
                 logging.info('    - Extracting clusters')
+
                 cmd = 'mmseqs createtsv %s %s %s %s  > /dev/null 2>&1 ' % (db_path, db_path, clu_path, clu_tsv_path)
                 logging.debug(cmd)
                 subprocess.call(cmd, shell = True)
                 logging.debug('Finished')
+
                 # logging.info('    - Computing Smith-Waterman alignments for clustering results')
                 # cmd = "mmseqs align %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
                 # logging.debug(cmd)
@@ -533,6 +536,7 @@ class Annotate:
                     out_io.write( ">%s %s\n" % (name, annotations) )
                     out_io.write( str(sequence) + '\n' )
             os.close(fd)
+            logging.debug('Moving %s to %s' % (fname, genome.path))
             shutil.move(fname, genome.path)
 
     def _pickle_objects(self, genomes_list):
@@ -575,26 +579,26 @@ class Annotate:
                 list_size = 0
 
 
-    def do(self, genome_directory, protein_directory, genome_files, protein_files):
+    def parse_genome_inputs(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
-        Run Annotate pipeline for enrichM
-
-        Parameters
-        ----------
-        genome_directory    - String. Path to directory containing genomes
-        protein_directory   - String. Path to directory containing proteins (.faa files) for genomes
-        genome_files        - List. List of strings, each to a .fna genome file.
-        protein_files       - List. List of strings, each to a .faa proteins file.
-        '''
-
-        logging.info("Running pipeline: annotate")
-        logging.info("Setting up for genome annotation")
+        Inputs
+        ------
         
-        prep_genomes_list = list()  
+        Outputs
+        -------
+        
+        '''
+
+        prep_genomes_list   = list()  
+        genomes_list        = list()
 
         if protein_directory:
             logging.info("Using provided proteins")
-            protein_genome_list = [os.path.join(protein_directory, x) for x in os.listdir(protein_directory)]
+            protein_genome_list = list()
+            
+            for protein_file in os.listdir(protein_directory):
+                protein_genome_list.append(os.path.join(protein_directory, protein_file))
+
             directory = self.prep_genome(protein_genome_list,
                                          os.path.join(self.output_directory,
                                                       self.GENOME_PROTEINS))
@@ -615,6 +619,7 @@ class Annotate:
             logging.info("Calling proteins for annotation")
             prep_genomes_list = self.call_proteins(genome_directory)
             directory = genome_directory
+        
         elif genome_files:
             logging.info("Calling proteins for annotation")      
             directory = self.prep_genome(genome_files,
@@ -622,9 +627,28 @@ class Annotate:
                                                       self.GENOME_BIN))      
             prep_genomes_list = self.call_proteins(directory)
         
-        genomes_list = list()
+        
         for chunk in self.list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
             genomes_list += self.pool.map(parse_genomes, chunk)
+
+        return genomes_list
+
+    def do(self, genome_directory, protein_directory, genome_files, protein_files):
+        '''
+        Run Annotate pipeline for enrichM
+
+        Parameters
+        ----------
+        genome_directory    - String. Path to directory containing genomes
+        protein_directory   - String. Path to directory containing proteins (.faa files) for genomes
+        genome_files        - List. List of strings, each to a .fna genome file.
+        protein_files       - List. List of strings, each to a .faa proteins file.
+        '''
+
+        logging.info("Running pipeline: annotate")
+        logging.info("Setting up for genome annotation")
+        
+        genomes_list = self.parse_genome_inputs(genome_directory, protein_directory, genome_files, protein_files)
         
         if len(genomes_list)==0:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
@@ -641,11 +665,6 @@ class Annotate:
 
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_CLUSTER)
                 mg.write_matrix(genomes_list, freq_table)
-
-                #mg = matrix_generatornerator(MatrixGenerator.HYPOTHETICAL, ortholog_ids)
-                #freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_ORTHOLOG)
-                #mg.write_matrix(genomes_list, freq_table)
-
 
             if self.ko:
                 logging.info('    - Annotating genomes with ko ids')

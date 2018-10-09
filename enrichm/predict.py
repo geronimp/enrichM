@@ -71,6 +71,7 @@ class Predict():
 		-------
 		
 		'''
+		
 		sample_list 	= np.array(sample_list)
 		content_list 	= np.array(content_list)
 		predictions 	= model.predict(content_list)

@@ -83,8 +83,6 @@ class Run:
         logger.addHandler(stream_logger)
 
         if args.subparser_name!=self.DATA:
-
-
             file_logger = logging.FileHandler(os.path.join(args.output, args.log), 'a')
             file_logger.setFormatter(log_format)
             logger.addHandler(file_logger)

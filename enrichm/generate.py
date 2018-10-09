@@ -344,7 +344,6 @@ class GenerateModel():
             else:
                 correctness.append(0)
 
-
         accuracy = (sum(correctness)/float(len(correctness)))*100
         logging.info('\t\tAccuracy: %f%%' % (round(accuracy, 2)))
         self._write_importances(rf, attribute_list, output_directory)

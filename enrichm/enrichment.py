@@ -111,8 +111,6 @@ class Enrichment:
     TIGRFAM                 = "tigrfam"
     PFAM                    = "pfam"
     KEGG                    = "kegg"
-    
-
 
     def __init__(self):
 
@@ -126,22 +124,10 @@ class Enrichment:
         self.PROPORTIONS             = 'proportions.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
         
-        self.taxonomy_index_dictionary = {"d__":0,
-                         "p__":1,
-                         "c__":2,
-                         "o__":3,
-                         "f__":4,
-                         "g__":5,
-                         "s__":6}    
+        self.taxonomy_index_dictionary = {"d__":0, "p__":1, "c__":2,
+                                          "o__":3, "f__":4, "g__":5, "s__":6}    
+
     def _parse_matrix(self, matrix_file_io, colnames):
-        '''
-        
-        Parameters
-        ----------
-        
-        Output
-        ------
-        '''
         for line in matrix_file_io:
             sline = line.strip().split('\t')
             rowname, entries = sline[0], sline[1:]
@@ -310,10 +296,7 @@ class Enrichment:
             if taxonomy_list[rank_index] == taxonomy:
                 genomes_set.add(genome_id)
 
-        return genomes_set
-
-    def get_gtdb_genomes(self, genome_list, path):
-        pass    
+        return genomes_set 
 
     def do(# Input options
            self, annotate_output, metadata_path, modules, abundances, 
@@ -388,7 +371,7 @@ class Enrichment:
                     attribute_dict[g].add(genome)
                 metadata[genome] = genome_group
                 genomes.append(genome)
-
+                
             metadata_value_lists = metadata_value_lists.union(batchfile_metadata_value_lists)
 
         logging.info("Comparing sets of genomes")        
