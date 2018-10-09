@@ -38,9 +38,8 @@ from itertools import chain, combinations
 
 ################################################################################
 
-from genome import Genome, AnnotationParser
-from annotate import Annotate
-
+from enrichm.genome import Genome, AnnotationParser
+from enrichm.annotate import Annotate
 
 ###############################################################################
 

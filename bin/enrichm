@@ -49,7 +49,7 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         return text.splitlines()
     
 def phelp():
-    print u"""                                           _      _     __  __ 
+    print("""                                           _      _     __  __ 
                                           (_)    | |   |  \/  |
                             ___ _ __  _ __ _  ___| |__ | \  / |
                            / _ \ '_ \| '__| |/ __| '_ \| |\/| |
@@ -75,7 +75,7 @@ def phelp():
 
   Authors: Joel Boyd, Boyd Woodcroft, Alex Baker
   Version: %s 
-""" % (enrichm.__version__)
+""" % (enrichm.__version__))
 
 if __name__ == "__main__":
 

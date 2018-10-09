@@ -31,8 +31,11 @@ import logging
 import os
 import itertools
 
-from databases import Databases
 from collections import Counter
+
+################################################################################
+
+from enrichm.databases import Databases
 
 ###############################################################################
 

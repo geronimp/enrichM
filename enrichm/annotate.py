@@ -40,15 +40,15 @@ import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
 import numpy as np
 
-import cPickle as pickle
+import pickle
 from itertools import combinations
 from collections import Counter
 
-from sequence_io import SequenceIO
-from databases import Databases
-from matrix_generator import MatrixGenerator
-from gff_generator import GffGenerator
-from genome import Genome, AnnotationParser
+from enrichm.sequence_io import SequenceIO
+from enrichm.databases import Databases
+from enrichm.matrix_generator import MatrixGenerator
+from enrichm.gff_generator import GffGenerator
+from enrichm.genome import Genome, AnnotationParser
 
 ###############################################################################
 ###############################################################################

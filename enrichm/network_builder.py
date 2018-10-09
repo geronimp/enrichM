@@ -33,8 +33,8 @@ import os
 import random
 import itertools
 
-from traverse import NetworkTraverser
-from databases import Databases
+from enrichm.traverse import NetworkTraverser
+from enrichm.databases import Databases
 
 
 ###############################################################################

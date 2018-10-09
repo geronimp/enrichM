@@ -34,13 +34,13 @@ import os
 import shutil
 import time
 
-from data import Data
-from network_analyzer import NetworkAnalyser
-from enrichment import Enrichment
-from annotate import Annotate
-from classifier import Classify
-from generate import GenerateModel
-from predict import Predict
+from enrichm.data import Data
+from enrichm.network_analyzer import NetworkAnalyser
+from enrichm.enrichment import Enrichment
+from enrichm.annotate import Annotate
+from enrichm.classifier import Classify
+from enrichm.generate import GenerateModel
+from enrichm.predict import Predict
 
 ###############################################################################
 

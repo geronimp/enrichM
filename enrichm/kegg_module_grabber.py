@@ -31,8 +31,8 @@ import os, re
 import logging
 import pickle
 
-from databases import Databases
-from module_description_parser import ModuleDescription
+from enrichm.databases import Databases
+from enrichm.module_description_parser import ModuleDescription
 
 ###############################################################################
 

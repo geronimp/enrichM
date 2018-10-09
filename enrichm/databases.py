@@ -32,7 +32,7 @@ import os
 import logging
 import pickle
 import inspect
-import cPickle as pickle
+import pickle
 
 ###############################################################################
 

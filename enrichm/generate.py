@@ -29,7 +29,7 @@ __status__      = "Development"
 
 import sys
 import argparse
-import generate
+import enrichm.generate
 import pickle
 import os
 import logging
