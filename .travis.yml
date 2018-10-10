@@ -1,9 +1,7 @@
 language: python
 python:
   - 3.5
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y libxml2-dev
+before_install: true
 install:
   - pip install -r requirements.txt
 before_script: true
