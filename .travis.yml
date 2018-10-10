@@ -1,2 +1,3 @@
 language: python
-sudo: false
+before_install:
+  - echo "hello world"
