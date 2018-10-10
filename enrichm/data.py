@@ -32,15 +32,15 @@ import urllib
 import shutil
 import subprocess
 import logging
-import inspect
-
+from pathlib import Path
+# Local
 ###############################################################################
 
 class Data:
 	'''
 	Utilities for archiving, downloading and updating databases.
 	'''
-	DATA_PATH 		= os.path.join(os.path.dirname(inspect.stack()[-1][1]), '..', 'share', 'enrichm')
+	DATA_PATH 		= str(Path.home())
 	DATABASE_DIR	= os.path.join(DATA_PATH, 'databases')
 	VERSION 		= 'VERSION'
 	ARCHIVE_SUFFIX 	= '.tar.gz'
@@ -56,7 +56,7 @@ class Data:
 		----------
 		old_db_file	- String. File name of old database file to archive
 		'''
-		from databases import Databases
+		from enrichm.databases import Databases
 
 		if not os.path.isdir(Databases.OLD_DATABASE_PATH):
 			logging.info('Creating directory to store databases: %s' % (Databases.OLD_DATABASE_PATH))
@@ -82,6 +82,7 @@ class Data:
 		----------
 		new_db_file	- String. File name of new database to download and decompress.
 		'''
+		
 		new_db_path_archive \
 			= os.path.join(self.DATABASE_DIR, new_db_file)
 		logging.info('Downloading new database: %s' % new_db_file)
@@ -97,21 +98,33 @@ class Data:
 		logging.info('Cleaning up')
 		os.remove(new_db_path_archive)
 	
-	def do(self):
+	def do(self, uninstall):
 		'''
 		Check database versions, if they're out of date, archive the old and download the new.
 		'''
-		version_remote = urllib.urlopen(self.ftp + self.VERSION).readline().strip()
-		if os.path.isdir(self.DATABASE_DIR):
-			version_local  = open(os.path.join(self.DATABASE_DIR, self.VERSION)).readline().strip()
-			if version_local!=version_remote:
-				logging.info('New database found. Archiving old database.')
-				self._archive_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
-				self._download_db(version_remote)
-			else:
-				logging.info('Database is up to date!')
+
+		if uninstall:
+			for file in os.listdir(self.DATABASE_DIR):
+				file_path = os.path.join(self.DATABASE_DIR, file)
+				if os.path.isdir(file_path):
+					shutil.rmtree(file_path)
+				else:
+					os.remove(file_path)
+			os.rmdir(self.DATABASE_DIR)
+
 		else:
-			logging.info('Creating file to store databases.')
-			os.makedirs(self.DATABASE_DIR)
-			self._download_db(version_remote)
+			version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
+
+			if os.path.isdir(self.DATABASE_DIR):
+				version_local  = open(os.path.join(self.DATABASE_DIR, self.VERSION)).readline().strip()
+				if version_local!=version_remote:
+					logging.info('New database found. Archiving old database.')
+					self._archive_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
+					self._download_db(version_remote)
+				else:
+					logging.info('Database is up to date!')
+			else:
+				logging.info('Creating file to store databases.')
+				os.makedirs(self.DATABASE_DIR)
+				self._download_db(version_remote)
 		

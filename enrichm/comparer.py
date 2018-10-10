@@ -27,20 +27,13 @@ __status__      = "Development"
 
 ###############################################################################
 # Imports
-
 import logging
 import os
-import subprocess
 import numpy as np
-
 from scipy import stats
-from itertools import chain, combinations
-
-################################################################################
-
+from itertools import combinations
+# Local
 from enrichm.genome import Genome, AnnotationParser
-from enrichm.annotate import Annotate
-
 ###############################################################################
 
 class Compare:

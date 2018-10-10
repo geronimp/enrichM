@@ -26,13 +26,10 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
 ###############################################################################
-
+# Imports
 import logging
-import pickle
-import os
-
+# Local
 from enrichm.databases import Databases
-
 ###############################################################################
 
 class KeggMatrix:

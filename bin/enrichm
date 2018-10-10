@@ -32,16 +32,12 @@ import os
 import sys
 import textwrap
 import time
-
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
-
 # Local
 import enrichm
-
 from enrichm.run import Run
 from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.kegg_module_grabber import KeggModuleGrabber
-
 ###############################################################################
       
 class CustomHelpFormatter(argparse.HelpFormatter):
@@ -124,7 +120,10 @@ if __name__ == "__main__":
     # Data
     
     data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
-        
+    data_input_options = data.add_argument_group('Uninstall')
+    data_input_options.add_argument('--uninstall', action='store_true',
+                help = 'Remove enrichm database')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Annotate
@@ -234,14 +233,6 @@ if __name__ == "__main__":
                 help='Modules to limit analysis to.')
     enrichment_runtime_options.add_argument('--abundances',
                 help='Genome abundance matrix.')
-    enrichment_runtime_options.add_argument('--do_all', action='store_true',
-                help='Attempt to conduct all tests.')
-    enrichment_runtime_options.add_argument('--do_ivi', action='store_true',
-                help='Conduct individual vs individual tests (Fisher).')
-    enrichment_runtime_options.add_argument('--do_gvg', action='store_true',
-                help='Conduct group vs group tests (T-test).')
-    enrichment_runtime_options.add_argument('--do_ivg', action='store_true',
-                help='Conduct individual vs group tests (Z score).')
     enrichment_runtime_options.add_argument('--pval_cutoff', type=float, default=0.05,
                 help='Only output results with a p-value below a this cutoff (default=0.05).')
     enrichment_runtime_options.add_argument('--proportions_cutoff', type=float, default=1,

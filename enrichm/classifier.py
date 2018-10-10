@@ -26,16 +26,13 @@ __status__ = "Development"
 
 ###############################################################################
 # Imports
-
 import os
 import re
 import logging
-import pickle
-
 from itertools import chain
+# Local
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
-
 ###############################################################################
 
 class Classify:

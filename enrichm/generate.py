@@ -26,21 +26,16 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
-import sys
-import argparse
-import enrichm.generate
+# Imports
 import pickle
 import os
 import logging
-
 import pandas as pd
 import numpy as np
-
-from itertools import chain
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, GridSearchCV
-
+# Local
+import enrichm.generate
 ################################################################################
 
 class GenerateModel():

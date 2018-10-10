@@ -26,13 +26,12 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-# imports
+# Imports
 import os
 import logging
-
+# Local
 from enrichm.sequence_io import SequenceIO
 from enrichm.databases import Databases
-
 ###############################################################################
 
 class Genome:

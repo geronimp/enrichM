@@ -26,20 +26,18 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
+# Imports
 import logging
 import os
-
 import pickle
 import multiprocessing as mp
-
+# Local
 from enrichm.annotate import Annotate
-
 ################################################################################
 
 def parse_genomes(path):
 	logging.info('Loading: %s' % (os.path.basename(path)))
-	genome = pickle.load(open(path))
+	genome = pickle.load(open(path, 'rb'))
 	return genome
 
 ################################################################################

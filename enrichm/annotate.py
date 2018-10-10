@@ -34,22 +34,16 @@ import os
 import tempfile
 import tempdir
 import shutil
-
-
+import pickle
 import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
 import numpy as np
-
-import pickle
-from itertools import combinations
-from collections import Counter
-
+# Local
 from enrichm.sequence_io import SequenceIO
 from enrichm.databases import Databases
 from enrichm.matrix_generator import MatrixGenerator
 from enrichm.gff_generator import GffGenerator
 from enrichm.genome import Genome, AnnotationParser
-
 ###############################################################################
 ###############################################################################
 
@@ -226,7 +220,7 @@ class Annotate:
 
         with tempfile.NamedTemporaryFile() as temp:
 
-            temp.write('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list] ) )
+            temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()
 
             output_annotation_path = os.path.join(output_directory_path, self.OUTPUT_DIAMOND) + self.ANNOTATION_SUFFIX
@@ -329,7 +323,7 @@ class Annotate:
                          self.aln_reference,
                          parser)
 
-    def annotate_hypothetical(self, genomes_list, directory):
+    def annotate_hypothetical(self, genomes_list):
         '''
         Sort proteins coded by each genome into homologous clusters.  
         
@@ -345,7 +339,7 @@ class Annotate:
 
         with tempfile.NamedTemporaryFile() as temp:
 
-            temp.write('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list] ) )
+            temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()  
 
             with tempdir.TempDir() as tmp_dir:  
@@ -461,8 +455,6 @@ class Annotate:
             cmd += '-E %f ' % (self.evalue) 
         if self.bit:
             cmd += '-T %f ' % (self.bit)    
-        if self.id:
-            logging.warning("--id flag not used for hmmsearch")
         return cmd
 
     def _hmm_search(self, output_path, database, hmmcutoff):
@@ -551,7 +543,7 @@ class Annotate:
                                              self.GENOME_OBJ)
         os.mkdir(output_directory_path)
         for genome in genomes_list:
-            with open(os.path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX), 'w') as output:
+            with open(os.path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX), 'wb') as output:
                 pickle.dump(genome, output)
 
     def list_splitter(self, input_list, chunk_number, chunk_max):
@@ -658,7 +650,7 @@ class Annotate:
 
             if self.hypothetical:
                 logging.info('    - Annotating genomes with hypothetical clusters')
-                cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list, directory)
+                cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list)
                 
                 logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)

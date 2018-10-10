@@ -27,13 +27,12 @@ __status__      = "Development"
 
 ###############################################################################
 # Imports
-
 import logging
 import sys
 import os
 import shutil
 import time
-
+# Local
 from enrichm.data import Data
 from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.enrichment import Enrichment
@@ -41,7 +40,6 @@ from enrichm.annotate import Annotate
 from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
-
 ###############################################################################
 
 debug={1:logging.CRITICAL,
@@ -95,6 +93,22 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
+
+        dependencies = {'hmmsearch': "http://hmmer.org/download.html",
+                        'diamond': "https://github.com/bbuchfink/diamond",
+                        'R': "https://www.r-project.org",
+                        'parallel': "https://www.gnu.org/software/parallel",
+                        'prodigal': "https://github.com/hyattpd/Prodigal/wiki/installation",
+                        'seqmagick': "https://fhcrc.github.io/seqmagick",
+                        'mmseqs': "https://github.com/soedinglab/MMseqs2"}
+        missing_dependencies = []
+        for dependency in dependencies.keys():
+            if shutil.which(dependency) == None:
+                missing_dependencies.append(dependency)
+        if len(missing_dependencies)>0:
+            dependency_string = '\n'.join(['\t%s\t%s' % (dependency, dependencies[dependency]) for d in missing_dependencies])
+            raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
+
         # We dont need an output directory for the DATA pipeline
         if args.subparser_name!=self.DATA:
             # Set up working directory
@@ -245,9 +259,8 @@ class Run:
         logging.info("Running command: %s" % ' '.join(command))
 
         if args.subparser_name == self.DATA:
-            self._check_data(args)
             d = Data()
-            d.do()
+            d.do(args.uninstall)
         
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
@@ -299,10 +312,6 @@ class Run:
                  args.modules,
                  args.abundances,
                  # Runtime options
-                 args.do_all,
-                 args.do_ivi, 
-                 args.do_gvg,
-                 args.do_ivg,
                  args.pval_cutoff,
                  args.proportions_cutoff,
                  args.threshold,

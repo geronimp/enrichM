@@ -26,13 +26,12 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
+# Imports
 import logging
 import os
-
+# Local
 from enrichm.kegg_matrix import KeggMatrix
 from enrichm.network_builder import NetworkBuilder
-
 ###############################################################################
 
 class NetworkAnalyser:

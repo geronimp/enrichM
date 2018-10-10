@@ -26,14 +26,12 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
-import os, re
+# Imports
+import re
 import logging
-import pickle
-
+# Local
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
-
 ###############################################################################
 
 class KeggModuleGrabber:

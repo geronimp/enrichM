@@ -26,17 +26,14 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
+# Imports
 import logging
 import pickle
 import os
-
 import numpy as np
-
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 # Local
 from enrichm.generate import GenerateModel
-
 ################################################################################
 
 

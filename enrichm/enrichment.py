@@ -26,26 +26,21 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
-# System
+# Imports
 import logging
 import os
 import random
 import re
-
 import numpy as np
 import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
-
 from scipy import stats
 from itertools import product, combinations, chain
-
 # Local
 from enrichm.parse_annotate import ParseAnnotate
 from enrichm.databases import Databases
 from enrichm.draw_plots import Plot
 from enrichm.comparer import Compare
-
 ################################################################################
 
 def gene_fisher_calc(x):
@@ -162,14 +157,25 @@ class Enrichment:
 
         return cols_to_rows, nr_values, attribute_dict
 
-    def _parse_annotation_matrix(self, matrix_path):
+    def _parse_annotation_matrix(self, ko, pfam, tigrfam, hypothetical, cazy, pa):
         '''        
         Parameters
         ----------
         matrix_path : String. Path to file containing a matrix of genome rownames.        
         '''
 
-        matrix_file_io  = open(matrix_path)
+        if ko:
+            annotation_matrix = pa.ko
+        elif pfam:
+            annotation_matrix = pa.pfam
+        elif tigrfam:
+            annotation_matrix = pa.tigrfam
+        elif hypothetical:
+            annotation_matrix = pa.hypothetical_cluster
+        elif cazy:
+            annotation_matrix = pa.cazy
+
+        matrix_file_io  = open(annotation_matrix)
         colnames        = matrix_file_io.readline().strip().split('\t')[1:]
         cols_to_rows    = {genome_name:set() for genome_name in colnames}
         rownames        = set()
@@ -297,13 +303,29 @@ class Enrichment:
                 genomes_set.add(genome_id)
 
         return genomes_set 
+    
+    def test_chooser(self, groups):
+        if len(groups) > 2:
+            if all(len(group) < 10 for group in groups):
+                test = scipy.stats.f_oneway
+            else:
+                test = scipy.stats.mstats.kruskalwallis
+        elif len(groups) == 2:
+            if any(len(group) < 5 for group in groups):
+                test = stats.fisher_exact
+            else:
+                test = stats.mannwhitneyu
+        else:
+            raise Exception("Not enough groups specified to compare")
+        
+        return test
 
     def do(# Input options
            self, annotate_output, metadata_path, modules, abundances, 
            # Runtime options
-           do_all, do_ivi, do_gvg, do_ivg, pval_cutoff, proportions_cutoff, threshold, 
-           multi_test_correction, taxonomy, batchfile, processes, ko, pfam, tigrfam, 
-           hypothetical, cazy,
+           pval_cutoff, proportions_cutoff, threshold, multi_test_correction,
+           taxonomy, batchfile, processes, ko, pfam, tigrfam, hypothetical,
+           cazy,
            # Output options
            output_directory):
 
@@ -311,25 +333,14 @@ class Enrichment:
         c  = Compare()
         d  = Databases()
         
-        logging.info('Parsing inputs')
+        logging.info('Parsing annotate output: %s' % (annotate_output))
         pa = ParseAnnotate(annotate_output, processes)
-
-        if ko:
-            annotation_matrix = pa.ko
-        elif pfam:
-            annotation_matrix = pa.pfam
-        elif tigrfam:
-            annotation_matrix = pa.tigrfam
-        elif hypothetical:
-            annotation_matrix = pa.hypothetical_cluster
-        elif cazy:
-            annotation_matrix = pa.cazy
+        
+        logging.info('Parsing annotations')
+        annotations_dict, modules, genomes \
+                    = self._parse_annotation_matrix(ko, pfam, tigrfam, hypothetical, cazy, pa)
 
         logging.info('Parsing annotations')
-
-        annotations_dict, modules, genomes \
-                    = self._parse_annotation_matrix(annotation_matrix)
-
         if (taxonomy or batchfile):
             genomes_set = set()
             if taxonomy:
@@ -338,7 +349,9 @@ class Enrichment:
                 batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict \
                             = self.parse_metadata_matrix(batchfile)
                 genomes_set = genomes_set.union(set(batchfile_metadata.keys()))
-
+            reference_genomes = pa.parse_pickles(d.GTDB_DIR, genomes_set)
+            reference_genome_annotations = {genome.name.replace('_gene', ''):set(genome.ko_dict.keys()) for genome in reference_genomes}
+            annotations_dict.update(reference_genome_annotations)
         if modules:
             logging.info('Limiting to %i modules' % len(modules))
             modules = modules
@@ -349,10 +362,8 @@ class Enrichment:
 
         # Load pickles
         pa.genome_objects = pa.parse_pickles(pa.genome_pickle_file_path, metadata.keys())
-        reference_genomes = pa.parse_pickles(d.GTDB_DIR, genomes_set)
 
-        reference_genome_annotations = {genome.name.replace('_gene', ''):set(genome.ko_dict.keys()) for genome in reference_genomes}
-        annotations_dict.update(reference_genome_annotations)
+        
 
         if taxonomy:
             attribute_dict[taxonomy] = set()
@@ -373,7 +384,7 @@ class Enrichment:
                 genomes.append(genome)
                 
             metadata_value_lists = metadata_value_lists.union(batchfile_metadata_value_lists)
-
+ 
         logging.info("Comparing sets of genomes")        
         combination_dict = dict()
         for combination in product(*list([metadata_value_lists])):
@@ -396,10 +407,7 @@ class Enrichment:
                  processes,
                  d)
 
-        if do_all:
-            do_gvg = True
-            do_ivi = True
-            do_ivg = True
+        import IPython ; IPython.embed()
         
         if do_gvg:
             gvg = list(combinations(combination_dict.keys(), 2)) # For Fisher's exact test

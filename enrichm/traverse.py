@@ -27,13 +27,6 @@ __status__      = "Development"
  
 ###############################################################################
 
-import logging
-import pickle
-import os
-from itertools import chain
-
-###############################################################################
-
 class NetworkTraverser:
     
     to_omit = set(["C00828",  # Menaquinone

@@ -29,16 +29,17 @@ __status__      = "Development"
 import logging
 import os
 import subprocess
+from enrichm.databases import Databases
+from enrichm.data import Data
 ################################################################################
 class Plot:
 
 	def __init__(self):
-		path_to_scripts = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','enrichm')
-		path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','share', 'enrichm', "databases", "enrichm_database_v3")
+		path_to_scripts = os.path.join(Data.DATA_PATH,'..','enrichm')
 		self.draw_pca_script_path 		= os.path.join(path_to_scripts, "PLOT_ko_pca.r") 
 		self.draw_heatmap_script_path 	= os.path.join(path_to_scripts, "PLOT_ko_heatmap.r") 
 		self.draw_barplots_script_path 	= os.path.join(path_to_scripts, "PLOT_ko_breakdown.r") 
-		self.ko00000 					= os.path.join(path_to_data, 'ko00000.tsv')
+		self.ko00000 					= os.path.join(Databases.DB_VERSION, 'ko00000.tsv')
 		self.output_pca_plot = 'presence_absence_pca_plot.svg'
 		self.output_heatmap_plot = 'presence_absence_pca_plot.svg'
 

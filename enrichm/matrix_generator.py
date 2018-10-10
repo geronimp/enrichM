@@ -26,17 +26,13 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
 ###############################################################################
-#Local
+# Imports
 import logging
 import os
-import itertools
-
+from itertools import chain
 from collections import Counter
-
-################################################################################
-
+# Local
 from enrichm.databases import Databases
-
 ###############################################################################
 
 class MatrixGenerator:
@@ -83,7 +79,7 @@ class MatrixGenerator:
         with open(output_path, 'w') as out_io:
             colnames = ['ID'] + [genome.name for genome in genomes_list]
             out_io.write('\t'.join(colnames) + '\n')
-            genome_annotations = {genome.name:Counter(itertools.chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
+            genome_annotations = {genome.name:Counter(chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
                                   for genome in genomes_list}
 
             for annotation in self.annotation_list:
