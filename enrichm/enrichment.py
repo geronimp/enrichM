@@ -112,13 +112,13 @@ class Enrichment:
         self.BACKGROUND              = 'background'
         self.MATRIX_SUFFIX           = '_enrichment_matrix.tsv'
         self.SAMPLE_MATRIX_SUFFIX    = '_sample_enrichment_matrix.tsv'
-        self.COMPARE_SUFFIX          = '_compare_matrix.tsv'    
+        self.COMPARE_SUFFIX          = '_compare_matrix.tsv'
         self.TIGRFAM_PREFIX          = 'TIGR'
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
         self.PROPORTIONS             = 'proportions.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
-        
+        self.ZSCORE                  = 'zscore'
         self.taxonomy_index_dictionary = {"d__":0, "p__":1, "c__":2,
                                           "o__":3, "f__":4, "g__":5, "s__":6}    
 
@@ -304,28 +304,40 @@ class Enrichment:
 
         return genomes_set 
     
-    def test_chooser(self, groups):
+    def test_chooser(self, groups, genomes_to_compare_with_group):
         if len(groups) > 2:
             if all(len(group) < 10 for group in groups):
-                test = scipy.stats.f_oneway
+                test = stats.f_oneway
             else:
-                test = scipy.stats.mstats.kruskalwallis
+                test = stats.mstats.kruskalwallis
         elif len(groups) == 2:
             if any(len(group) < 5 for group in groups):
                 test = stats.fisher_exact
             else:
                 test = stats.mannwhitneyu
         else:
-            raise Exception("Not enough groups specified to compare")
+            if genomes_to_compare_with_group:
+                test = self.ZSCORE
+            else:
+                raise Exception("Not enough groups specified to compare")
         
         return test
+
+    def parse_genomes_to_compare(self, genomes_to_compare_with_group_file):
+        genomes_to_compare = set()
+        
+        for genome in open(genomes_to_compare_with_group_file):
+            genome = genome.strip()
+            genomes_to_compare.add(genome)
+        
+        return genome
 
     def do(# Input options
            self, annotate_output, metadata_path, modules, abundances, 
            # Runtime options
-           pval_cutoff, proportions_cutoff, threshold, multi_test_correction,
-           taxonomy, batchfile, processes, ko, pfam, tigrfam, hypothetical,
-           cazy,
+           genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
+           threshold, multi_test_correction, taxonomy, batchfile, processes,
+           ko, pfam, tigrfam, hypothetical, cazy,
            # Output options
            output_directory):
 
@@ -333,6 +345,11 @@ class Enrichment:
         c  = Compare()
         d  = Databases()
         
+        if genomes_to_compare:
+            genomes_to_compare_with_group = parse_genomes_to_compare(genomes_to_compare_with_group_file)
+        else:
+            genomes_to_compare_with_group = None
+
         logging.info('Parsing annotate output: %s' % (annotate_output))
         pa = ParseAnnotate(annotate_output, processes)
         
@@ -362,8 +379,6 @@ class Enrichment:
 
         # Load pickles
         pa.genome_objects = pa.parse_pickles(pa.genome_pickle_file_path, metadata.keys())
-
-        
 
         if taxonomy:
             attribute_dict[taxonomy] = set()
@@ -407,45 +422,15 @@ class Enrichment:
                  processes,
                  d)
 
-        import IPython ; IPython.embed()
-        
-        if do_gvg:
-            gvg = list(combinations(combination_dict.keys(), 2)) # For Fisher's exact test
-            if len(gvg)==0:
-                logging.info('No gvg comparison possible')
-                gvg=None
-        else: 
-            gvg = None
-        
-        if do_ivi:
-            ivi = list(combinations(chain(*combination_dict.values()), 2)) # For T-test
-            if len(ivi)==0:
-                logging.info('No ivi comparison possible')
-                ivi=None
-        else:
-            ivi = None
+        statistical_test = self.test_chooser( attribute_dict.values(), genomes_to_compare_with_group )
 
-        if do_ivg:
-            ivg = dict() # For Z score test
-            for group_name, genome_list in combination_dict.items():
-                if len(genome_list)>1:
-                    ivg[group_name] = list()
-                    for idx, genome in enumerate(genome_list):
-                        other=genome_list[:idx] + genome_list[idx+1:]
-                        ivg[group_name].append((genome, other))
-            if len(ivg)==0:
-                logging.info('No ivg comparison possible')
-                ivg=None
-        else:
-            ivg = None
-
-        results = t.do(ivi, ivg, gvg)
+        results = t.do(statistical_test)
 
         for test_result_lines, test_result_output_file in results:
             test_result_output_path = os.path.join(output_directory,
                                                    test_result_output_file)
             self._write(test_result_lines, test_result_output_path)
-        
+
         raw_portions_path \
             = os.path.join(output_directory, self.PROPORTIONS)
         unique_to_groups_path \
@@ -569,7 +554,6 @@ class Test(Enrichment):
         return iterator, annotation_description
 
     def gene_fisher(self):
-        """"""
         header      = [['group_1', 'group_2', 'ko', 'group_1_true', 'group_1_false', 'group_2_true',
                         'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
         kos         = set(chain(*self.genome_annotations.values()))
@@ -602,45 +586,6 @@ class Test(Enrichment):
         for idx, corrected_pval in enumerate(self.correct_multi_test(pvalues)):
             output_lines[idx].append(str(corrected_pval))
                 
-        return header + output_lines
-
-    def ivi_fisher(self, ivi):
-        ''''''
-        header       = [['module', 'genome_1', 'genome_2', 'group_1_count', 'group_2_count',
-                         'count', 'stat', 'p_value', 'corrected_p_value', 'description']]
-        res_list    = list()
-        
-        iterator, annotation_description = self.get_annotations()
-
-        for genome_1, genome_2 in ivi:
-
-            for module, module_definition in iterator.items():
-                module_kos    = self._strip_kegg_definitions(module_definition)
-                
-                genome_1_annotations = self.genome_annotations[genome_1]
-                genome_2_annotations = self.genome_annotations[genome_2]
-
-                genome_1_comp = module_kos.intersection(genome_1_annotations)
-                genome_2_comp = module_kos.intersection(genome_2_annotations)
-
-                row_1 = [len(genome_1_comp), 
-                         len(genome_2_comp)]
-
-                row_2 = [(len(genome_1_annotations) - len(genome_1_comp)),
-                         (len(genome_2_annotations) - len(genome_2_comp))]
-
-                res_list.append([module, genome_1, genome_2, row_1, row_2])
-
-        output_lines = self.pool.map(gene_fisher_calc, res_list)
-        pvalues      = [x[-1] for x in output_lines]
-
-        if len(pvalues)>0:
-            corrected_pvalues = self.correct_multi_test(pvalues)
-        else:
-            corrected_pvalues = ['nan' for x in output_lines]
-
-        output_lines_list = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvalues))]
-
         return header + output_lines
         
     def ttest(self, gvg):
@@ -709,24 +654,18 @@ class Test(Enrichment):
         return header + output_lines
 
 
-    def do(self, ivi, ivg, gvg):
+    def do(self, statistical_test):
 
         logging.info('Running enrichent tests')
         results=[]
-        
+
         logging.info('Comparing gene frequency among genomes (presence/absence)')
         results.append( (self.gene_fisher(), self.GENE_FISHER_OUTPUT) )
+        logging.info('Running individual vs group comparisons')
+        results.append( (self.zscore(ivg), self.IVG_OUTPUT) )
+        logging.info('Running group vs group comparisons')
+        results.append( (self.ttest(gvg), self.GVG_OUTPUT) )
 
-        if ivi:
-            logging.info('Running individual vs individual comparisons')
-            results.append( (self.ivi_fisher(ivi), self.IVI_OUTPUT) )
-        if ivg:
-            logging.info('Running individual vs group comparisons')
-            results.append( (self.zscore(ivg), self.IVG_OUTPUT) )
-        if gvg:
-            logging.info('Running group vs group comparisons')
-            results.append( (self.ttest(gvg), self.GVG_OUTPUT) )
-        
         return results
 
 
