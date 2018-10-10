@@ -1,3 +1,6 @@
 language: python
+python:
+  - 3.5
 before_install:
-  - echo "hello world"
+  - sudo apt-get update
+  - sudo apt-get install -y libxml2-dev
