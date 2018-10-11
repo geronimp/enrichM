@@ -56,7 +56,7 @@ def gene_fisher_calc(x):
 
     return [group_1, group_2, ko] + dat[0] + dat[1] + [score, pval]
 
-def group_mannwhitneyu_calc(x):
+def mannwhitneyu_calc(x):
     # Mann Whitney U test
     module, group_1, group_2, group_1_module_kos, group_2_module_kos, module_list = x
 
@@ -224,7 +224,7 @@ class Enrichment:
 
         for module in modules:
             
-            module_values               = {}
+            module_values               = dict()
             raw_proportions_output_line = [module]
             
             for group_name, genome_list in combination_dict.items():
@@ -242,7 +242,7 @@ class Enrichment:
                 groups = combination_dict.keys()
                 for group in groups:
                     group_val = module_values[group]
-                    compare_groups = []
+                    compare_groups = list()
                     if group_val>0:
                         for other_group in groups:
                             if other_group!=group:
@@ -546,41 +546,45 @@ class Test(Enrichment):
         return iterator, annotation_description
 
     def gene_fisher(self):
-        header      = [['group_1', 'group_2', 'ko', 'group_1_true', 'group_1_false', 'group_2_true',
+
+        header      = [['group_1', 'group_2', 'annotation',
+                        'group_1_true', 'group_1_false', 'group_2_true',
                         'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
-        kos         = set(chain(*self.genome_annotations.values()))
+        
+        annotations = set(chain(*self.genome_annotations.values()))
         res_list    = list()
         
         for group_1, group_2 in combinations(self.groups.keys(), 2):
             
-            for ko in kos:
+            for annotation in annotations:
 
                 group_1_true, group_1_false, group_2_true, group_2_false = 0, 0, 0, 0
 
                 if (len(self.groups[group_1])>=5 and len(self.groups[group_2])>=5):
                     for genome_1 in self.groups[group_1]:
-                        if ko in self.genome_annotations[genome_1]:
+                        if annotation in self.genome_annotations[genome_1]:
                             group_1_true+=1
                         else:
                             group_1_false+=1
                     for genome_2 in self.groups[group_2]:
                         
-                        if ko in self.genome_annotations[genome_2]:
+                        if annotation in self.genome_annotations[genome_2]:
                             group_2_true+=1
                         else:
                             group_2_false+=1
 
-                res_list.append([ko, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
+                if any(group>0 for group in [group_1_true, group_1_false, group_2_true, group_2_false]):
+                    res_list.append([annotation, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
 
         output_lines = self.pool.map(gene_fisher_calc, res_list)
-        pvalues = [x[-1] for x in output_lines]
+        pvalues = [output_line[-1] for output_line in output_lines]
 
         for idx, corrected_pval in enumerate(self.correct_multi_test(pvalues)):
             output_lines[idx].append(str(corrected_pval))
                 
         return header + output_lines
         
-    def ttest(self, gvg):
+    def mannwhitneyu(self, gvg):
         
         header      = [['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 
                                'mann_whitney_t_stat', 'mann_whitney_p_value', 'mann_whitney_corrected_p_value',
@@ -599,7 +603,7 @@ class Test(Enrichment):
                 
                 res_list.append([module, group_1, group_2, group_1_module_kos, group_2_module_kos, module_list])
 
-        output_lines = [x for x in self.pool.map(group_mannwhitneyu_calc, res_list) if x]
+        output_lines = [x for x in self.pool.map(mannwhitneyu_calc, res_list) if x]
         pvalues      = [x[-1] for x in output_lines]      
 
         for idx, corrected_p in enumerate(self.correct_multi_test(pvalues)):
@@ -645,26 +649,23 @@ class Test(Enrichment):
 
         return header + output_lines
 
-
     def do(self, statistical_test):
+        results = list()
+        logging.info('Comparing gene frequency among genomes')
 
-        logging.info('Running enrichent tests')
-        results = []
-
-        if statistical_test == stats.
-        logging.info('Comparing gene frequency among genomes (presence/absence)')
-        results.append( (self.gene_fisher(), self.GENE_FISHER_OUTPUT) )
-        logging.info('Running individual vs group comparisons')
-        results.append( (self.zscore(ivg), self.IVG_OUTPUT) )
-        logging.info('Running group vs group comparisons')
-        results.append( (self.ttest(gvg), self.GVG_OUTPUT) )
+        if statistical_test == stats.fisher_exact:
+            results.append( (self.gene_fisher(), self.GENE_FISHER_OUTPUT) )
+        elif statistical_test == stats.mannwhitneyu:            
+            results.append( (self.mannwhitneyu(gvg), self.GVG_OUTPUT) )
+        elif statistical_test == stats.norm.cdf:
+            results.append( (self.zscore(ivg), self.IVG_OUTPUT) )
+        elif statistical_test == stats.f_oneway:
+            pass
+        elif statistical_test == stats.mstats.kruskalwallis:
+            pass
 
         return results
 
 
 
-                if statistical_test == stats.f_oneway
-                if statistical_test == stats.mstats.kruskalwallis
-                if statistical_test == stats.fisher_exact
-                if statistical_test == stats.mannwhitneyu
-                if statistical_test == stats.norm.cdf
+

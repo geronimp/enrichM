@@ -32,7 +32,8 @@ import logging
 ################################################################################
 
 class Parser:
-
+	
+	@staticmethod
 	def parse_genome_and_annotation_file_lf(self, genome_and_annotation_file):
 		genome_to_annotation_sets = dict()
 		
@@ -48,7 +49,8 @@ class Parser:
 			genome_to_annotation_sets[genome].add(annotation)
 		
 		return genome_to_annotation_sets
-
+	
+	@staticmethod
 	def parse_genome_and_annotation_file_matrix(self, genome_and_annotation_matrix):
 		genome_and_annotation_matrix_io = open(genome_and_annotation_matrix)
 		headers=genome_and_annotation_matrix_io.readline().strip().split('\t')[1:]
@@ -62,7 +64,8 @@ class Parser:
 					genome_to_annotation_sets[genome_name].add(annotation)
 
 		return genome_to_annotation_sets
-
+	
+	@staticmethod
 	def parse_taxonomy(self, taxonomy_path):
 		
 		output_taxonomy_dictionary = dict()
@@ -72,3 +75,32 @@ class Parser:
 			output_taxonomy_dictionary[genome] = taxonomy_string.split(';')
 			
 		return output_taxonomy_dictionary
+
+	
+	@staticmethod
+    def _parse_matrix(self, matrix):
+        
+        output_dict = {}
+        
+        for idx, line in enumerate(open(matrix)):
+            sline = line.strip().split('\t')
+            if idx==0:
+                self.sample_names = sline[1:]
+                    
+                for sample in self.sample_names: 
+                    output_dict[sample] = {}
+            else:   
+                ko_id      = sline[0]
+                abundances = sline[1:]
+                
+                for abundance, sample in zip(abundances, self.sample_names):
+                    output_dict[sample][ko_id] = float(abundance)
+        return output_dict
+    
+    @staticmethod
+    def _parse_matrix(self, matrix_file_io, colnames):
+        for line in matrix_file_io:
+            sline = line.strip().split('\t')
+            rowname, entries = sline[0], sline[1:]
+            for colname, entry in zip(colnames, entries):
+                yield colname, entry, rowname
