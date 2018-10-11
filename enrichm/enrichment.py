@@ -98,10 +98,6 @@ def zscore_calc(x):
 ################################################################################
 
 class Enrichment:
-    '''
-    Class contianing various functions to calculate the enrichment of funcitons
-    and genes between two groups of genomes...
-    '''
     
     TIGRFAM                 = "tigrfam"
     PFAM                    = "pfam"
@@ -109,18 +105,12 @@ class Enrichment:
 
     def __init__(self):
 
-        self.BACKGROUND              = 'background'
-        self.MATRIX_SUFFIX           = '_enrichment_matrix.tsv'
-        self.SAMPLE_MATRIX_SUFFIX    = '_sample_enrichment_matrix.tsv'
-        self.COMPARE_SUFFIX          = '_compare_matrix.tsv'
         self.TIGRFAM_PREFIX          = 'TIGR'
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
         self.PROPORTIONS             = 'proportions.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
-        self.ZSCORE                  = 'zscore'
-        self.taxonomy_index_dictionary = {"d__":0, "p__":1, "c__":2,
-                                          "o__":3, "f__":4, "g__":5, "s__":6}    
+        self.taxonomy_index_dictionary = {"d__":0, "p__":1, "c__":2, "o__":3, "f__":4, "g__":5, "s__":6}    
 
     def _parse_matrix(self, matrix_file_io, colnames):
         for line in matrix_file_io:
@@ -209,7 +199,7 @@ class Enrichment:
             return self.TIGRFAM
         elif sample.startswith(self.KEGG_PREFIX):
             return self.KEGG
-        else:
+        elif sample.startswith(self.PFAM_PREFIX):
             return self.PFAM
 
     def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
@@ -304,7 +294,7 @@ class Enrichment:
 
         return genomes_set 
     
-    def test_chooser(self, groups, genomes_to_compare_with_group):
+    def test_chooser(self, groups):
         if len(groups) > 2:
             if all(len(group) < 10 for group in groups):
                 test = stats.f_oneway
@@ -316,8 +306,8 @@ class Enrichment:
             else:
                 test = stats.mannwhitneyu
         else:
-            if genomes_to_compare_with_group:
-                test = self.ZSCORE
+            if self.genomes_to_compare_with_group:
+                test = stats.norm.cdf
             else:
                 raise Exception("Not enough groups specified to compare")
         
@@ -330,7 +320,7 @@ class Enrichment:
             genome = genome.strip()
             genomes_to_compare.add(genome)
         
-        return genome
+        return genomes_to_compare
 
     def do(# Input options
            self, annotate_output, metadata_path, modules, abundances, 
@@ -346,9 +336,9 @@ class Enrichment:
         d  = Databases()
         
         if genomes_to_compare:
-            genomes_to_compare_with_group = parse_genomes_to_compare(genomes_to_compare_with_group_file)
+            self.genomes_to_compare_with_group = parse_genomes_to_compare(genomes_to_compare_with_group_file)
         else:
-            genomes_to_compare_with_group = None
+            self.genomes_to_compare_with_group = None
 
         logging.info('Parsing annotate output: %s' % (annotate_output))
         pa = ParseAnnotate(annotate_output, processes)
@@ -369,6 +359,7 @@ class Enrichment:
             reference_genomes = pa.parse_pickles(d.GTDB_DIR, genomes_set)
             reference_genome_annotations = {genome.name.replace('_gene', ''):set(genome.ko_dict.keys()) for genome in reference_genomes}
             annotations_dict.update(reference_genome_annotations)
+        
         if modules:
             logging.info('Limiting to %i modules' % len(modules))
             modules = modules
@@ -411,6 +402,7 @@ class Enrichment:
             combination_dict['_'.join(combination)] = genome_list
 
         annotation_type = self.check_annotation_type(modules)
+
         t = Test(annotations_dict,
                  modules,
                  genomes,
@@ -422,7 +414,7 @@ class Enrichment:
                  processes,
                  d)
 
-        statistical_test = self.test_chooser( attribute_dict.values(), genomes_to_compare_with_group )
+        statistical_test = self.test_chooser( attribute_dict.values() )
 
         results = t.do(statistical_test)
 
@@ -657,8 +649,9 @@ class Test(Enrichment):
     def do(self, statistical_test):
 
         logging.info('Running enrichent tests')
-        results=[]
+        results = []
 
+        if statistical_test == stats.
         logging.info('Comparing gene frequency among genomes (presence/absence)')
         results.append( (self.gene_fisher(), self.GENE_FISHER_OUTPUT) )
         logging.info('Running individual vs group comparisons')
@@ -670,3 +663,8 @@ class Test(Enrichment):
 
 
 
+                if statistical_test == stats.f_oneway
+                if statistical_test == stats.mstats.kruskalwallis
+                if statistical_test == stats.fisher_exact
+                if statistical_test == stats.mannwhitneyu
+                if statistical_test == stats.norm.cdf
