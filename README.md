@@ -2,7 +2,7 @@
 <img src="logo/logo.png">
 </p>
 
-EnrichM is a set of tools for comparative genomics large sets of metagenome assembled genomes (MAGs). The current functionality is as follows:
+EnrichM is a set of tools for comparative genomics of large sets of metagenome assembled genomes (MAGs). The current functionality includes:
 
 1. A basic pipeline for annotating population genomes.
 2. A pipeline to identify genes or metabolic pathways that are enriched within and between user-defined groups  
@@ -44,16 +44,19 @@ sudo pip install enrichm
 ```
 
 # Setup
-Before running enrichm, you'll need to download the back-end databases. This can be done using a command in enrichm. You may need super user privelages:
+Before running enrichm, you'll need to download the back-end database. This is done using a command in enrichm:
 ```
 enrichm data
 ```
-This should take approximately 15 minutes. To check for updates and install updates, simply run the same command. 
+This should take approximately 15 minutes. To check for updates and install updates, simply run the same command. To uninstall the database, run:
+```
+enrichm data --uninstall
+```
 
 # Subcommands
 
 ## annotate
-Annotate is a function that allows you to annotate your population genomes with [KO](http://www.kegg.jp/kegg/ko.html), [PFAM](http://pfam.xfam.org/), [TIGRFAM](http://www.jcvi.org/cgi-bin/tigrfams/index.cgi). The result will be a .gff file for each genome, and a frequency matrix for each annotation type where the rows are annotation IDs and the columns are genomes. 
+Annotate is a function that allows you to annotate your population genomes with [KO](http://www.kegg.jp/kegg/ko.html), [PFAM](http://pfam.xfam.org/), [TIGRFAM](http://www.jcvi.org/cgi-bin/tigrfams/index.cgi), and CAZY using [dbCAN](). The result will be a .gff file for each genome, and a frequency matrix for each annotation type where the rows are annotation IDs and the columns are genomes. 
 
 See the [annotate help page](https://github.com/geronimp/enrichM/wiki/annotate) for more
 
@@ -82,7 +85,7 @@ Explore is similar to pathway, but rather than generating a specified pathway it
 See the [explore help page](https://github.com/geronimp/enrichM/wiki/explore) for more
 
 # Contact
-If you have any feedback about EnrichM, drop an email to the [SupportM](https://groups.google.com/forum/?hl=en#!forum/supportm) public help forum. Software by [Joel A. Boyd](https://ecogenomic.org/personnel/mr-joel-boyd) (@geronimp) at the Australian Centre for Ecogenomics.
+If you have any feedback about EnrichM, drop an email to the [SupportM](https://groups.google.com/forum/?hl=en#!forum/supportm) public help forum. Software by [Joel A. Boyd](https://ecogenomic.org/personnel/mr-joel-boyd) (@geronimp) at the Australian Centre for Ecogenomics (ACE).
 
 # License
 EnrichM is licensed under the GNU GPL v3+. See LICENSE.txt for further details. 
