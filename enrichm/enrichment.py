@@ -559,19 +559,18 @@ class Test(Enrichment):
             for annotation in annotations:
 
                 group_1_true, group_1_false, group_2_true, group_2_false = 0, 0, 0, 0
-
-                if (len(self.groups[group_1])>=5 and len(self.groups[group_2])>=5):
-                    for genome_1 in self.groups[group_1]:
-                        if annotation in self.genome_annotations[genome_1]:
-                            group_1_true+=1
-                        else:
-                            group_1_false+=1
-                    for genome_2 in self.groups[group_2]:
-                        
-                        if annotation in self.genome_annotations[genome_2]:
-                            group_2_true+=1
-                        else:
-                            group_2_false+=1
+                #group_1_counts = [annotation in self.genome_annotations[genome] for genome in self.groups[group_1]]
+                #group_2_counts = [annotation in self.genome_annotations[genome] for genome in self.groups[group_2]]
+                for genome_1 in self.groups[group_1]:
+                    if annotation in self.genome_annotations[genome_1]:
+                        group_1_true+=1
+                    else:
+                        group_1_false+=1
+                for genome_2 in self.groups[group_2]:
+                    if annotation in self.genome_annotations[genome_2]:
+                        group_2_true+=1
+                    else:
+                        group_2_false+=1
 
                 if any(group>0 for group in [group_1_true, group_1_false, group_2_true, group_2_false]):
                     res_list.append([annotation, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
@@ -584,7 +583,7 @@ class Test(Enrichment):
                 
         return header + output_lines
         
-    def mannwhitneyu(self, gvg):
+    def mannwhitneyu(self):
         
         header      = [['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 
                                'mann_whitney_t_stat', 'mann_whitney_p_value', 'mann_whitney_corrected_p_value',
@@ -593,7 +592,7 @@ class Test(Enrichment):
 
         iterator, annotation_description = self.get_annotations()
                 
-        for group_1, group_2 in gvg:
+        for group_1, group_2 in combinations(self.groups.keys(), 2):
 
             for module, definition in iterator.items():
                 module_list = self._strip_kegg_definitions(definition)
@@ -656,7 +655,7 @@ class Test(Enrichment):
         if statistical_test == stats.fisher_exact:
             results.append( (self.gene_fisher(), self.GENE_FISHER_OUTPUT) )
         elif statistical_test == stats.mannwhitneyu:            
-            results.append( (self.mannwhitneyu(gvg), self.GVG_OUTPUT) )
+            results.append( (self.mannwhitneyu(), self.GVG_OUTPUT) )
         elif statistical_test == stats.norm.cdf:
             results.append( (self.zscore(ivg), self.IVG_OUTPUT) )
         elif statistical_test == stats.f_oneway:
