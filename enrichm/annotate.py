@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -170,7 +170,7 @@ class Annotate:
         os.mkdir(output_directory_path)
         genome_list = list()
         genome_paths = list()
-
+        import IPython ; IPython.embed()
         for genome in os.listdir(genome_directory):
             if genome.endswith(self.suffix):
                 genome_paths.append(os.path.splitext(genome)[0])

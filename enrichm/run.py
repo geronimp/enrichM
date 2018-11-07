@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -101,10 +101,13 @@ class Run:
                         'prodigal': "https://github.com/hyattpd/Prodigal/wiki/installation",
                         'seqmagick': "https://fhcrc.github.io/seqmagick",
                         'mmseqs': "https://github.com/soedinglab/MMseqs2"}
-        missing_dependencies = []
+        
+        missing_dependencies = list()
+        
         for dependency in dependencies.keys():
             if shutil.which(dependency) == None:
                 missing_dependencies.append(dependency)
+        
         if len(missing_dependencies)>0:
             dependency_string = '\n'.join(['\t%s\t%s' % (dependency, dependencies[dependency]) for d in missing_dependencies])
             raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
@@ -139,10 +142,11 @@ class Run:
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
         if len([x for x in [args.genome_files, args.genome_directory, args.protein_directory, args.protein_files] if x]) != 1:
             raise Exception("Input error: Only one type of input can be specified (--genome_files, --genome_directory, --protein_directory, or --protein_files).")
-        if(args.genome_directory or args.genome_files):
-            args.suffix = '.fna'
-        elif(args.protein_directory or args.protein_files):
-            args.suffix = '.faa'
+        if not args.suffix:
+            if(args.genome_directory or args.genome_files):
+                args.suffix = '.fna'
+            elif(args.protein_directory or args.protein_files):
+                args.suffix = '.faa'
         if(args.id>1 or args.id<0):
             raise Exception("Identity (--id) must be between 0 and 1.")
         if any([args.cut_ga, args.cut_nc, args.cut_tc]):
