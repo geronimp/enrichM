@@ -32,6 +32,7 @@ import sys
 import os
 import shutil
 import time
+
 # Local
 from enrichm.data import Data
 from enrichm.network_analyzer import NetworkAnalyser

@@ -26,7 +26,6 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
 ###############################################################################
-    
 # System imports
 import logging
 import subprocess
@@ -38,6 +37,7 @@ import pickle
 import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
 import numpy as np
+
 # Local
 from enrichm.sequence_io import SequenceIO
 from enrichm.databases import Databases
@@ -145,9 +145,9 @@ class Annotate:
             logging.debug(cmd)
             process = subprocess.Popen(["bash", "-c", cmd], 
                                        stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE)
-            process.communicate('\n'.join(genome_paths))
-
+                                       stdout=subprocess.PIPE,
+                                       universal_newlines=True)
+            process.communicate(input=str('\n'.join(genome_paths)))
         return genome_directory
 
 
@@ -168,9 +168,9 @@ class Annotate:
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_PROTEINS) 
         os.mkdir(output_directory_path)
-        genome_list = list()
-        genome_paths = list()
-        import IPython ; IPython.embed()
+        genome_list     = list()
+        genome_paths    = list()
+
         for genome in os.listdir(genome_directory):
             if genome.endswith(self.suffix):
                 genome_paths.append(os.path.splitext(genome)[0])
