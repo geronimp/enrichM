@@ -150,6 +150,10 @@ class Run:
                 args.suffix = '.faa'
         if(args.id>1 or args.id<0):
             raise Exception("Identity (--id) must be between 0 and 1.")
+        if(args.aln_query>1 or args.aln_query<0):
+            raise Exception("Alignment to query cutoff (--aln_query) must be between 0 and 1")
+        if(args.aln_reference>1 or args.aln_reference<0):
+            raise Exception("Alignment to reference cutoff (--aln_reference) must be between 0 and 1")
         if any([args.cut_ga, args.cut_nc, args.cut_tc]):
             if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")

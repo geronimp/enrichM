@@ -36,8 +36,10 @@ import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
 from scipy import stats
 from itertools import product, combinations, chain
+from collections import Counter
 # Local
 from enrichm.parse_annotate import ParseAnnotate
+from enrichm.module_description_parser import ModuleDescription
 from enrichm.databases import Databases
 from enrichm.draw_plots import Plot
 from enrichm.comparer import Compare
@@ -45,7 +47,7 @@ from enrichm.comparer import Compare
 
 def gene_fisher_calc(x):
     
-    ko, group_1, group_2 = x[0], x[1], x[2]
+    annotation, group_1, group_2 = x[0], x[1], x[2]
     
     dat = x[3:]
     
@@ -54,46 +56,66 @@ def gene_fisher_calc(x):
     else:
         score, pval = 'nan', 1.0
 
-    return [group_1, group_2, ko] + dat[0] + dat[1] + [score, pval]
+    return [group_1, group_2, annotation] + dat[0] + dat[1] + [score, pval]
 
 def mannwhitneyu_calc(x):
     # Mann Whitney U test
-    module, group_1, group_2, group_1_module_kos, group_2_module_kos, module_list = x
+    annotation, group_1, group_2, group_1_module_annotations, group_2_module_annotations = x
+    group_1_module_annotations = group_1_module_annotations[0]
+    group_2_module_annotations = group_2_module_annotations[0]
 
-    if(len(group_1_module_kos)>1 and len(group_2_module_kos)>1):
-        if(sum(group_1_module_kos)>0 and sum(group_2_module_kos)>0):
-            if(len(set(group_1_module_kos)) == 1
-                or
-               len(set(group_2_module_kos)) == 1):
-                mw_t_stat, mw_p_value = 'NA', 1
-            else:
-                group_1_module_kos = np.array(group_1_module_kos)       
-                group_2_module_kos = np.array(group_2_module_kos)           
-                mw_t_stat, mw_p_value = \
-                    stats.mannwhitneyu(group_1_module_kos,
-                                             group_2_module_kos)
-            
-            return [module, group_1, group_2, str(np.mean(group_1_module_kos)),
-                    str(np.mean(group_2_module_kos)), str(len(module_list)), 
-                    mw_t_stat, mw_p_value]
+    if(sum(group_1_module_annotations)>0 and sum(group_2_module_annotations)>0):
+        if(len(set(group_1_module_annotations)) == 1
+            or
+           len(set(group_2_module_annotations)) == 1):
+            mw_t_stat, mw_p_value = 'NA', 1
+        else:
+            group_1_module_annotations = np.array(group_1_module_annotations)       
+            group_2_module_annotations = np.array(group_2_module_annotations)           
+            mw_t_stat, mw_p_value = \
+                stats.mannwhitneyu(group_1_module_annotations,
+                                         group_2_module_annotations)            
+    else:
+        mw_t_stat, mw_p_value = 'NA', 1
+    return [annotation, group_1, group_2, str(np.mean(group_1_module_annotations)),
+            str(np.mean(group_2_module_annotations)), mw_t_stat, mw_p_value]
+
 
 def zscore_calc(x):
     
-    module, group, genome, genome_comp, reference_group_comp_list, module_list, description = x
-    
-    if genome_comp>0:
+    annotation, group_1, group_2, group_1_module_annotations, group_2_module_annotations = x
+    group_1_module_annotations = group_1_module_annotations[0]
+    group_2_module_annotations = group_2_module_annotations[0]
+
+    if len(group_1_module_annotations)>1:
+        reference = group_1_module_annotations
+        reference_name = group_1
+        genome = group_2_module_annotations[0]
+        genome_name = group_2
+    else:
+        reference_name = group_2
+        reference = group_2_module_annotations
+        genome = group_1_module_annotations[0]
+        genome_name = group_1
+
+    if genome>0:
         reference_group_comp_sd \
-            = np.std(reference_group_comp_list, axis=0)
+            = np.std(reference, axis=0)
         reference_group_comp_mean \
-            = np.mean(reference_group_comp_list, axis=0)
+            = np.mean(reference, axis=0)
         
-        if (genome_comp-reference_group_comp_mean)>0:
-            z_score = (genome_comp-reference_group_comp_mean) / reference_group_comp_sd
+        if (genome-reference_group_comp_mean)>0:
+            z_score = (genome-reference_group_comp_mean) / reference_group_comp_sd
             p_value = 2-2*stats.norm.cdf(z_score)
-            
-            return [module, group, genome, str(reference_group_comp_mean), 
-                    str(genome_comp), module_list, str(z_score), 
-                    str(p_value), description]
+
+            return [annotation,
+                    reference_name,
+                    genome_name,
+                    str(reference_group_comp_mean),
+                    str(reference_group_comp_sd),
+                    str(genome),
+                    str(z_score), 
+                    p_value]
 
 ################################################################################
 
@@ -109,6 +131,7 @@ class Enrichment:
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
         self.PROPORTIONS             = 'proportions.tsv'
+        self.MODULE_COMPLETENESS     = 'modules.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
         self.taxonomy_index_dictionary = {"d__":0, "p__":1, "c__":2, "o__":3, "f__":4, "g__":5, "s__":6}    
 
@@ -147,27 +170,16 @@ class Enrichment:
 
         return cols_to_rows, nr_values, attribute_dict
 
-    def _parse_annotation_matrix(self, ko, pfam, tigrfam, hypothetical, cazy, pa):
+    def _parse_annotation_matrix(self, annotation_matrix):
         '''        
         Parameters
         ----------
         matrix_path : String. Path to file containing a matrix of genome rownames.        
         '''
 
-        if ko:
-            annotation_matrix = pa.ko
-        elif pfam:
-            annotation_matrix = pa.pfam
-        elif tigrfam:
-            annotation_matrix = pa.tigrfam
-        elif hypothetical:
-            annotation_matrix = pa.hypothetical_cluster
-        elif cazy:
-            annotation_matrix = pa.cazy
-
         matrix_file_io  = open(annotation_matrix)
         colnames        = matrix_file_io.readline().strip().split('\t')[1:]
-        cols_to_rows    = {genome_name:set() for genome_name in colnames}
+        cols_to_rows    = {genome_name:dict() for genome_name in colnames}
         rownames        = set()
 
         for genome_name, entry, rowname \
@@ -175,7 +187,7 @@ class Enrichment:
             
             rownames.add(rowname)
             if float(entry) > 0:
-                cols_to_rows[genome_name].add(rowname)
+                cols_to_rows[genome_name][rowname] = int(entry)
 
         return cols_to_rows, rownames, colnames
 
@@ -219,8 +231,8 @@ class Enrichment:
         '''
         ### ~ TODO: Add a portion of genome column too?
 
-        raw_proportions_output_lines        = [['Module'] + combination_dict.keys()]
-        enriched_proportions_output_lines   = [['Module'] + combination_dict.keys()]
+        raw_proportions_output_lines        = [['Module'] + list(combination_dict.keys())]
+        enriched_proportions_output_lines   = [['Module'] + list(combination_dict.keys())]
 
         for module in modules:
             
@@ -275,7 +287,10 @@ class Enrichment:
 
         with open(output_path, 'w') as out_io:
             for line in output_lines_list:
-                string = '\t'.join([str(x) for x in line]) + '\n'
+                try:
+                    string = '\t'.join([str(x) for x in line]) + '\n'
+                except:
+                    import IPython ; IPython.embed()
                 out_io.write(string)
     
     def parse_taxonomy(self, taxonomy, taxonomy_dict):
@@ -293,25 +308,6 @@ class Enrichment:
                 genomes_set.add(genome_id)
 
         return genomes_set 
-    
-    def test_chooser(self, groups):
-        if len(groups) > 2:
-            if all(len(group) < 10 for group in groups):
-                test = stats.f_oneway
-            else:
-                test = stats.mstats.kruskalwallis
-        elif len(groups) == 2:
-            if any(len(group) < 5 for group in groups):
-                test = stats.fisher_exact
-            else:
-                test = stats.mannwhitneyu
-        else:
-            if self.genomes_to_compare_with_group:
-                test = stats.norm.cdf
-            else:
-                raise Exception("Not enough groups specified to compare")
-        
-        return test
 
     def parse_genomes_to_compare(self, genomes_to_compare_with_group_file):
         genomes_to_compare = set()
@@ -335,8 +331,8 @@ class Enrichment:
         c  = Compare()
         d  = Databases()
         
-        if genomes_to_compare:
-            self.genomes_to_compare_with_group = parse_genomes_to_compare(genomes_to_compare_with_group_file)
+        if genomes_to_compare_with_group_file:
+            self.genomes_to_compare_with_group = self.parse_genomes_to_compare(genomes_to_compare_with_group_file)
         else:
             self.genomes_to_compare_with_group = None
 
@@ -344,10 +340,19 @@ class Enrichment:
         pa = ParseAnnotate(annotate_output, processes)
         
         logging.info('Parsing annotations')
+        if ko:
+            annotation_matrix = pa.ko
+        elif pfam:
+            annotation_matrix = pa.pfam
+        elif tigrfam:
+            annotation_matrix = pa.tigrfam
+        elif hypothetical:
+            annotation_matrix = pa.hypothetical_cluster
+        elif cazy:
+            annotation_matrix = pa.cazy
         annotations_dict, modules, genomes \
-                    = self._parse_annotation_matrix(ko, pfam, tigrfam, hypothetical, cazy, pa)
+                    = self._parse_annotation_matrix(annotation_matrix)
 
-        logging.info('Parsing annotations')
         if (taxonomy or batchfile):
             genomes_set = set()
             if taxonomy:
@@ -413,12 +418,11 @@ class Enrichment:
                  pval_cutoff, 
                  processes,
                  d)
+        results = t.do(attribute_dict)
 
-        statistical_test = self.test_chooser( attribute_dict.values() )
+        for result in results:
+            test_result_lines, test_result_output_file = result
 
-        results = t.do(statistical_test)
-
-        for test_result_lines, test_result_output_file in results:
             test_result_output_path = os.path.join(output_directory,
                                                    test_result_output_file)
             self._write(test_result_lines, test_result_output_path)
@@ -435,7 +439,44 @@ class Enrichment:
         logging.info('Generating summary plots')
 
         if annotation_type==self.KEGG:
-            p.draw_barplots(os.path.join(output_directory, t.GENE_FISHER_OUTPUT), pval_cutoff, output_directory)
+            
+            for result_file in os.listdir(output_directory):
+                if result_file.endswith("fisher.tsv"):
+                    p.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
+                    
+                    g1_sig_kos = set()
+                    g2_sig_kos = set()
+                    result_file_io = open(os.path.join(output_directory, result_file))
+                    header = result_file_io.readline()
+                    for line in result_file_io:
+                        sline = line.strip().split('\t')
+                        if float(sline[-1])<pval_cutoff:
+                            g1 = float(sline[3]) / (int(sline[3]) + int(sline[4]))
+                            g2 = float(sline[5]) / (int(sline[5]) + int(sline[6]))
+                            if g1>g2:
+                                g1_sig_kos.add(sline[2])
+                            else:
+                                g2_sig_kos.add(sline[2])
+                    module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
+                    for module, definition in d.m2def.items():
+                        if module not in d.signature_modules:
+                            pathway = ModuleDescription(definition)
+                            num_all         = pathway.num_steps()
+                            g1_num_covered, g1_ko_covered, g1_ko_total, g1_ko_path = pathway.num_covered_steps(g1_sig_kos)
+                            g1_perc_covered    = g1_num_covered / float(num_all)
+
+                            g2_num_covered, g2_ko_covered, g2_ko_total, g2_ko_path = pathway.num_covered_steps(g2_sig_kos)
+                            g2_perc_covered    = g2_num_covered / float(num_all)
+                            
+                            if g1_perc_covered>0:
+                                output_line = [module, sline[0], num_all, g1_num_covered, g1_perc_covered]
+                                module_output.append(output_line)
+                            if g2_perc_covered>0:
+                                output_line = [module, sline[1], num_all, g2_num_covered, g2_perc_covered]
+                                module_output.append(output_line)
+
+                    prefix = '_vs_'.join([sline[0], sline[1]]).replace(' ', '_')
+                    self._write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
 
         p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
@@ -456,9 +497,38 @@ class Test(Enrichment):
         Output
         ------
         '''
-               
-        self.IVI_OUTPUT             = 'ivi_results.fisher.tsv'
-        self.IVG_OUTPUT             = 'ivg_results.tsv'
+        self.FISHER_HEADER = [['group_1',
+                               'group_2',
+                               'annotation',
+                               'group_1_true',
+                               'group_1_false',
+                               'group_2_true',
+                               'group_2_false',
+                               'score',
+                               'pvalue',
+                               'corrected_pvalue']]
+
+        self.MANNWHITNEYU_HEADER =[['module',
+                                    'group_1',
+                                    'group_2',
+                                    'group_1_mean',
+                                    'group_2_mean',
+                                    'score',
+                                    'pvalue',
+                                    'corrected_pvalue']]
+        
+        self.ZSCORE_HEADER = [['module',
+                               'group',
+                               'genome',
+                               'group_mean',
+                               'genome_count',
+                               'count',
+                               'score',
+                               'pvalue',
+                               'corrected_pvalue']]
+        
+        self.PA                     = 'presence_absence'
+        self.IVG_OUTPUT             = 'ivg_results.cdf.tsv'
         self.GENE_FISHER_OUTPUT     = 'gvg_results.fisher.tsv'
         self.GVG_OUTPUT             = 'gvg_results.mannwhitneyu.tsv'
 
@@ -488,9 +558,9 @@ class Test(Enrichment):
                          'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'}
 
         if annotation_type==Enrichment.PFAM:
-            self.genome_annotations = {}
+            self.genome_annotations = dict()
             for key, item in genome_annotations.items():
-                self.genome_annotations[key] = set([x.split('.')[0] for x in item])
+                self.genome_annotations[key] = Counter([x.split('.')[0] for x in item])
         else:
             self.genome_annotations = genome_annotations
 
@@ -506,7 +576,17 @@ class Test(Enrichment):
             self.pfam[pfam]  = description
             self.id2pfam[id] = pfam
     
-
+    def test_chooser(self, groups):
+        groups = [len(x) for x in groups]
+        # Enrichment
+        if any(group == 1 for group in groups):
+            enrichment_test = self.PA
+            overrepresentation_test = stats.norm.cdf
+        else:
+            enrichment_test = stats.fisher_exact
+            overrepresentation_test = stats.mannwhitneyu
+        
+        return enrichment_test, overrepresentation_test
 
     def correct_multi_test(self, pvalues):
         logging.info('Applying multi-test correction using the %s method' % (self.mtc_dict[self.multi_test_correction]) )
@@ -545,123 +625,102 @@ class Test(Enrichment):
             annotation_description = self.clan_to_description
         return iterator, annotation_description
 
-    def gene_fisher(self):
+    def gene_frequencies(self, group_1, group_2, freq=False):
 
-        header      = [['group_1', 'group_2', 'annotation',
-                        'group_1_true', 'group_1_false', 'group_2_true',
-                        'group_2_false', 'score', 'pvalue', 'corrected_pvalue']]
-        
+        res_list    = list()
         annotations = set(chain(*self.genome_annotations.values()))
-        res_list    = list()
-        
-        for group_1, group_2 in combinations(self.groups.keys(), 2):
-            
-            for annotation in annotations:
+        for annotation in annotations:
+            passed=False
+            if freq:
+                group_1_true = list()
+                group_2_true = list()
+            else:
+                group_1_true = 0
+                group_2_true = 0
+            group_1_false = 0
+            group_2_false = 0
 
-                group_1_true, group_1_false, group_2_true, group_2_false = 0, 0, 0, 0
-                #group_1_counts = [annotation in self.genome_annotations[genome] for genome in self.groups[group_1]]
-                #group_2_counts = [annotation in self.genome_annotations[genome] for genome in self.groups[group_2]]
-                for genome_1 in self.groups[group_1]:
-                    if annotation in self.genome_annotations[genome_1]:
+            for genome_1 in self.groups[group_1]:
+                if annotation in self.genome_annotations[genome_1]:
+                    passed=True
+                    if freq:
+                        group_1_true.append(self.genome_annotations[genome_1][annotation])
+                    else:
                         group_1_true+=1
+                else:
+                    if freq:
+                        group_1_true.append(0)
                     else:
+                        passed=True
                         group_1_false+=1
-                for genome_2 in self.groups[group_2]:
-                    if annotation in self.genome_annotations[genome_2]:
-                        group_2_true+=1
+            for genome_2 in self.groups[group_2]:
+                if annotation in self.genome_annotations[genome_2]:
+                    passed=True
+                    if freq:
+                        group_2_true.append(self.genome_annotations[genome_2][annotation])
                     else:
+                        group_2_true+=1
+                else:
+                    if freq:
+                        group_2_true.append(0)
+                    else:
+                        passed=True
                         group_2_false+=1
+            if freq:
+                if(len([x for x in group_1_true if x!='0'])==0 and
+                    len([x for x in group_2_true if x!='0'])==0 ):
+                    passed = False
+            else:
+                if(group_1_true==0 and group_2_true==0):
+                    passed = False
+            if passed:
+                res_list.append([annotation, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
 
-                if any(group>0 for group in [group_1_true, group_1_false, group_2_true, group_2_false]):
-                    res_list.append([annotation, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
+        return res_list
 
-        output_lines = self.pool.map(gene_fisher_calc, res_list)
+    def corrected_pvals(self, output_lines):
         pvalues = [output_line[-1] for output_line in output_lines]
+        corrected_pvalues = self.correct_multi_test(pvalues)
+        return corrected_pvalues
 
-        for idx, corrected_pval in enumerate(self.correct_multi_test(pvalues)):
-            output_lines[idx].append(str(corrected_pval))
-                
-        return header + output_lines
-        
-    def mannwhitneyu(self):
-        
-        header      = [['module', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'count', 
-                               'mann_whitney_t_stat', 'mann_whitney_p_value', 'mann_whitney_corrected_p_value',
-                               'description']]
-        res_list    = list()
-
-        iterator, annotation_description = self.get_annotations()
-                
-        for group_1, group_2 in combinations(self.groups.keys(), 2):
-
-            for module, definition in iterator.items():
-                module_list = self._strip_kegg_definitions(definition)
-                
-                group_1_module_kos = self.gather_genome_annotations(group_1, module_list)
-                group_2_module_kos = self.gather_genome_annotations(group_2, module_list)
-                
-                res_list.append([module, group_1, group_2, group_1_module_kos, group_2_module_kos, module_list])
-
-        output_lines = [x for x in self.pool.map(mannwhitneyu_calc, res_list) if x]
-        pvalues      = [x[-1] for x in output_lines]      
-
-        for idx, corrected_p in enumerate(self.correct_multi_test(pvalues)):
-            output_lines[idx] = [str(x) for x in output_lines[idx]] + [str(corrected_p), annotation_description[output_lines[idx][0]]]
-
-        return header + output_lines
-
-    def zscore(self, ivg):
-        header       = [['module', 'group', 'genome', 'group_mean', 'genome_count',
-                         'count', 'z_score', 'p_value','corrected_p_value', 'description']]
-        res_list     = list()
-
-        iterator, annotation_description = self.get_annotations()
-
-        for group, comparisons in ivg.items():
-            for genome, reference_group in comparisons:
-                for module, definition in iterator.items():
-                    module_list = self._strip_kegg_definitions(definition)
-                    
-                    genome_comp \
-                        = len(self.genome_annotations[genome].intersection(module_list))
-                    reference_group_comp_list \
-                        = np.array([len(set(self.genome_annotations[reference_genome]).intersection(module_list))
-                                    for reference_genome in reference_group])
-
-                    res_list.append([module,
-                                     group,
-                                     genome,
-                                     genome_comp,
-                                     reference_group_comp_list,
-                                     str(len(module_list)),
-                                     annotation_description[module]])
-        
-        output_lines = [x for x in self.pool.map(zscore_calc, res_list) if x]
-        pvalues      = [float(x[-2]) for x in output_lines]
-
-        if len(pvalues)>0:
-            corrected_pvalues = self.correct_multi_test(pvalues)
-        else:
-            corrected_pvalues = ['nan' for x in output_lines]
-
-        output_lines = [x[:len(x)-1]+[str(y)]+x[len(x)-1:] for x, y in zip(output_lines, list(corrected_pvalues))]
-
-        return header + output_lines
-
-    def do(self, statistical_test):
+    def do(self, group_dict):
         results = list()
-        logging.info('Comparing gene frequency among genomes')
 
-        if statistical_test == stats.fisher_exact:
-            results.append( (self.gene_fisher(), self.GENE_FISHER_OUTPUT) )
-        elif statistical_test == stats.mannwhitneyu:            
-            results.append( (self.mannwhitneyu(), self.GVG_OUTPUT) )
-        elif statistical_test == stats.norm.cdf:
-            results.append( (self.zscore(ivg), self.IVG_OUTPUT) )
-        elif statistical_test == stats.f_oneway:
-            pass
-        elif statistical_test == stats.mstats.kruskalwallis:
-            pass
+        for combination in combinations(group_dict, 2):
+            enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
+            prefix = '_vs_'.join(combination).replace(' ', '_')
+            logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
+            if enrichment_test == stats.fisher_exact:
+                logging.info('Testing gene enrichment using Fisher\'s exact test')
+                gene_count = self.gene_frequencies(*combination)
+                output_lines = self.pool.map(gene_fisher_calc, gene_count)
+                for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                    output_lines[idx].append(str(corrected_pval))
+                output_lines = self.FISHER_HEADER + output_lines
+                results.append([output_lines, prefix +'_'+ self.GENE_FISHER_OUTPUT])
+            elif enrichment_test == self.PA:
+                logging.info('enrichment statistics not possible with only one genome to compare')
+                logging.info('See prevalence matrix for unique genes in groups')
+
+            logging.info('Comparing gene over-representation among genomes')
+            if overrepresentation_test == stats.mannwhitneyu:
+                logging.info('Testing over-representation using Mann-Whitney U test')
+                gene_count = self.gene_frequencies(*combination, True)
+                output_lines = self.pool.map(mannwhitneyu_calc, gene_count)
+                for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                    output_lines[idx].append(str(corrected_pval))
+                output_lines = self.MANNWHITNEYU_HEADER + output_lines 
+                results.append([output_lines, prefix +'_'+ self.GVG_OUTPUT])
+
+            elif overrepresentation_test == stats.norm.cdf:
+                logging.info('Testing over-representation using Z score test')
+                gene_count = self.gene_frequencies(*combination, True)
+                output_lines = self.pool.map(zscore_calc, gene_count)
+                output_lines = [x for x in output_lines if x]
+                for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                    output_lines[idx].append(str(corrected_pval))
+                output_lines = self.ZSCORE_HEADER + output_lines
+                results.append([output_lines, prefix +'_'+ self.IVG_OUTPUT])
 
         return results
 

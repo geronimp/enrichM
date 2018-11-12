@@ -3,6 +3,7 @@ library("optparse")
 library("ggplot2")
 library("data.table")
 library("gridExtra")
+library("grid")
 
 option_list = list(
   make_option(c("-i", "--input"), type="character", 
@@ -23,16 +24,16 @@ input = fread(opt$i)
 
 generate_plots = function(res_1, res_2, ko00000, header, output){
 
-	res_1_ko00000 = ko00000[match(res_1$ko, ko00000$V4)]
-	res_1_match = res_1[match(res_1_ko00000$V4, res_1$ko)]
+	res_1_ko00000 = ko00000[match(res_1$annotation, ko00000$V4)]
+	res_1_match = res_1[match(res_1_ko00000$V4, res_1$annotation)]
 	res_1_ko00000$pvalue = res_1_match$pvalue
 	res_1_ko00000$ratio = res_1_match$group_1_true/(res_1_match$group_1_true + res_1_match$group_1_false)
 	res_1_ko00000_V1 = data.frame(table(res_1_ko00000$V1))
 	res_1_ko00000_V2 = data.frame(table(res_1_ko00000$V2))
 	res_1_ko00000_V3 = data.frame(table(res_1_ko00000$V3))
 	
-	res_2_ko00000 = ko00000[match(res_2$ko, ko00000$V4)]
-	res_2_match = res_2[match(res_2_ko00000$V4, res_2$ko)]
+	res_2_ko00000 = ko00000[match(res_2$annotation, ko00000$V4)]
+	res_2_match = res_2[match(res_2_ko00000$V4, res_2$annotation)]
 	res_2_ko00000$pvalue = res_2_match$pvalue
 	res_2_ko00000$ratio = res_2_match$group_2_true/(res_2_match$group_2_true + res_2_match$group_2_false)
 	res_2_ko00000_V1 = data.frame(table(res_2_ko00000$V1))

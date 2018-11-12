@@ -57,7 +57,7 @@ class Classify:
             self.m[key] = 'Custom'
     
     def _parse_genome_and_annotation_file_lf(self, genome_and_annotation_file):
-        genome_to_annotation_sets = {}
+        genome_to_annotation_sets = dict()
         for line in open(genome_and_annotation_file):
             sline = line.strip().split("\t")
             if len(sline) != 2: raise Exception("Input genomes/annotation file error on %s" % line)

@@ -250,7 +250,7 @@ class ModuleDescriptionParser:
         fragments = []
         current = []
         remove_end_brackets = True
-        for i in xrange(len(string)):
+        for i in range(len(string)):
             c = string[i]
             if c == '(':
                 current += c
