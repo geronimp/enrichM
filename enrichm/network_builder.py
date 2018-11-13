@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -26,17 +26,13 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
 ###############################################################################
-
+# Imports
 import logging
-import pickle
-import os
 import random
-import itertools
-
-from traverse import NetworkTraverser
-from databases import Databases
-
-
+from itertools import chain
+# Local
+from enrichm.traverse import NetworkTraverser
+from enrichm.databases import Databases
 ###############################################################################
 
 class NetworkBuilder:

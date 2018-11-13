@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -27,9 +27,7 @@ __status__ = "Development"
 
 ###############################################################################
 # Imports
-
 import re
-
 ###############################################################################
 
 KEGG = '(K\d+)'
@@ -252,7 +250,7 @@ class ModuleDescriptionParser:
         fragments = []
         current = []
         remove_end_brackets = True
-        for i in xrange(len(string)):
+        for i in range(len(string)):
             c = string[i]
             if c == '(':
                 current += c

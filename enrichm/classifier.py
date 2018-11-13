@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -26,16 +26,13 @@ __status__ = "Development"
 
 ###############################################################################
 # Imports
-
 import os
 import re
 import logging
-import pickle
-
 from itertools import chain
-from databases import Databases
-from module_description_parser import ModuleDescription
-
+# Local
+from enrichm.databases import Databases
+from enrichm.module_description_parser import ModuleDescription
 ###############################################################################
 
 class Classify:
@@ -60,7 +57,7 @@ class Classify:
             self.m[key] = 'Custom'
     
     def _parse_genome_and_annotation_file_lf(self, genome_and_annotation_file):
-        genome_to_annotation_sets = {}
+        genome_to_annotation_sets = dict()
         for line in open(genome_and_annotation_file):
             sline = line.strip().split("\t")
             if len(sline) != 2: raise Exception("Input genomes/annotation file error on %s" % line)

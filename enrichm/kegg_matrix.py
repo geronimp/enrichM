@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -26,13 +26,10 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
 ###############################################################################
-
+# Imports
 import logging
-import pickle
-import os
-
-from databases import Databases
-
+# Local
+from enrichm.databases import Databases
 ###############################################################################
 
 class KeggMatrix:

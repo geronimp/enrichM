@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -26,7 +26,6 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
 ###############################################################################
-    
 # System imports
 import logging
 import subprocess
@@ -34,22 +33,17 @@ import os
 import tempfile
 import tempdir
 import shutil
-
-
+import pickle
 import multiprocessing as mp
 import statsmodels.sandbox.stats.multicomp as sm
 import numpy as np
 
-import cPickle as pickle
-from itertools import combinations
-from collections import Counter
-
-from sequence_io import SequenceIO
-from databases import Databases
-from matrix_generator import MatrixGenerator
-from gff_generator import GffGenerator
-from genome import Genome, AnnotationParser
-
+# Local
+from enrichm.sequence_io import SequenceIO
+from enrichm.databases import Databases
+from enrichm.matrix_generator import MatrixGenerator
+from enrichm.gff_generator import GffGenerator
+from enrichm.genome import Genome, AnnotationParser
 ###############################################################################
 ###############################################################################
 
@@ -151,9 +145,9 @@ class Annotate:
             logging.debug(cmd)
             process = subprocess.Popen(["bash", "-c", cmd], 
                                        stdin=subprocess.PIPE,
-                                       stdout=subprocess.PIPE)
-            process.communicate('\n'.join(genome_paths))
-
+                                       stdout=subprocess.PIPE,
+                                       universal_newlines=True)
+            process.communicate(input=str('\n'.join(genome_paths)))
         return genome_directory
 
 
@@ -174,8 +168,8 @@ class Annotate:
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_PROTEINS) 
         os.mkdir(output_directory_path)
-        genome_list = list()
-        genome_paths = list()
+        genome_list     = list()
+        genome_paths    = list()
 
         for genome in os.listdir(genome_directory):
             if genome.endswith(self.suffix):
@@ -226,7 +220,7 @@ class Annotate:
 
         with tempfile.NamedTemporaryFile() as temp:
 
-            temp.write('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list] ) )
+            temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()
 
             output_annotation_path = os.path.join(output_directory_path, self.OUTPUT_DIAMOND) + self.ANNOTATION_SUFFIX
@@ -281,18 +275,17 @@ class Annotate:
         cmd = 'bash %s | diamond blastp --quiet --outfmt 6 --max-target-seqs 1 --query /dev/stdin --out %s --db %s --threads %s ' \
                             % (tmp_name, output_path, database, self.threads)
         if self.evalue:
-            cmd += '--evalue %f ' % (self.evalue) 
+            cmd += '--evalue %s ' % (str(self.evalue)) 
         if self.bit:
-            cmd += '--min-score %f ' % (self.bit)
+            cmd += '--min-score %s ' % (str(self.bit))
         if self.id:
-            cmd += '--id %f ' % (self.id)
+            cmd += '--id %s ' % (str(self.id*100))
         if self.aln_query:
-            cmd += "--query-cover %f " % (self.aln_query * 100)
+            cmd += "--query-cover %s " % (str(self.aln_query * 100))
         if self.aln_reference:
-            cmd += "--subject-cover %f " % (self.aln_reference * 100)
+            cmd += "--subject-cover %s " % (str(self.aln_reference * 100))
 
         logging.debug(cmd)
-
         subprocess.call(cmd, shell = True)
         logging.debug('Finished')
 
@@ -329,7 +322,7 @@ class Annotate:
                          self.aln_reference,
                          parser)
 
-    def annotate_hypothetical(self, genomes_list, directory):
+    def annotate_hypothetical(self, genomes_list):
         '''
         Sort proteins coded by each genome into homologous clusters.  
         
@@ -345,7 +338,7 @@ class Annotate:
 
         with tempfile.NamedTemporaryFile() as temp:
 
-            temp.write('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list] ) )
+            temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()  
 
             with tempdir.TempDir() as tmp_dir:  
@@ -457,12 +450,10 @@ class Annotate:
 
     def _default_hmmsearch_options(self):
         cmd = ''
-        if self.evalue:
-            cmd += '-E %f ' % (self.evalue) 
         if self.bit:
-            cmd += '-T %f ' % (self.bit)    
-        if self.id:
-            logging.warning("--id flag not used for hmmsearch")
+            cmd += '-T %s ' % (str(self.bit))    
+        else:
+            cmd += '-E %s ' % (str(self.evalue)) 
         return cmd
 
     def _hmm_search(self, output_path, database, hmmcutoff):
@@ -551,7 +542,7 @@ class Annotate:
                                              self.GENOME_OBJ)
         os.mkdir(output_directory_path)
         for genome in genomes_list:
-            with open(os.path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX), 'w') as output:
+            with open(os.path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX), 'wb') as output:
                 pickle.dump(genome, output)
 
     def list_splitter(self, input_list, chunk_number, chunk_max):
@@ -658,7 +649,7 @@ class Annotate:
 
             if self.hypothetical:
                 logging.info('    - Annotating genomes with hypothetical clusters')
-                cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list, directory)
+                cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list)
                 
                 logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)

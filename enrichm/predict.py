@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -26,16 +26,14 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
+# Imports
 import logging
 import pickle
 import os
-
 import numpy as np
-
-from generate import GenerateModel
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-
+# Local
+from enrichm.generate import GenerateModel
 ################################################################################
 
 
