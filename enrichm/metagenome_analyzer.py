@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -26,13 +26,14 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-
+# Imports
 import logging
 import math
 import numpy as np
-
+# Local
 from enrichm.kegg_module_grabber import KeggModuleGrabber
 from enrichm.module_description_parser import ModuleDescription
+###############################################################################
 
 class MetagenomeAnalyzer:
     

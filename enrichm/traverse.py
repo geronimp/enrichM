@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -25,13 +25,6 @@ __maintainer__  = "Joel Boyd"
 __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
  
-###############################################################################
-
-import logging
-import pickle
-import os
-from itertools import chain
-
 ###############################################################################
 
 class NetworkTraverser:

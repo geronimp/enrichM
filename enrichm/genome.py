@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -26,13 +26,12 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ###############################################################################
-# imports
+# Imports
 import os
 import logging
-
+# Local
 from enrichm.sequence_io import SequenceIO
 from enrichm.databases import Databases
-
 ###############################################################################
 
 class Genome:

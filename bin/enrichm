@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -32,16 +32,12 @@ import os
 import sys
 import textwrap
 import time
-
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
-
 # Local
 import enrichm
-
 from enrichm.run import Run
 from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.kegg_module_grabber import KeggModuleGrabber
-
 ###############################################################################
       
 class CustomHelpFormatter(argparse.HelpFormatter):
@@ -124,14 +120,17 @@ if __name__ == "__main__":
     # Data
     
     data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
-        
+    data_input_options = data.add_argument_group('Uninstall')
+    data_input_options.add_argument('--uninstall', action='store_true',
+                help = 'Remove enrichm database')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Annotate
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
     
-    annotate_input_options = annotate.add_argument_group('Input options')
+    annotate_input_options = annotate.add_argument_group('Input options (Use one)')
     annotate_input_options.add_argument('--genome_files', default = None, nargs='+',
                 help = 'Space separated list of genomes to annotate')
     annotate_input_options.add_argument('--genome_directory', default = None,
@@ -170,10 +169,8 @@ if __name__ == "__main__":
                 help='This fraction of the query must align to the reference (default: 0.7)')
     annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0.7,
                 help='This fraction of the reference must align to the query (default: 0.7)')
-
-    annotate_cluster_options = annotate.add_argument_group('Cluster specific options')
-    annotate_cluster_options.add_argument('--c', type = float, default = 0.7,
-                help='Use matches above this fraction of aligned (covered) query and target residues (default: 0.7)')
+    annotate_cutoff_options.add_argument('--c', type = float, default = 0.7,
+                help='When clustering, use matches above this fraction of aligned (covered) query and target residues (default: 0.7)')
 
     annotate_runtime_options = annotate.add_argument_group('Runtime options')
     annotate_runtime_options.add_argument('--threads', default = '1',
@@ -182,7 +179,7 @@ if __name__ == "__main__":
                 help='Run this number of jobs in parallel when annotating with HMMsearch (default: 5)')
     annotate_runtime_options.add_argument('--inflation', type = float, default = 2.0,
                 help='Inflation factor to use when calling clusters in ortholog (default = 2.0)')
-    annotate_runtime_options.add_argument('--suffix', 
+    annotate_runtime_options.add_argument('--suffix',
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
     annotate_runtime_options.add_argument('--light', action='store_true',
                 help="Don't store metadata for genome files (can't use enrichM compare downstream, default=False)")
@@ -190,7 +187,6 @@ if __name__ == "__main__":
                 help='Split loading of genomes into this many chunks (default = 4)')
     annotate_runtime_options.add_argument('--chunk_max', type = float, default = 2500,
                 help='Maximum number of genomes to load per chunk (default = 2500)')
-
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -232,22 +228,16 @@ if __name__ == "__main__":
     enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
     enrichment_runtime_options.add_argument('--modules',
                 help='Modules to limit analysis to.')
+    enrichment_runtime_options.add_argument('--genomes_to_compare_with_group', 
+                help='File containing genome ids to compare with the average of the group.')
     enrichment_runtime_options.add_argument('--abundances',
                 help='Genome abundance matrix.')
-    enrichment_runtime_options.add_argument('--do_all', action='store_true',
-                help='Attempt to conduct all tests.')
-    enrichment_runtime_options.add_argument('--do_ivi', action='store_true',
-                help='Conduct individual vs individual tests (Fisher).')
-    enrichment_runtime_options.add_argument('--do_gvg', action='store_true',
-                help='Conduct group vs group tests (T-test).')
-    enrichment_runtime_options.add_argument('--do_ivg', action='store_true',
-                help='Conduct individual vs group tests (Z score).')
     enrichment_runtime_options.add_argument('--pval_cutoff', type=float, default=0.05,
                 help='Only output results with a p-value below a this cutoff (default=0.05).')
     enrichment_runtime_options.add_argument('--proportions_cutoff', type=float, default=1,
                 help='Proportion enrichment cutoff.') ### ~ TODO: Fill in better description
-    enrichment_runtime_options.add_argument('--threshold', type=float,
-                help='The threshold to control for in false discovery rate of familywise error rate.', default=0.1)
+    enrichment_runtime_options.add_argument('--threshold', type=float, default=0.1,
+                help='The threshold to control for in false discovery rate of familywise error rate.')
     enrichment_runtime_options.add_argument('--multi_test_correction',
                 help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.', default='fdr_bh')
     enrichment_runtime_options.add_argument('--processes', type = int,

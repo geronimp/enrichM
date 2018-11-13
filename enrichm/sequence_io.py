@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 class Sequence:
     def __init__(self, name, seq):
         self.name = name

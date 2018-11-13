@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -27,13 +27,13 @@ __status__      = "Development"
 
 ###############################################################################
 # Imports
-
 import logging
 import sys
 import os
 import shutil
 import time
 
+# Local
 from enrichm.data import Data
 from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.enrichment import Enrichment
@@ -41,7 +41,6 @@ from enrichm.annotate import Annotate
 from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
-
 ###############################################################################
 
 debug={1:logging.CRITICAL,
@@ -95,6 +94,25 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
+
+        dependencies = {'hmmsearch': "http://hmmer.org/download.html",
+                        'diamond': "https://github.com/bbuchfink/diamond",
+                        'R': "https://www.r-project.org",
+                        'parallel': "https://www.gnu.org/software/parallel",
+                        'prodigal': "https://github.com/hyattpd/Prodigal/wiki/installation",
+                        'seqmagick': "https://fhcrc.github.io/seqmagick",
+                        'mmseqs': "https://github.com/soedinglab/MMseqs2"}
+        
+        missing_dependencies = list()
+        
+        for dependency in dependencies.keys():
+            if shutil.which(dependency) == None:
+                missing_dependencies.append(dependency)
+        
+        if len(missing_dependencies)>0:
+            dependency_string = '\n'.join(['\t%s\t%s' % (dependency, dependencies[dependency]) for d in missing_dependencies])
+            raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
+
         # We dont need an output directory for the DATA pipeline
         if args.subparser_name!=self.DATA:
             # Set up working directory
@@ -125,12 +143,17 @@ class Run:
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
         if len([x for x in [args.genome_files, args.genome_directory, args.protein_directory, args.protein_files] if x]) != 1:
             raise Exception("Input error: Only one type of input can be specified (--genome_files, --genome_directory, --protein_directory, or --protein_files).")
-        if(args.genome_directory or args.genome_files):
-            args.suffix = '.fna'
-        elif(args.protein_directory or args.protein_files):
-            args.suffix = '.faa'
+        if not args.suffix:
+            if(args.genome_directory or args.genome_files):
+                args.suffix = '.fna'
+            elif(args.protein_directory or args.protein_files):
+                args.suffix = '.faa'
         if(args.id>1 or args.id<0):
             raise Exception("Identity (--id) must be between 0 and 1.")
+        if(args.aln_query>1 or args.aln_query<0):
+            raise Exception("Alignment to query cutoff (--aln_query) must be between 0 and 1")
+        if(args.aln_reference>1 or args.aln_reference<0):
+            raise Exception("Alignment to reference cutoff (--aln_reference) must be between 0 and 1")
         if any([args.cut_ga, args.cut_nc, args.cut_tc]):
             if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
@@ -245,9 +268,8 @@ class Run:
         logging.info("Running command: %s" % ' '.join(command))
 
         if args.subparser_name == self.DATA:
-            self._check_data(args)
             d = Data()
-            d.do()
+            d.do(args.uninstall)
         
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
@@ -299,10 +321,7 @@ class Run:
                  args.modules,
                  args.abundances,
                  # Runtime options
-                 args.do_all,
-                 args.do_ivi, 
-                 args.do_gvg,
-                 args.do_ivg,
+                 args.genomes_to_compare_with_group,
                  args.pval_cutoff,
                  args.proportions_cutoff,
                  args.threshold,
