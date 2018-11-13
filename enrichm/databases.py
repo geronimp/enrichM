@@ -69,11 +69,13 @@ class Databases:
 		C						= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
 		R						= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
 		P						= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
+		K						= os.path.join(CUR_DATABASE_DIR, 'ko_descriptions')
 
 		PFAM2CLAN				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
 		CLAN2NAME				= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
 		PFAM2NAME				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
 		PFAM2DESCRIPTION		= os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
+		TIGRFAM2DESCRIPTION		= os.path.join(CUR_DATABASE_DIR, 'tigrfam_descriptions')
 		CLAN2PFAM				= os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
 
 	def __init__(self):
@@ -111,6 +113,8 @@ class Databases:
 		self.p = self.load_pickle(self.P)
 		logging.debug("Loading reaction descriptions")
 		self.r = self.load_pickle(self.R)
+		logging.debug("Loading ko descriptions")
+		self.k = self.load_pickle(self.K)
 		logging.debug("Loading compound classifications")
 		self.compound_desc_dict = self.load_pickle(self.COMPOUND_DESC_PICKLE)
 		logging.debug("Loading pfam to clan information")
@@ -123,6 +127,8 @@ class Databases:
 		self.pfam2description = self.load_pickle(self.PFAM2DESCRIPTION)
 		logging.debug("Loading pfam hierarchy")
 		self.clan2pfam = self.load_pickle(self.CLAN2PFAM)
+		logging.debug("Loading tigrfam descriptions")
+		self.tigrfamdescription = self.load_pickle(self.TIGRFAM2DESCRIPTION)
 		logging.info("Loading reference db paths")		
 
 		self.taxonomy 		= self.parse_taxonomy(self.TAXONOMY)

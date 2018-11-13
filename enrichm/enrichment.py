@@ -56,7 +56,7 @@ def gene_fisher_calc(x):
     else:
         score, pval = 'nan', 1.0
 
-    return [group_1, group_2, annotation] + dat[0] + dat[1] + [score, pval]
+    return [annotation, group_1, group_2] + dat[0] + dat[1] + [score, pval]
 
 def mannwhitneyu_calc(x):
     # Mann Whitney U test
@@ -103,10 +103,14 @@ def zscore_calc(x):
             = np.std(reference, axis=0)
         reference_group_comp_mean \
             = np.mean(reference, axis=0)
-        
+
         if (genome-reference_group_comp_mean)>0:
-            z_score = (genome-reference_group_comp_mean) / reference_group_comp_sd
-            p_value = 2-2*stats.norm.cdf(z_score)
+            if reference_group_comp_sd==0:
+                z_score = np.inf
+                p_value = 0.0
+            else:
+                z_score = (genome-reference_group_comp_mean) / reference_group_comp_sd
+                p_value = 2-2*stats.norm.cdf(z_score)
 
             return [annotation,
                     reference_name,
@@ -124,12 +128,13 @@ class Enrichment:
     TIGRFAM                 = "tigrfam"
     PFAM                    = "pfam"
     KEGG                    = "kegg"
-
+    CAZY                    = "cazy"
     def __init__(self):
 
         self.TIGRFAM_PREFIX          = 'TIGR'
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
+        self.CAZY_PREFIX             = ["GH", "AA", "GT","PL","CE","CBM"]
         self.PROPORTIONS             = 'proportions.tsv'
         self.MODULE_COMPLETENESS     = 'modules.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
@@ -213,7 +218,8 @@ class Enrichment:
             return self.KEGG
         elif sample.startswith(self.PFAM_PREFIX):
             return self.PFAM
-
+        elif ''.join([x for x in sample if not x.isdigit()]) in self.CAZY_PREFIX:
+            return self.CAZY
     def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
         '''
         Calculates the portions of genome
@@ -287,10 +293,7 @@ class Enrichment:
 
         with open(output_path, 'w') as out_io:
             for line in output_lines_list:
-                try:
-                    string = '\t'.join([str(x) for x in line]) + '\n'
-                except:
-                    import IPython ; IPython.embed()
+                string = '\t'.join([str(x) for x in line]) + '\n'
                 out_io.write(string)
     
     def parse_taxonomy(self, taxonomy, taxonomy_dict):
@@ -374,7 +377,7 @@ class Enrichment:
                     = self.parse_metadata_matrix(metadata_path)
 
         # Load pickles
-        pa.genome_objects = pa.parse_pickles(pa.genome_pickle_file_path, metadata.keys())
+        # pa.genome_objects = pa.parse_pickles(pa.genome_pickle_file_path, metadata.keys())
 
         if taxonomy:
             attribute_dict[taxonomy] = set()
@@ -407,7 +410,6 @@ class Enrichment:
             combination_dict['_'.join(combination)] = genome_list
 
         annotation_type = self.check_annotation_type(modules)
-
         t = Test(annotations_dict,
                  modules,
                  genomes,
@@ -439,24 +441,30 @@ class Enrichment:
         logging.info('Generating summary plots')
 
         if annotation_type==self.KEGG:
-            
+            logging.info('Finding module completeness in differentially abundant KOs')
             for result_file in os.listdir(output_directory):
-                if result_file.endswith("fisher.tsv"):
+                if(result_file.endswith("fisher.tsv") or result_file.endswith("cdf.tsv")):
                     p.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
                     
                     g1_sig_kos = set()
                     g2_sig_kos = set()
+    
                     result_file_io = open(os.path.join(output_directory, result_file))
                     header = result_file_io.readline()
                     for line in result_file_io:
                         sline = line.strip().split('\t')
-                        if float(sline[-1])<pval_cutoff:
-                            g1 = float(sline[3]) / (int(sline[3]) + int(sline[4]))
-                            g2 = float(sline[5]) / (int(sline[5]) + int(sline[6]))
+                        if float(sline[-2])<pval_cutoff:
+                            if result_file.endswith("fisher.tsv"):
+                                g1 = float(sline[3]) / (int(sline[3]) + int(sline[4]))
+                                g2 = float(sline[5]) / (int(sline[5]) + int(sline[6]))
+                            elif result_file.endswith("cdf.tsv"):
+                                g1 = float(sline[3])
+                                g2 = float(sline[5])
                             if g1>g2:
-                                g1_sig_kos.add(sline[2])
+                                g1_sig_kos.add(sline[0])
                             else:
-                                g2_sig_kos.add(sline[2])
+                                g2_sig_kos.add(sline[0])
+    
                     module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
                     for module, definition in d.m2def.items():
                         if module not in d.signature_modules:
@@ -464,25 +472,24 @@ class Enrichment:
                             num_all         = pathway.num_steps()
                             g1_num_covered, g1_ko_covered, g1_ko_total, g1_ko_path = pathway.num_covered_steps(g1_sig_kos)
                             g1_perc_covered    = g1_num_covered / float(num_all)
-
+        
                             g2_num_covered, g2_ko_covered, g2_ko_total, g2_ko_path = pathway.num_covered_steps(g2_sig_kos)
                             g2_perc_covered    = g2_num_covered / float(num_all)
-                            
                             if g1_perc_covered>0:
-                                output_line = [module, sline[0], num_all, g1_num_covered, g1_perc_covered]
+                                output_line = [module, sline[0], num_all, g1_num_covered, g1_perc_covered, d.m[module]]
                                 module_output.append(output_line)
                             if g2_perc_covered>0:
-                                output_line = [module, sline[1], num_all, g2_num_covered, g2_perc_covered]
+                                output_line = [module, sline[1], num_all, g2_num_covered, g2_perc_covered, d.m[module]]
                                 module_output.append(output_line)
-
-                    prefix = '_vs_'.join([sline[0], sline[1]]).replace(' ', '_')
+        
+                    prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
                     self._write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
 
         p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
-        #c.do(pa.genome_objects,
-        #     attribute_dict,
-        #     output_directory)
+        # c.do(pa.genome_objects,
+        #      attribute_dict,
+        #      output_directory)
 
 class Test(Enrichment):
 
@@ -497,35 +504,38 @@ class Test(Enrichment):
         Output
         ------
         '''
-        self.FISHER_HEADER = [['group_1',
+        self.FISHER_HEADER = [['annotation',
+                               'group_1',
                                'group_2',
-                               'annotation',
                                'group_1_true',
                                'group_1_false',
                                'group_2_true',
                                'group_2_false',
                                'score',
                                'pvalue',
-                               'corrected_pvalue']]
+                               'corrected_pvalue',
+                               'description']]
 
-        self.MANNWHITNEYU_HEADER =[['module',
+        self.MANNWHITNEYU_HEADER =[['annotation',
                                     'group_1',
                                     'group_2',
                                     'group_1_mean',
                                     'group_2_mean',
                                     'score',
                                     'pvalue',
-                                    'corrected_pvalue']]
+                                    'corrected_pvalue',
+                                    'description']]
         
-        self.ZSCORE_HEADER = [['module',
-                               'group',
-                               'genome',
-                               'group_mean',
-                               'genome_count',
-                               'count',
+        self.ZSCORE_HEADER = [['annotation',
+                               'group_1',
+                               'group_2',
+                               'group_1_mean',
+                               'group_1_sd',
+                               'group_2_count',
                                'score',
                                'pvalue',
-                               'corrected_pvalue']]
+                               'corrected_pvalue',
+                               'description']]
         
         self.PA                     = 'presence_absence'
         self.IVG_OUTPUT             = 'ivg_results.cdf.tsv'
@@ -538,7 +548,10 @@ class Test(Enrichment):
         self.m                      = d.m
         self.clan2pfam              = d.clan2pfam
         self.clan_to_description    = d.clan2name
+        self.k                      = d.k
         self.modules                = modules
+        self.tigrfamdescription     = d.tigrfamdescription
+        self.pfam2description     = d.pfam2description
         self.genomes                = genomes
         self.annotation_type        = annotation_type
         self.groups                 = groups
@@ -559,13 +572,13 @@ class Test(Enrichment):
 
         if annotation_type==Enrichment.PFAM:
             self.genome_annotations = dict()
-            for key, item in genome_annotations.items():
-                self.genome_annotations[key] = Counter([x.split('.')[0] for x in item])
+            for key, item in genome_annotations.items():                
+                self.genome_annotations[key] = {key.split('.')[0]:entry for key,entry in item.items()}
         else:
             self.genome_annotations = genome_annotations
 
-        self.pfam                   = dict()
-        self.id2pfam                = dict()
+        self.pfam    = dict()
+        self.id2pfam = dict()
         
         for line in open(d.PFAM_CLAN_DB):
             sline       = line.strip().split()
@@ -683,6 +696,24 @@ class Test(Enrichment):
         corrected_pvalues = self.correct_multi_test(pvalues)
         return corrected_pvalues
 
+    def add_descriptions(self, output_lines):
+        if self.annotation_type == Enrichment.KEGG:
+            desc = self.k
+        if self.annotation_type == Enrichment.CAZY:
+            desc = None
+        if self.annotation_type == Enrichment.TIGRFAM:
+            desc = self.tigrfamdescription
+        if self.annotation_type == Enrichment.PFAM:
+            desc = self.pfam2description
+
+        for line in output_lines:
+            annotation = line[0]
+            if desc:
+                line.append(desc[annotation])
+            else:
+                line.append("NA")
+        return output_lines
+
     def do(self, group_dict):
         results = list()
 
@@ -696,6 +727,7 @@ class Test(Enrichment):
                 output_lines = self.pool.map(gene_fisher_calc, gene_count)
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+                output_lines = self.add_descriptions(output_lines)
                 output_lines = self.FISHER_HEADER + output_lines
                 results.append([output_lines, prefix +'_'+ self.GENE_FISHER_OUTPUT])
             elif enrichment_test == self.PA:
@@ -709,6 +741,7 @@ class Test(Enrichment):
                 output_lines = self.pool.map(mannwhitneyu_calc, gene_count)
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+                output_lines = self.add_descriptions(output_lines)
                 output_lines = self.MANNWHITNEYU_HEADER + output_lines 
                 results.append([output_lines, prefix +'_'+ self.GVG_OUTPUT])
 
@@ -719,6 +752,7 @@ class Test(Enrichment):
                 output_lines = [x for x in output_lines if x]
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+                output_lines = self.add_descriptions(output_lines)
                 output_lines = self.ZSCORE_HEADER + output_lines
                 results.append([output_lines, prefix +'_'+ self.IVG_OUTPUT])
 

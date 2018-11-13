@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
     
-    annotate_input_options = annotate.add_argument_group('Input options')
+    annotate_input_options = annotate.add_argument_group('Input options (Use one)')
     annotate_input_options.add_argument('--genome_files', default = None, nargs='+',
                 help = 'Space separated list of genomes to annotate')
     annotate_input_options.add_argument('--genome_directory', default = None,

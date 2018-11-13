@@ -56,5 +56,4 @@ class Plot:
 		logging.info('	- Generating KO breakdown plots')
 		cmd = "Rscript %s -i %s -o %s -k %s -p %f > /dev/null 2>&1" \
 			% (self.draw_barplots_script_path, annotation_matrix, output_directory, self.ko00000, pvalue)
-
 		subprocess.call(cmd, shell=True)
