@@ -40,7 +40,11 @@ class Data:
 	'''
 	Utilities for archiving, downloading and updating databases.
 	'''
-	DATA_PATH 		= str(Path.home())
+	db_var = "ENRICHM_DB"
+	if db_var in os.environ:
+		DATA_PATH 	= os.environ[db_var]
+	else:
+		DATA_PATH 	= str(Path.home())
 	DATABASE_DIR	= os.path.join(DATA_PATH, 'databases')
 	VERSION 		= 'VERSION'
 	ARCHIVE_SUFFIX 	= '.tar.gz'
