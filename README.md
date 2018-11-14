@@ -44,6 +44,8 @@ sudo pip install enrichm
 ```
 
 # Setup
+
+## Loading EnrichM's database
 Before running enrichm, you'll need to download the back-end database. This is done using a command in enrichm:
 ```
 enrichm data
@@ -52,6 +54,12 @@ This should take approximately 15 minutes. To check for updates and install upda
 ```
 enrichm data --uninstall
 ```
+## Sepcifying the location of the enrichm database
+By default EnrichM will install the database in your home directory. If you wish to move the database to a more global location (e.g. if you work on a sever and need multiple users to have access) all you need to do is move it and export a BASH variable named "ENRICHM_DB":
+
+```
+export ENRICHM_DB=/path/to/database/
+```  
 
 # Subcommands
 
