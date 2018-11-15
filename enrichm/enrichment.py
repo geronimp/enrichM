@@ -295,23 +295,7 @@ class Enrichment:
             for line in output_lines_list:
                 string = '\t'.join([str(x) for x in line]) + '\n'
                 out_io.write(string)
-    
-    def parse_taxonomy(self, taxonomy, taxonomy_dict):
-        genomes_set = set()
-        rank = taxonomy[:3]
-        
-        if rank in self.taxonomy_index_dictionary:
-            rank_index = self.taxonomy_index_dictionary[rank]
-        else:
-            raise Exception("Rank doesnt exist (%s) Does your taxonomy have a GTDB rank prefix?" % (taxonomy))
-        
-        for genome_id, taxonomy_list in taxonomy_dict.items():
-
-            if taxonomy_list[rank_index] == taxonomy:
-                genomes_set.add(genome_id)
-
-        return genomes_set 
-
+                
     def parse_genomes_to_compare(self, genomes_to_compare_with_group_file):
         genomes_to_compare = set()
         
@@ -325,7 +309,7 @@ class Enrichment:
            self, annotate_output, metadata_path, modules, abundances, 
            # Runtime options
            genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
-           threshold, multi_test_correction, taxonomy, batchfile, processes,
+           threshold, multi_test_correction, batchfile, processes,
            ko, pfam, tigrfam, hypothetical, cazy,
            # Output options
            output_directory):
@@ -356,16 +340,13 @@ class Enrichment:
         annotations_dict, modules, genomes \
                     = self._parse_annotation_matrix(annotation_matrix)
 
-        if (taxonomy or batchfile):
+        if (batchfile):
             genomes_set = set()
-            if taxonomy:
-                genomes_set = genomes_set.union(self.parse_taxonomy(taxonomy, d.taxonomy))
-            if batchfile:
-                batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict \
-                            = self.parse_metadata_matrix(batchfile)
-                genomes_set = genomes_set.union(set(batchfile_metadata.keys()))
+            batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict \
+                        = self.parse_metadata_matrix(batchfile)
+            genomes_set = genomes_set.union(set(batchfile_metadata.keys()))
             reference_genomes = pa.parse_pickles(d.GTDB_DIR, genomes_set)
-            reference_genome_annotations = {genome.name.replace('_gene', ''):set(genome.ko_dict.keys()) for genome in reference_genomes}
+            reference_genome_annotations = {genome.name.replace('_gene', ''):Counter(genome.ko_dict.keys()) for genome in reference_genomes}
             annotations_dict.update(reference_genome_annotations)
         
         if modules:
@@ -379,14 +360,8 @@ class Enrichment:
         # Load pickles
         # pa.genome_objects = pa.parse_pickles(pa.genome_pickle_file_path, metadata.keys())
 
-        if taxonomy:
-            attribute_dict[taxonomy] = set()
-            for genome in reference_genome_annotations.keys():
-                genomes.append(genome)
-                metadata[genome] = set([taxonomy])
-                attribute_dict[taxonomy].add(genome)
-            metadata_value_lists.add(taxonomy)
-        elif batchfile:
+
+        if batchfile:
             found_gtdb_genomes = set([x.name.replace('_gene', '') for x in reference_genomes])
             for group in batchfile_metadata_value_lists:
                 attribute_dict[group] = set()
@@ -398,7 +373,7 @@ class Enrichment:
                 genomes.append(genome)
                 
             metadata_value_lists = metadata_value_lists.union(batchfile_metadata_value_lists)
- 
+        import IPython ; IPython.embed()
         logging.info("Comparing sets of genomes")        
         combination_dict = dict()
         for combination in product(*list([metadata_value_lists])):
@@ -749,6 +724,7 @@ class Test(Enrichment):
                 logging.info('Testing over-representation using Z score test')
                 gene_count = self.gene_frequencies(*combination, True)
                 output_lines = self.pool.map(zscore_calc, gene_count)
+
                 output_lines = [x for x in output_lines if x]
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))

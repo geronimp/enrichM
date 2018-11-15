@@ -222,8 +222,6 @@ if __name__ == "__main__":
     enrichment_gtdb_options = enrichment.add_argument_group('Genome Taxonomy DataBase (GTDB) options')
     enrichment_gtdb_options.add_argument('--batchfile',
                 help='metadata file to compare with.')
-    enrichment_gtdb_options.add_argument('--taxonomy',
-                help='Taxonomy of lineages to compare with.')
 
     enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
     enrichment_runtime_options.add_argument('--modules',
