@@ -110,7 +110,7 @@ class Run:
                 missing_dependencies.append(dependency)
         
         if len(missing_dependencies)>0:
-            dependency_string = '\n'.join(['\t%s\t%s' % (dependency, dependencies[dependency]) for d in missing_dependencies])
+            dependency_string = '\n'.join(['\t%s\t%s' % (d, dependencies[d]) for d in missing_dependencies])
             raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
 
         # We dont need an output directory for the DATA pipeline
@@ -326,7 +326,6 @@ class Run:
                  args.proportions_cutoff,
                  args.threshold,
                  args.multi_test_correction,
-                 args.taxonomy,
                  args.batchfile,
                  args.processes,
                  args.ko,
