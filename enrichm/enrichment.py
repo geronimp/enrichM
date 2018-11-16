@@ -305,8 +305,42 @@ class Enrichment:
         
         return genomes_to_compare
 
+    def parse_gtdb_matrix(self, genomes, matrix):
+        '''
+        description
+        
+        Inputs
+        ------
+        
+        Outputs
+        -------
+        
+        '''
+        logging.info('Parsing GTDB matrix')
+        
+        genomes = list(genomes)
+        matrix_io = open(matrix)
+        header = matrix_io.readline().strip().split('\t')
+        
+        indexes = list()
+        include = list()
+        for genome in genomes:
+            if genome in header:
+                indexes.append(header.index(genome))
+                include.append(genome)
+        genomes = include
+
+        output_dict = {genome:dict() for genome in genomes}
+        for row in matrix_io:
+            srow = row.strip().split()
+            annotation = srow[0]
+            for genome, index in zip(genomes, indexes):
+                output_dict[genome][annotation] = int(srow[index])
+
+        return output_dict, genomes
+
     def do(# Input options
-           self, annotate_output, metadata_path, modules, abundances, 
+           self, annotate_output, metadata_path, input_modules, abundances, 
            # Runtime options
            genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
            threshold, multi_test_correction, batchfile, processes,
@@ -329,51 +363,50 @@ class Enrichment:
         logging.info('Parsing annotations')
         if ko:
             annotation_matrix = pa.ko
+            gtdb_annotation_matrix = d.GTDB_KO
         elif pfam:
             annotation_matrix = pa.pfam
+            gtdb_annotation_matrix = d.GTDB_PFAM
         elif tigrfam:
             annotation_matrix = pa.tigrfam
+            gtdb_annotation_matrix = d.GTDB_TIGRFAM
         elif hypothetical:
             annotation_matrix = pa.hypothetical_cluster
+            gtdb_annotation_matrix = None
         elif cazy:
             annotation_matrix = pa.cazy
+            gtdb_annotation_matrix = d.GTDB_CAZY
+        
         annotations_dict, modules, genomes \
                     = self._parse_annotation_matrix(annotation_matrix)
 
-        if (batchfile):
-            genomes_set = set()
-            batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict \
-                        = self.parse_metadata_matrix(batchfile)
-            genomes_set = genomes_set.union(set(batchfile_metadata.keys()))
-            reference_genomes = pa.parse_pickles(d.GTDB_DIR, genomes_set)
-            reference_genome_annotations = {genome.name.replace('_gene', ''):Counter(genome.ko_dict.keys()) for genome in reference_genomes}
-            annotations_dict.update(reference_genome_annotations)
-        
-        if modules:
+        if input_modules:
             logging.info('Limiting to %i modules' % len(modules))
-            modules = modules
+            modules = input_modules
 
         logging.info('Parsing metadata')
         metadata, metadata_value_lists, attribute_dict \
                     = self.parse_metadata_matrix(metadata_path)
 
-        # Load pickles
-        # pa.genome_objects = pa.parse_pickles(pa.genome_pickle_file_path, metadata.keys())
-
-
         if batchfile:
-            found_gtdb_genomes = set([x.name.replace('_gene', '') for x in reference_genomes])
-            for group in batchfile_metadata_value_lists:
-                attribute_dict[group] = set()
-            for genome in found_gtdb_genomes:
-                genome_group = batchfile_metadata[genome]
-                for g in attribute_dict:
-                    attribute_dict[g].add(genome)
-                metadata[genome] = genome_group
-                genomes.append(genome)
-                
+            genomes_set = set()
+            batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict \
+                        = self.parse_metadata_matrix(batchfile)
+            genomes_set = genomes_set.union(set(batchfile_metadata.keys()))
+            reference_genome_annotations, genomes_set = self.parse_gtdb_matrix(genomes_set, gtdb_annotation_matrix)
+
+            annotations_dict.update(reference_genome_annotations)
+            new_batchfile_attribute_dict = dict()
+            for x,y in batchfile_attribute_dict.items():
+                s = [z for z in y if z in genomes_set]
+                if len(s)>0:
+                    new_batchfile_attribute_dict[x] = s
+            attribute_dict.update(new_batchfile_attribute_dict)
+            batchfile_metadata={x:batchfile_metadata[x] for x in genomes_set}
+            metadata.update(batchfile_metadata)
+            batchfile_metadata_value_lists = set(new_batchfile_attribute_dict.keys())
             metadata_value_lists = metadata_value_lists.union(batchfile_metadata_value_lists)
-        import IPython ; IPython.embed()
+        
         logging.info("Comparing sets of genomes")        
         combination_dict = dict()
         for combination in product(*list([metadata_value_lists])):
@@ -461,10 +494,6 @@ class Enrichment:
                     self._write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
 
         p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
-
-        # c.do(pa.genome_objects,
-        #      attribute_dict,
-        #      output_directory)
 
 class Test(Enrichment):
 
@@ -672,6 +701,7 @@ class Test(Enrichment):
         return corrected_pvalues
 
     def add_descriptions(self, output_lines):
+        import IPython ; IPython.embed()
         if self.annotation_type == Enrichment.KEGG:
             desc = self.k
         if self.annotation_type == Enrichment.CAZY:
