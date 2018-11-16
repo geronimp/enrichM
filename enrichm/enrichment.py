@@ -701,7 +701,6 @@ class Test(Enrichment):
         return corrected_pvalues
 
     def add_descriptions(self, output_lines):
-        import IPython ; IPython.embed()
         if self.annotation_type == Enrichment.KEGG:
             desc = self.k
         if self.annotation_type == Enrichment.CAZY:
