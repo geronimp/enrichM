@@ -54,6 +54,11 @@ class Databases:
 		CAZY_DB_NAME			= 'cazy'
 		GTDB_DB_NAME			= 'GTDB_R80_DB'
 		
+		GTDB_CAZY 				= os.path.join(GTDB_DIR, "gtdb_cazy.tsv")
+		GTDB_KO 				= os.path.join(GTDB_DIR, "gtdb_ko.tsv")
+		GTDB_PFAM 				= os.path.join(GTDB_DIR, "gtdb_pfam.tsv")
+		GTDB_TIGRFAM 			= os.path.join(GTDB_DIR, "gtdb_tigrfam.tsv")
+
 		TAXONOMY				= os.path.join(CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
 		M2DEF					= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
 		M						= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
