@@ -44,6 +44,7 @@ class Connect(object):
 		self.m2def = d.m2def
 		self.m2c = d.m2c
 		self.c = d.c
+		self.m = d.m
 		self.signature_modules = d.signature_modules
 		self.output_file = 'linkages.tsv'
 	
@@ -92,14 +93,14 @@ class Connect(object):
 					for genome_name, kos in annotations.items():
 						num_covered, ko_covered, ko_total, ko_path = path.num_covered_steps(kos)
 						perc_covered = num_covered / float(num_all)
-						if perc_covered>= cutoff:
+						if perc_covered>= float(cutoff):
 
-							# mod_str = "%s\t%s\t%s\t%s\t%s" % (genome_name,
-							#								  module,
-							#								  module_description)
+							mod_str = "%s\t%s\t%s" % (genome_name,
+															  module,
+															  self.m[module])
 
 							for c in from_compounds:
-								if c == "C00129<":import IPython ; IPython.embed()
+
 								if c not in output_dict:
 									output_dict[c] = [[genome_name], []]
 								else:
@@ -115,11 +116,10 @@ class Connect(object):
 		for compound, (from_bits, to_bits) in output_dict.items():
 			dup = set([x for x,y in Counter(from_bits + to_bits).items() if y > 1])
 			from_bits = [x for x in from_bits if x not in dup]
-			to_bits = [x for x in from_bits if x not in dup]
+			to_bits = [x for x in to_bits if x not in dup]
 			from_count = len(from_bits)
 			to_count = len(to_bits)
 			if(from_count>0 and to_count>0):
-
 				output_lines.append([compound, str(from_count), str(to_count), self.c[compound], ','.join(from_bits), ','.join(to_bits) ])
 		self.write(output_lines, os.path.join(output_directory, self.output_file))
 
