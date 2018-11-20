@@ -41,6 +41,7 @@ from enrichm.annotate import Annotate
 from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
+from enrichm.connect import Connect
 ###############################################################################
 
 debug={1:logging.CRITICAL,
@@ -65,6 +66,7 @@ class Run:
         self.DATA            = 'data'
         self.PREDICT         = 'predict'
         self.GENERATE        = 'generate'
+        self.CONNECT         = 'connect'
 
     def _logging_setup(self, args):
 
@@ -252,7 +254,19 @@ class Run:
         ------
         '''
         pass
-
+    def _check_connect(self, args):
+        '''
+        Check connect
+        
+        Inputs
+        ------
+        
+        Outputs
+        -------
+        
+        '''
+        pass
+    
     def main(self, args, command):
         '''
         Parameters
@@ -335,6 +349,14 @@ class Run:
                  args.cazy,
                  # Outputs
                  args.output)
+
+        elif args.subparser_name == self.CONNECT:
+            self._check_connect(args)
+            c = Connect()
+            c.do(args.annotate_output,
+                 args.metadata,
+                 args.custom_modules,
+                 args.cutoff)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or

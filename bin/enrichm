@@ -250,6 +250,25 @@ if __name__ == "__main__":
                 help='Compare hypothetical ids')
     enrichment_runtime_options.add_argument('--cazy', action='store_true',
                 help='Compare dbCAN ids')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Connect
+    connect = subparsers.add_parser('connect', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    connect_input_options = connect.add_argument_group('Input options')
+    connect_input_options.add_argument('--annotate_output', required=True,
+                help='Input annotate output')
+    connect_input_options.add_argument('--metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+
+    connect_runtime_options = connect.add_argument_group('Runtime options')
+    connect_runtime_options.add_argument('--custom_modules',
+                help='Tab separated file containing module name, definition as the columns',
+                default = None)
+    connect_runtime_options.add_argument('--cutoff',
+                help='This percent of the pathway must be complete to connect genomes (default = 100)',
+                default=1)
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
