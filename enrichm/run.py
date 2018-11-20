@@ -356,7 +356,8 @@ class Run:
             c.do(args.annotate_output,
                  args.metadata,
                  args.custom_modules,
-                 args.cutoff)
+                 args.cutoff,
+                 args.output)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or
