@@ -484,10 +484,10 @@ class Enrichment:
                             g2_num_covered, g2_ko_covered, g2_ko_total, g2_ko_path = pathway.num_covered_steps(g2_sig_kos)
                             g2_perc_covered    = g2_num_covered / float(num_all)
                             if g1_perc_covered>0:
-                                output_line = [module, sline[0], num_all, g1_num_covered, g1_perc_covered, d.m[module]]
+                                output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, d.m[module]]
                                 module_output.append(output_line)
                             if g2_perc_covered>0:
-                                output_line = [module, sline[1], num_all, g2_num_covered, g2_perc_covered, d.m[module]]
+                                output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, d.m[module]]
                                 module_output.append(output_line)
         
                     prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
