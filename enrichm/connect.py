@@ -93,113 +93,74 @@ class Connect(object):
 			self._update_with_custom_modules(custom_modules)
 
 		genomes_list = list(annotations.keys())
-		output_dict = dict()
 		existant_modules = set()
 		genomes_modules = dict()
 		module_to_genome = dict()
+		candidate_linkages = [["genome_1",
+					   "genome_2",
+					   "compound",
+					   "module_1",
+					   "module_2",
+					   "compound_description"]]
 
-		for module in self.m2c.keys():
+		for module in self.m2def:
 
 			for genome_name in genomes_list:
 				kos = annotations[genome_name]
 
-				if module in self.m2def:
-
-					if module not in self.signature_modules:
-						path = ModuleDescription(self.m2def[module])
-						num_all = path.num_steps()
-						num_covered, _, _, _ = path.num_covered_steps(kos)
-						perc_covered = num_covered / float(num_all)
-
-						if perc_covered>= float(cutoff):
-							if module in module_to_genome:
-								module_to_genome[module].add(genome_name)
-							else:
-								module_to_genome[module] = set([genome_name])
-
-							if genome_name in genomes_modules:
-								genomes_modules[genome_name].add(module)
-							else:
-								genomes_modules[genome_name] = set([module])
-
-		for genome_name, modules in genomes_modules.items():
-			output_dict[genome_name] = dict()
-
-			for module in modules:
-				produced_compounds = self.m2c[module][1]
-
-				for compound in produced_compounds:
-
-					if compound in self.c2m:
-						possible_modules 	= self.c2m[compound]
-						modules_covered 	= list()
-						modules_not_covered = list()
-
-						for possible_module in possible_modules:
-
-							if possible_module in modules:
-								modules_covered.append(possible_module)
-							else:
-								modules_not_covered.append(possible_module)
-						
-						for nc_module in modules_not_covered:
-							candidate_genomes = module_to_genome[nc_module]
-
-							for genome in candidate_genomes:
-								if genome != genome_name:
-									encoded_modules = genomes_modules[genome]
-									if module not in encoded_modules:
-										import IPython ; IPython.embed()
-
-
-
-		for module, to_from in self.m2c.items():
-			from_compounds, to_compounds = to_from[0], to_from[1]
-			if module not in self.signature_modules:
-				if module in self.m2def:
+				if module not in self.signature_modules:
 					path = ModuleDescription(self.m2def[module])
 					num_all = path.num_steps()
-					for genome_name, kos in annotations.items():
-						num_covered, ko_covered, ko_total, ko_path = path.num_covered_steps(kos)
-						perc_covered = num_covered / float(num_all)
-						if perc_covered>= float(cutoff):
+					num_covered, _, _, _ = path.num_covered_steps(kos)
+					perc_covered = num_covered / float(num_all)
 
-							mod_str = "%s\t%s\t%s" % (genome_name,
-															  module,
-															  self.m[module])
+					if perc_covered>= float(cutoff):
+						if module in module_to_genome:
+							module_to_genome[module].add(genome_name)
+						else:
+							module_to_genome[module] = set([genome_name])
 
-							for c in from_compounds:
+						if genome_name in genomes_modules:
+							genomes_modules[genome_name].add(module)
+						else:
+							genomes_modules[genome_name] = set([module])
 
-								if c not in output_dict:
-									output_dict[c] = [[genome_name], []]
-								else:
-									output_dict[c][0].append(genome_name)
+		for genome_name, modules in genomes_modules.items():
 
-							for c in to_compounds:
-								if c not in output_dict:
-									output_dict[c] = [[], [genome_name]]
-								else:
-									output_dict[c][1].append(genome_name)
-		
-		output_lines=[["Compound",
-					   "from_count",
-					   "to_count",
-					   "compound_description",
-					   "from_bits",
-					   "to_bits"]]
+			for module in modules:
+				
+				if module in self.m2c:
+					produced_compounds = self.m2c[module][1]
 
-		for compound, (from_bits, to_bits) in output_dict.items():
-			dup = set([x for x,y in Counter(from_bits + to_bits).items() if y > 1])
-			from_bits = [x for x in from_bits if x not in dup]
-			to_bits = [x for x in to_bits if x not in dup]
-			from_count = len(from_bits)
-			to_count = len(to_bits)
-			if(from_count>0 and to_count>0):
-				output_lines.append([compound,
-									 str(from_count),
-									 str(to_count),
-									 self.c[compound],
-									 ','.join(from_bits),
-									 ','.join(to_bits)])
-		self.write(output_lines, os.path.join(output_directory, self.output_file))
+					for compound in produced_compounds:
+
+						if compound in self.c2m:
+							possible_modules 	= self.c2m[compound]
+							modules_covered 	= list()
+							modules_not_covered = list()
+
+							for possible_module in possible_modules:
+
+								if possible_module not in modules:
+									modules_not_covered.append(possible_module)
+							
+							for nc_module in modules_not_covered:
+								
+								if nc_module in module_to_genome:
+									candidate_genomes = module_to_genome[nc_module]
+
+									for genome in candidate_genomes:
+										
+										if genome != genome_name:
+											encoded_modules = genomes_modules[genome]
+											
+											if module not in encoded_modules:
+												candidate_linkages.append([genome_name,
+																		   genome,
+																		   compound,
+																		   module,
+																		   nc_module,
+																		   self.c[compound]])
+
+		self.write(candidate_linkages, os.path.join(output_directory, self.output_file))
 
