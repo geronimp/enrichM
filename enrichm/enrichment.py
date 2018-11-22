@@ -720,13 +720,10 @@ class Test(Enrichment):
 
         for line in output_lines:
             annotation = line[0]
-            try:
-                if desc:
-                    line.append(desc[annotation])
-                else:
-                    line.append("NA")
-            except:
-                import IPython ; IPython.embed()
+            if desc:
+                line.append(desc[annotation])
+            else:
+                line.append("NA")
         return output_lines
 
     def do(self, group_dict):
