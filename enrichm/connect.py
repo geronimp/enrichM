@@ -68,9 +68,8 @@ class Connect(object):
 			self.m[key] = 'Custom'
 
 	def _parse_genome_and_annotation_file_matrix(self, genome_and_annotation_file):
-
 		genome_and_annotation_file_io = open(genome_and_annotation_file)
-		headers=genome_and_annotation_file_io.readline().strip().split('\t')[1:]
+		headers = genome_and_annotation_file_io.readline().strip().split('\t')[1:]
 		genome_to_annotation_sets = {genome_name:set() for genome_name in headers}
 
 		for line in genome_and_annotation_file_io:
@@ -85,7 +84,6 @@ class Connect(object):
 		return genome_to_annotation_sets
 
 	def _write(self, lines, output_path):
-
 		with open(output_path, 'wb') as out_io:
 
 			for l in lines:
@@ -102,12 +100,12 @@ class Connect(object):
 		existant_modules = set()
 		genomes_modules = dict()
 		module_to_genome = dict()
-		candidate_linkages = [["genome_1",
-					   		   "genome_2",
-					   		   "compound",
-					   		   "module_1",
-					   		   "module_2",
-					   		   "compound_description"]]
+		candidate_linkages = [["Genome 1",
+					   		   "Genome 2",
+					   		   "Compound",
+					   		   "Compound description",
+					   		   "Genome 1 module (producer)",
+					   		   "Genome 2 module (consumer)"]]
 
 		for module in self.m2def:
 
@@ -164,9 +162,9 @@ class Connect(object):
 												candidate_linkages.append([genome_name,
 																		   genome,
 																		   compound,
+																		   self.c[compound],
 																		   module,
-																		   nc_module,
-																		   self.c[compound]])
+																		   nc_module])
 
 		self._write(candidate_linkages, os.path.join(output_directory, self.output_file))
 
