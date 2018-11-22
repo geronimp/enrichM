@@ -603,6 +603,7 @@ class Test(Enrichment):
     
     def test_chooser(self, groups):
         groups = [len(x) for x in groups]
+        
         # Enrichment
         if any(group == 1 for group in groups):
             enrichment_test = self.PA

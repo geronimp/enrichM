@@ -265,7 +265,10 @@ class Run:
         -------
         
         '''
-        pass
+        if(args.cutoff > 1.0
+            and
+           args.cutoff < 0.0):
+           raise Exception("Cutoff needs to be between 0 - 1") 
     
     def main(self, args, command):
         '''

@@ -41,9 +41,10 @@ class Connect(object):
 
 	def __init__(self):
 		d = Databases()
+		
 		self.m2def = d.m2def
 		self.m2c = d.m2c
-		self.c2m=dict()
+		self.c2m = dict()
 
 		for module, compounds in self.m2c.items():	
 			substrates = compounds[0]
@@ -67,6 +68,7 @@ class Connect(object):
 			self.m[key] = 'Custom'
 
 	def _parse_genome_and_annotation_file_matrix(self, genome_and_annotation_file):
+
 		genome_and_annotation_file_io = open(genome_and_annotation_file)
 		headers=genome_and_annotation_file_io.readline().strip().split('\t')[1:]
 		genome_to_annotation_sets = {genome_name:set() for genome_name in headers}
@@ -74,14 +76,18 @@ class Connect(object):
 		for line in genome_and_annotation_file_io:
 			sline = line.strip().split('\t')
 			annotation, entries = sline[0], sline[1:]
+
 			for genome_name, entry in zip(headers, entries):
+
 				if float(entry) > 0.0:
 					genome_to_annotation_sets[genome_name].add(annotation)
 
 		return genome_to_annotation_sets
 
-	def write(self, lines, output_path):
+	def _write(self, lines, output_path):
+
 		with open(output_path, 'wb') as out_io:
+
 			for l in lines:
 				out_io.write(('\t'.join(l) + '\n').encode())
 
@@ -97,11 +103,11 @@ class Connect(object):
 		genomes_modules = dict()
 		module_to_genome = dict()
 		candidate_linkages = [["genome_1",
-					   "genome_2",
-					   "compound",
-					   "module_1",
-					   "module_2",
-					   "compound_description"]]
+					   		   "genome_2",
+					   		   "compound",
+					   		   "module_1",
+					   		   "module_2",
+					   		   "compound_description"]]
 
 		for module in self.m2def:
 
@@ -162,5 +168,5 @@ class Connect(object):
 																		   nc_module,
 																		   self.c[compound]])
 
-		self.write(candidate_linkages, os.path.join(output_directory, self.output_file))
+		self._write(candidate_linkages, os.path.join(output_directory, self.output_file))
 
