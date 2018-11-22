@@ -212,18 +212,7 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-
-        if args.subparser_name==NetworkAnalyser.EXPLORE:
-            args.filter             = None  
-            args.limit              = None 
-            args.starting_compounds = None
-            args.steps              = None
-            args.number_of_queries  = None
-
-            if not(args.queries):
-                if args.depth:
-                    logging.warning("--depth argument ignored without --queries flag")
-
+        
         if args.subparser_name==NetworkAnalyser.PATHWAY:
             args.depth              = None
             args.queries            = None
@@ -235,6 +224,17 @@ class Run:
             args.depth              = None
             args.queries            = None
     
+        if args.subparser_name==NetworkAnalyser.EXPLORE:
+            args.filter             = None  
+            args.limit              = None 
+            args.starting_compounds = None
+            args.steps              = None
+            args.number_of_queries  = None
+
+            if not(args.queries):
+                if args.depth:
+                    logging.warning("--depth argument ignored without --queries flag")
+
     def _check_predict(self, args):
         '''
         Inputs
@@ -254,6 +254,7 @@ class Run:
         ------
         '''
         pass
+
     def _check_connect(self, args):
         '''
         Check connect
@@ -316,9 +317,10 @@ class Run:
                          args.parallel,
                          args.suffix,
                          args.light)
-
-            a.do(args.genome_directory, args.protein_directory, 
-                 args.genome_files, args.protein_files)
+            a.do(args.genome_directory,
+                 args.protein_directory, 
+                 args.genome_files,
+                 args.protein_files)
 
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
@@ -365,7 +367,6 @@ class Run:
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or
              args.subparser_name == NetworkAnalyser.TRAVERSE):
-
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,
