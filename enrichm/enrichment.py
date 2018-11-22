@@ -134,7 +134,7 @@ class Enrichment:
         self.TIGRFAM_PREFIX          = 'TIGR'
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
-        self.CAZY_PREFIX             = ["GH", "AA", "GT","PL","CE","CBM"]
+        self.CAZY_PREFIX             = ["GH", "AA", "GT","PL","CE","CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
         self.PROPORTIONS             = 'proportions.tsv'
         self.MODULE_COMPLETENESS     = 'modules.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
@@ -211,14 +211,22 @@ class Enrichment:
         ------
         The annotation type
         '''
+
         sample = random.sample(annotations, 1)[0]
+        
+        cazy_prefix = ''
+        for character in sample:
+            if character.isdigit()!=True:
+                if character!='_':
+                    cazy_prefix+=character
+
         if sample.startswith(self.TIGRFAM_PREFIX):
             return self.TIGRFAM
         elif sample.startswith(self.KEGG_PREFIX):
             return self.KEGG
         elif sample.startswith(self.PFAM_PREFIX):
             return self.PFAM
-        elif ''.join([x for x in sample if not x.isdigit()]) in self.CAZY_PREFIX:
+        elif cazy_prefix in self.CAZY_PREFIX:
             return self.CAZY
     def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
         '''
@@ -712,10 +720,13 @@ class Test(Enrichment):
 
         for line in output_lines:
             annotation = line[0]
-            if desc:
-                line.append(desc[annotation])
-            else:
-                line.append("NA")
+            try:
+                if desc:
+                    line.append(desc[annotation])
+                else:
+                    line.append("NA")
+            except:
+                import IPython ; IPython.embed()
         return output_lines
 
     def do(self, group_dict):
