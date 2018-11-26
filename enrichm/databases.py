@@ -63,7 +63,6 @@ class Databases:
 		M2DEF					= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
 		M						= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
 		COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
-		R2RPAIR					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_rpair')
 		R2K						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
 		R2C 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
 		R2M						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')

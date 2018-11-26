@@ -134,6 +134,7 @@ class NetworkBuilder:
                         steps): 
 
         network_visitations={key:{} for key in self.metadata_keys}
+
         for _ in range(number_of_queries):
             starting_compound = random.choice(query_list)
             previous_reaction=''
@@ -144,14 +145,9 @@ class NetworkBuilder:
 
                 for key in self.metadata_keys:
                     compound = iter_batch[key]
-                    
-                    try:
-                        reactions = [x for x in self.d.c2r[compound]
-                                     if x in self.d.r2rpair]
-                    except:
-                        reactions=[]
-                    possible_reaction_abundance = []
-                    possible_reaction_name = []
+                    reactions = list()
+                    possible_reaction_abundance = list()
+                    possible_reaction_name = list()
                     for reaction in reactions:  
                         if(reaction in abundances_metagenome[key] and
                            reaction in abundances_transcriptome[key]):
@@ -163,17 +159,6 @@ class NetworkBuilder:
                     if any(possible_reaction_abundance):
                         probabilities = self.normalise(possible_reaction_abundance)
                         transition_reaction = possible_reaction_name[self.get_transition(probabilities)]
-                        if any(self.d.r2rpair[transition_reaction]):
-                            for pair in self.d.r2rpair[transition_reaction]:
-                                if compound in pair.split('_'):
-                                    transition_compound = pair.replace(compound, '')\
-                                                              .replace('_', '')   
-                            if transition_compound not in network_visitations[key]:
-                                network_visitations[key][transition_compound]=1
-                            else:
-                                network_visitations[key][transition_compound]+=1    
-                            iter_batch[key] = transition_compound
-                            previous_reaction=transition_reaction
                             
         output_lines = ['\t'.join(['C'] + self.metadata_keys)]
         for c in set(itertools.chain(*possible_reactions.values())):
