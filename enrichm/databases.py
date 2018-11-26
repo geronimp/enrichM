@@ -36,12 +36,11 @@ from enrichm.data import Data
 
 
 class Databases:
-	
 	if os.path.isfile(os.path.join(Data.DATABASE_DIR, 'VERSION')):
 		DB_VERSION				= open(os.path.join(Data.DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
 		CUR_DATABASE_DIR		= os.path.join(Data.DATABASE_DIR, DB_VERSION)
 		PICKLE_VERSION			= open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
-		OLD_DATABASE_PATH		= os.path.join(Data.DATA_PATH, 'databases', 'old')
+		OLD_DATABASE_PATH		= os.path.join(Data.DATABASE_DIR, 'old')
 		IDS_DIR					= os.path.join(CUR_DATABASE_DIR, 'ids')
 		REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
 		GTDB_DIR				= os.path.join(CUR_DATABASE_DIR, 'gtdb')
@@ -63,7 +62,6 @@ class Databases:
 		M2DEF					= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
 		M						= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
 		COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
-		R2RPAIR					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_rpair')
 		R2K						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
 		R2C 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
 		R2M						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')

@@ -110,11 +110,6 @@ if __name__ == "__main__":
                 help='Metabolome CID matrix. (NOT IMPLEMENTED)')
     base_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    
-    base_network_options = base_network.add_argument_group('Network options')
-    base_network_options.add_argument('--rpair', action='store_true',
-                help='Use rpair to construct network, instead of the reaction database (AVAILABLE SOON)')
-
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Data
@@ -237,7 +232,7 @@ if __name__ == "__main__":
     enrichment_runtime_options.add_argument('--threshold', type=float, default=0.1,
                 help='The threshold to control for in false discovery rate of familywise error rate.')
     enrichment_runtime_options.add_argument('--multi_test_correction',
-                help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.', default='fdr_bh')
+                help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options. (Default = Benjamini-Hochberg FDR)', default='fdr_bh')
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
     enrichment_runtime_options.add_argument('--ko', action='store_true',

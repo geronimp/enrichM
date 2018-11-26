@@ -40,7 +40,7 @@ EnrichM has the following non-python dependencies:
 
 ## PyPi 
 ```
-sudo pip install enrichm
+sudo pip3 install enrichm
 ```
 
 # Setup

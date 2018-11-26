@@ -9,6 +9,13 @@ import os
 
 from bs4 import BeautifulSoup
 
+
+
+# Build in the following:
+# ko_descriptions.23-08-2018.pickle
+# module_to_cpd.23-08-2018.pickle
+# tigrfam_descriptions.23-08-2018.pickle
+
 print("Archiving old database")
 old_version = open('VERSION').readline().strip()
 os.mkdir(old_version + '.archive')
@@ -249,28 +256,3 @@ for idx, module_key in enumerate(current_module_list):
 print("Done")
 print("Pickling results: %s" % output_pickle)
 pickle.dump(m2def, open(output_pickle, "wb"))
-
-
-print("Downloading rpair information from KEGG")
-r2rclass={}
-base='http://rest.kegg.jp/get/'
-tot = float(len(r.keys()))
-for idx, reaction_key in enumerate(r.keys()):
-    url = base + reaction_key
-    r2rclass[reaction_key]=[]
-    try:
-        for line in urllib2.urlopen(url).read().strip().split('\n'):
-            if line.startswith('RCLASS'):
-                r2rclass[reaction_key]+=line.split()[2:]
-                
-            elif line.startswith(' '):
-                sline = line.split()
-                if sline[0].startswith('RC'):
-                    r2rclass[reaction_key]+=sline[1:]
-    except:
-        print reaction_key
-    print "%s percent done" % str(round(float(idx+1)/tot, 2)*100)
-    
-print("Done")
-print("Pickling results: %s" % m_result)
-pickle.dump(r2rclass, open(r2rclass_result, "wb"))
