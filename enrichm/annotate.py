@@ -31,7 +31,6 @@ import logging
 import subprocess
 import os 
 import tempfile
-import tempdir
 import shutil
 import pickle
 import multiprocessing as mp
@@ -341,41 +340,41 @@ class Annotate:
             temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()  
 
-            with tempdir.TempDir() as tmp_dir:  
+            tmp_dir = tempfile.mkdtemp()  
                 
-                db_path = os.path.join(output_directory_path, "db")
-                clu_path = os.path.join(output_directory_path, "clu")
-                align_path = os.path.join(output_directory_path, "alignDb")
-                blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
-                clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
-                
-                logging.info('    - Generating MMSeqs2 database')
-                cmd = "bash %s | seqmagick convert - - | mmseqs createdb /dev/stdin %s -v 0 " % (temp.name, db_path)
-                logging.debug(cmd)
-                subprocess.call(cmd, shell = True)
-                logging.debug('Finished')
-                logging.info('    - Clustering genome proteins')
-                cmd = 'mmseqs cluster %s %s %s --max-seqs 1000 --threads %s --min-seq-id %s -e %f -c %s > /dev/null 2>&1 ' \
-                            % (db_path, clu_path, tmp_dir, self.threads, self.id, self.evalue, self.c)
-                logging.debug(cmd)
-                subprocess.call(cmd, shell = True)
-                logging.debug('Finished')
-                logging.info('    - Extracting clusters')
+            db_path = os.path.join(output_directory_path, "db")
+            clu_path = os.path.join(output_directory_path, "clu")
+            align_path = os.path.join(output_directory_path, "alignDb")
+            blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
+            clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
+            
+            logging.info('    - Generating MMSeqs2 database')
+            cmd = "bash %s | seqmagick convert - - | mmseqs createdb /dev/stdin %s -v 0 " % (temp.name, db_path)
+            logging.debug(cmd)
+            subprocess.call(cmd, shell = True)
+            logging.debug('Finished')
+            logging.info('    - Clustering genome proteins')
+            cmd = 'mmseqs cluster %s %s %s --max-seqs 1000 --threads %s --min-seq-id %s -e %f -c %s > /dev/null 2>&1 ' \
+                        % (db_path, clu_path, tmp_dir, self.threads, self.id, self.evalue, self.c)
+            logging.debug(cmd)
+            subprocess.call(cmd, shell = True)
+            logging.debug('Finished')
+            logging.info('    - Extracting clusters')
 
-                cmd = 'mmseqs createtsv %s %s %s %s  > /dev/null 2>&1 ' % (db_path, db_path, clu_path, clu_tsv_path)
-                logging.debug(cmd)
-                subprocess.call(cmd, shell = True)
-                logging.debug('Finished')
+            cmd = 'mmseqs createtsv %s %s %s %s  > /dev/null 2>&1 ' % (db_path, db_path, clu_path, clu_tsv_path)
+            logging.debug(cmd)
+            subprocess.call(cmd, shell = True)
+            logging.debug('Finished')
 
-                # logging.info('    - Computing Smith-Waterman alignments for clustering results')
-                # cmd = "mmseqs align %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
-                # logging.debug(cmd)
-                # subprocess.call(cmd, shell = True)
+            # logging.info('    - Computing Smith-Waterman alignments for clustering results')
+            # cmd = "mmseqs align %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
+            # logging.debug(cmd)
+            # subprocess.call(cmd, shell = True)
 
-                # logging.info('    - Converting to BLAST-like output')
-                # cmd = "mmseqs convertalis %s %s %s %s  > /dev/null 2>&1 " % (db_path, db_path, align_path, blast_output_path)
-                # logging.debug(cmd)
-                # subprocess.call(cmd, shell = True)
+            # logging.info('    - Converting to BLAST-like output')
+            # cmd = "mmseqs convertalis %s %s %s %s  > /dev/null 2>&1 " % (db_path, db_path, align_path, blast_output_path)
+            # logging.debug(cmd)
+            # subprocess.call(cmd, shell = True)
 
         #ortholog_dict = self.run_mcl(clu_tsv_path, os.path.join(output_directory_path, "mcl_clusters.tsv"))
         ortholog_dict = dict()
