@@ -36,12 +36,11 @@ from enrichm.data import Data
 
 
 class Databases:
-	
 	if os.path.isfile(os.path.join(Data.DATABASE_DIR, 'VERSION')):
 		DB_VERSION				= open(os.path.join(Data.DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
 		CUR_DATABASE_DIR		= os.path.join(Data.DATABASE_DIR, DB_VERSION)
 		PICKLE_VERSION			= open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
-		OLD_DATABASE_PATH		= os.path.join(Data.DATA_PATH, 'databases', 'old')
+		OLD_DATABASE_PATH		= os.path.join(Data.DATABASE_DIR, 'old')
 		IDS_DIR					= os.path.join(CUR_DATABASE_DIR, 'ids')
 		REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
 		GTDB_DIR				= os.path.join(CUR_DATABASE_DIR, 'gtdb')
