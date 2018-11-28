@@ -262,8 +262,9 @@ if __name__ == "__main__":
                 help='Tab separated file containing module name, definition as the columns',
                 default = None)
     connect_runtime_options.add_argument('--cutoff',
-                help='This percent of the pathway must be complete to connect genomes (default = 100)',
-                default=1)
+                help='This percent of the pathway must be complete to connect genomes (default = 1)',
+                type = float,
+                default=1.0)
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
