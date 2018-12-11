@@ -47,7 +47,8 @@ class Databases:
 		PICKLE					= 'pickle'	
 		HMM_SUFFIX 				= '.hmm'
 		DMND_SUFFIX				= '.dmnd'
-		KO_DB_NAME				= 'uniref100'
+		KO_DB_NAME				= 'uniref100.KO'
+		EC_DB_NAME				= 'uniref100.EC'
 		PFAM_DB_NAME			= 'pfam'
 		TIGRFAM_DB_NAME			= 'tigrfam'
 		CAZY_DB_NAME			= 'cazy'
@@ -140,6 +141,7 @@ class Databases:
 		self.taxonomy 		= self.parse_taxonomy(self.TAXONOMY)
 
 		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
+		self.EC_DB 			= os.path.join(self.REF_DIR, self.EC_DB_NAME + self.DMND_SUFFIX)
 		self.GTDB_DB		= os.path.join(self.REF_DIR, self.GTDB_DB_NAME)
 
 		self.PFAM_DB 		= os.path.join(self.REF_DIR, self.PFAM_DB_NAME + self.HMM_SUFFIX)
@@ -149,8 +151,10 @@ class Databases:
 
 
 	def load_pickle(self, file):
+
 		with open('.'.join([file, self.PICKLE_VERSION, self.PICKLE]), 'rb') as file_io:
 			loaded_pickle = pickle.load(file_io)
+			
 		return loaded_pickle
 
 	def parse_taxonomy(self, taxonomy_path):

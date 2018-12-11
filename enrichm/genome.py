@@ -359,6 +359,7 @@ class AnnotationParser:
 	currently for: KO, PFAM and TIGRFAM. COG to come	
 	'''
 	KO      		= 'KO_IDS.txt'
+	EC      		= 'EC_IDS.txt'
 	PFAM    		= 'PFAM_IDS.txt'
 	TIGRFAM 		= 'TIGRFAM_IDS.txt'
 	CAZY      		= 'CAZY_IDS.txt'
@@ -368,9 +369,10 @@ class AnnotationParser:
 	def __init__(self, annotation_type):        
 		
 		data_directory = Databases.IDS_DIR
-
 		if annotation_type == self.KO:
 			ids = [x.strip() for x in open(os.path.join(data_directory, self.KO))]
+		elif annotation_type == self.EC:
+			ids = [x.strip() for x in open(os.path.join(data_directory, self.EC))]
 		elif annotation_type == self.PFAM:
 			ids = [x.strip() for x in open(os.path.join(data_directory, self.PFAM))]
 		elif annotation_type == self.TIGRFAM:

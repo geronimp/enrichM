@@ -299,6 +299,7 @@ class Run:
                          args.tigrfam,
                          args.hypothetical,
                          args.cazy,
+                         args.ec,
                          # Cutoffs
                          args.evalue,
                          args.bit,
