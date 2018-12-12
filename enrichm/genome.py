@@ -96,7 +96,6 @@ class Genome:
 		annotation_type					- String. Either 'KO', 'TIGRFAM', 'PFAM', 	
 										  'HYPOTHETICAL' or 'COG'
 		'''
-			
 		# Load up annotation parser, and tell it what annotation type to expect
 		ap = AnnotationParser(annotation_type)
 
@@ -142,8 +141,10 @@ class Genome:
 				refdict = self.ec_dict
 
 		for seqname, annotations, evalue, annotation_range in iterator:
-			for annotations in annotation:
-				self.sequences[seqname].add(annotation, evalue, annotation_range, annotation_type)
+
+			self.sequences[seqname].add(annotations, evalue, annotation_range, annotation_type)
+
+			for annotation in annotations:
 
 				if annotation in refdict:
 					refdict[annotation].append(seqname)
@@ -312,7 +313,7 @@ class Sequence(Genome):
 		
 		return result
 
-	def add(self, annotation, evalue, region, annotation_type):
+	def add(self, annotations, evalue, region, annotation_type):
 		'''
 		Return annotations assigned to a list of positions within a sequence.
 
@@ -324,39 +325,42 @@ class Sequence(Genome):
 					  sequence to annotate
 		'''
 		
-		new_annotation 	= Annotation(annotation, evalue, region, annotation_type)
-		annotation_list = [annot for annot in self.annotations if annot.type == new_annotation.type]
+		new_annotations = [Annotation(annotation, evalue, region, annotation_type) for annotation in annotations]
+		annotation_list = [annot for annot in self.annotations if annot.type == new_annotations[0].type]
 		
 		if len(annotation_list) > 0:
 			
-			to_remove 	= []
+			to_remove 	= list()
 			to_check 	= annotation_list
 
-			overlap 	= [previous_annotation for previous_annotation in to_check
-						   if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
-			
-			if annotation_type==AnnotationParser.PFAM:
-				self.annotations.append(new_annotation)
-			
-			else:
+			for new_annotation in new_annotations:
+				overlap 	= [previous_annotation for previous_annotation in to_check
+							   if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
 				
-				if len(overlap)>0:
-					
-					for overlapping_previous_annotation in overlap:
-						
-						if new_annotation.compare(overlapping_previous_annotation):
-							to_remove.append(overlapping_previous_annotation)
-
-					if len(to_remove)>0:
-						self.annotations = [annotation for annotation in self.annotations 
-											if annotation not in to_remove]
-						self.annotations.append(new_annotation)
+				if annotation_type==AnnotationParser.PFAM:
+					self.annotations.append(new_annotation)
 				
 				else:
-						self.annotations.append(new_annotation)
+					
+					if len(overlap)>0:
+						
+						for overlapping_previous_annotation in overlap:
+							
+							if new_annotation.compare(overlapping_previous_annotation):
+								to_remove.append(overlapping_previous_annotation)
+
+						if len(to_remove)>0:
+							self.annotations = [annotation for annotation in self.annotations 
+												if annotation not in to_remove]
+							self.annotations.append(new_annotation)
+					
+					else:
+							self.annotations.append(new_annotation)
 
 		else:
-			self.annotations.append(new_annotation)
+			
+			for new_annotation in new_annotations:
+				self.annotations.append(new_annotation)
 	
 class Annotation(Sequence):
 	'''
@@ -451,6 +455,7 @@ class AnnotationParser:
 				float(perc_id) >= percent_id_cutoff):
 					seqname = sline[0].split('~')[1]
 					annotation = sline[1].split('~')[1].split('+')
+					
 					yield seqname, annotation, evalue, range(min(seq_list), max(seq_list))
 
 	def from_hmmsearch_results(self,
@@ -504,4 +509,4 @@ class AnnotationParser:
 				perc_seq_aln>=percent_aln_query_cutoff and
 				perc_hmm_aln>=percent_aln_reference_cutoff):
 				
-				yield seqname, accession, i_evalue, range(min(seq_list), max(seq_list))
+				yield seqname, [accession], i_evalue, range(min(seq_list), max(seq_list))
