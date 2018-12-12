@@ -245,19 +245,28 @@ class Annotate:
         for line in input_file_io:
             split_line = line.strip().split('\t')
             genome_id, _ = split_line[0].split('~')
+            
             if last is None:
                 last = genome_id
                 batch = [split_line]
+            
             else:
+            
                 if last==genome_id:
                     batch.append(split_line)
+            
                 else:
+            
                     yield last, batch
                     batch = [split_line]
                     last = genome_id
+        
         if last is None:
+        
             yield None, None
+        
         else:
+
             yield last, batch
 
     def _diamond_search(self, tmp_name, output_path, database):
@@ -274,21 +283,25 @@ class Annotate:
          
         cmd = 'bash %s | diamond blastp --quiet --outfmt 6 --max-target-seqs 1 --query /dev/stdin --out %s --db %s --threads %s ' \
                             % (tmp_name, output_path, database, self.threads)
+        
         if self.evalue:
             cmd += '--evalue %s ' % (str(self.evalue)) 
+        
         if self.bit:
             cmd += '--min-score %s ' % (str(self.bit))
+        
         if self.id:
             cmd += '--id %s ' % (str(self.id*100))
+        
         if self.aln_query:
             cmd += "--query-cover %s " % (str(self.aln_query * 100))
+        
         if self.aln_reference:
             cmd += "--subject-cover %s " % (str(self.aln_reference * 100))
 
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)
         logging.debug('Finished')
-
 
     def hmmsearch_annotation(self, genomes_list, output_directory_path, database, parser):
         '''
@@ -593,7 +606,9 @@ class Annotate:
             directory = self.prep_genome(protein_genome_list,
                                          os.path.join(self.output_directory,
                                                       self.GENOME_PROTEINS))
+            
             for genome_proteins_file in os.listdir(directory):
+
                 if genome_proteins_file.endswith(self.suffix):
                     genome = (self.light, os.path.join(directory, genome_proteins_file), None)
                     prep_genomes_list.append(genome)
@@ -603,6 +618,7 @@ class Annotate:
             directory = self.prep_genome(protein_files,
                              os.path.join(self.output_directory,
                                           self.GENOME_PROTEINS))
+            
             for protein_file in os.listdir(directory):
                 prep_genomes_list.append((self.light, os.path.join(directory, os.path.basename(protein_file)), None))
 
