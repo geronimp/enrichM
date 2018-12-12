@@ -692,7 +692,7 @@ class Test(Enrichment):
                 = self._count(annotation,
                               group_2,
                               freq)
-            import IPython ; IPython.embed()
+
             if freq:
                 if(len([x for x in group_1_true if x!='0'])==0 and
                     len([x for x in group_2_true if x!='0'])==0 ):
