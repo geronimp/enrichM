@@ -51,6 +51,7 @@ class Genome:
 		self.name = os.path.split(os.path.splitext(path)[0])[1]
 		
 		if light == False:
+		
 			if nucl is not None:
 				self.nucl 	= nucl
 				self.length = 0
@@ -67,7 +68,9 @@ class Genome:
 				sequence = Sequence(description, sequence)
 				self.sequences[name] = sequence
 				self.protein_ordered_dict[protein_count] = name
+		
 		else:
+		
 			for protein_count, (description, _) in enumerate(seqio.each(open(path))):
 				name = description.partition(' ')[0]
 				sequence = Sequence(description)
@@ -93,7 +96,6 @@ class Genome:
 		annotation_type					- String. Either 'KO', 'TIGRFAM', 'PFAM', 	
 										  'HYPOTHETICAL' or 'COG'
 		'''
-			
 		# Load up annotation parser, and tell it what annotation type to expect
 		ap = AnnotationParser(annotation_type)
 
@@ -107,35 +109,49 @@ class Genome:
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
 												 percent_aln_reference_cutoff)
+			
 			if annotation_type == AnnotationParser.PFAM:
 				self.pfam_dict = dict()
 				refdict = self.pfam_dict
+
+			
 			elif annotation_type == AnnotationParser.TIGRFAM:
 				self.tigrfam_dict = dict()
 				refdict = self.tigrfam_dict
+			
 			elif annotation_type == AnnotationParser.CAZY:
 				self.cazy_dict = dict()
 				refdict = self.cazy_dict
 
 		# If annotation type is a blast result
 		
-		elif(annotation_type == AnnotationParser.KO):
+		elif(annotation_type == AnnotationParser.KO or
+			 annotation_type == AnnotationParser.EC):
 			# Set up an iterator to produce the results
 			logging.debug("    - Parsing blast chunk")
 			iterator = ap.from_blast_results(annotations, evalue_cutoff, 
 											 bitscore_cutoff, percent_aln_query_cutoff)
-			
+
 			if annotation_type == AnnotationParser.KO:
 				self.ko_dict = dict()
 				refdict = self.ko_dict
 
-		for seqname, annotation, evalue, annotation_range in iterator:
-			self.sequences[seqname].add(annotation, evalue, annotation_range, annotation_type)
-			if annotation in refdict:
-				refdict[annotation].append(seqname)
-			else:
-				refdict[annotation]=[seqname]
-		
+			elif annotation_type == AnnotationParser.EC:
+				self.ec_dict = dict()
+				refdict = self.ec_dict
+
+		for seqname, annotations, evalue, annotation_range in iterator:
+
+			self.sequences[seqname].add(annotations, evalue, annotation_range, annotation_type)
+
+			for annotation in annotations:
+
+				if annotation in refdict:
+					refdict[annotation].append(seqname)
+				
+				else:
+					refdict[annotation]=[seqname]
+			
 	def count(self, annotation, type):
 		'''
 		
@@ -150,14 +166,22 @@ class Genome:
 
 		if type==AnnotationParser.HYPOTHETICAL:
 			reference_dict = self.cluster_dict
+		
 		elif type==AnnotationParser.KO:
 			reference_dict = self.ko_dict
+		
+		elif type==AnnotationParser.EC:
+			reference_dict = self.ec_dict
+		
 		elif type==AnnotationParser.PFAM:
 			reference_dict = self.pfam_dict
+		
 		elif type==AnnotationParser.TIGRFAM:
 			reference_dict = self.tigrfam_dict
+		
 		if annotation in reference_dict:
 			return len(reference_dict[annotation])
+		
 		else:
 			return 0
 
@@ -166,6 +190,7 @@ class Genome:
 		Iterator that yields that all protein coding Sequence objects in a genome in order.
 		'''
 		for sequence_id in sorted(self.protein_ordered_dict.keys()):
+			
 			yield self.sequences[self.protein_ordered_dict[sequence_id]]
 
 	def add_cluster(self, sequence_id, cluster_id):
@@ -180,6 +205,7 @@ class Genome:
 	
 		if cluster_id in self.cluster_dict:
 			self.cluster_dict[cluster_id].append(sequence_id)
+		
 		else:
 			self.cluster_dict[cluster_id] = [sequence_id]
 		
@@ -202,6 +228,7 @@ class Genome:
 	
 		if ortholog_id in self.ortholog_dict:
 			self.ortholog_dict[ortholog_id].append(sequence_id)
+		
 		else:
 			self.ortholog_dict[ortholog_id] = [sequence_id]
 		
@@ -209,7 +236,6 @@ class Genome:
 		
 		self.sequences[sequence_id].ortholog = ortholog_id
 		self.sequences[sequence_id].annotations.append(annotation)
-		
 		self.orthologs.add(ortholog_id)
 
 class Sequence(Genome):
@@ -219,14 +245,17 @@ class Sequence(Genome):
 	'''
 	def __init__(self, description, sequence=None):
 		self.annotations = []	
+		
 		if sequence:
 			self.seq = str(sequence)
 			self.length = int(len(sequence))
+		
 		try:
 			self.seqname, self.startpos, self.finishpos, self.direction, stats \
 								= description.split(' # ')
 			self.prod_id, self.partial, self.starttype, self.rbs_motif, self.rbs_spacer,  self.gc \
 								= [x.split('=')[1] for x in stats.split(';')]
+		
 		except:
 			raise Exception("Error parsing genome proteins. Was the output from prodigal?")
 
@@ -235,8 +264,10 @@ class Sequence(Genome):
 		Returns a list of all annotations assigned to this sequence
 		'''
 		result = []
+		
 		for annotation in self.annotations:
 			result.append(annotation.annotation)
+		
 		return result
 
 	def seqdict(self):
@@ -249,9 +280,12 @@ class Sequence(Genome):
 		domains.
 		'''
 		seq_dict = {x:None for x in range(self.length)}
+		
 		for annotation in self.annotations:
+		
 			for position in annotation.region:
 				seq_dict[position] = annotation.annotation
+		
 		return seq_dict
 
 
@@ -268,7 +302,7 @@ class Sequence(Genome):
 		Returns a list of equal length to region, containing the annotation of
 		each position.
 		'''
-		result = []
+		result = list()
 
 		# Build reference dictionary for sequence
 		seq_dict = self.seqdict()
@@ -276,9 +310,10 @@ class Sequence(Genome):
 		# Find annotation for each position in the sequence
 		for position in query_region:
 			result.append(seq_dict[position])
+		
 		return result
 
-	def add(self, annotation, evalue, region, annotation_type):
+	def add(self, annotations, evalue, region, annotation_type):
 		'''
 		Return annotations assigned to a list of positions within a sequence.
 
@@ -290,37 +325,42 @@ class Sequence(Genome):
 					  sequence to annotate
 		'''
 		
-		new_annotation 	= Annotation(annotation, evalue, region, annotation_type)
-		annotation_list = [annot for annot in self.annotations if annot.type == new_annotation.type]
+		new_annotations = [Annotation(annotation, evalue, region, annotation_type) for annotation in annotations]
+		annotation_list = [annot for annot in self.annotations if annot.type == new_annotations[0].type]
 		
 		if len(annotation_list) > 0:
 			
-			to_remove 	= []
+			to_remove 	= list()
 			to_check 	= annotation_list
 
-			overlap 	= [previous_annotation for previous_annotation in to_check
-						   if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
-			
-			if annotation_type==AnnotationParser.PFAM:
-				self.annotations.append(new_annotation)
-			else:
+			for new_annotation in new_annotations:
+				overlap 	= [previous_annotation for previous_annotation in to_check
+							   if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
 				
-				if len(overlap)>0:
-					
-					for overlapping_previous_annotation in overlap:
-						
-						if new_annotation.compare(overlapping_previous_annotation):
-							to_remove.append(overlapping_previous_annotation)
-
-					if len(to_remove)>0:
-						self.annotations = [annotation for annotation in self.annotations 
-											if annotation not in to_remove]
-						self.annotations.append(new_annotation)
+				if annotation_type==AnnotationParser.PFAM:
+					self.annotations.append(new_annotation)
+				
 				else:
-						self.annotations.append(new_annotation)
+					
+					if len(overlap)>0:
+						
+						for overlapping_previous_annotation in overlap:
+							
+							if new_annotation.compare(overlapping_previous_annotation):
+								to_remove.append(overlapping_previous_annotation)
+
+						if len(to_remove)>0:
+							self.annotations = [annotation for annotation in self.annotations 
+												if annotation not in to_remove]
+							self.annotations.append(new_annotation)
+					
+					else:
+							self.annotations.append(new_annotation)
 
 		else:
-			self.annotations.append(new_annotation)
+			
+			for new_annotation in new_annotations:
+				self.annotations.append(new_annotation)
 	
 class Annotation(Sequence):
 	'''
@@ -329,7 +369,6 @@ class Annotation(Sequence):
 	and what type of annotation it is.
 	'''
 	def __init__(self, annotation, evalue, region, annotation_type):
-
 		self.annotation = annotation
 		self.evalue 	= float(evalue)
 		self.region		= set(region)
@@ -347,9 +386,9 @@ class Annotation(Sequence):
 		------
 		Returns True if self is the better annotation or False if it isn't
 		'''
-		
 		if self.evalue < other_annotation.evalue:
 			return True
+		
 		else:
 			return False
 
@@ -359,6 +398,7 @@ class AnnotationParser:
 	currently for: KO, PFAM and TIGRFAM. COG to come	
 	'''
 	KO      		= 'KO_IDS.txt'
+	EC      		= 'EC_IDS.txt'
 	PFAM    		= 'PFAM_IDS.txt'
 	TIGRFAM 		= 'TIGRFAM_IDS.txt'
 	CAZY      		= 'CAZY_IDS.txt'
@@ -366,13 +406,17 @@ class AnnotationParser:
 	ORTHOLOG 		= 'ORTHOLOG.txt'
 
 	def __init__(self, annotation_type):        
-		
 		data_directory = Databases.IDS_DIR
 
 		if annotation_type == self.KO:
 			ids = [x.strip() for x in open(os.path.join(data_directory, self.KO))]
+		
+		elif annotation_type == self.EC:
+			ids = [x.strip() for x in open(os.path.join(data_directory, self.EC))]
+		
 		elif annotation_type == self.PFAM:
 			ids = [x.strip() for x in open(os.path.join(data_directory, self.PFAM))]
+		
 		elif annotation_type == self.TIGRFAM:
 			ids = [x.strip() for x in open(os.path.join(data_directory, self.TIGRFAM))]
 
@@ -410,7 +454,8 @@ class AnnotationParser:
 				float(bit) >= bitscore_cutoff and
 				float(perc_id) >= percent_id_cutoff):
 					seqname = sline[0].split('~')[1]
-					annotation = sline[1].split('~')[1]
+					annotation = sline[1].split('~')[1].split('+')
+					
 					yield seqname, annotation, evalue, range(min(seq_list), max(seq_list))
 
 	def from_hmmsearch_results(self,
@@ -464,4 +509,4 @@ class AnnotationParser:
 				perc_seq_aln>=percent_aln_query_cutoff and
 				perc_hmm_aln>=percent_aln_reference_cutoff):
 				
-				yield seqname, accession, i_evalue, range(min(seq_list), max(seq_list))
+				yield seqname, [accession], i_evalue, range(min(seq_list), max(seq_list))

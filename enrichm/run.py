@@ -108,6 +108,7 @@ class Run:
         missing_dependencies = list()
         
         for dependency in dependencies.keys():
+
             if shutil.which(dependency) == None:
                 missing_dependencies.append(dependency)
         
@@ -122,11 +123,15 @@ class Run:
                 args.output = '%s-enrichm_%s_output' % (time.strftime("%Y-%m-%d_%H-%M"), args.subparser_name)
 
             if(os.path.isdir(args.output) or os.path.isfile(args.output)):
+
                 if args.force:
+
                     if os.path.isdir(args.output):
                         shutil.rmtree(args.output)
+
                     else:
                         os.remove(args.output)
+
                 else:
                     raise Exception("File '%s' exists." % args.output)
 
@@ -142,23 +147,39 @@ class Run:
         '''
         # ensure either a list of genomes or a directory of genomes have been specified
         if not(args.genome_files or args.genome_directory or args.protein_directory or args.protein_files):
+            
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
+
         if len([x for x in [args.genome_files, args.genome_directory, args.protein_directory, args.protein_files] if x]) != 1:
+            
             raise Exception("Input error: Only one type of input can be specified (--genome_files, --genome_directory, --protein_directory, or --protein_files).")
+        
         if not args.suffix:
+            
             if(args.genome_directory or args.genome_files):
                 args.suffix = '.fna'
+            
             elif(args.protein_directory or args.protein_files):
                 args.suffix = '.faa'
+        
         if(args.id>1 or args.id<0):
+            
             raise Exception("Identity (--id) must be between 0 and 1.")
+        
         if(args.aln_query>1 or args.aln_query<0):
+           
             raise Exception("Alignment to query cutoff (--aln_query) must be between 0 and 1")
+        
         if(args.aln_reference>1 or args.aln_reference<0):
+           
             raise Exception("Alignment to reference cutoff (--aln_reference) must be between 0 and 1")
+        
         if any([args.cut_ga, args.cut_nc, args.cut_tc]):
+           
             if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
+                
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
+            
             if args.evalue:
                 logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
 
@@ -175,9 +196,13 @@ class Run:
         '''
         ### ~ TODO: Check Multi test correction inputs...
         types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy]
+        
         if not any(types):
+            
             raise Exception("Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --hypothetical --cazy")
+        
         if len([x for x in types if x])>1:
+            
             raise Exception("Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
 
     def _check_classify(self, args):  
@@ -190,6 +215,7 @@ class Run:
         '''
         # Ensure either an annotation matrix or list file has been specified:
         if not(args.genome_and_annotation_file or args.genome_and_annotation_matrix):
+            
             raise Exception("Input error: An input file must be specified to either \
 --genome_and_annotation_file or --genome_and_annotation_matrix")
 
@@ -202,6 +228,7 @@ class Run:
         args    - object. Argparse object
         '''
         if not(args.metadata or args.abundances):
+            
             raise Exception("No metadata or abundance information provided to build.")
 
     def _check_network(self, args):
@@ -232,6 +259,7 @@ class Run:
             args.number_of_queries  = None
 
             if not(args.queries):
+
                 if args.depth:
                     logging.warning("--depth argument ignored without --queries flag")
 
@@ -266,9 +294,8 @@ class Run:
         -------
         
         '''
-        if(args.cutoff > 1.0
-            and
-           args.cutoff < 0.0):
+        if(args.cutoff > 1.0 and args.cutoff < 0.0):
+           
            raise Exception("Cutoff needs to be between 0 - 1") 
     
     def main(self, args, command):
@@ -299,6 +326,7 @@ class Run:
                          args.tigrfam,
                          args.hypothetical,
                          args.cazy,
+                         args.ec,
                          # Cutoffs
                          args.evalue,
                          args.bit,

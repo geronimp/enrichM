@@ -146,7 +146,9 @@ if __name__ == "__main__":
                 help='Annotate with hypothetical clusters')
     annotate_annotation_options.add_argument('--cazy', action='store_true',
                 help='Annotate with dbCAN HMMs')
-    
+    annotate_annotation_options.add_argument('--ec', action='store_true',
+                help='Annotate with EC ids')
+
     annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
     annotate_cutoff_options.add_argument('--cut_ga', action='store_true',
                 help='For PFAM and TIGRfam searches: use profiles GA gathering cutoffs to set all thresholding')
@@ -245,7 +247,6 @@ if __name__ == "__main__":
                 help='Compare hypothetical ids')
     enrichment_runtime_options.add_argument('--cazy', action='store_true',
                 help='Compare dbCAN ids')
-
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Connect
@@ -262,8 +263,9 @@ if __name__ == "__main__":
                 help='Tab separated file containing module name, definition as the columns',
                 default = None)
     connect_runtime_options.add_argument('--cutoff',
-                help='This percent of the pathway must be complete to connect genomes (default = 100)',
-                default=1)
+                help='This percent of the pathway must be complete to connect genomes (default = 1)',
+                type = float,
+                default=1.0)
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#

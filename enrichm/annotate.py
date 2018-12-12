@@ -58,6 +58,7 @@ class Annotate:
     GENOME_BIN                      = 'genome_bin'
     GENOME_PROTEINS                 = 'genome_proteins'    
     GENOME_KO                       = 'annotations_ko'
+    GENOME_EC                       = 'annotations_ec'
     GENOME_PFAM                     = 'annotations_pfam'
     GENOME_TIGRFAM                  = 'annotations_tigrfam'
     GENOME_HYPOTHETICAL             = 'annotations_hypothetical'
@@ -65,6 +66,7 @@ class Annotate:
     GENOME_GFF                      = 'annotations_gff'
     GENOME_OBJ                      = 'annotations_genomes'
     OUTPUT_KO                       = 'ko_frequency_table.tsv'
+    OUTPUT_EC                       = 'ec_frequency_table.tsv'
     OUTPUT_PFAM                     = 'pfam_frequency_table.tsv'
     OUTPUT_TIGRFAM                  = 'tigrfam_frequency_table.tsv'
     OUTPUT_CAZY                     = 'cazy_frequency_table.tsv'
@@ -79,7 +81,7 @@ class Annotate:
     
     def __init__(self,
                  output_directory,
-                 ko, pfam, tigrfam, hypothetical, cazy,
+                 ko, pfam, tigrfam, hypothetical, cazy, ec,
                  evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, chunk_number, chunk_max,
                  threads, parallel, suffix, light):
 
@@ -92,6 +94,7 @@ class Annotate:
         self.tigrfam          = tigrfam 
         self.hypothetical     = hypothetical 
         self.cazy             = cazy
+        self.ec               = ec
         
         # Cutoffs
         self.evalue           = evalue 
@@ -196,7 +199,7 @@ class Annotate:
         
         return genome_list
     
-    def annotate_ko(self, genomes_list):
+    def annotate_diamond(self, genomes_list, database, parser_type, output_subdirectory):
         '''
         Annotate the proteins encoded by each genome with KO ids using either BLAST or using HMM
         searches (no implemented yet).
@@ -213,21 +216,19 @@ class Annotate:
         '''        
 
         output_directory_path = os.path.join(self.output_directory, 
-                                             self.GENOME_KO)
+                                             output_subdirectory)
         genome_dict = {genome.name:genome for genome in genomes_list}
         os.mkdir(output_directory_path)
 
         with tempfile.NamedTemporaryFile() as temp:
-
             temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()
-
             output_annotation_path = os.path.join(output_directory_path, self.OUTPUT_DIAMOND) + self.ANNOTATION_SUFFIX
             logging.info('    - BLASTing genomes' )
-            self._diamond_search(temp.name, output_annotation_path, self.databases.KO_DB)
-                
+            self._diamond_search(temp.name, output_annotation_path, database)
 
             for genome_name, batch in self.get_batches(output_annotation_path):
+                
                 if batch:
                     genome = genome_dict[genome_name]
                     genome.add(batch, 
@@ -235,7 +236,7 @@ class Annotate:
                                  self.bit, 
                                  self.aln_query, 
                                  self.aln_reference,
-                                 AnnotationParser.KO)
+                                 parser_type)
     
     def get_batches(self, input_file):
         last = None
@@ -658,12 +659,22 @@ class Annotate:
 
             if self.ko:
                 logging.info('    - Annotating genomes with ko ids')
-                self.annotate_ko(genomes_list)
+                self.annotate_diamond(genomes_list, self.databases.KO_DB, AnnotationParser.KO, self.GENOME_KO)
 
                 logging.info('    - Generating ko frequency table')
                 mg = MatrixGenerator(MatrixGenerator.KO)
                 
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
+                mg.write_matrix(genomes_list, freq_table)
+
+            if self.ec:
+                logging.info('    - Annotating genomes with ec ids')
+                self.annotate_diamond(genomes_list, self.databases.EC_DB, AnnotationParser.EC, self.GENOME_EC)
+                
+                logging.info('    - Generating ec frequency table')
+                mg = MatrixGenerator(MatrixGenerator.EC)
+                
+                freq_table = os.path.join(self.output_directory, self.OUTPUT_EC)
                 mg.write_matrix(genomes_list, freq_table)
 
             if self.pfam:

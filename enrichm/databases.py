@@ -36,51 +36,53 @@ from enrichm.data import Data
 
 
 class Databases:
+	
 	if os.path.isfile(os.path.join(Data.DATABASE_DIR, 'VERSION')):
-		DB_VERSION				= open(os.path.join(Data.DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
-		CUR_DATABASE_DIR		= os.path.join(Data.DATABASE_DIR, DB_VERSION)
-		PICKLE_VERSION			= open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
-		OLD_DATABASE_PATH		= os.path.join(Data.DATABASE_DIR, 'old')
-		IDS_DIR					= os.path.join(CUR_DATABASE_DIR, 'ids')
-		REF_DIR					= os.path.join(CUR_DATABASE_DIR, 'databases')
-		GTDB_DIR				= os.path.join(CUR_DATABASE_DIR, 'gtdb')
-		PICKLE					= 'pickle'	
-		HMM_SUFFIX 				= '.hmm'
-		DMND_SUFFIX				= '.dmnd'
-		KO_DB_NAME				= 'uniref100'
-		PFAM_DB_NAME			= 'pfam'
-		TIGRFAM_DB_NAME			= 'tigrfam'
-		CAZY_DB_NAME			= 'cazy'
-		GTDB_DB_NAME			= 'GTDB_R80_DB'
+		DB_VERSION			= open(os.path.join(Data.DATABASE_DIR, 'VERSION')).readline().strip().replace('.tar.gz','')
+		CUR_DATABASE_DIR	= os.path.join(Data.DATABASE_DIR, DB_VERSION)
+		PICKLE_VERSION		= open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
+		OLD_DATABASE_PATH	= os.path.join(Data.DATABASE_DIR, 'old')
+		IDS_DIR				= os.path.join(CUR_DATABASE_DIR, 'ids')
+		REF_DIR				= os.path.join(CUR_DATABASE_DIR, 'databases')
+		GTDB_DIR			= os.path.join(CUR_DATABASE_DIR, 'gtdb')
+		PICKLE				= 'pickle'	
+		HMM_SUFFIX 			= '.hmm'
+		DMND_SUFFIX			= '.dmnd'
+		KO_DB_NAME			= 'uniref100.KO'
+		EC_DB_NAME			= 'uniref100.EC'
+		PFAM_DB_NAME		= 'pfam'
+		TIGRFAM_DB_NAME		= 'tigrfam'
+		CAZY_DB_NAME		= 'cazy'
+		GTDB_DB_NAME		= 'GTDB_R80_DB'
 		
-		GTDB_CAZY 				= os.path.join(GTDB_DIR, "gtdb_cazy.tsv")
-		GTDB_KO 				= os.path.join(GTDB_DIR, "gtdb_ko.tsv")
-		GTDB_PFAM 				= os.path.join(GTDB_DIR, "gtdb_pfam.tsv")
-		GTDB_TIGRFAM 			= os.path.join(GTDB_DIR, "gtdb_tigrfam.tsv")
+		GTDB_CAZY 			= os.path.join(GTDB_DIR, "gtdb_cazy.tsv")
+		GTDB_KO 			= os.path.join(GTDB_DIR, "gtdb_ko.tsv")
+		GTDB_PFAM 			= os.path.join(GTDB_DIR, "gtdb_pfam.tsv")
+		GTDB_TIGRFAM 		= os.path.join(GTDB_DIR, "gtdb_tigrfam.tsv")
 
-		TAXONOMY				= os.path.join(CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
-		M2DEF					= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
-		M						= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
-		COMPOUND_DESC_PICKLE	= os.path.join(CUR_DATABASE_DIR, 'br08001')    
-		R2K						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
-		R2C 					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
-		R2M						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
-		M2R						= os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
-		M2C						= os.path.join(CUR_DATABASE_DIR, 'module_to_cpd')
-		R2P						= os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
-		P2R						= os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
-		C2R						= os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
-		C						= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
-		R						= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
-		P						= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
-		K						= os.path.join(CUR_DATABASE_DIR, 'ko_descriptions')
+		TAXONOMY			= os.path.join(CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
+		M2DEF				= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
+		M					= os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
+		COMPOUND_DESC		= os.path.join(CUR_DATABASE_DIR, 'br08001')    
+		R2K					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
+		R2C 				= os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
+		R2M					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
+		M2R					= os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
+		M2C					= os.path.join(CUR_DATABASE_DIR, 'module_to_cpd')
+		R2P					= os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
+		P2R					= os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
+		C2R					= os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
+		C					= os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')    
+		R					= os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
+		P					= os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
+		K					= os.path.join(CUR_DATABASE_DIR, 'ko_descriptions')
 
-		PFAM2CLAN				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
-		CLAN2NAME				= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
-		PFAM2NAME				= os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
-		PFAM2DESCRIPTION		= os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
-		TIGRFAM2DESCRIPTION		= os.path.join(CUR_DATABASE_DIR, 'tigrfam_descriptions')
-		CLAN2PFAM				= os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
+		PFAM2CLAN			= os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
+		CLAN2NAME			= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
+		PFAM2NAME			= os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
+		PFAM2DESCRIPTION	= os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
+		TIGRFAM2DESCRIPTION= os.path.join(CUR_DATABASE_DIR, 'tigrfam_descriptions')
+		CLAN2PFAM			= os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
 
 	def __init__(self):
 
@@ -122,7 +124,7 @@ class Databases:
 		logging.debug("Loading ko descriptions")
 		self.k = self.load_pickle(self.K)
 		logging.debug("Loading compound classifications")
-		self.compound_desc_dict = self.load_pickle(self.COMPOUND_DESC_PICKLE)
+		self.compound_desc_dict = self.load_pickle(self.COMPOUND_DESC)
 		logging.debug("Loading pfam to clan information")
 		self.pfam2clan = self.load_pickle(self.PFAM2CLAN)
 		logging.debug("Loading clan descriptions")
@@ -140,6 +142,7 @@ class Databases:
 		self.taxonomy 		= self.parse_taxonomy(self.TAXONOMY)
 
 		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
+		self.EC_DB 			= os.path.join(self.REF_DIR, self.EC_DB_NAME + self.DMND_SUFFIX)
 		self.GTDB_DB		= os.path.join(self.REF_DIR, self.GTDB_DB_NAME)
 
 		self.PFAM_DB 		= os.path.join(self.REF_DIR, self.PFAM_DB_NAME + self.HMM_SUFFIX)
@@ -149,8 +152,10 @@ class Databases:
 
 
 	def load_pickle(self, file):
+
 		with open('.'.join([file, self.PICKLE_VERSION, self.PICKLE]), 'rb') as file_io:
 			loaded_pickle = pickle.load(file_io)
+
 		return loaded_pickle
 
 	def parse_taxonomy(self, taxonomy_path):

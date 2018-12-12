@@ -426,6 +426,7 @@ class Enrichment:
             combination_dict['_'.join(combination)] = genome_list
 
         annotation_type = self.check_annotation_type(modules)
+
         t = Test(annotations_dict,
                  modules,
                  genomes,
@@ -651,47 +652,47 @@ class Test(Enrichment):
             annotation_description = self.clan_to_description
         return iterator, annotation_description
 
+
+    def _count(self, annotation, group, freq):
+        
+        if freq:
+            group_true = list()
+        else:
+            group_true = 0
+        group_false = 0
+
+        for genome in self.groups[group]:
+            if annotation in self.genome_annotations[genome]:
+                passed=True
+                if freq:
+                    group_true.append(self.genome_annotations[genome][annotation])
+                else:
+                    group_true+=1
+            else:
+                if freq:
+                    group_true.append(0)
+                else:
+                    passed=True
+                    group_false+=1
+
+        return passed, group_true, group_false
+
     def gene_frequencies(self, group_1, group_2, freq=False):
 
         res_list    = list()
         annotations = set(chain(*self.genome_annotations.values()))
-        for annotation in annotations:
-            passed=False
-            if freq:
-                group_1_true = list()
-                group_2_true = list()
-            else:
-                group_1_true = 0
-                group_2_true = 0
-            group_1_false = 0
-            group_2_false = 0
 
-            for genome_1 in self.groups[group_1]:
-                if annotation in self.genome_annotations[genome_1]:
-                    passed=True
-                    if freq:
-                        group_1_true.append(self.genome_annotations[genome_1][annotation])
-                    else:
-                        group_1_true+=1
-                else:
-                    if freq:
-                        group_1_true.append(0)
-                    else:
-                        passed=True
-                        group_1_false+=1
-            for genome_2 in self.groups[group_2]:
-                if annotation in self.genome_annotations[genome_2]:
-                    passed=True
-                    if freq:
-                        group_2_true.append(self.genome_annotations[genome_2][annotation])
-                    else:
-                        group_2_true+=1
-                else:
-                    if freq:
-                        group_2_true.append(0)
-                    else:
-                        passed=True
-                        group_2_false+=1
+        for annotation in annotations:
+            passed = False
+            passed, group_1_true, group_1_false \
+                = self._count(annotation,
+                              group_1,
+                              freq)
+            passed, group_2_true, group_2_false \
+                = self._count(annotation,
+                              group_2,
+                              freq)
+            import IPython ; IPython.embed()
             if freq:
                 if(len([x for x in group_1_true if x!='0'])==0 and
                     len([x for x in group_2_true if x!='0'])==0 ):
@@ -699,6 +700,7 @@ class Test(Enrichment):
             else:
                 if(group_1_true==0 and group_2_true==0):
                     passed = False
+            
             if passed:
                 res_list.append([annotation, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
 
@@ -722,7 +724,10 @@ class Test(Enrichment):
         for line in output_lines:
             annotation = line[0]
             if desc:
-                line.append(desc[annotation])
+                if annotation in desc:
+                    line.append(desc[annotation])
+                else:
+                    line.append("NA")
             else:
                 line.append("NA")
         return output_lines
@@ -736,6 +741,7 @@ class Test(Enrichment):
             logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
             if enrichment_test == stats.fisher_exact:
                 logging.info('Testing gene enrichment using Fisher\'s exact test')
+                
                 gene_count = self.gene_frequencies(*combination)
                 output_lines = self.pool.map(gene_fisher_calc, gene_count)
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):

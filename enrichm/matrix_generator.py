@@ -38,6 +38,7 @@ from enrichm.databases import Databases
 class MatrixGenerator:
         
     KO      = 'KO_IDS.txt'
+    EC      = 'EC_IDS.txt'
     PFAM    = 'PFAM_IDS.txt'
     TIGRFAM = 'TIGRFAM_IDS.txt'
     CAZY = 'CAZY_IDS.txt'
@@ -55,12 +56,19 @@ class MatrixGenerator:
 
         if self.annotation_type == self.KO:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.KO))]
+        
+        elif self.annotation_type == self.EC:
+            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.EC))]
+        
         elif self.annotation_type == self.PFAM:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.PFAM))]
+        
         elif self.annotation_type == self.TIGRFAM:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.TIGRFAM))]
+        
         elif self.annotation_type == self.CAZY:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.CAZY))]
+        
         elif self.annotation_type == self.HYPOTHETICAL:
             self.annotation_list = clusters
 
@@ -84,9 +92,13 @@ class MatrixGenerator:
 
             for annotation in self.annotation_list:
                 output_line = [annotation]
+
                 for genome in genomes_list:
+                
                     if annotation in genome_annotations[genome.name]:
                         output_line.append(str(genome_annotations[genome.name][annotation]))
+                
                     else:
                         output_line.append('0')
+                
                 out_io.write( '\t'.join(output_line) + '\n' )
