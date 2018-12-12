@@ -459,7 +459,9 @@ class Enrichment:
 
         if annotation_type==self.KEGG:
             logging.info('Finding module completeness in differentially abundant KOs')
+            
             for result_file in os.listdir(output_directory):
+            
                 if(result_file.endswith("fisher.tsv") or result_file.endswith("cdf.tsv")):
                     p.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
                     
@@ -657,38 +659,44 @@ class Test(Enrichment):
         
         if freq:
             group_true = list()
+
         else:
             group_true = 0
+        
         group_false = 0
 
         for genome in self.groups[group]:
+        
             if annotation in self.genome_annotations[genome]:
-                passed=True
+        
                 if freq:
                     group_true.append(self.genome_annotations[genome][annotation])
+        
                 else:
                     group_true+=1
+        
             else:
+        
                 if freq:
                     group_true.append(0)
+
                 else:
-                    passed=True
                     group_false+=1
 
-        return passed, group_true, group_false
-
+        return group_true, group_false
+        
     def gene_frequencies(self, group_1, group_2, freq=False):
 
         res_list    = list()
         annotations = set(chain(*self.genome_annotations.values()))
 
         for annotation in annotations:
-            passed = False
-            passed, group_1_true, group_1_false \
+            passed = True
+            group_1_true, group_1_false \
                 = self._count(annotation,
                               group_1,
                               freq)
-            passed, group_2_true, group_2_false \
+            group_2_true, group_2_false \
                 = self._count(annotation,
                               group_2,
                               freq)

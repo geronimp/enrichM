@@ -49,7 +49,6 @@ class Plot:
 		
 		cmd = "Rscript %s -i %s -m %s -o %s > /dev/null 2>&1" \
 			% (self.draw_pca_script_path, annotation_matrix, metadata, output_path)
-
 		subprocess.call(cmd, shell=True)
 
 	def draw_barplots(self, annotation_matrix, pvalue, output_directory):
