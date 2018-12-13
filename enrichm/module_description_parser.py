@@ -36,6 +36,7 @@ PL = '(PL\d+)'
 TIGRFAM = '(TIGR\d+)'
 PFAM = '(PF\d+)'
 CE = '(CE\d+)'
+EC = '\\d{1,2}(\\.(\\-|\\d{1,2})){3}'
 
 class ModuleDescription:
 
@@ -62,6 +63,7 @@ class ModuleDescription:
         r_tigrfam = re.compile(TIGRFAM)
         r_pfam = re.compile(PFAM)
         r_ce = re.compile(CE)
+        r_ec = re.compile(EC)
         
         if any(r_kegg):
             return r_kegg
@@ -75,6 +77,8 @@ class ModuleDescription:
             return r_pfam
         elif any(r_ce):
             return r_ce
+        elif any(r_ec):
+            return r_ec
 
     def num_steps(self):
         if isinstance(self.parsed_module, ModuleDescriptionAndRelation):
@@ -202,7 +206,8 @@ class ModuleDescriptionParser:
                         re.match(PL, e) or
                         re.match(CE, e) or
                         re.match(TIGRFAM, e) or
-                        re.match(PFAM, e)):
+                        re.match(PFAM, e) or
+                        re.match(EC, e)):
 
                         new_stuff.append(ModuleDescriptionKoEntry(e))
                     else:
