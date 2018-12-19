@@ -102,7 +102,6 @@ class Run:
                         'R': "https://www.r-project.org",
                         'parallel': "https://www.gnu.org/software/parallel",
                         'prodigal': "https://github.com/hyattpd/Prodigal/wiki/installation",
-                        'seqmagick': "https://fhcrc.github.io/seqmagick",
                         'mmseqs': "https://github.com/soedinglab/MMseqs2"}
         
         missing_dependencies = list()
