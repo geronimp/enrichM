@@ -343,7 +343,9 @@ class Enrichment:
             srow = row.strip().split()
             annotation = srow[0]
             for genome, index in zip(genomes, indexes):
-                output_dict[genome][annotation] = int(srow[index])
+                count = int(srow[index])
+                if count > 0:
+                    output_dict[genome][annotation] = int(srow[index])
 
         return output_dict, genomes
 
@@ -656,7 +658,6 @@ class Test(Enrichment):
 
 
     def _count(self, annotation, group, freq):
-        
         if freq:
             group_true = list()
 
