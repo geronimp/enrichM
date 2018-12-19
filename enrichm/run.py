@@ -306,7 +306,6 @@ class Run:
         Output
         ------
         '''
-
         self._check_general(args)
         self._logging_setup(args)
 
