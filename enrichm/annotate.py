@@ -363,7 +363,7 @@ class Annotate:
             clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
             
             logging.info('    - Generating MMSeqs2 database')
-            cmd = "bash %s | seqmagick convert - - | mmseqs createdb /dev/stdin %s -v 0 " % (temp.name, db_path)
+            cmd = "bash %s | sponge | mmseqs createdb /dev/stdin %s -v 0 " % (temp.name, db_path)
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
             logging.debug('Finished')
@@ -656,7 +656,6 @@ class Annotate:
         logging.info("Setting up for genome annotation")
         
         genomes_list = self.parse_genome_inputs(genome_directory, protein_directory, genome_files, protein_files)
-        
         if len(genomes_list)==0:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
                                         %  (self.suffix))
