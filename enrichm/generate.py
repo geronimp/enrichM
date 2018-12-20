@@ -150,7 +150,7 @@ class GenerateModel():
         # Print out the feature and importances 
         logging.info('%i attributes found with an importance > 0' % (len([x for x in feature_importances if x[1]>0])))
         logging.info('Writing attribute importances')
-        with open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES), 'w') as out_io:
+        with open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES), 'wb') as out_io:
             out_io.write('\t'.join(['Variable', 'Importance']) + '\n')
             for pair in feature_importances:
                 var, imp = pair
