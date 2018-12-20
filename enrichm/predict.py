@@ -55,10 +55,10 @@ class Predict():
 		'''
 		output_path = os.path.join(output_directory, self.PREDICTIONS_OUTPUT_PATH)
 		logging.info('Writing predictions to output %s' % (output_path))
-		with open(output_path, 'w') as out_io:
-			out_io.write('\t'.join(["Sample", "Prediction", "Probability"]) + '\n')
+		with open(output_path, 'wb') as out_io:
+			out_io.write(str.encode('\t'.join(["Sample", "Prediction", "Probability"]) + '\n'))
 			for line in output_lines:
-				out_io.write(line + '\n')
+				out_io.write(str.encode(line + '\n'))
 
 	def _make_predictions(self, model, sample_list, content_list, attribute_dictionary):
 		'''		
@@ -96,7 +96,7 @@ class Predict():
 		for content in contents:
 			content_path = os.path.join(forester_model_directory, content)
 			if content in output_dictionary:
-				output_dictionary[content] = pickle.load(open(content_path))
+				output_dictionary[content] = pickle.load(open(content_path, 'rb'))
 
 		if None in list(output_dictionary.values()):
 			raise Exception("Malformatted forester model directory: %s" % (forester_model_directory))

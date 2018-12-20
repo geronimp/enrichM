@@ -151,10 +151,10 @@ class GenerateModel():
         logging.info('%i attributes found with an importance > 0' % (len([x for x in feature_importances if x[1]>0])))
         logging.info('Writing attribute importances')
         with open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES), 'wb') as out_io:
-            out_io.write('\t'.join(['Variable', 'Importance']) + '\n')
+            out_io.write(str.encode('\t'.join(['Variable', 'Importance']) + '\n'))
             for pair in feature_importances:
                 var, imp = pair
-                out_io.write('\t'.join([str(var), str(imp)]) + '\n')
+                out_io.write(str.encode('\t'.join([str(var), str(imp)]) + '\n'))
     
     def transpose(self, labels, features, attribute_list):
         '''
@@ -344,7 +344,7 @@ class GenerateModel():
         self._write_importances(rf, attribute_list, output_directory)
 
         logging.info("Preserving model")
-        pickle.dump(rf, open(os.path.join(output_directory, self.MODEL_PICKLE) , 'w'))
+        pickle.dump(rf, open(os.path.join(output_directory, self.MODEL_PICKLE) , 'wb'))
 
         logging.info("Preserving group labels")
-        pickle.dump(labels_dict, open(os.path.join(output_directory, self.LABELS_DICT) , 'w'))
+        pickle.dump(labels_dict, open(os.path.join(output_directory, self.LABELS_DICT) , 'wb'))
