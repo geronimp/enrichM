@@ -194,7 +194,7 @@ class Run:
         ------
         '''
         ### ~ TODO: Check Multi test correction inputs...
-        types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy]
+        types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy, args.ec]
         
         if not any(types):
             
@@ -378,6 +378,7 @@ class Run:
                  args.tigrfam,
                  args.hypothetical,
                  args.cazy,
+                 args.ec,
                  # Outputs
                  args.output)
 
