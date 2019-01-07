@@ -247,6 +247,8 @@ if __name__ == "__main__":
                 help='Compare hypothetical ids')
     enrichment_runtime_options.add_argument('--cazy', action='store_true',
                 help='Compare dbCAN ids')
+    enrichment_runtime_options.add_argument('--ec', action='store_true',
+                help='Compare EC ids')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Connect

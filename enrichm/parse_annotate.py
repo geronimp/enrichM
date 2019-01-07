@@ -74,6 +74,11 @@ class ParseAnnotate:
 			self.cazy = cazy
 		else:
 			self.cazy = None
+		ec = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_EC)
+		if os.path.isfile(ec):
+			self.ec = ec
+		else:
+			self.ec = None
 		hypothetical_cluster = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_HYPOTHETICAL_CLUSTER)
 		if os.path.isfile(hypothetical_cluster):
 			self.hypothetical_cluster = hypothetical_cluster

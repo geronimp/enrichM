@@ -59,6 +59,7 @@ class Databases:
 		GTDB_KO 			= os.path.join(GTDB_DIR, "gtdb_ko.tsv")
 		GTDB_PFAM 			= os.path.join(GTDB_DIR, "gtdb_pfam.tsv")
 		GTDB_TIGRFAM 		= os.path.join(GTDB_DIR, "gtdb_tigrfam.tsv")
+		GTDB_EC 			= os.path.join(GTDB_DIR, "gtdb_ec.tsv")
 
 		TAXONOMY			= os.path.join(CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
 		M2DEF				= os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
@@ -81,6 +82,7 @@ class Databases:
 		CLAN2NAME			= os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
 		PFAM2NAME			= os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
 		PFAM2DESCRIPTION	= os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
+		EC2DESCRIPTION	= os.path.join(CUR_DATABASE_DIR, 'ec_to_description')
 		TIGRFAM2DESCRIPTION= os.path.join(CUR_DATABASE_DIR, 'tigrfam_descriptions')
 		CLAN2PFAM			= os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
 
@@ -133,6 +135,8 @@ class Databases:
 		self.pfam2name = self.load_pickle(self.PFAM2NAME)
 		logging.debug("Loading pfam descriptions")
 		self.pfam2description = self.load_pickle(self.PFAM2DESCRIPTION)
+		logging.debug("Loading ec descriptions")
+		self.ec2description = self.load_pickle(self.EC2DESCRIPTION)
 		logging.debug("Loading pfam hierarchy")
 		self.clan2pfam = self.load_pickle(self.CLAN2PFAM)
 		logging.debug("Loading tigrfam descriptions")

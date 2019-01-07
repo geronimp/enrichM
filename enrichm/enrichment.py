@@ -129,12 +129,14 @@ class Enrichment:
     PFAM                    = "pfam"
     KEGG                    = "kegg"
     CAZY                    = "cazy"
+    EC                      = "ec"
     def __init__(self):
 
         self.TIGRFAM_PREFIX          = 'TIGR'
         self.PFAM_PREFIX             = 'PF'
         self.KEGG_PREFIX             = 'K'
         self.CAZY_PREFIX             = ["GH", "AA", "GT","PL","CE","CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
+        self.EC_PREFIX             = ["1", "2", "3","4","5","6", "7"]
         self.PROPORTIONS             = 'proportions.tsv'
         self.MODULE_COMPLETENESS     = 'modules.tsv'
         self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
@@ -228,6 +230,8 @@ class Enrichment:
             return self.PFAM
         elif cazy_prefix in self.CAZY_PREFIX:
             return self.CAZY
+        elif sample.split('.')[0] in self.EC_PREFIX:
+            return self.EC
     def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
         '''
         Calculates the portions of genome
@@ -354,7 +358,7 @@ class Enrichment:
            # Runtime options
            genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
            threshold, multi_test_correction, batchfile, processes,
-           ko, pfam, tigrfam, hypothetical, cazy,
+           ko, pfam, tigrfam, hypothetical, cazy, ec,
            # Output options
            output_directory):
 
@@ -386,6 +390,9 @@ class Enrichment:
         elif cazy:
             annotation_matrix = pa.cazy
             gtdb_annotation_matrix = d.GTDB_CAZY
+        elif ec:
+            annotation_matrix = pa.ec
+            gtdb_annotation_matrix = d.GTDB_EC
         
         annotations_dict, modules, genomes \
                     = self._parse_annotation_matrix(annotation_matrix)
@@ -568,7 +575,8 @@ class Test(Enrichment):
         self.k                      = d.k
         self.modules                = modules
         self.tigrfamdescription     = d.tigrfamdescription
-        self.pfam2description     = d.pfam2description
+        self.pfam2description       = d.pfam2description
+        self.ec2description       = d.ec2description
         self.genomes                = genomes
         self.annotation_type        = annotation_type
         self.groups                 = groups
@@ -729,16 +737,23 @@ class Test(Enrichment):
             desc = self.tigrfamdescription
         if self.annotation_type == Enrichment.PFAM:
             desc = self.pfam2description
+        if self.annotation_type == Enrichment.EC:
+            desc = self.ec2description
 
         for line in output_lines:
             annotation = line[0]
+            
             if desc:
+            
                 if annotation in desc:
                     line.append(desc[annotation])
+            
                 else:
                     line.append("NA")
+            
             else:
                 line.append("NA")
+        
         return output_lines
 
     def do(self, group_dict):
