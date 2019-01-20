@@ -30,17 +30,15 @@ __status__ = "Development"
 import re
 ###############################################################################
 
-KEGG = '(K\d+)'
-GH = '(GH\d+)'
-PL = '(PL\d+)'
-TIGRFAM = '(TIGR\d+)'
-PFAM = '(PF\d+)'
-CE = '(CE\d+)'
+KEGG = '(K\d{5})$'
+GH = '(GH\d{5})$'
+PL = '(PL\d{5})$'
+TIGRFAM = '(TIGR\d{5})$'
+PFAM = '(PF\d{5})$'
+CE = '(CE\d{5})$'
 EC = '\\d{1,2}(\\.(\\-|\\d{1,2})){3}'
 
 class ModuleDescription:
-
-
 
     def __init__(self, module_description_string):
         self.module_description_string = module_description_string
@@ -65,20 +63,20 @@ class ModuleDescription:
         r_ce = re.compile(CE)
         r_ec = re.compile(EC)
         
-        if any(r_kegg):
-            return r_kegg
-        elif any(r_gh):
-            return r_gh
-        elif any(r_pl):
-            return r_pl
-        elif any(r_tigrfam):
-            return r_tigrfam
-        elif any(r_pfam):
-            return r_pfam
-        elif any(r_ce):
-            return r_ce
-        elif any(r_ec):
-            return r_ec
+        if any(r_kegg.findall(self.module_description_string)):
+            return r_kegg.findall(self.module_description_string)
+        elif any(r_gh.findall(self.module_description_string)):
+            return r_gh.findall(self.module_description_string)
+        elif any(r_pl.findall(self.module_description_string)):
+            return r_pl.findall(self.module_description_string)
+        elif any(r_tigrfam.findall(self.module_description_string)):
+            return r_tigrfam.findall(self.module_description_string)
+        elif any(r_pfam.findall(self.module_description_string)):
+            return r_pfam.findall(self.module_description_string)
+        elif any(r_ce.findall(self.module_description_string)):
+            return r_ce.findall(self.module_description_string)
+        elif any(r_ec.findall(self.module_description_string)):
+            return r_ec.findall(self.module_description_string)
 
     def num_steps(self):
         if isinstance(self.parsed_module, ModuleDescriptionAndRelation):
@@ -91,9 +89,9 @@ class ModuleDescription:
             step_cov = 0
             path_cov = 0 
             reac_cov = 0
-            ko_path  = {}
+            ko_path  = dict()
             for idx, m in enumerate(self.parsed_module.relations):
-                step_passed, step_counts, reaction_counts, ko = m.satisfied_with(ko_set, [])
+                step_passed, step_counts, reaction_counts, ko = m.satisfied_with(ko_set, list())
                 if step_passed:
                     step_cov+=1
                     path_cov+=step_counts
@@ -110,7 +108,7 @@ class ModuleDescriptionAndRelation:
         counts          = 0
         step_passed     = False
         reaction_counts = 0
-        founds          = []
+        founds          = list()
         for r in self.relations:
             found, count, reaction_count, ko = r.satisfied_with(set_of_kos, kos)
             if found:
@@ -162,7 +160,7 @@ class ParserHelper: pass
 class ModuleDescriptionParser:
     
     def correct_substrings(self, substring_list):
-        fixed_substrings = []
+        fixed_substrings = list()
         for substring in substring_list:
             # Omit optional enzyme (e.g. M00372) 
             # or undefined KO group (e.g. M00079)
@@ -177,19 +175,19 @@ class ModuleDescriptionParser:
 
         frags1 = self.split_on_space(string)
         frags1 = self.correct_substrings(frags1) 
-        if len(frags1) == 1:
-            # rare if ever, I think eg M00276
-            if len(self.split_on_comma(frags1[0]))>1:
-                frags1=self.split_on_comma(frags1[0])
-                master_relation = ModuleDescriptionOrRelation()
-            elif len(self.split_on_plus(frags1[0]))>1:
-                frags1=self.split_on_plus(frags1[0])
-                master_relation = ModuleDescriptionAndRelation() 
-            else:
-                frags1=self.split_on_comma(frags1[0])
-                master_relation = ModuleDescriptionOrRelation()
-        else:
-            master_relation = ModuleDescriptionAndRelation()
+        #if len(frags1) == 1:
+        #    # rare if ever, I think eg M00276
+        #    if len(self.split_on_comma(frags1[0]))>1:
+        #        frags1=self.split_on_comma(frags1[0])
+        #        master_relation = ModuleDescriptionOrRelation()
+        #    elif len(self.split_on_plus(frags1[0]))>1:
+        #        frags1=self.split_on_plus(frags1[0])
+        #        master_relation = ModuleDescriptionAndRelation() 
+        #    else:
+        #        frags1=self.split_on_comma(frags1[0])
+        #        master_relation = ModuleDescriptionOrRelation()
+        #else:
+        master_relation = ModuleDescriptionAndRelation()
             
         current = ParserHelper()
         current.top_relation = master_relation
@@ -197,10 +195,11 @@ class ModuleDescriptionParser:
         stack = list([current])
         while len(stack) > 0:
             current = stack.pop()
-            new_stuff = []
+            new_stuff = list()
             for e in current.understuff:
                 if isinstance(e, str):
                     
+
                     if (re.match(KEGG, e) or 
                         re.match(GH, e) or
                         re.match(PL, e) or
@@ -230,14 +229,12 @@ class ModuleDescriptionParser:
                                 else:
                                     raise Exception("Parse exception on %s" % string)
                             else:
-                                #m = ModuleDescriptionOrRelation()
                                 m = ModuleDescriptionAndRelation()
                                 topush.understuff = comma_splits
                             topush.top_relation = m
                             stack.append(topush)
                             new_stuff.append(m)
                         else:
-                            #m = ModuleDescriptionAndRelation()                            
                             m = ModuleDescriptionOrRelation()
                             topush = ParserHelper()
                             topush.top_relation = m
@@ -252,8 +249,8 @@ class ModuleDescriptionParser:
 
     def split_on(self, string, characters):
         bracket_counter = 0
-        fragments = []
-        current = []
+        fragments = list()
+        current = list()
         remove_end_brackets = True
         for i in range(len(string)):
             c = string[i]

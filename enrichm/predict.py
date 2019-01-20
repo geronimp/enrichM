@@ -38,11 +38,13 @@ from enrichm.generate import GenerateModel
 
 
 class Predict():
+
 	def __init__(self):
 		self.PREDICTIONS_OUTPUT_PATH = 'predictions.tsv'
 
 		self.LABELS_DICT = "labels_dict.pickle"
 		self.RF_MODEL = "rf_model.pickle"
+		self.ATTRIBUTE_LIST = "attribute_list.txt"
 
 	def _write_predictions(self, output_lines, output_directory):
 		'''		
@@ -88,7 +90,8 @@ class Predict():
 
 		output_dictionary = {
 			self.LABELS_DICT: None,
-			self.RF_MODEL: None
+			self.RF_MODEL: None,
+			self.ATTRIBUTE_LIST:None
 		}
 
 		contents = os.listdir(forester_model_directory)
@@ -96,7 +99,10 @@ class Predict():
 		for content in contents:
 			content_path = os.path.join(forester_model_directory, content)
 			if content in output_dictionary:
-				output_dictionary[content] = pickle.load(open(content_path, 'rb'))
+				if content.endswith("pickle"):
+					output_dictionary[content] = pickle.load(open(content_path, 'rb'))
+				else:
+					output_dictionary[content] = [x.strip() for x in open(content_path)]
 
 		if None in list(output_dictionary.values()):
 			raise Exception("Malformatted forester model directory: %s" % (forester_model_directory))
@@ -125,13 +131,15 @@ class Predict():
 		
 		sample_list = list()
 		content_list = list()
-
 		for sample, content in features.items():
 			sample_list.append(sample)
 			sample_content = []
-			for attribute in attribute_list:
-				sample_content.append(content[attribute])
-
+			for attribute in forester_model['attribute_list.txt']:
+				if attribute in content:
+					sample_content.append(content[attribute])
+				else:	
+					sample_content.append('0')
+					
 			content_list.append(sample_content)
 
 		logging.info('Making predictions')
