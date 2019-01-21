@@ -92,7 +92,6 @@ class ModuleDescription:
 
             for idx, m in enumerate(self.parsed_module.relations):
                 step_passed, step_counts, reaction_counts, ko = m.satisfied_with(ko_set, list())
-            
                 if step_passed:
                     step_cov+=1
                     path_cov+=step_counts
@@ -131,6 +130,8 @@ class ModuleDescriptionAndRelation:
         
         return step_passed, counts, reaction_counts, kos
 
+class ModuleDescriptionPlusRelation(ModuleDescriptionAndRelation): pass
+
 class ModuleDescriptionOrRelation:
     def satisfied_with(self, set_of_kos, kos):
 
@@ -151,8 +152,6 @@ class ModuleDescriptionOrRelation:
                         kos.remove(k)
             reaction_counts+=reaction_count
         return step_passed, counts, reaction_counts, kos
-
-class ModuleDescriptionPlusRelation(ModuleDescriptionAndRelation): pass
 
 class ModuleDescriptionKoEntry:
     def __init__(self, ko):
@@ -187,7 +186,6 @@ class ModuleDescriptionParser:
         is_single_step = len(frags1) == 1
 
         if is_single_step:
-            # rare if ever, I think eg M00276
             if len(self.split_on_comma(frags1[0]))>1:
                 frags1=self.split_on_comma(frags1[0])
                 master_relation = ModuleDescriptionOrRelation()
