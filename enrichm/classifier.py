@@ -132,23 +132,38 @@ class Classify:
         genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"]) + '\n']
 
         for name, pathway_string in self.m2def.items():
+        
             if name not in self.signature_modules:   
-                
                 path = ModuleDescription(pathway_string)
-
                 pathway[name] = path
-                for genome, annotations in genome_to_annotation_sets.items():
-                    
+
+                for genome, annotations in genome_to_annotation_sets.items():    
                     num_covered, ko_covered, ko_total, ko_path = path.num_covered_steps(annotations)
                     num_all         = path.num_steps()
                     perc_covered    = num_covered / float(num_all)
                     ko_perc         = ko_covered / float(ko_total)
 
                     if perc_covered >= cutoff:
+                        
+                        if path.is_single_step:
+                        
+                            if perc_covered!=1:
+
+                                if cutoff < 1:
+                                    num_all = 1
+                                    num_covered = 0
+
+                                else:
+                                    continue
+                            
+                            else:
+                                num_all = 1
+                                num_covered = 1
+
                         genome_output_lines.append('\t'.join([genome, name, self.m[name], 
                                                               ','.join(chain(*ko_path.values())) + '\n']))
                         output_line = "\t".join([genome, name, self.m[name],
-                                                  str(num_covered),   
+                                                  str(num_covered), 
                                                   str(num_all),
                                                   str(round(perc_covered * 100, 2))
                                                   # str(ko_covered),
