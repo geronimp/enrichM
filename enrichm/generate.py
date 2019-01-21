@@ -55,6 +55,7 @@ class GenerateModel():
 
         # Output file names
         self.ATTRIBUTE_IMPORTANCES = 'attribute_importances.tsv'
+        self.ATTRIBUTE_LIST = "attribute_list.txt"
         self.MODEL_PICKLE = "rf_model.pickle"
         self.LABELS_DICT = "labels_dict.pickle"
     
@@ -131,7 +132,10 @@ class GenerateModel():
         output_dictionary = {item:key for key, item in output_dictionary.items()}
         return output_dictionary, output_list
 
-
+    def _write_attribute_list(self, attribute_list, output_directory):
+        with open(os.path.join(output_directory, self.ATTRIBUTE_LIST), 'wb') as out_io:
+            out_io.write(str.encode('\n'.join(attribute_list)))
+    
     def _write_importances(self, model, attribute_list, output_directory):
         '''
         
@@ -342,6 +346,8 @@ class GenerateModel():
         accuracy = (sum(correctness)/float(len(correctness)))*100
         logging.info('\t\tAccuracy: %f%%' % (round(accuracy, 2)))
         self._write_importances(rf, attribute_list, output_directory)
+
+        self._write_attribute_list(attribute_list, output_directory)
 
         logging.info("Preserving model")
         pickle.dump(rf, open(os.path.join(output_directory, self.MODEL_PICKLE) , 'wb'))
