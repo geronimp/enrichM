@@ -150,7 +150,7 @@ class KeggMatrix:
                         logging.debug("ID not found in input matrix: %s" % ko)
         
                 if any(abundances):
-                    abundance_mean = sum(abundances)/len(abundances)# sum of the abundances...
+                    abundance_mean = sum(abundances)/len(abundances) # average of the abundances...
         
                 else:
                     abundance_mean = 0

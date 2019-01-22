@@ -404,6 +404,7 @@ class Run:
                   args.abundance,
                   args.abundance_metadata,
                   args.metabolome,
+                  args.enrichment_output,
                   args.depth,
                   args.filter,
                   args.limit,

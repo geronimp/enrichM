@@ -135,7 +135,44 @@ class NetworkAnalyser:
 
         return new_dict
 
-    def do(self, matrix, transcriptome, abundance, abundance_metadata, metabolome, depth, filter, limit, queries, 
+    def _parse_enrichment_output(self, enrichment_output):
+        fisher_results = dict()
+        for file in os.listdir( enrichment_output ):
+
+            if file.endswith("fisher.tsv"):
+                file = os.path.join(enrichment_output, file)
+                file_io = open(file)
+                header = file_io.readline()
+
+                for line in file_io:
+                    split_line = line.strip().split('\t')
+                     
+                    if len(fisher_results) == 0:
+                        fisher_results[split_line[1]] = list()
+                        fisher_results[split_line[2]] = list()
+                    if float(split_line[-2])<0.05:
+                        g1_t = float(split_line[3])
+                        g1_f = float(split_line[4])
+                        g2_t = float(split_line[5])
+                        g2_f = float(split_line[6])
+
+                        if g1_t == 0:
+                            fisher_results[split_line[2]].append( split_line[0] )
+                        elif g2_t == 0:
+                            fisher_results[split_line[1]].append( split_line[0] )                        
+                        elif ( ((g1_t/(g1_t+g1_f))) / ((g2_t/(g2_t+g2_f))) )>1:
+                            fisher_results[split_line[1]].append( split_line[0] )
+                        else:
+                            fisher_results[split_line[2]].append( split_line[0] )
+
+                
+        if len(fisher_results.keys())>0:
+            return fisher_results
+        
+        else:
+            raise Exception("Malformatted enrichment output: %s" % enrichment_output)
+
+    def do(self, matrix, transcriptome, abundance, abundance_metadata, metabolome, enrichment_output, depth, filter, limit, queries, 
            subparser_name, starting_compounds, steps, number_of_queries, output_directory):
         '''
         Parameters
@@ -151,30 +188,41 @@ class NetworkAnalyser:
         output_directory
 
         '''
-
-        nb = NetworkBuilder(self.metadata.keys())
         km = KeggMatrix(matrix, transcriptome)
+        nb = NetworkBuilder(self.metadata.keys())
+        
+        if enrichment_output:
+            fisher_results = self._parse_enrichment_output(enrichment_output)
+        else:
+            fisher_results = None    
 
         if abundance:
             sample_abundance = km._parse_matrix(abundance)
             sample_metadata = list(km._parse_matrix(abundance_metadata).values())[0]
             d = dict()
+            
             for key, item in sample_metadata.items():
+                
                 if item not in d:
-                    d[item] = []
+                    d[item] = list()
+                
                 d[item].append(key)
+            
             sample_metadata = d
+        
         else:
             sample_abundance = {'MOCK': {x:1 for x in list(km.reaction_matrix.keys())} }
             sample_metadata = {"a": ['MOCK'] }
         
         if transcriptome:
             normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, km.reaction_matrix_transcriptome, self.metadata)
+        
         else:
             normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, km.reaction_matrix, self.metadata)
 
         if metabolome:
             abundances_metabolome = km._parse_matrix(metabolome)
+        
         else:
             abundances_metabolome = None
 
@@ -209,6 +257,7 @@ class NetworkAnalyser:
             network_lines, node_metadata = \
                             nb.pathway_matrix(normalised_abundances, 
                                               abundances_metabolome,
+                                              fisher_results,
                                               limit,
                                               filter)
 

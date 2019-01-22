@@ -60,7 +60,7 @@ class NetworkBuilder:
         self.metadata_keys \
                         = list(metadata_keys)
         self.matrix_header \
-                        = ["compound", "reaction"] 
+                        = ["compound", "reaction", 'type'] 
         self.transcriptome_header \
                         = [key + '_reaction_transcriptome' 
                            for key in self.metadata_keys] + \
@@ -184,6 +184,7 @@ class NetworkBuilder:
     def all_matrix(self, 
                    abundances, 
                    abundances_metabolome,
+                   fisher_results,
                    reference_dict):
         '''
         Parameters
@@ -206,10 +207,13 @@ class NetworkBuilder:
             for compound in entry:
                 
                 if reaction in seen_reactions:
+
+
                     reaction_line = [compound, reaction]
                     
                     for key in self.metadata_keys:
 
+                        import IPython ; IPython.embed()
                         for group, group_abundances in abundances.items():
 
                             if reaction in group_abundances[key]:
@@ -409,6 +413,7 @@ class NetworkBuilder:
     def pathway_matrix(self,
                        abundances_metagenome,
                        abundances_metabolome,
+                       fisher_results,
                        limit,
                        filter):
 
@@ -441,6 +446,7 @@ class NetworkBuilder:
         network_lines, node_metadata_lines = \
             self.all_matrix(abundances_metagenome, 
                             abundances_metabolome,
+                            fisher_results,
                             possible_reactions)
         
         return network_lines, node_metadata_lines

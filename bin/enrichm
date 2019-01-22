@@ -284,6 +284,9 @@ if __name__ == "__main__":
                 help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
     pathway_pathway_options.add_argument('--filter', default=list(), nargs='+',
                 help='Do not use these reactions, or reactions within this pathway or module (space separated list).')    
+    pathway_pathway_options.add_argument('--enrichment_output',
+                help='Supply an enrichment output to integrate the results into the output network.')    
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Explore

@@ -143,6 +143,14 @@ class Databases:
 		self.tigrfamdescription = self.load_pickle(self.TIGRFAM2DESCRIPTION)
 		logging.info("Loading reference db paths")		
 
+
+		self.k2r = dict()
+		for reaction, kos in self.r2k.items():
+			for ko in kos:
+				if ko not in self.k2r:
+					self.k2r[ko] = list()
+				self.k2r[ko].append(reaction)
+
 		self.taxonomy 		= self.parse_taxonomy(self.TAXONOMY)
 
 		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
