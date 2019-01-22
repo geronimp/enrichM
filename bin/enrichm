@@ -106,8 +106,12 @@ if __name__ == "__main__":
                 help='KO matrix. REQUIRED.')
     base_input_options.add_argument('--transcriptome',
                 help='Transcriptome KO matrix.')
+    base_input_options.add_argument('--abundance',
+                help='Abundance matrix.')
+    base_input_options.add_argument('--abundance_metadata',
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--metabolome',
-                help='Metabolome CID matrix. (NOT IMPLEMENTED)')
+                help='Metabolome CID matrix.')
     base_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -249,6 +253,7 @@ if __name__ == "__main__":
                 help='Compare dbCAN ids')
     enrichment_runtime_options.add_argument('--ec', action='store_true',
                 help='Compare EC ids')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Connect
@@ -275,22 +280,10 @@ if __name__ == "__main__":
     pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
     pathway_pathway_options = pathway.add_argument_group('Pathway options')
-    pathway_pathway_options.add_argument('--limit', default=[], nargs='+',
+    pathway_pathway_options.add_argument('--limit', default=list(), nargs='+',
                 help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
-    pathway_pathway_options.add_argument('--filter', default=[], nargs='+',
-                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
-    pathway_pathway_options.add_argument('--from_node',  help='Find path from this node to the node specified to --to_node. UNDER DEVELOPMENT.')
-    pathway_pathway_options.add_argument('--to_node',
-                help='Find path to this node from the node specified to --from_node. UNDER DEVELOPMENT.')
-    pathway_pathway_options.add_argument('--bfs_shortest_path', action='store_true',
-                help="Find shortest path using a breadth first search (BFS) instead of the default weighted dijkstra's algorithm. UNDER DEVELOPMENT.")
-    
-    pathway_directionality_options = pathway.add_argument_group('Directionality options')
-    pathway_directionality_options.add_argument('--catabolic', action='store_true',
-                help='Find degradation pathway. NOT IMPLEMENTED.')
-    pathway_directionality_options.add_argument('--anabolic', action='store_true',
-                help='Find assimilation pathway. NOT IMPLEMENTED.')
-
+    pathway_pathway_options.add_argument('--filter', default=list(), nargs='+',
+                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')    
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Explore
@@ -323,7 +316,7 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    
+
     generate = subparsers.add_parser('generate', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     generate_input_options = generate.add_argument_group('Generate options')
@@ -344,7 +337,7 @@ if __name__ == "__main__":
     predict_input_options = predict.add_argument_group('Predict options')
     predict_input_options.add_argument('--forester_model_directory', required = True, help = 'Pickled model to use')
     predict_input_options.add_argument('--input_matrix', required = True, help = 'matrix of data to predict')
-    
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 

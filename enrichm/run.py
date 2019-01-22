@@ -238,7 +238,10 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        
+        if any(args.abundance or args.abundance_metadata):
+            if not (args.abundance and args.abundance_metadata):
+                raise Exception("Both abundance and abundance metadata need to be specified")
+
         if args.subparser_name==NetworkAnalyser.PATHWAY:
             args.depth              = None
             args.queries            = None
@@ -398,6 +401,8 @@ class Run:
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,
                   args.transcriptome,
+                  args.abundance,
+                  args.abundance_metadata,
                   args.metabolome,
                   args.depth,
                   args.filter,
