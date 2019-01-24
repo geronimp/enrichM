@@ -184,6 +184,8 @@ if __name__ == "__main__":
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
     annotate_runtime_options.add_argument('--light', action='store_true',
                 help="Don't store metadata for genome files (can't use enrichM compare downstream, default=False)")
+    annotate_runtime_options.add_argument('--count_domains', action='store_true',
+                help="Fill the frequency matrix with the total number of times an annotation was detected (for example, when one domain more than once within a protein), rather than the count of proteins with with that annotation")
     annotate_runtime_options.add_argument('--chunk_number', type = float, default = 4,
                 help='Split loading of genomes into this many chunks (default = 4)')
     annotate_runtime_options.add_argument('--chunk_max', type = float, default = 2500,

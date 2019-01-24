@@ -238,7 +238,8 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        if any(args.abundance or args.abundance_metadata):
+
+        if any([args.abundance, args.abundance_metadata]):
             if not (args.abundance and args.abundance_metadata):
                 raise Exception("Both abundance and abundance metadata need to be specified")
 
@@ -341,6 +342,7 @@ class Run:
                          args.inflation,
                          args.chunk_number,
                          args.chunk_max,
+                         args.count_domains,
                          # Parameters
                          args.threads,
                          args.parallel,
@@ -397,6 +399,10 @@ class Run:
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or
              args.subparser_name == NetworkAnalyser.TRAVERSE):
+
+            logging.info("Network functions are currently disabled as they are undergoing active development. This is a DEV version of EnrichM")
+            exit() 
+
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,

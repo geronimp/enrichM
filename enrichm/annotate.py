@@ -82,7 +82,7 @@ class Annotate:
     def __init__(self,
                  output_directory,
                  ko, pfam, tigrfam, hypothetical, cazy, ec,
-                 evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, chunk_number, chunk_max,
+                 evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, chunk_number, chunk_max, count_domains,
                  threads, parallel, suffix, light):
 
         # Define inputs and outputs
@@ -109,6 +109,7 @@ class Annotate:
         self.inflation        = inflation
         self.chunk_number     = chunk_number
         self.chunk_max        = chunk_max
+        self.count_domains    = count_domains
 
         # Parameters
         self.threads          = threads
@@ -327,7 +328,6 @@ class Annotate:
             genome_id = os.path.splitext(genome_annotation)[0]
             genome = genome_dict[genome_id]
             output_annotation_path = os.path.join(output_directory_path, genome_annotation)
-
             genome.add(output_annotation_path, 
                          self.evalue, 
                          self.bit, 
@@ -668,9 +668,8 @@ class Annotate:
                 
                 logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)
-
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_CLUSTER)
-                mg.write_matrix(genomes_list, freq_table)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ko:
                 logging.info('    - Annotating genomes with ko ids')
@@ -678,9 +677,8 @@ class Annotate:
 
                 logging.info('    - Generating ko frequency table')
                 mg = MatrixGenerator(MatrixGenerator.KO)
-                
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
-                mg.write_matrix(genomes_list, freq_table)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ec:
                 logging.info('    - Annotating genomes with ec ids')
@@ -688,9 +686,8 @@ class Annotate:
                 
                 logging.info('    - Generating ec frequency table')
                 mg = MatrixGenerator(MatrixGenerator.EC)
-                
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_EC)
-                mg.write_matrix(genomes_list, freq_table)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.pfam:
                 logging.info('    - Annotating genomes with pfam ids')
@@ -701,9 +698,8 @@ class Annotate:
                 
                 logging.info('    - Generating pfam frequency table')
                 mg = MatrixGenerator(MatrixGenerator.PFAM)
-                
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_PFAM)
-                mg.write_matrix(genomes_list, freq_table)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.tigrfam:
                 logging.info('    - Annotating genomes with tigrfam ids')
@@ -714,9 +710,8 @@ class Annotate:
 
                 logging.info('    - Generating tigrfam frequency table')
                 mg = MatrixGenerator(MatrixGenerator.TIGRFAM)
-                
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_TIGRFAM)
-                mg.write_matrix(genomes_list, freq_table)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
             
             if self.cazy:
                 logging.info('    - Annotating genomes with CAZY ids')
@@ -728,7 +723,7 @@ class Annotate:
                 logging.info('    - Generating CAZY frequency table')
                 mg = MatrixGenerator(MatrixGenerator.CAZY)
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_CAZY)
-                mg.write_matrix(genomes_list, freq_table)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             logging.info('Generating .gff files:')
             self._generate_gff_files(genomes_list)

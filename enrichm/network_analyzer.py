@@ -119,17 +119,18 @@ class NetworkAnalyser:
             
             for genome, genome_abundance in genome_abundances.items():
 
-                for reaction, reaction_abundance in reaction_abundance_dict[genome].items():
-                    normalised_value = reaction_abundance_dict[genome][reaction]*genome_abundance
-                    group = reversed_metadata[genome]
-                    
-                    if group not in new_dict[sample_group]:
-                        new_dict[sample_group][group] = dict()
-                    
-                    if reaction not in new_dict[sample_group][group]:
-                        new_dict[sample_group][group][reaction] = []
+                if genome in reversed_metadata:
 
-                    new_dict[sample_group][group][reaction].append( normalised_value )
+                    for reaction, reaction_abundance in reaction_abundance_dict[genome].items():
+                        normalised_value = reaction_abundance_dict[genome][reaction]*genome_abundance
+                        group = reversed_metadata[genome]
+                        if group not in new_dict[sample_group]:
+                            new_dict[sample_group][group] = dict()
+                        
+                        if reaction not in new_dict[sample_group][group]:
+                            new_dict[sample_group][group][reaction] = []
+
+                        new_dict[sample_group][group][reaction].append( normalised_value )
         
         new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
 

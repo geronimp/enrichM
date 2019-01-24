@@ -211,9 +211,23 @@ class NetworkBuilder:
 
                     reaction_line = [compound, reaction]
                     
+                    enriched_term = list()
+                    for compared_group in list(fisher_results.keys()):
+
+                        if any(set(self.d.r2k[reaction]).intersection(fisher_results[compared_group])):
+                            enriched_term.append(compared_group)
+                    
+                    if len(enriched_term)>0:
+                        enriched_term = '_'.join(enriched_term)
+                    else:
+                        enriched_term = 'NA'
+                    reaction_line.append(enriched_term)
+
+
                     for key in self.metadata_keys:
 
-                        import IPython ; IPython.embed()
+
+
                         for group, group_abundances in abundances.items():
 
                             if reaction in group_abundances[key]:
@@ -222,8 +236,7 @@ class NetworkBuilder:
                                 reaction_line.append(self.ZERO)
 
                     output_line = '\t'.join(reaction_line)
-
-                    if sum([float(x) for x in reaction_line[2:]])>0:
+                    if sum([float(x) for x in reaction_line[3:]])>0:
 
                         if output_line not in network_lines:
                             network_lines.append(output_line)
