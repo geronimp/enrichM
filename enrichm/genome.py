@@ -100,12 +100,16 @@ class Genome:
 		ap = AnnotationParser(annotation_type)
 
 		# If annotation type is a hmmsearch result
-
 		if(annotation_type == AnnotationParser.PFAM or
 		   annotation_type == AnnotationParser.TIGRFAM or
 		   annotation_type == AnnotationParser.CAZY):
 			# Set up an iterator to produce the results
 			logging.debug("    - Parsing hmmsearch chunk")
+
+			if annotation_type == AnnotationParser.PFAM:
+				percent_aln_query_cutoff = 0.0
+				percent_aln_reference_cutoff = 0.0
+
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
 												 percent_aln_reference_cutoff)
@@ -324,7 +328,7 @@ class Sequence(Genome):
 		region		- list. List of integers specifying the positions in the 
 					  sequence to annotate
 		'''
-		
+
 		new_annotations = [Annotation(annotation, evalue, region, annotation_type) for annotation in annotations]
 		annotation_list = [annot for annot in self.annotations if annot.type == new_annotations[0].type]
 		
@@ -426,7 +430,7 @@ class AnnotationParser:
 						   bitscore_cutoff, 
 						   percent_id_cutoff):
 		'''
-		Parse blast output in tab format.
+		Parse blast output in tab format.	
 
 		Parameters
 		----------

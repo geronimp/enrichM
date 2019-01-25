@@ -72,7 +72,7 @@ class MatrixGenerator:
         elif self.annotation_type == self.HYPOTHETICAL:
             self.annotation_list = clusters
 
-    def write_matrix(self, genomes_list, output_path):
+    def write_matrix(self, genomes_list, count_domains, output_path):
         '''
         Writes a frequency matrix with of each annotation (rows) per sample (columns)
 
@@ -87,8 +87,13 @@ class MatrixGenerator:
         with open(output_path, 'w') as out_io:
             colnames = ['ID'] + [genome.name for genome in genomes_list]
             out_io.write('\t'.join(colnames) + '\n')
-            genome_annotations = {genome.name:Counter(chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
-                                  for genome in genomes_list}
+            
+            if count_domains:
+                genome_annotations = {genome.name:Counter(chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
+                                      for genome in genomes_list}
+            else:
+                genome_annotations = {genome.name:Counter(chain(*[set(sequence.all_annotations()) for sequence in genome.sequences.values()]))
+                                      for genome in genomes_list}
 
             for annotation in self.annotation_list:
                 output_line = [annotation]

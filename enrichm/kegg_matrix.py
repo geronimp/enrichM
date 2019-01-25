@@ -43,12 +43,11 @@ class KeggMatrix:
         logging.info("Calculating reaction abundances")
         self.reaction_matrix  \
                  = self._calculate_abundances(self.r2k, self.orthology_matrix)
-        
         if transcriptome:
             logging.info("Parsing input transcriptome: %s" % transcriptome)
             self.orthology_matrix_transcriptome \
                         = self._parse_matrix(transcriptome)
-            
+
             logging.info("Calculating reaction transcriptome abundances")
             self.reaction_matrix_transcriptome \
                  = self._calculate_abundances(self.r2k, 
@@ -67,9 +66,9 @@ class KeggMatrix:
     def _calculate_expression_matrix(self, matrix, transcriptome_matrix):
         '''
         '''
-        output_dictionary = {}
+        output_dictionary = dict()
         for sample, abundances in transcriptome_matrix.items():
-            output_dictionary[sample] = {}
+            output_dictionary[sample] = dict()
             for ko, abundance in abundances.items():
 
                 if ko in matrix[sample]:
@@ -86,7 +85,7 @@ class KeggMatrix:
         
     def _parse_matrix(self, matrix):
         
-        output_dict = {}
+        output_dict = dict()
         
         for idx, line in enumerate(open(matrix)):
             sline = line.strip().split('\t')
@@ -94,51 +93,68 @@ class KeggMatrix:
                 self.sample_names = sline[1:]
                     
                 for sample in self.sample_names: 
-                    output_dict[sample] = {}
+                    output_dict[sample] = dict()
             else:   
                 ko_id      = sline[0]
                 abundances = sline[1:]
                 
                 for abundance, sample in zip(abundances, self.sample_names):
-                    output_dict[sample][ko_id] = float(abundance)
+                    try:
+                        output_dict[sample][ko_id] = float(abundance)
+                    except:
+                        output_dict[sample][ko_id] = abundance
+                        
         return output_dict
     
     def group_abundances(self, samples, reference_dict):
         
-        output_dict = {}        
+        output_dict = dict()
+        
         for sample in samples:
             new_dict = {key:entry for key,entry in reference_dict.items() if 
                         key in samples}
+            reference_list = list(new_dict[list(new_dict.keys())[0]].keys())
 
-            reference_list = new_dict[new_dict.keys()[0]].keys()
             for reference in reference_list:
                 # If samples are missing from stored data, this will crash 
                 try:
                     abundances = [new_dict[sample][reference] for sample in samples]
-                    average    = sum(abundances)/float(len(abundances))
+                    average    = sum(abundances)
                     if average > 0:
                         output_dict[reference] = average
+               
                 except:
-                    raise Exception("metadata description does not match \
-input matrix")
+                    raise Exception("metadata description does not match input matrix")
+        
         return output_dict
                           
     def _calculate_abundances(self, reference_dict, matrix_dict):
-        output_dict_mean   = {}
+        
+        output_dict_mean   = dict()
+
         for sample, ko_abundances in matrix_dict.items():
-            output_dict_mean[sample]   = {}
+            output_dict_mean[sample]   = dict()
+        
             for reaction, ko_list in reference_dict.items():
-
-
-                abundances = []
+                abundances = list()
+        
                 for ko in ko_list:
-                    if ko in matrix_dict[sample]:
-                        abundances.append(matrix_dict[sample][ko])
+        
+                    if ko in ko_abundances:
+
+                        if ko_abundances[ko]>0:
+                        
+                            abundances.append(ko_abundances[ko])
+        
                     else:
                         logging.debug("ID not found in input matrix: %s" % ko)
+        
                 if any(abundances):
-                    abundance_mean = sum(abundances)/len(abundances)
+                    abundance_mean = sum(abundances)/len(abundances) # average of the abundances...
+        
                 else:
                     abundance_mean = 0
+                
                 output_dict_mean[sample][reaction] = abundance_mean
+        
         return output_dict_mean

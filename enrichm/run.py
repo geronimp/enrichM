@@ -238,7 +238,11 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        
+
+        if any([args.abundance, args.abundance_metadata]):
+            if not (args.abundance and args.abundance_metadata):
+                raise Exception("Both abundance and abundance metadata need to be specified")
+
         if args.subparser_name==NetworkAnalyser.PATHWAY:
             args.depth              = None
             args.queries            = None
@@ -338,6 +342,7 @@ class Run:
                          args.inflation,
                          args.chunk_number,
                          args.chunk_max,
+                         args.count_domains,
                          # Parameters
                          args.threads,
                          args.parallel,
@@ -394,11 +399,15 @@ class Run:
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE or
              args.subparser_name == NetworkAnalyser.TRAVERSE):
+
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,
                   args.transcriptome,
+                  args.abundance,
+                  args.abundance_metadata,
                   args.metabolome,
+                  args.enrichment_output,
                   args.depth,
                   args.filter,
                   args.limit,
