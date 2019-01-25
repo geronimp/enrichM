@@ -400,9 +400,6 @@ class Run:
              args.subparser_name == NetworkAnalyser.EXPLORE or
              args.subparser_name == NetworkAnalyser.TRAVERSE):
 
-            logging.info("Network functions are currently disabled as they are undergoing active development. This is a DEV version of EnrichM")
-            exit() 
-
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,

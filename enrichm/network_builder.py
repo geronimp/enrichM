@@ -39,11 +39,15 @@ def nested_dict_vals(d):
     reaction_regex = '(R\d{5})$'
 
     for k,i in d.items():
+
         if isinstance(i, dict):
             yield from nested_dict_vals(i)
+        
         else:
+        
             if re.match(str.encode(reaction_regex), str.encode(str(k))):
                 yield k
+
 class NetworkBuilder:
        
     MODULE_PREFIX   = 'M'
@@ -208,25 +212,25 @@ class NetworkBuilder:
                 
                 if reaction in seen_reactions:
 
-
                     reaction_line = [compound, reaction]
                     
-                    enriched_term = list()
-                    for compared_group in list(fisher_results.keys()):
+                    if fisher_results:
+                        enriched_term = list()
+                        for compared_group in list(fisher_results.keys()):
 
-                        if any(set(self.d.r2k[reaction]).intersection(fisher_results[compared_group])):
-                            enriched_term.append(compared_group)
-                    
-                    if len(enriched_term)>0:
-                        enriched_term = '_'.join(enriched_term)
+                            if any(set(self.d.r2k[reaction]).intersection(fisher_results[compared_group])):
+                                enriched_term.append(compared_group)
+                        
+                        if len(enriched_term)>0:
+                            enriched_term = '_'.join(enriched_term)
+                        else:
+                            enriched_term = 'NA'
                     else:
                         enriched_term = 'NA'
+
                     reaction_line.append(enriched_term)
 
-
                     for key in self.metadata_keys:
-
-
 
                         for group, group_abundances in abundances.items():
 

@@ -128,16 +128,17 @@ class NetworkAnalyser:
                             new_dict[sample_group][group] = dict()
                         
                         if reaction not in new_dict[sample_group][group]:
-                            new_dict[sample_group][group][reaction] = []
+                            new_dict[sample_group][group][reaction] = 0.0
 
-                        new_dict[sample_group][group][reaction].append( normalised_value )
+                        new_dict[sample_group][group][reaction] +=  normalised_value
         
-        new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
+        #new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
 
         return new_dict
 
     def _parse_enrichment_output(self, enrichment_output):
         fisher_results = dict()
+        
         for file in os.listdir( enrichment_output ):
 
             if file.endswith("fisher.tsv"):
@@ -151,6 +152,7 @@ class NetworkAnalyser:
                     if len(fisher_results) == 0:
                         fisher_results[split_line[1]] = list()
                         fisher_results[split_line[2]] = list()
+
                     if float(split_line[-2])<0.05:
                         g1_t = float(split_line[3])
                         g1_f = float(split_line[4])
@@ -159,13 +161,15 @@ class NetworkAnalyser:
 
                         if g1_t == 0:
                             fisher_results[split_line[2]].append( split_line[0] )
+
                         elif g2_t == 0:
-                            fisher_results[split_line[1]].append( split_line[0] )                        
+                            fisher_results[split_line[1]].append( split_line[0] )
+
                         elif ( ((g1_t/(g1_t+g1_f))) / ((g2_t/(g2_t+g2_f))) )>1:
                             fisher_results[split_line[1]].append( split_line[0] )
+
                         else:
                             fisher_results[split_line[2]].append( split_line[0] )
-
                 
         if len(fisher_results.keys())>0:
             return fisher_results
