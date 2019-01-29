@@ -248,20 +248,24 @@ class Sequence(Genome):
 	and annotations. Can compare current annotation with new annotaitons.
 	'''
 	def __init__(self, description, sequence=None):
-		self.annotations = []	
+		self.annotations = list()
+		line_split = description.split(' # ')
 		
 		if sequence:
 			self.seq = str(sequence)
-			self.length = int(len(sequence))
-		
-		try:
+			self.length = int(len(sequence))	
+
+		if len(line_split)==5:
 			self.seqname, self.startpos, self.finishpos, self.direction, stats \
-								= description.split(' # ')
+								= line_split
 			self.prod_id, self.partial, self.starttype, self.rbs_motif, self.rbs_spacer,  self.gc \
 								= [x.split('=')[1] for x in stats.split(';')]
 		
-		except:
-			raise Exception("Error parsing genome proteins. Was the output from prodigal?")
+		elif len(line_split)==1:
+			self.seqname = description
+			
+		else:
+			raise Exception("Malformatted sequence file!")
 
 	def all_annotations(self):
 		'''

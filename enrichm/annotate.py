@@ -725,11 +725,12 @@ class Annotate:
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_CAZY)
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
-            logging.info('Generating .gff files:')
-            self._generate_gff_files(genomes_list)
+            if hasattr(list(genomes_list[0].sequences.values())[0], "prod_id"):
+                logging.info('Generating .gff files:')
+                self._generate_gff_files(genomes_list)
 
-            logging.info('Renaming protein headers')
-            self._rename_fasta(genomes_list)
+                logging.info('Renaming protein headers')
+                self._rename_fasta(genomes_list)
 
             if not self.light:
                 logging.info('Storing genome objects')
