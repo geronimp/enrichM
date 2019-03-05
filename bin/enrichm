@@ -108,6 +108,8 @@ if __name__ == "__main__":
                 help='Transcriptome KO matrix.')
     base_input_options.add_argument('--abundance',
                 help='Abundance matrix.')
+    base_input_options.add_argument('--tpm_values',
+                help='TPM values produced by DetectM.')
     base_input_options.add_argument('--abundance_metadata',
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--metabolome',

@@ -1,0 +1,358 @@
+#!python
+###############################################################################
+#                                                                             #
+#    This program is free software: you can redistribute it and/or modify     #
+#    it under the terms of the GNU General Public License as published by     #
+#    the Free Software Foundation, either version 3 of the License, or        #
+#    (at your option) any later version.                                      #
+#                                                                             #
+#    This program is distributed in the hope that it will be useful,          #
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
+#    GNU General Public License for more details.                             #
+#                                                                             #
+#    You should have received a copy of the GNU General Public License        #
+#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
+#                                                                             #
+###############################################################################
+
+__author__      = "Joel Boyd"
+__copyright__   = "Copyright 2017"
+__credits__     = ["Joel Boyd"]
+__license__     = "GPL3"
+__version__     = "0.0.7"
+__maintainer__  = "Joel Boyd"
+__email__       = "joel.boyd near uq.net.au"
+__status__      = "Development"
+ 
+###############################################################################
+# Imports
+import argparse
+import os
+import sys
+import textwrap
+import time
+sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
+# Local
+import enrichm
+from enrichm.run import Run
+from enrichm.network_analyzer import NetworkAnalyser
+from enrichm.kegg_module_grabber import KeggModuleGrabber
+###############################################################################
+      
+class CustomHelpFormatter(argparse.HelpFormatter):
+    def _split_lines(self, text, width):
+        return text.splitlines()
+    
+def phelp():
+    print("""                                           _      _     __  __ 
+                                          (_)    | |   |  \/  |
+                            ___ _ __  _ __ _  ___| |__ | \  / |
+                           / _ \ '_ \| '__| |/ __| '_ \| |\/| |
+                          |  __/ | | | |  | | (__| | | | |  | |
+                           \___|_| |_|_|  |_|\___|_| |_|_|  |_|   
+  ------------------------------------------------------------------------------------
+
+  Annotation 
+    annotate        -> Basic annotation of genomes.
+
+  Enrichment analysis
+    classify        -> Determine what KEGG modules a genome encodes.
+    enrichment      -> Calculate enrichment of functional genes between groups.
+    
+  Network analysis
+    pathway         -> Generate a metabolic network from specific KEGG module or 
+                       compounds.
+    explore         -> Explore a metabolic network from a given compound.
+
+  Machine learning
+    generate        -> Generate a model.
+    predict         -> Run model on new data.
+
+  Authors: Joel Boyd, Boyd Woodcroft, Alex Baker
+  Version: %s 
+""" % (enrichm.__version__))
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--version', action='version', version='enrichm v%s' % enrichm.__version__)
+    subparsers = parser.add_subparsers(help="--", dest='subparser_name')
+    
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
+    base_all             = argparse.ArgumentParser(add_help=False)
+    base_logging_options = base_all.add_argument_group('Logging options')
+
+    base_logging_options.add_argument('--log',
+                help='Output logging information to this file.')
+    base_logging_options.add_argument('--verbosity', type = int, default = 4,
+                help='Level of verbosity (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
+    
+    base_output_options = base_all.add_argument_group('Output options')
+    base_output_options.add_argument('--output',
+                help='Output directory', default = None)
+    base_output_options.add_argument('--force', action='store_true',
+                help='Overwrite previous run')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+  
+    base_network = argparse.ArgumentParser(add_help=False)
+    
+    base_input_options = base_network.add_argument_group('Input options')
+    base_input_options.add_argument('--matrix', required=True,
+                help='KO matrix. REQUIRED.')
+    base_input_options.add_argument('--transcriptome',
+                help='Transcriptome KO matrix.')
+    base_input_options.add_argument('--metabolome',
+                help='Metabolome CID matrix. (NOT IMPLEMENTED)')
+    base_input_options.add_argument('--metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Data
+    
+    data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
+    data_input_options = data.add_argument_group('Uninstall')
+    data_input_options.add_argument('--uninstall', action='store_true',
+                help = 'Remove enrichm database')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Annotate
+
+    annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
+    
+    annotate_input_options = annotate.add_argument_group('Input options (Use one)')
+    annotate_input_options.add_argument('--genome_files', default = None, nargs='+',
+                help = 'Space separated list of genomes to annotate')
+    annotate_input_options.add_argument('--genome_directory', default = None,
+                help = 'Directory containing genomes to annotate')
+    annotate_input_options.add_argument('--protein_files', default = None,  nargs='+',
+                help = 'Space separated list of .faa files of genomes to annotate. Protein files need to be generated by prodigal.')
+    annotate_input_options.add_argument('--protein_directory', default = None,
+                help = 'Directory containing .faa files of genomes to annotate. Protein files need to be generated by prodigal.')
+
+    annotate_annotation_options = annotate.add_argument_group('Annotations options')
+    annotate_annotation_options.add_argument('--ko', action='store_true',
+                help='Annotate with KO ids')   
+    annotate_annotation_options.add_argument('--pfam', action='store_true',
+                help='Annotate with Pfam HMMs')
+    annotate_annotation_options.add_argument('--tigrfam', action='store_true',
+                help='Annotate with TIGRFAM HMMs')
+    annotate_annotation_options.add_argument('--hypothetical', action='store_true',
+                help='Annotate with hypothetical clusters')
+    annotate_annotation_options.add_argument('--cazy', action='store_true',
+                help='Annotate with dbCAN HMMs')
+    
+    annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
+    annotate_cutoff_options.add_argument('--cut_ga', action='store_true',
+                help='For PFAM and TIGRfam searches: use profiles GA gathering cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_nc', action='store_true',
+                help='For PFAM and TIGRfam searches: use profiles NC noise cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_tc', action='store_true',
+                help='For PFAM and TIGRfam searches: use profiles TC trusted cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-05,
+                help='Use this evalue cutoff to filter false positives (default: 1e-05)')
+    annotate_cutoff_options.add_argument('--bit', type = float, default = 0,
+                help='Use this bit score cutoff to filter false positives (default: 0)')
+    annotate_cutoff_options.add_argument('--id', type = float, default = 0.3,
+                help='Use this percent identity cutoff to filter false positives (default: 0.3)')
+    annotate_cutoff_options.add_argument('--aln_query', type = float, default = 0.7,
+                help='This fraction of the query must align to the reference (default: 0.7)')
+    annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0.7,
+                help='This fraction of the reference must align to the query (default: 0.7)')
+    annotate_cutoff_options.add_argument('--c', type = float, default = 0.7,
+                help='When clustering, use matches above this fraction of aligned (covered) query and target residues (default: 0.7)')
+
+    annotate_runtime_options = annotate.add_argument_group('Runtime options')
+    annotate_runtime_options.add_argument('--threads', default = '1',
+                help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
+    annotate_runtime_options.add_argument('--parallel', default = '5',
+                help='Run this number of jobs in parallel when annotating with HMMsearch (default: 5)')
+    annotate_runtime_options.add_argument('--inflation', type = float, default = 2.0,
+                help='Inflation factor to use when calling clusters in ortholog (default = 2.0)')
+    annotate_runtime_options.add_argument('--suffix',
+                help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
+    annotate_runtime_options.add_argument('--light', action='store_true',
+                help="Don't store metadata for genome files (can't use enrichM compare downstream, default=False)")
+    annotate_runtime_options.add_argument('--chunk_number', type = float, default = 4,
+                help='Split loading of genomes into this many chunks (default = 4)')
+    annotate_runtime_options.add_argument('--chunk_max', type = float, default = 2500,
+                help='Maximum number of genomes to load per chunk (default = 2500)')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Classify  
+
+    classify = subparsers.add_parser('classify', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    classify_input_options = classify.add_argument_group('Input options')
+
+    classify_input_options.add_argument('--genome_and_annotation_file',
+                help='Path to file containing a genome<tab>annotation list')
+    classify_input_options.add_argument('--genome_and_annotation_matrix',
+                help='Path to file containing a genome annotation matrix')
+    classify_input_options.add_argument('--custom_modules',
+                help='Tab separated file containing module name, definition as the columns')
+
+    classify_cutoff_options = classify.add_argument_group('Cutoff options')
+    classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
+                help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Enrichment  
+
+    enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    enrichment_input_options = enrichment.add_argument_group('Input options')
+    enrichment_input_options.add_argument('--annotate_output', required=True,
+                help='Input annotation matrix (PFAM, Tigrfam, etc).')
+    enrichment_input_options.add_argument('--metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+
+    enrichment_gtdb_options = enrichment.add_argument_group('Genome Taxonomy DataBase (GTDB) options')
+    enrichment_gtdb_options.add_argument('--batchfile',
+                help='metadata file to compare with.')
+
+    enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
+    enrichment_runtime_options.add_argument('--modules',
+                help='Modules to limit analysis to.')
+    enrichment_runtime_options.add_argument('--genomes_to_compare_with_group', 
+                help='File containing genome ids to compare with the average of the group.')
+    enrichment_runtime_options.add_argument('--abundances',
+                help='Genome abundance matrix.')
+    enrichment_runtime_options.add_argument('--pval_cutoff', type=float, default=0.05,
+                help='Only output results with a p-value below a this cutoff (default=0.05).')
+    enrichment_runtime_options.add_argument('--proportions_cutoff', type=float, default=1,
+                help='Proportion enrichment cutoff.') ### ~ TODO: Fill in better description
+    enrichment_runtime_options.add_argument('--threshold', type=float, default=0.1,
+                help='The threshold to control for in false discovery rate of familywise error rate.')
+    enrichment_runtime_options.add_argument('--multi_test_correction',
+                help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options. (Default = Benjamini-Hochberg FDR)', default='fdr_bh')
+    enrichment_runtime_options.add_argument('--processes', type = int,
+                help='Number of processes to use for enrichment.', default=1)
+    enrichment_runtime_options.add_argument('--ko', action='store_true',
+                help='Compare KO ids')   
+    enrichment_runtime_options.add_argument('--pfam', action='store_true',
+                help='Compare Pfam ids')
+    enrichment_runtime_options.add_argument('--tigrfam', action='store_true',
+                help='Compare TIGRFAM ids')
+    enrichment_runtime_options.add_argument('--hypothetical', action='store_true',
+                help='Compare hypothetical ids')
+    enrichment_runtime_options.add_argument('--cazy', action='store_true',
+                help='Compare dbCAN ids')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Connect
+    connect = subparsers.add_parser('connect', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    connect_input_options = connect.add_argument_group('Input options')
+    connect_input_options.add_argument('--annotate_output', required=True,
+                help='Input annotate output')
+    connect_input_options.add_argument('--metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+
+    connect_runtime_options = connect.add_argument_group('Runtime options')
+    connect_runtime_options.add_argument('--custom_modules',
+                help='Tab separated file containing module name, definition as the columns',
+                default = None)
+    connect_runtime_options.add_argument('--cutoff',
+                help='This percent of the pathway must be complete to connect genomes (default = 100)',
+                default=1)
+    
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Pathway
+    pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
+
+    pathway_pathway_options = pathway.add_argument_group('Pathway options')
+    pathway_pathway_options.add_argument('--limit', default=[], nargs='+',
+                help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
+    pathway_pathway_options.add_argument('--filter', default=[], nargs='+',
+                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
+    pathway_pathway_options.add_argument('--from_node',  help='Find path from this node to the node specified to --to_node. UNDER DEVELOPMENT.')
+    pathway_pathway_options.add_argument('--to_node',
+                help='Find path to this node from the node specified to --from_node. UNDER DEVELOPMENT.')
+    pathway_pathway_options.add_argument('--bfs_shortest_path', action='store_true',
+                help="Find shortest path using a breadth first search (BFS) instead of the default weighted dijkstra's algorithm. UNDER DEVELOPMENT.")
+    
+    pathway_directionality_options = pathway.add_argument_group('Directionality options')
+    pathway_directionality_options.add_argument('--catabolic', action='store_true',
+                help='Find degradation pathway. NOT IMPLEMENTED.')
+    pathway_directionality_options.add_argument('--anabolic', action='store_true',
+                help='Find assimilation pathway. NOT IMPLEMENTED.')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Explore
+
+    explore = subparsers.add_parser('explore', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
+
+    explore_query_options = explore.add_argument_group('Query options')
+    explore_query_options.add_argument('--queries', required=True,
+                help='A file containing the KEGG ids of the compounds from which to start in the metabolic network')
+    explore_query_options.add_argument('--depth', type=int, default=2,
+                help='Number of steps to take into the metabolic network')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    # Traverse
+
+    traverse = subparsers.add_parser('traverse', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
+
+    traverse_options = traverse.add_argument_group('Traverse options')
+    traverse_options.add_argument('--starting_compounds',  default=[],  nargs='+',
+                help='start from these compounds in the network only. DEFAULT = start from a ')
+    traverse_options.add_argument('--steps', type=int, default = 1000,
+                help='number of steps into the network taken by each query')
+    traverse_options.add_argument('--number_of_queries', type=int, default = 1000,
+                help='number of queries to drop into the network')
+    traverse_options.add_argument('--limit', default=[], nargs='+',
+                help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
+    traverse_options.add_argument('--filter', default=[], nargs='+',
+                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    
+    generate = subparsers.add_parser('generate', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    generate_input_options = generate.add_argument_group('Generate options')
+    generate_input_options.add_argument('--input_matrix', required = True, help = 'input matrix of results')
+    generate_input_options.add_argument('--groups', required = True, help = 'defined outcomes to train the data to')
+    generate_input_options.add_argument('--model_type', required = True, help = 'regressor or classifier', choices=["regressor","classifier"])
+    generate_input_options.add_argument('--testing_portion', type = float, help = 'portion of the input data to use for testing (default = 0.2)', default = 0.2)
+    
+    generate_tuning_options = generate.add_argument_group('Tuning options')
+    generate_tuning_options.add_argument('--grid_search', action='store_true',help = 'grid search')
+    generate_tuning_options.add_argument('--threads', type=int, default = -1, help = 'number of threads to use for hyperparameterization (default = all available)')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
+    predict = subparsers.add_parser('predict', formatter_class=CustomHelpFormatter, parents=[base_all])
+    
+    predict_input_options = predict.add_argument_group('Predict options')
+    predict_input_options.add_argument('--forester_model_directory', required = True, help = 'Pickled model to use')
+    predict_input_options.add_argument('--input_matrix', required = True, help = 'matrix of data to predict')
+    
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
+
+    if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
+        phelp()
+    else:
+        args = parser.parse_args()
+
+        if not args.log:
+            args.log = os.path.join(args.subparser_name + '.log')
+
+        r = Run()
+        r.main(args, sys.argv)
+

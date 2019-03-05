@@ -232,6 +232,7 @@ class Enrichment:
             return self.CAZY
         elif sample.split('.')[0] in self.EC_PREFIX:
             return self.EC
+
     def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
         '''
         Calculates the portions of genome
@@ -426,12 +427,17 @@ class Enrichment:
         
         logging.info("Comparing sets of genomes")        
         combination_dict = dict()
+
         for combination in product(*list([metadata_value_lists])):
             genome_list = list()
+        
             for genome, attributes in metadata.items():
+        
                 for feature in combination:
+        
                     if feature in attributes:
                         genome_list.append(genome)  
+        
             combination_dict['_'.join(combination)] = genome_list
 
         annotation_type = self.check_annotation_type(modules)
@@ -731,12 +737,16 @@ class Test(Enrichment):
     def add_descriptions(self, output_lines):
         if self.annotation_type == Enrichment.KEGG:
             desc = self.k
+
         if self.annotation_type == Enrichment.CAZY:
             desc = None
+
         if self.annotation_type == Enrichment.TIGRFAM:
             desc = self.tigrfamdescription
+
         if self.annotation_type == Enrichment.PFAM:
             desc = self.pfam2description
+            
         if self.annotation_type == Enrichment.EC:
             desc = self.ec2description
 
@@ -763,16 +773,19 @@ class Test(Enrichment):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
             prefix = '_vs_'.join(combination).replace(' ', '_')
             logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
+            
             if enrichment_test == stats.fisher_exact:
-                logging.info('Testing gene enrichment using Fisher\'s exact test')
-                
+                logging.info('Testing gene enrichment using Fisher\'s exact test')    
                 gene_count = self.gene_frequencies(*combination)
                 output_lines = self.pool.map(gene_fisher_calc, gene_count)
+            
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+
                 output_lines = self.add_descriptions(output_lines)
                 output_lines = self.FISHER_HEADER + output_lines
                 results.append([output_lines, prefix +'_'+ self.GENE_FISHER_OUTPUT])
+            
             elif enrichment_test == self.PA:
                 logging.info('enrichment statistics not possible with only one genome to compare')
                 logging.info('See prevalence matrix for unique genes in groups')
@@ -782,8 +795,10 @@ class Test(Enrichment):
                 logging.info('Testing over-representation using Mann-Whitney U test')
                 gene_count = self.gene_frequencies(*combination, True)
                 output_lines = self.pool.map(mannwhitneyu_calc, gene_count)
+
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+                
                 output_lines = self.add_descriptions(output_lines)
                 output_lines = self.MANNWHITNEYU_HEADER + output_lines 
                 results.append([output_lines, prefix +'_'+ self.GVG_OUTPUT])
@@ -792,10 +807,11 @@ class Test(Enrichment):
                 logging.info('Testing over-representation using Z score test')
                 gene_count = self.gene_frequencies(*combination, True)
                 output_lines = self.pool.map(zscore_calc, gene_count)
-
                 output_lines = [x for x in output_lines if x]
+                
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+
                 output_lines = self.add_descriptions(output_lines)
                 output_lines = self.ZSCORE_HEADER + output_lines
                 results.append([output_lines, prefix +'_'+ self.IVG_OUTPUT])

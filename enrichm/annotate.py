@@ -43,6 +43,7 @@ from enrichm.databases import Databases
 from enrichm.matrix_generator import MatrixGenerator
 from enrichm.gff_generator import GffGenerator
 from enrichm.genome import Genome, AnnotationParser
+
 ###############################################################################
 ###############################################################################
 
@@ -152,7 +153,6 @@ class Annotate:
                                        universal_newlines=True)
             process.communicate(input=str('\n'.join(genome_paths)))
         return genome_directory
-
 
     def call_proteins(self, genome_directory):
         '''
@@ -396,7 +396,6 @@ class Annotate:
 
         return cluster_ids, ortholog_dict.keys()
 
-
     def run_mcl(self, clu_tsv_path, output_path):
         logging.info('    - Finding orthologs')
         ortholog_dict = dict()
@@ -405,12 +404,16 @@ class Annotate:
         subprocess.call(cmd, shell = True)
         logging.debug('Finished')
         ortholog = 1
+
         for line in open(output_path):
             ortholog_idx = "ortholog_%i" % ortholog
             ortholog_dict[ortholog_idx] = set()
+        
             for protein in line.strip().split('\t'):
                 ortholog_dict[ortholog_idx].add(protein)
+        
             ortholog += 1
+        
         return ortholog_dict
 
     def parse_cluster_results(self, 
@@ -459,7 +462,6 @@ class Annotate:
         #        genome_dictionary[genome].add_ortholog(protein, ortholog)
         
         return cluster_ids
-
 
     def _default_hmmsearch_options(self):
         cmd = ''
@@ -581,7 +583,6 @@ class Annotate:
                 list_size = len(input_list)
             except NameError:
                 list_size = 0
-
 
     def parse_genome_inputs(self, genome_directory, protein_directory, genome_files, protein_files):
         '''

@@ -33,6 +33,7 @@ import itertools
 # Local
 from enrichm.kegg_matrix import KeggMatrix
 from enrichm.network_builder import NetworkBuilder
+from enrichm.parser import Parser
 ###############################################################################
 
 class NetworkAnalyser:
@@ -89,15 +90,19 @@ class NetworkAnalyser:
     def _average(self, d):
             
         for sample_group, group_dict in d.items():
+
             for group, reaction_dict in group_dict.items():
+            
                 for reaction, value in reaction_dict.items():
                     d[sample_group][group][reaction] = sum(value) / len(value)
+        
         return d
 
     def normalise_by_abundance(self, sample_abundance_dict, sample_metadata, reaction_abundance_dict, metadata):
 
         reversed_metadata = dict()
         for key, items in metadata.items():
+
             for item in items:
                 reversed_metadata[item] = key
         
@@ -120,18 +125,23 @@ class NetworkAnalyser:
             for genome, genome_abundance in genome_abundances.items():
 
                 if genome in reversed_metadata:
-
-                    for reaction, reaction_abundance in reaction_abundance_dict[genome].items():
-                        normalised_value = reaction_abundance_dict[genome][reaction]*genome_abundance
+                    for reaction, reaction_abundance in reaction_abundance_dict[sample_group][genome].items():
+                        
+                        if genome in reaction_abundance_dict:
+                            normalised_value = reaction_abundance_dict[genome][reaction]*genome_abundance
+                        
+                        else:
+                            normalised_value = 0.0
+                        
                         group = reversed_metadata[genome]
-                        if group not in new_dict[sample_group]:
+
+                        if group not in new_dict[sample_metadatagroup]:
                             new_dict[sample_group][group] = dict()
                         
                         if reaction not in new_dict[sample_group][group]:
                             new_dict[sample_group][group][reaction] = 0.0
 
                         new_dict[sample_group][group][reaction] +=  normalised_value
-        
         #new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
 
         return new_dict
@@ -139,7 +149,7 @@ class NetworkAnalyser:
     def _parse_enrichment_output(self, enrichment_output):
         fisher_results = dict()
         
-        for file in os.listdir( enrichment_output ):
+        for file in os.listdir(enrichment_output):
 
             if file.endswith("fisher.tsv"):
                 file = os.path.join(enrichment_output, file)
@@ -176,8 +186,46 @@ class NetworkAnalyser:
         
         else:
             raise Exception("Malformatted enrichment output: %s" % enrichment_output)
+    
+    def average_tpm_by_sample(self, tpm_results, sample_metadata):
+        output_dict = dict()
+        tpm_dict, annotations, genomes = tpm_results
 
-    def do(self, matrix, transcriptome, abundance, abundance_metadata, metabolome, enrichment_output, depth, filter, limit, queries, 
+        for group, samples in sample_metadata.items():
+            output_dict[group] = dict()
+
+            for sample in samples:
+            
+                for annotation in annotations:
+                                
+                    if str.encode(sample) in tpm_dict:
+                        
+                        for genome in genomes:
+
+                            if genome not in output_dict[group]:
+                                output_dict[group][genome] = dict()
+        
+                            if annotation not in output_dict[group][genome]:
+                                output_dict[group][genome][annotation] = list()
+                            if genome in tpm_dict[str.encode(sample)]:
+
+                                if annotation in tpm_dict[str.encode(sample)][genome]:
+                                    output_dict[group][genome][annotation].append(tpm_dict[str.encode(sample)][genome][annotation])
+                                
+                                else:    
+                                    output_dict[group][genome][annotation].append(0.0)
+                            
+                            else:      
+                                output_dict[group][genome][annotation].append(0.0)
+            
+            for genome, values in output_dict[group].items():
+
+                for annotation in values:
+                    output_dict[group][genome][annotation] = sum(output_dict[group][genome][annotation])/len(output_dict[group][genome][annotation])
+    
+        return output_dict
+        
+    def do(self, matrix, transcriptome, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output, depth, filter, limit, queries, 
            subparser_name, starting_compounds, steps, number_of_queries, output_directory):
         '''
         Parameters
@@ -195,9 +243,11 @@ class NetworkAnalyser:
         '''
         km = KeggMatrix(matrix, transcriptome)
         nb = NetworkBuilder(self.metadata.keys())
-        
+
+
         if enrichment_output:
             fisher_results = self._parse_enrichment_output(enrichment_output)
+            
         else:
             fisher_results = None    
 
@@ -219,8 +269,18 @@ class NetworkAnalyser:
             sample_abundance = {'MOCK': {x:1 for x in list(km.reaction_matrix.keys())} }
             sample_metadata = {"a": ['MOCK'] }
         
+        if tpm_values:
+            logging.info("Parsing detectM TPM values")
+            tpm_values_dict = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata)
+
+        else:
+            tpm_values_dict = None
+
         if transcriptome:
             normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, km.reaction_matrix_transcriptome, self.metadata)
+        
+        elif tpm_values_dict:
+            normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, tpm_values_dict, self.metadata)
         
         else:
             normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, km.reaction_matrix, self.metadata)
@@ -230,7 +290,7 @@ class NetworkAnalyser:
         
         else:
             abundances_metabolome = None
-
+            
         if subparser_name==self.TRAVERSE:
             logging.info('Traversing network')
             output_lines = \
@@ -258,10 +318,11 @@ class NetworkAnalyser:
 
         elif subparser_name==self.PATHWAY:
             logging.info('Generating pathway network')
-
+            
             network_lines, node_metadata = \
                             nb.pathway_matrix(normalised_abundances, 
                                               abundances_metabolome,
+                                              tpm_values_dict,
                                               fisher_results,
                                               limit,
                                               filter)

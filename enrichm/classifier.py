@@ -142,7 +142,6 @@ class Classify:
                     num_all         = path.num_steps()
                     perc_covered    = num_covered / float(num_all)
                     ko_perc         = ko_covered / float(ko_total)
-                    #if name == "M00001": import IPython ; IPython.embed()
 
                     if perc_covered >= cutoff:
                         

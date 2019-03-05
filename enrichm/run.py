@@ -404,6 +404,7 @@ class Run:
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,
                   args.transcriptome,
+                  args.tpm_values,
                   args.abundance,
                   args.abundance_metadata,
                   args.metabolome,

@@ -86,7 +86,7 @@ class NetworkBuilder:
                         =  ['query',
                             'step']
         self.compound_reaction_index_header \
-                        = []
+                        = list()
         self.step_header = ['step']
 
     def _gather_module(self, key):
@@ -124,7 +124,7 @@ class NetworkBuilder:
 
 
     def normalise(self, reaction_abundances):
-        probability_list = []
+        probability_list = list()
         for reaction_abundance in reaction_abundances:
             probability = float(reaction_abundance)/sum(reaction_abundances)
             probability_list.append(probability)
@@ -132,7 +132,7 @@ class NetworkBuilder:
 
     def get_transition(self, probabilities):
         n=random.uniform(0,1)
-        x = []
+        x = list()
         for probability in probabilities:
             x.append(probability-n)
         return x.index(min(x, key=abs))
@@ -145,7 +145,7 @@ class NetworkBuilder:
                         number_of_queries,
                         steps): 
 
-        network_visitations={key:{} for key in self.metadata_keys}
+        network_visitations={key:dict() for key in self.metadata_keys}
 
         for _ in range(number_of_queries):
             starting_compound = random.choice(query_list)
@@ -188,12 +188,14 @@ class NetworkBuilder:
     def all_matrix(self, 
                    abundances, 
                    abundances_metabolome,
+                   tpm_values_dict,
                    fisher_results,
                    reference_dict):
         '''
         Parameters
         ----------
         '''
+        import IPython ; IPython.embed()
         seen_nodes = set()
         # Construct headers to network matrices
         seen_reactions = set(nested_dict_vals(abundances))
@@ -216,6 +218,7 @@ class NetworkBuilder:
                     
                     if fisher_results:
                         enriched_term = list()
+                        
                         for compared_group in list(fisher_results.keys()):
 
                             if any(set(self.d.r2k[reaction]).intersection(fisher_results[compared_group])):
@@ -223,6 +226,7 @@ class NetworkBuilder:
                         
                         if len(enriched_term)>0:
                             enriched_term = '_'.join(enriched_term)
+                        
                         else:
                             enriched_term = 'NA'
                     else:
@@ -310,6 +314,7 @@ class NetworkBuilder:
                     = ['\t'.join(self.matrix_header + 
                                  self.transcriptome_header +
                                  self.step_header)]
+        
         else:
             network_lines  \
                     = ['\t'.join(self.matrix_header+
@@ -319,6 +324,7 @@ class NetworkBuilder:
                                  self.query_header )]
         compound_reaction_index_lines \
                     = ['\t'.join(self.compound_reaction_index_header)]
+        
         while depth>0:
             if any(level_queries):
                 queries_list = set(level_queries)
@@ -430,6 +436,7 @@ class NetworkBuilder:
     def pathway_matrix(self,
                        abundances_metagenome,
                        abundances_metabolome,
+                       tpm_values_dict,
                        fisher_results,
                        limit,
                        filter):
@@ -451,7 +458,7 @@ class NetworkBuilder:
 
             possible_reactions = {reaction:self.d.r2c[reaction] 
                                   for reaction in
-                                  possible_reactions}                
+                                  possible_reactions}
         else:
             possible_reactions = self.d.r2c
         
@@ -461,8 +468,9 @@ class NetworkBuilder:
  
 
         network_lines, node_metadata_lines = \
-            self.all_matrix(abundances_metagenome, 
+            self.all_matrix(abundances_metagenome,
                             abundances_metabolome,
+                            tpm_values_dict,
                             fisher_results,
                             possible_reactions)
         
