@@ -55,7 +55,6 @@ class MetagenomeAnalyzer:
                                    needed_kos=None):
         logging.info("Loading KO matrix: %s" % (matrix_path))
         ko_matrix_object = Matrix(matrix_path)
-        mkg = KeggModuleGrabber()
         output_lines = ['\t'.join(["Module", "Sample", 
                                    "Mean", "SD", "SEM"])]
         needed_kos = (needed_kos if needed_kos else ko_matrix_object.rownames)

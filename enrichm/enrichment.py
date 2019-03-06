@@ -217,7 +217,7 @@ class Enrichment:
         sample = random.sample(annotations, 1)[0]
         
         cazy_prefix = ''
-        for character in sample:
+        for character in list(sample):
             if character.isdigit()!=True:
                 if character!='_':
                     cazy_prefix+=character
@@ -251,7 +251,6 @@ class Enrichment:
         ### ~ TODO: Add a portion of genome column too?
 
         raw_proportions_output_lines        = [['Module'] + list(combination_dict.keys())]
-        enriched_proportions_output_lines   = [['Module'] + list(combination_dict.keys())]
 
         for module in modules:
             
@@ -364,7 +363,6 @@ class Enrichment:
            output_directory):
 
         p  = Plot()
-        c  = Compare()
         d  = Databases()
         
         if genomes_to_compare_with_group_file:
@@ -463,8 +461,8 @@ class Enrichment:
 
         raw_portions_path \
             = os.path.join(output_directory, self.PROPORTIONS)
-        unique_to_groups_path \
-            = os.path.join(output_directory, self.UNIQUE_TO_GROUPS)
+        #unique_to_groups_path \
+        #    = os.path.join(output_directory, self.UNIQUE_TO_GROUPS)
         raw_proportions_output_lines \
             = self.calculate_portions(modules, combination_dict, annotations_dict, genome_list, proportions_cutoff)
 
@@ -484,7 +482,7 @@ class Enrichment:
                     g2_sig_kos = set()
     
                     result_file_io = open(os.path.join(output_directory, result_file))
-                    header = result_file_io.readline()
+                    result_file_io.readline()
                     for line in result_file_io:
                         sline = line.strip().split('\t')
                         if float(sline[-2])<pval_cutoff:
@@ -504,10 +502,10 @@ class Enrichment:
                         if module not in d.signature_modules:
                             pathway = ModuleDescription(definition)
                             num_all         = pathway.num_steps()
-                            g1_num_covered, g1_ko_covered, g1_ko_total, g1_ko_path = pathway.num_covered_steps(g1_sig_kos)
+                            g1_num_covered, _, _, _ = pathway.num_covered_steps(g1_sig_kos)
                             g1_perc_covered    = g1_num_covered / float(num_all)
         
-                            g2_num_covered, g2_ko_covered, g2_ko_total, g2_ko_path = pathway.num_covered_steps(g2_sig_kos)
+                            g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_kos)
                             g2_perc_covered    = g2_num_covered / float(num_all)
                             if g1_perc_covered>0:
                                 output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, d.m[module]]
@@ -614,7 +612,6 @@ class Test(Enrichment):
         for line in open(d.PFAM_CLAN_DB):
             sline       = line.strip().split()
             pfam        = sline[0]
-            clan        = sline[1]
             id          = sline[2]
             description = "%s; %s" % (id, ' '.join(sline[2:]))
             self.pfam[pfam]  = description

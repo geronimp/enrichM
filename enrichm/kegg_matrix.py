@@ -76,7 +76,7 @@ class KeggMatrix:
                     mt_abundance = float(abundance)
                     if mg_abundance>0:
                         output_dictionary[sample][ko] \
-                                = float(abundance)/float(matrix[sample][ko])
+                            = mt_abundance/mg_abundance
                 else:
                     continue 
                     # for now ignore genes that are expressed, but not detected

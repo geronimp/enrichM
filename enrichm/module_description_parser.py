@@ -140,7 +140,7 @@ class ModuleDescriptionOrRelation:
         reaction_counts = 0
 
         for r in self.relations:
-            found, count, reaction_count, ko = r.satisfied_with(set_of_kos, kos)
+            found, _, reaction_count, ko = r.satisfied_with(set_of_kos, kos)
             if found:
                 step_passed = True
                 for k in ko:

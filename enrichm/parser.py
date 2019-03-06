@@ -115,7 +115,7 @@ class Parser:
 		genome_types = set()
 
 		tpm_values_io = open(tpm_values, 'rb')
-		header = tpm_values_io.readline()
+		tpm_values_io.readline()
 
 		for line in tpm_values_io:
 			gene, contig, type, start, end, strand, forward_read_count, \

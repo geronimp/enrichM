@@ -60,12 +60,13 @@ class Compare:
 		number_array = np.array(number_list)
 		mean = number_array.mean()
 		median = np.median(number_array)
+		std = np.std(number_array)
 		minimum = min(number_array)
 		maximum = max(number_array)
 		p90 = np.percentile(number_array, 90)
 		p10 = np.percentile(number_array, 10)
 
-		return [mean, median, minimum, maximum, p90, p10]
+		return [mean, median, std, minimum, maximum, p90, p10]
 
 	def run_mannwhitneyu(self, feature, feature_list):
 		
@@ -105,24 +106,7 @@ class Compare:
 		
 		return results
 	
-	def write_compare_features_results(self, compare_features_results, output_tests_path, output_summary_path):
-		tests_header 	= ["Group 1", "Group 2", ""]
-		summary_header 	= []
-
-	def gather_stats(self, number_list):
-		number_array = np.array(number_list)
-		mean = number_array.mean()
-		median = np.median(number_array)
-		std = np.std(number_array)
-		minimum = min(number_array)
-		maximum = max(number_array)
-		p90 = np.percentile(number_array, 90)
-		p10 = np.percentile(number_array, 10)
-
-		return [mean, median, std, minimum, maximum, p90, p10]
-
 	def saturate(self, genomes_list, orthologs, output):
-		total = float(len(orthologs))
 		result = dict()
 
 		for group in range(1, len(genomes_list)+1):

@@ -126,7 +126,7 @@ class Predict():
 		logging.info('Loading model: %s' % (self.RF_MODEL))
 
 		logging.info('Parsing data')
-		features, attribute_list \
+		features, _ \
 			= gm.parse_input_matrix(input_matrix_path)
 		
 		sample_list = list()

@@ -202,7 +202,7 @@ class NetworkBuilder:
         for reaction, entry in reference_dict.items():
 
             for compound in entry:
-                
+                import IPython ; IPython.embed()
                 if reaction in seen_reactions:
 
                     reaction_line = [compound, reaction]
@@ -235,11 +235,11 @@ class NetworkBuilder:
                                 reaction_line.append(self.ZERO)
 
                     output_line = '\t'.join(reaction_line)
-                    if sum([float(x) for x in reaction_line[3:]])>0:
 
+                    if sum([float(x) for x in reaction_line[3:]])>0:
+                        
                         if output_line not in network_lines:
                             network_lines.append(output_line)
-
                     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
                     #~#~#~#~#~#~#~#~#~ Fill in node metadata ~#~#~#~#~#~#~#~#~#
                     if compound not in seen_nodes:

@@ -347,7 +347,6 @@ class Annotate:
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_HYPOTHETICAL)
         os.mkdir(output_directory_path)      
-        db_paths = list()
 
         with tempfile.NamedTemporaryFile() as temp:
 
@@ -358,8 +357,8 @@ class Annotate:
                 
             db_path = os.path.join(output_directory_path, "db")
             clu_path = os.path.join(output_directory_path, "clu")
-            align_path = os.path.join(output_directory_path, "alignDb")
-            blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
+            #align_path = os.path.join(output_directory_path, "alignDb")
+            #blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
             clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
             
             logging.info('    - Generating MMSeqs2 database')
@@ -394,7 +393,7 @@ class Annotate:
         ortholog_dict = dict()
         cluster_ids = self.parse_cluster_results(clu_tsv_path, genomes_list, ortholog_dict, output_directory_path)
 
-        return cluster_ids, ortholog_dict.keys()
+        return cluster_ids
 
     def run_mcl(self, clu_tsv_path, output_path):
         logging.info('    - Finding orthologs')
@@ -665,7 +664,7 @@ class Annotate:
 
             if self.hypothetical:
                 logging.info('    - Annotating genomes with hypothetical clusters')
-                cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list)
+                cluster_ids = self.annotate_hypothetical(genomes_list)
                 
                 logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)

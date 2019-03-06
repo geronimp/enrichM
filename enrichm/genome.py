@@ -414,20 +414,8 @@ class AnnotationParser:
 	ORTHOLOG 		= 'ORTHOLOG.txt'
 
 	def __init__(self, annotation_type):        
-		data_directory = Databases.IDS_DIR
-
-		if annotation_type == self.KO:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.KO))]
-		
-		elif annotation_type == self.EC:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.EC))]
-		
-		elif annotation_type == self.PFAM:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.PFAM))]
-		
-		elif annotation_type == self.TIGRFAM:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.TIGRFAM))]
-
+		pass
+	
 	def from_blast_results(self,
 						   blast_output,
 						   evalue_cutoff,
@@ -499,13 +487,12 @@ class AnnotationParser:
 				
 			# Parse HMMsearch line. '_'s represent unimportant entries. Line
 			# is trimmed using [:22] to remove sequence description
-			seqname, _, tlen, annotation, accession, qlen, evalue, score, \
-			bias, _, _, c_evalue, i_evalue, dom_score, dom_bias, hmm_from, \
-			hmm_to, seq_from, seq_to, _, _, acc = line.strip().split()[:22]				
+			seqname, _, tlen, _, accession, qlen, _, score, \
+			_, _, _, _, i_evalue, _, _, _, \
+			_, seq_from, seq_to, _, _, _ = line.strip().split()[:22]				
 
 			# Determine sequence and HMM spans
 			seq_list = [int(seq_from), int(seq_to)]
-			hmm_list = [int(hmm_from), int(hmm_to)]
 
 			# Calculate percent of the query and reference aligned to each-other. 
 			perc_seq_aln = (max(seq_list)-min(seq_list))/float(tlen)
