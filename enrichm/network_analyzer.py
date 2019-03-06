@@ -125,7 +125,7 @@ class NetworkAnalyser:
             for genome, genome_abundance in genome_abundances.items():
 
                 if genome in reversed_metadata:
-                    try:
+                    if genome in reaction_abundance_dict[sample_group]:
                         for reaction in list(reaction_abundance_dict[sample_group][genome].keys()):
                             
                             if genome in reaction_abundance_dict:
@@ -143,8 +143,6 @@ class NetworkAnalyser:
                                 new_dict[sample_group][group][reaction] = 0.0
 
                             new_dict[sample_group][group][reaction] +=  normalised_value
-                    except:
-                        import IPython; IPython.embed()
         #new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
 
         return new_dict
