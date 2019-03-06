@@ -141,7 +141,6 @@ class Classify:
                     num_covered, ko_covered, ko_total, ko_path = path.num_covered_steps(annotations)
                     num_all         = path.num_steps()
                     perc_covered    = num_covered / float(num_all)
-                    ko_perc         = ko_covered / float(ko_total)
 
                     if perc_covered >= cutoff:
                         
@@ -166,9 +165,6 @@ class Classify:
                                                   str(num_covered), 
                                                   str(num_all),
                                                   str(round(perc_covered * 100, 2))
-                                                  # str(ko_covered),
-                                                  # str(ko_total),
-                                                  # str(round(ko_perc * 100, 2))
                                                   ]) 
                         output_lines.append(output_line + '\n') 
                         

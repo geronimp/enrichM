@@ -125,23 +125,26 @@ class NetworkAnalyser:
             for genome, genome_abundance in genome_abundances.items():
 
                 if genome in reversed_metadata:
-                    for reaction, reaction_abundance in reaction_abundance_dict[sample_group][genome].items():
-                        
-                        if genome in reaction_abundance_dict:
-                            normalised_value = reaction_abundance_dict[genome][reaction]*genome_abundance
-                        
-                        else:
-                            normalised_value = 0.0
-                        
-                        group = reversed_metadata[genome]
+                    try:
+                        for reaction in list(reaction_abundance_dict[sample_group][genome].keys()):
+                            
+                            if genome in reaction_abundance_dict:
+                                normalised_value = reaction_abundance_dict[genome][reaction]*genome_abundance
+                            
+                            else:
+                                normalised_value = 0.0
+                            
+                            group = reversed_metadata[genome]
 
-                        if group not in new_dict[sample_metadatagroup]:
-                            new_dict[sample_group][group] = dict()
-                        
-                        if reaction not in new_dict[sample_group][group]:
-                            new_dict[sample_group][group][reaction] = 0.0
+                            if group not in new_dict[sample_group]:
+                                new_dict[sample_group][group] = dict()
+                            
+                            if reaction not in new_dict[sample_group][group]:
+                                new_dict[sample_group][group][reaction] = 0.0
 
-                        new_dict[sample_group][group][reaction] +=  normalised_value
+                            new_dict[sample_group][group][reaction] +=  normalised_value
+                    except:
+                        import IPython; IPython.embed()
         #new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
 
         return new_dict
@@ -154,7 +157,7 @@ class NetworkAnalyser:
             if file.endswith("fisher.tsv"):
                 file = os.path.join(enrichment_output, file)
                 file_io = open(file)
-                header = file_io.readline()
+                file_io.readline()
 
                 for line in file_io:
                     split_line = line.strip().split('\t')
@@ -244,7 +247,6 @@ class NetworkAnalyser:
         km = KeggMatrix(matrix, transcriptome)
         nb = NetworkBuilder(self.metadata.keys())
 
-
         if enrichment_output:
             fisher_results = self._parse_enrichment_output(enrichment_output)
             
@@ -292,29 +294,33 @@ class NetworkAnalyser:
             abundances_metabolome = None
             
         if subparser_name==self.TRAVERSE:
-            logging.info('Traversing network')
-            output_lines = \
-                            nb.traverse(abundances_metagenome,
-                                        abundances_transcriptome,
-                                        limit,
-                                        filter,
-                                        starting_compounds,
-                                        steps,
-                                        number_of_queries)
-            self._write_results(os.path.join(output_directory, self.TRAVERSE_OUTPUT_FILE), output_lines)
+            logging.info("The traverse feature is currently unavailable")
+            pass
+            #logging.info('Traversing network')
+            #output_lines = \
+            #                nb.traverse(abundances_metagenome,
+            #                            abundances_transcriptome,
+            #                            limit,
+            #                            filter,
+            #                            starting_compounds,
+            #                            steps,
+            #                            number_of_queries)
+            #self._write_results(os.path.join(output_directory, self.TRAVERSE_OUTPUT_FILE), output_lines)
 
         elif subparser_name==self.EXPLORE:
-            logging.info("Using supplied queries (%s) to explore network" \
-                                                        % queries)
-            network_lines, node_metadata = \
-                            nb.query_matrix(abundances_metagenome, 
-                                            abundances_transcriptome,
-                                            abundances_expression,
-                                            queries,
-                                            depth)
+            logging.info("The explore feature is currently unavailable")
+            pass
+            #logging.info("Using supplied queries (%s) to explore network" \
+            #                                            % queries)
+            #network_lines, node_metadata = \
+            #                nb.query_matrix(abundances_metagenome, 
+            #                                abundances_transcriptome,
+            #                                abundances_expression,
+            #                                queries,
+            #                                depth)
 
-            self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
-            self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
+            #self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
+            #self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
 
         elif subparser_name==self.PATHWAY:
             logging.info('Generating pathway network')
