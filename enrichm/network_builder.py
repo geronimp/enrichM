@@ -148,15 +148,10 @@ class NetworkBuilder:
         network_visitations={key:dict() for key in self.metadata_keys}
 
         for _ in range(number_of_queries):
-            starting_compound = random.choice(query_list)
             previous_reaction=''
-            next_compound=''
-            for i in range(steps):
-                if i==0:
-                    iter_batch={key:starting_compound for key in self.metadata_keys}
+            for _ in range(steps):
 
                 for key in self.metadata_keys:
-                    compound = iter_batch[key]
                     reactions = list()
                     possible_reaction_abundance = list()
                     possible_reaction_name = list()
@@ -168,12 +163,9 @@ class NetworkBuilder:
                                     possible_reaction_name.append(reaction)
                                     possible_reaction_abundance.append(abundances_transcriptome[key][reaction])
 
-                    if any(possible_reaction_abundance):
-                        probabilities = self.normalise(possible_reaction_abundance)
-                        transition_reaction = possible_reaction_name[self.get_transition(probabilities)]
                     
         output_lines = ['\t'.join(['C'] + self.metadata_keys)]
-        for c in set(itertools.chain(*possible_reactions.values())):
+        for c in set(chain(*possible_reactions.values())):
             output_line = [c]
             for key in self.metadata_keys:
                 if c in network_visitations[key]:
@@ -195,7 +187,6 @@ class NetworkBuilder:
         Parameters
         ----------
         '''
-        import IPython ; IPython.embed()
         seen_nodes = set()
         # Construct headers to network matrices
         seen_reactions = set(nested_dict_vals(abundances))
@@ -236,7 +227,7 @@ class NetworkBuilder:
 
                     for key in self.metadata_keys:
 
-                        for group, group_abundances in abundances.items():
+                        for _, group_abundances in abundances.items():
 
                             if reaction in group_abundances[key]:
                                 reaction_line.append(str(group_abundances[key][reaction]))
@@ -322,8 +313,6 @@ class NetworkBuilder:
         node_metadata_lines \
                     = ['\t'.join(self.metadata_header + 
                                  self.query_header )]
-        compound_reaction_index_lines \
-                    = ['\t'.join(self.compound_reaction_index_header)]
         
         while depth>0:
             if any(level_queries):
@@ -501,7 +490,7 @@ class NetworkBuilder:
             if entry in possible_reactions:
                 del possible_reactions[entry]
         
-        possible_compounds = set(itertools.chain(*possible_reactions.values()))
+        possible_compounds = set(chain(*possible_reactions.values()))
 
         if len(starting_compounds)==0:
             query_list=[x for x in self.d.c.keys()
