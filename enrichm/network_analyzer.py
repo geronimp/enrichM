@@ -137,10 +137,10 @@ class NetworkAnalyser:
                                 new_dict[sample_group][group] = dict()
                             
                             if reaction not in new_dict[sample_group][group]:
-                                new_dict[sample_group][group][reaction] = 0.0
+                                new_dict[sample_group][group][reaction] = [0.0]
 
-                            new_dict[sample_group][group][reaction] +=  normalised_value
-        #new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
+                            new_dict[sample_group][group][reaction].append( normalised_value )
+        new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
 
         return new_dict
 
