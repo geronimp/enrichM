@@ -63,7 +63,6 @@ def phelp():
   Network analysis
     pathway         -> Generate a metabolic network from specific KEGG module or 
                        compounds.
-    explore         -> Explore a metabolic network from a given compound.
 
   Machine learning
     generate        -> Generate a model.

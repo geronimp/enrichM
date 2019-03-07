@@ -35,6 +35,7 @@ from itertools import chain, product
 from enrichm.traverse import NetworkTraverser
 from enrichm.databases import Databases
 ###############################################################################
+
 def nested_dict_vals(d):
     reaction_regex = '(R\d{5})$'
 
@@ -176,7 +177,6 @@ class NetworkBuilder:
     def all_matrix(self, 
                    abundances, 
                    abundances_metabolome,
-                   tpm_values_dict,
                    fisher_results,
                    reference_dict):
         '''
@@ -416,23 +416,27 @@ class NetworkBuilder:
     def pathway_matrix(self,
                        abundances_metagenome,
                        abundances_metabolome,
-                       tpm_values_dict,
                        fisher_results,
                        limit,
                        filter):
 
-        
-        possible_reactions=set()
+        possible_reactions = set()
 
         if any(limit):
+            
             for entry in limit:
+            
                 if(entry.startswith(self.MAP_PREFIX) or 
                    entry.startswith(self.PATHWAY_PREFIX)): 
+            
                     for reaction in self.d.p2r[entry]:
                         possible_reactions.add(reaction)
+            
                 elif(entry.startswith(self.MODULE_PREFIX)):
+            
                     for reaction in self.d.m2r[entry]:
                         possible_reactions.add(reaction)
+            
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
 
@@ -443,14 +447,14 @@ class NetworkBuilder:
             possible_reactions = self.d.r2c
         
         for entry in filter:
+
             if entry in possible_reactions:
+            
                 del possible_reactions[entry]
- 
 
         network_lines, node_metadata_lines = \
             self.all_matrix(abundances_metagenome,
                             abundances_metabolome,
-                            tpm_values_dict,
                             fisher_results,
                             possible_reactions)
         

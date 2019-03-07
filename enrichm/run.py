@@ -396,10 +396,7 @@ class Run:
                  args.cutoff,
                  args.output)
 
-        elif(args.subparser_name == NetworkAnalyser.PATHWAY or
-             args.subparser_name == NetworkAnalyser.EXPLORE or
-             args.subparser_name == NetworkAnalyser.TRAVERSE):
-
+        elif args.subparser_name == NetworkAnalyser.PATHWAY:
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,
@@ -412,7 +409,6 @@ class Run:
                   args.filter,
                   args.limit,
                   args.queries,
-                  args.subparser_name,
                   args.starting_compounds, 
                   args.steps,
                   args.number_of_queries,

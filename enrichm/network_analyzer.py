@@ -16,24 +16,23 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
-
-###############################################################################
-# Imports
 import logging
 import os
 import itertools
-# Local
-from enrichm.kegg_matrix import KeggMatrix
 from enrichm.network_builder import NetworkBuilder
 from enrichm.parser import Parser
+from enrichm.databases import Databases
+from enrichm.kegg_matrix import KeggMatrix
+
+__author__ = "Joel Boyd"
+__copyright__ = "Copyright 2017"
+__credits__ = ["Joel Boyd"]
+__license__ = "GPL3"
+__version__ = "0.0.7"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
+__status__ = "Development"
+
 ###############################################################################
 
 class NetworkAnalyser:
@@ -123,12 +122,16 @@ class NetworkAnalyser:
         for sample_group, genome_abundances in averaged_sample_abundance.items():
             
             for genome, genome_abundance in genome_abundances.items():
+
                 if genome in reversed_metadata:
+
                     if genome in reaction_abundance_dict[sample_group]:
+
                         for reaction in list(reaction_abundance_dict[sample_group][genome].keys()):
                             
                             if reaction in reaction_abundance_dict[sample_group][genome]:
-                                normalised_value = reaction_abundance_dict[sample_group][genome][reaction]*genome_abundance                            
+                                normalised_value = reaction_abundance_dict[sample_group][genome][reaction]*genome_abundance             
+
                             else:
                                 normalised_value = 0.0
                             group = reversed_metadata[genome]
@@ -140,6 +143,7 @@ class NetworkAnalyser:
                                 new_dict[sample_group][group][reaction] = [0.0]
 
                             new_dict[sample_group][group][reaction].append( normalised_value )
+        
         new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
 
         return new_dict
@@ -185,7 +189,7 @@ class NetworkAnalyser:
         else:
             raise Exception("Malformatted enrichment output: %s" % enrichment_output)
     
-    def average_tpm_by_sample(self, tpm_results, sample_metadata):
+    def average_tpm_by_sample(self, tpm_results, sample_metadata, group_metadata):
         output_dict = dict()
         tpm_dict, annotations, genomes = tpm_results
 
@@ -220,33 +224,69 @@ class NetworkAnalyser:
 
                 for annotation in values:
                     output_dict[group][genome][annotation] = sum(output_dict[group][genome][annotation])/len(output_dict[group][genome][annotation])
-    
-        return output_dict
         
-    def do(self, matrix, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output, depth, filter, limit, queries, 
-           subparser_name, starting_compounds, steps, number_of_queries, output_directory):
+        new_output_dict = dict()
+        reactions = list(Databases().r.keys())
+        for key, item in output_dict.items():
+            new_output_dict[key] = dict()
+
+            for group, members in group_metadata.items():
+                new_output_dict[key][group] = dict()
+
+                for reaction in reactions:
+                    to_average = list()
+                    for member in members:
+                        if member in item:
+                            to_average.append(item[member][str.encode(reaction)])
+                    average_value = sum(to_average) / len(to_average)
+                    new_output_dict[key][group][reaction] = average_value
+
+        return new_output_dict
+
+    def do(self,
+            matrix,
+            tpm_values,
+            abundance,
+            abundance_metadata,
+            metabolome,
+            enrichment_output,
+            depth,
+            filter,
+            limit,
+            queries,
+            starting_compounds,
+            steps,
+            number_of_queries,
+            output_directory):
         '''
         Parameters
         ----------
+        matrix
+        tpm_values
+        abundance
+        abundance_metadata
+        metabolome
+        enrichment_output
         depth
         filter
         limit
-        metabolome
         queries
-
-        subparser_name
+        starting_compounds
+        steps
+        number_of_queries
         output_directory
-
         '''
+
         km = KeggMatrix(matrix)
         nb = NetworkBuilder(self.metadata.keys())
 
+        # Read in fisher results
         if enrichment_output:
             fisher_results = self._parse_enrichment_output(enrichment_output)
-            
         else:
             fisher_results = None    
 
+        # Read in genome abundance
         if abundance:
             sample_abundance = km._parse_matrix(abundance)
             sample_metadata = list(km._parse_matrix(abundance_metadata).values())[0]
@@ -260,76 +300,45 @@ class NetworkAnalyser:
                 d[item].append(key)
             
             sample_metadata = d
-        
         else:
             sample_abundance = {'MOCK': {x:1 for x in list(km.reaction_matrix.keys())} }
             sample_metadata = {"a": ['MOCK'] }
         
+        # Read in expression (TPM) values
         if tpm_values:
             logging.info("Parsing detectM TPM values")
-            tpm_values_dict = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata)
+            tpm_values_dict \
+                    = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata, self.metadata)
+            import IPython
+            IPython.embed()
+
+            normalised_abundances \
+                = self.normalise_by_abundance(sample_abundance,
+                                              sample_metadata,
+                                              tpm_values_dict,
+                                              self.metadata)
 
         else:
-            tpm_values_dict = None
-       
-        if tpm_values_dict:
             normalised_abundances \
                 = self.normalise_by_abundance(sample_abundance,
-                                        sample_metadata,
-                                        tpm_values_dict,
-                                        self.metadata)
-        else:
-            normalised_abundances \
-                = self.normalise_by_abundance(sample_abundance,
-                    sample_metadata,
-                    km.reaction_matrix,
-                    self.metadata)
+                                              sample_metadata,
+                                              km.reaction_matrix,
+                                              self.metadata)
 
         if metabolome:
             abundances_metabolome = km._parse_matrix(metabolome)
         
         else:
             abundances_metabolome = None
-            
-        if subparser_name==self.TRAVERSE:
-            logging.info("The traverse feature is currently unavailable")
-            pass
-            #logging.info('Traversing network')
-            #output_lines = \
-            #                nb.traverse(abundances_metagenome,
-            #                            abundances_transcriptome,
-            #                            limit,
-            #                            filter,
-            #                            starting_compounds,
-            #                            steps,
-            #                            number_of_queries)
-            #self._write_results(os.path.join(output_directory, self.TRAVERSE_OUTPUT_FILE), output_lines)
 
-        elif subparser_name==self.EXPLORE:
-            logging.info("The explore feature is currently unavailable")
-            pass
-            #logging.info("Using supplied queries (%s) to explore network" \
-            #                                            % queries)
-            #network_lines, node_metadata = \
-            #                nb.query_matrix(abundances_metagenome, 
-            #                                abundances_transcriptome,
-            #                                abundances_expression,
-            #                                queries,
-            #                                depth)
+        logging.info('Generating pathway network')
 
-            #self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
-            #self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
+        network_lines, node_metadata = \
+                        nb.pathway_matrix(normalised_abundances, 
+                                          abundances_metabolome,
+                                           fisher_results,
+                                           limit,
+                                           filter)
 
-        elif subparser_name==self.PATHWAY:
-            logging.info('Generating pathway network')
-            
-            network_lines, node_metadata = \
-                            nb.pathway_matrix(normalised_abundances, 
-                                              abundances_metabolome,
-                                              tpm_values_dict,
-                                              fisher_results,
-                                              limit,
-                                              filter)
-
-            self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
-            self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
+        self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
+        self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
