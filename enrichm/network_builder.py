@@ -38,15 +38,14 @@ from enrichm.databases import Databases
 def nested_dict_vals(d):
     reaction_regex = '(R\d{5})$'
 
-    for k,i in d.items():
+    for key, item in d.items():
 
-        if isinstance(i, dict):
-            yield from nested_dict_vals(i)
+        if isinstance(item, dict):
+            yield from nested_dict_vals(item)
         
         else:
-        
-            if re.match(str.encode(reaction_regex), str.encode(str(k))):
-                yield k
+            if re.match(str.encode(reaction_regex), key):
+                yield key
 
 class NetworkBuilder:
        
@@ -122,7 +121,6 @@ class NetworkBuilder:
         '''
         return set([x.strip() for x in open(queries_file)])
 
-
     def normalise(self, reaction_abundances):
         probability_list = list()
         for reaction_abundance in reaction_abundances:
@@ -175,8 +173,6 @@ class NetworkBuilder:
             output_lines.append('\t'.join(output_line))
         return output_lines
 
-
-
     def all_matrix(self, 
                    abundances, 
                    abundances_metabolome,
@@ -202,11 +198,9 @@ class NetworkBuilder:
         for reaction, entry in reference_dict.items():
 
             for compound in entry:
-                import IPython ; IPython.embed()
-                if reaction in seen_reactions:
+                if str.encode(reaction) in seen_reactions:
 
                     reaction_line = [compound, reaction]
-                    
                     if fisher_results:
                         enriched_term = list()
                         
@@ -228,16 +222,14 @@ class NetworkBuilder:
                     for key in self.metadata_keys:
 
                         for _, group_abundances in abundances.items():
-
-                            if reaction in group_abundances[key]:
-                                reaction_line.append(str(group_abundances[key][reaction]))
+                            if str.encode(reaction) in group_abundances[key]:
+                                reaction_line.append(str(group_abundances[key][str.encode(reaction)]))
                             else:
                                 reaction_line.append(self.ZERO)
 
                     output_line = '\t'.join(reaction_line)
 
                     if sum([float(x) for x in reaction_line[3:]])>0:
-                        
                         if output_line not in network_lines:
                             network_lines.append(output_line)
                     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -420,7 +412,6 @@ class NetworkBuilder:
             logging.info("Step %i complete with %i queries to continue with" \
                                               % (steps, len(level_queries)))
         return network_lines, node_metadata_lines
-    
     
     def pathway_matrix(self,
                        abundances_metagenome,

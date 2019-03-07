@@ -123,17 +123,14 @@ class NetworkAnalyser:
         for sample_group, genome_abundances in averaged_sample_abundance.items():
             
             for genome, genome_abundance in genome_abundances.items():
-
                 if genome in reversed_metadata:
                     if genome in reaction_abundance_dict[sample_group]:
                         for reaction in list(reaction_abundance_dict[sample_group][genome].keys()):
                             
-                            if genome in reaction_abundance_dict:
-                                normalised_value = reaction_abundance_dict[genome][reaction]*genome_abundance
-                            
+                            if reaction in reaction_abundance_dict[sample_group][genome]:
+                                normalised_value = reaction_abundance_dict[sample_group][genome][reaction]*genome_abundance                            
                             else:
                                 normalised_value = 0.0
-                            
                             group = reversed_metadata[genome]
 
                             if group not in new_dict[sample_group]:
@@ -226,7 +223,7 @@ class NetworkAnalyser:
     
         return output_dict
         
-    def do(self, matrix, transcriptome, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output, depth, filter, limit, queries, 
+    def do(self, matrix, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output, depth, filter, limit, queries, 
            subparser_name, starting_compounds, steps, number_of_queries, output_directory):
         '''
         Parameters
@@ -238,11 +235,10 @@ class NetworkAnalyser:
         queries
 
         subparser_name
-        transcriptome
         output_directory
 
         '''
-        km = KeggMatrix(matrix, transcriptome)
+        km = KeggMatrix(matrix)
         nb = NetworkBuilder(self.metadata.keys())
 
         if enrichment_output:
@@ -275,15 +271,19 @@ class NetworkAnalyser:
 
         else:
             tpm_values_dict = None
-
-        if transcriptome:
-            normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, km.reaction_matrix_transcriptome, self.metadata)
-        
-        elif tpm_values_dict:
-            normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, tpm_values_dict, self.metadata)
-        
+       
+        if tpm_values_dict:
+            normalised_abundances \
+                = self.normalise_by_abundance(sample_abundance,
+                                        sample_metadata,
+                                        tpm_values_dict,
+                                        self.metadata)
         else:
-            normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, km.reaction_matrix, self.metadata)
+            normalised_abundances \
+                = self.normalise_by_abundance(sample_abundance,
+                    sample_metadata,
+                    km.reaction_matrix,
+                    self.metadata)
 
         if metabolome:
             abundances_metabolome = km._parse_matrix(metabolome)

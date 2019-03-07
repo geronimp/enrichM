@@ -403,7 +403,6 @@ class Run:
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,
-                  args.transcriptome,
                   args.tpm_values,
                   args.abundance,
                   args.abundance_metadata,

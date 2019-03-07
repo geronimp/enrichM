@@ -104,8 +104,6 @@ if __name__ == "__main__":
     base_input_options = base_network.add_argument_group('Input options')
     base_input_options.add_argument('--matrix', required=True,
                 help='KO matrix. REQUIRED.')
-    base_input_options.add_argument('--transcriptome',
-                help='Transcriptome KO matrix.')
     base_input_options.add_argument('--abundance',
                 help='Abundance matrix.')
     base_input_options.add_argument('--tpm_values',
