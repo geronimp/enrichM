@@ -223,6 +223,7 @@ class NetworkAnalyser:
             for genome, values in output_dict[group].items():
 
                 for annotation in values:
+                    import IPython ; IPython.embed()
                     output_dict[group][genome][annotation] = sum(output_dict[group][genome][annotation])/len(output_dict[group][genome][annotation])
         
         new_output_dict = dict()
