@@ -49,7 +49,8 @@ def nested_dict_vals(d):
                 if re.match(reaction_regex, key):
                     yield key
             elif type(reaction_regex) == bytes:
-                if re.match(reaction_regex.decode(), key):
+                key = key.decode()
+                if re.match(reaction_regex, key):
                     yield key
 
             else:
@@ -192,10 +193,8 @@ class NetworkBuilder:
         '''
         seen_nodes = set()
         # Construct headers to network matrices
-        try:
-            seen_reactions = set(nested_dict_vals(abundances))
-        except:
-            import IPython ; IPython.embed()
+        seen_reactions = set(nested_dict_vals(abundances))
+
         groups = list(abundances.keys())
         network_lines  = ['\t'.join(self.matrix_header + list(['_'.join([a,b]) for a,b in product(self.metadata_keys, groups)]))]
 
@@ -208,7 +207,8 @@ class NetworkBuilder:
         for reaction, entry in reference_dict.items():
 
             for compound in entry:
-                if str.encode(reaction) in seen_reactions:
+
+                if reaction in seen_reactions:
 
                     reaction_line = [compound, reaction]
                     if fisher_results:
@@ -232,8 +232,8 @@ class NetworkBuilder:
                     for key in self.metadata_keys:
 
                         for _, group_abundances in abundances.items():
-                            if str.encode(reaction) in group_abundances[key]:
-                                reaction_line.append(str(group_abundances[key][str.encode(reaction)]))
+                            if reaction in group_abundances[key]:
+                                reaction_line.append(str(group_abundances[key][reaction]))
                             else:
                                 reaction_line.append(self.ZERO)
 
