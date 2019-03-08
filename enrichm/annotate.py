@@ -16,33 +16,33 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
- 
+__author__ = "Joel Boyd"
+__copyright__ = "Copyright 2017"
+__credits__ = ["Joel Boyd"]
+__license__ = "GPL3"
+__version__ = "0.0.7"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
+__status__ = "Development"
+
 ###############################################################################
 # System imports
+from enrichm.genome import Genome, AnnotationParser
+from enrichm.gff_generator import GffGenerator
+from enrichm.matrix_generator import MatrixGenerator
+from enrichm.databases import Databases
+from enrichm.sequence_io import SequenceIO
+import numpy as np
+import statsmodels.sandbox.stats.multicomp as sm
+import multiprocessing as mp
+import pickle
+import shutil
+import tempfile
 import logging
 import subprocess
-import os 
-import tempfile
-import shutil
-import pickle
-import multiprocessing as mp
-import statsmodels.sandbox.stats.multicomp as sm
-import numpy as np
+import os
 
 # Local
-from enrichm.sequence_io import SequenceIO
-from enrichm.databases import Databases
-from enrichm.matrix_generator import MatrixGenerator
-from enrichm.gff_generator import GffGenerator
-from enrichm.genome import Genome, AnnotationParser
 
 ###############################################################################
 ###############################################################################

@@ -16,22 +16,19 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
-
-###############################################################################
-# Imports
-import os
-import logging
-# Local
-from enrichm.sequence_io import SequenceIO
 from enrichm.databases import Databases
+from enrichm.sequence_io import SequenceIO
+import logging
+import os
+__author__ = "Joel Boyd"
+__copyright__ = "Copyright 2017"
+__credits__ = ["Joel Boyd"]
+__license__ = "GPL3"
+__version__ = "0.0.7"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
+__status__ = "Development"
+
 ###############################################################################
 
 class Genome:
@@ -70,7 +67,6 @@ class Genome:
 				self.protein_ordered_dict[protein_count] = name
 		
 		else:
-		
 			for protein_count, (description, _) in enumerate(seqio.each(open(path))):
 				name = description.partition(' ')[0]
 				sequence = Sequence(description)
@@ -295,7 +291,6 @@ class Sequence(Genome):
 				seq_dict[position] = annotation.annotation
 		
 		return seq_dict
-
 
 	def what(self, query_region):
 		'''

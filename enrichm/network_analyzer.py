@@ -237,7 +237,10 @@ class NetworkAnalyser:
                     to_average = list()
                     for member in members:
                         if member in item:
-                            to_average.append(item[member][str.encode(reaction)])
+                            if str.encode(reaction) in item[member]:
+                                to_average.append(item[member][str.encode(reaction)])
+                            else:
+                                to_average.append(0.0)
                     average_value = sum(to_average) / len(to_average)
                     new_output_dict[key][group][reaction] = average_value
 
@@ -307,16 +310,8 @@ class NetworkAnalyser:
         # Read in expression (TPM) values
         if tpm_values:
             logging.info("Parsing detectM TPM values")
-            tpm_values_dict \
-                    = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata, self.metadata)
-            import IPython
-            IPython.embed()
-
             normalised_abundances \
-                = self.normalise_by_abundance(sample_abundance,
-                                              sample_metadata,
-                                              tpm_values_dict,
-                                              self.metadata)
+                    = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata, self.metadata)
 
         else:
             normalised_abundances \

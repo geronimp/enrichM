@@ -45,8 +45,15 @@ def nested_dict_vals(d):
             yield from nested_dict_vals(item)
         
         else:
-            if re.match(str.encode(reaction_regex), key):
-                yield key
+            if type(reaction_regex) == str:
+                if re.match(reaction_regex, key):
+                    yield key
+            elif type(reaction_regex) == bytes:
+                if re.match(reaction_regex.decode(), key):
+                    yield key
+
+            else:
+                raise Exception("Invalid key in in nested dict!")
 
 class NetworkBuilder:
        
@@ -185,7 +192,10 @@ class NetworkBuilder:
         '''
         seen_nodes = set()
         # Construct headers to network matrices
-        seen_reactions = set(nested_dict_vals(abundances))
+        try:
+            seen_reactions = set(nested_dict_vals(abundances))
+        except:
+            import IPython ; IPython.embed()
         groups = list(abundances.keys())
         network_lines  = ['\t'.join(self.matrix_header + list(['_'.join([a,b]) for a,b in product(self.metadata_keys, groups)]))]
 
