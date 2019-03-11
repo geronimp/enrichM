@@ -116,7 +116,6 @@ class NetworkAnalyser:
                 abundances = [d[genome] for d in dicts]
                 average = sum(abundances) / len(abundances)
                 averaged_sample_abundance[group][genome] = average # Median might be better?
-        
         new_dict = {x:dict() for x in list(averaged_sample_abundance.keys())}
 
         for sample_group, genome_abundances in averaged_sample_abundance.items():
@@ -223,7 +222,6 @@ class NetworkAnalyser:
             for genome, values in output_dict[group].items():
 
                 for annotation in values:
-                    import IPython ; IPython.embed()
                     output_dict[group][genome][annotation] = sum(output_dict[group][genome][annotation])/len(output_dict[group][genome][annotation])
         
         new_output_dict = dict()
@@ -304,9 +302,11 @@ class NetworkAnalyser:
                 d[item].append(key)
             
             sample_metadata = d
+        
         else:
             sample_abundance = {'MOCK': {x:1 for x in list(km.reaction_matrix.keys())} }
-            sample_metadata = {"a": ['MOCK'] }
+            sample_metadata = {"a": ['MOCK']}
+            km.reaction_matrix = {"a": km.reaction_matrix}
         
         # Read in expression (TPM) values
         if tpm_values:
@@ -320,7 +320,6 @@ class NetworkAnalyser:
                                               sample_metadata,
                                               km.reaction_matrix,
                                               self.metadata)
-
         if metabolome:
             abundances_metabolome = km._parse_matrix(metabolome)
         

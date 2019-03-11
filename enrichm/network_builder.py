@@ -449,10 +449,10 @@ class NetworkBuilder:
             
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
-
             possible_reactions = {reaction:self.d.r2c[reaction] 
                                   for reaction in
-                                  possible_reactions}
+                                  possible_reactions
+                                  if reaction in self.d.r2c}
         else:
             possible_reactions = self.d.r2c
         
