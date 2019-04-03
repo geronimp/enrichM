@@ -99,8 +99,6 @@ class NetworkTraverser:
             queue = [(from_node, [from_node])]
             while queue:
                 (vertex, path) = queue.pop(0)     
-                compound_list = []
-                reaction_list = []
                 for reaction in c2r_graph[vertex]:
                     for rpair in r2rpair_graph[reaction]:
                         if vertex in rpair:

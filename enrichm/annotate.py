@@ -16,33 +16,34 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
- 
+__author__ = "Joel Boyd"
+__copyright__ = "Copyright 2017"
+__credits__ = ["Joel Boyd"]
+__license__ = "GPL3"
+__version__ = "0.0.7"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
+__status__ = "Development"
+
 ###############################################################################
 # System imports
+from enrichm.genome import Genome, AnnotationParser
+from enrichm.gff_generator import GffGenerator
+from enrichm.matrix_generator import MatrixGenerator
+from enrichm.databases import Databases
+from enrichm.sequence_io import SequenceIO
+import numpy as np
+import statsmodels.sandbox.stats.multicomp as sm
+import multiprocessing as mp
+import pickle
+import shutil
+import tempfile
 import logging
 import subprocess
-import os 
-import tempfile
-import shutil
-import pickle
-import multiprocessing as mp
-import statsmodels.sandbox.stats.multicomp as sm
-import numpy as np
+import os
 
 # Local
-from enrichm.sequence_io import SequenceIO
-from enrichm.databases import Databases
-from enrichm.matrix_generator import MatrixGenerator
-from enrichm.gff_generator import GffGenerator
-from enrichm.genome import Genome, AnnotationParser
+
 ###############################################################################
 ###############################################################################
 
@@ -81,7 +82,7 @@ class Annotate:
     
     def __init__(self,
                  output_directory,
-                 ko, pfam, tigrfam, hypothetical, cazy, ec,
+                 ko, ko_hmm, pfam, tigrfam, hypothetical, cazy, ec,
                  evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, chunk_number, chunk_max, count_domains,
                  threads, parallel, suffix, light):
 
@@ -90,6 +91,7 @@ class Annotate:
 
         # Define type of annotation to be carried out
         self.ko               = ko 
+        self.ko_hmm           = ko_hmm
         self.pfam             = pfam 
         self.tigrfam          = tigrfam 
         self.hypothetical     = hypothetical 
@@ -152,7 +154,6 @@ class Annotate:
                                        universal_newlines=True)
             process.communicate(input=str('\n'.join(genome_paths)))
         return genome_directory
-
 
     def call_proteins(self, genome_directory):
         '''
@@ -317,7 +318,8 @@ class Annotate:
         genome_dict = {genome.name: genome for genome in genomes_list}
 
         if (parser == AnnotationParser.TIGRFAM or 
-            parser == AnnotationParser.PFAM):
+            parser == AnnotationParser.PFAM,
+            parser == AnnotationParser.KO_HMM):
             hmmcutoff=True
         else:
             hmmcutoff=False
@@ -347,7 +349,6 @@ class Annotate:
         output_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_HYPOTHETICAL)
         os.mkdir(output_directory_path)      
-        db_paths = list()
 
         with tempfile.NamedTemporaryFile() as temp:
 
@@ -358,8 +359,8 @@ class Annotate:
                 
             db_path = os.path.join(output_directory_path, "db")
             clu_path = os.path.join(output_directory_path, "clu")
-            align_path = os.path.join(output_directory_path, "alignDb")
-            blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
+            #align_path = os.path.join(output_directory_path, "alignDb")
+            #blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
             clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
             
             logging.info('    - Generating MMSeqs2 database')
@@ -394,8 +395,7 @@ class Annotate:
         ortholog_dict = dict()
         cluster_ids = self.parse_cluster_results(clu_tsv_path, genomes_list, ortholog_dict, output_directory_path)
 
-        return cluster_ids, ortholog_dict.keys()
-
+        return cluster_ids
 
     def run_mcl(self, clu_tsv_path, output_path):
         logging.info('    - Finding orthologs')
@@ -405,12 +405,16 @@ class Annotate:
         subprocess.call(cmd, shell = True)
         logging.debug('Finished')
         ortholog = 1
+
         for line in open(output_path):
             ortholog_idx = "ortholog_%i" % ortholog
             ortholog_dict[ortholog_idx] = set()
+        
             for protein in line.strip().split('\t'):
                 ortholog_dict[ortholog_idx].add(protein)
+        
             ortholog += 1
+        
         return ortholog_dict
 
     def parse_cluster_results(self, 
@@ -459,7 +463,6 @@ class Annotate:
         #        genome_dictionary[genome].add_ortholog(protein, ortholog)
         
         return cluster_ids
-
 
     def _default_hmmsearch_options(self):
         cmd = ''
@@ -582,7 +585,6 @@ class Annotate:
             except NameError:
                 list_size = 0
 
-
     def parse_genome_inputs(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
         Inputs
@@ -654,7 +656,7 @@ class Annotate:
 
         logging.info("Running pipeline: annotate")
         logging.info("Setting up for genome annotation")
-        
+
         genomes_list = self.parse_genome_inputs(genome_directory, protein_directory, genome_files, protein_files)
         if len(genomes_list)==0:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
@@ -664,7 +666,7 @@ class Annotate:
 
             if self.hypothetical:
                 logging.info('    - Annotating genomes with hypothetical clusters')
-                cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list)
+                cluster_ids = self.annotate_hypothetical(genomes_list)
                 
                 logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)
@@ -678,6 +680,19 @@ class Annotate:
                 logging.info('    - Generating ko frequency table')
                 mg = MatrixGenerator(MatrixGenerator.KO)
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
+
+            if self.ko_hmm:
+                logging.info('    - Annotating genomes with ko ids')
+                self.hmmsearch_annotation(genomes_list,
+                                          os.path.join(self.output_directory, self.GENOME_KO),
+                                          self.databases.KO_HMM_DB,
+                                          AnnotationParser.KO_HMM)
+
+                logging.info('    - Generating ko frequency table')
+                mg = MatrixGenerator(MatrixGenerator.KO)
+                freq_table = os.path.join(
+                    self.output_directory, self.OUTPUT_KO)
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ec:
@@ -725,11 +740,12 @@ class Annotate:
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_CAZY)
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
-            logging.info('Generating .gff files:')
-            self._generate_gff_files(genomes_list)
+            if hasattr(list(genomes_list[0].sequences.values())[0], "prod_id"):
+                logging.info('Generating .gff files:')
+                self._generate_gff_files(genomes_list)
 
-            logging.info('Renaming protein headers')
-            self._rename_fasta(genomes_list)
+                logging.info('Renaming protein headers')
+                self._rename_fasta(genomes_list)
 
             if not self.light:
                 logging.info('Storing genome objects')

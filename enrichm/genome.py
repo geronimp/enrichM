@@ -16,22 +16,19 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
-
-###############################################################################
-# Imports
-import os
-import logging
-# Local
-from enrichm.sequence_io import SequenceIO
 from enrichm.databases import Databases
+from enrichm.sequence_io import SequenceIO
+import logging
+import os
+__author__ = "Joel Boyd"
+__copyright__ = "Copyright 2017"
+__credits__ = ["Joel Boyd"]
+__license__ = "GPL3"
+__version__ = "0.0.7"
+__maintainer__ = "Joel Boyd"
+__email__ = "joel.boyd near uq.net.au"
+__status__ = "Development"
+
 ###############################################################################
 
 class Genome:
@@ -70,7 +67,6 @@ class Genome:
 				self.protein_ordered_dict[protein_count] = name
 		
 		else:
-		
 			for protein_count, (description, _) in enumerate(seqio.each(open(path))):
 				name = description.partition(' ')[0]
 				sequence = Sequence(description)
@@ -102,22 +98,28 @@ class Genome:
 		# If annotation type is a hmmsearch result
 		if(annotation_type == AnnotationParser.PFAM or
 		   annotation_type == AnnotationParser.TIGRFAM or
-		   annotation_type == AnnotationParser.CAZY):
+		   annotation_type == AnnotationParser.CAZY or
+		   annotation_type == AnnotationParser.KO_HMM):
 			# Set up an iterator to produce the results
 			logging.debug("    - Parsing hmmsearch chunk")
 
-			if annotation_type == AnnotationParser.PFAM:
+			if(annotation_type == AnnotationParser.PFAM or
+			   annotation_type == AnnotationParser.KO_HMM):
 				percent_aln_query_cutoff = 0.0
 				percent_aln_reference_cutoff = 0.0
 
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
-												 percent_aln_reference_cutoff)
+												 percent_aln_reference_cutoff,
+                                       			 (True if annotation_type == AnnotationParser.KO_HMM else False))
 			
 			if annotation_type == AnnotationParser.PFAM:
 				self.pfam_dict = dict()
 				refdict = self.pfam_dict
 
+			elif annotation_type == AnnotationParser.KO_HMM:
+				self.ko_dict = dict()
+				refdict = self.ko_dict
 			
 			elif annotation_type == AnnotationParser.TIGRFAM:
 				self.tigrfam_dict = dict()
@@ -143,11 +145,9 @@ class Genome:
 			elif annotation_type == AnnotationParser.EC:
 				self.ec_dict = dict()
 				refdict = self.ec_dict
-
+		
 		for seqname, annotations, evalue, annotation_range in iterator:
-
 			self.sequences[seqname].add(annotations, evalue, annotation_range, annotation_type)
-
 			for annotation in annotations:
 
 				if annotation in refdict:
@@ -248,20 +248,24 @@ class Sequence(Genome):
 	and annotations. Can compare current annotation with new annotaitons.
 	'''
 	def __init__(self, description, sequence=None):
-		self.annotations = []	
+		self.annotations = list()
+		line_split = description.split(' # ')
 		
 		if sequence:
 			self.seq = str(sequence)
-			self.length = int(len(sequence))
-		
-		try:
+			self.length = int(len(sequence))	
+
+		if len(line_split)==5:
 			self.seqname, self.startpos, self.finishpos, self.direction, stats \
-								= description.split(' # ')
+								= line_split
 			self.prod_id, self.partial, self.starttype, self.rbs_motif, self.rbs_spacer,  self.gc \
 								= [x.split('=')[1] for x in stats.split(';')]
 		
-		except:
-			raise Exception("Error parsing genome proteins. Was the output from prodigal?")
+		elif len(line_split)==1:
+			self.seqname = description
+			
+		else:
+			raise Exception("Malformatted sequence file!")
 
 	def all_annotations(self):
 		'''
@@ -291,7 +295,6 @@ class Sequence(Genome):
 				seq_dict[position] = annotation.annotation
 		
 		return seq_dict
-
 
 	def what(self, query_region):
 		'''
@@ -402,7 +405,8 @@ class AnnotationParser:
 	currently for: KO, PFAM and TIGRFAM. COG to come	
 	'''
 	KO      		= 'KO_IDS.txt'
-	EC      		= 'EC_IDS.txt'
+	KO_HMM 			= 'KO_IDS.txt'
+	EC				= 'EC_IDS.txt'
 	PFAM    		= 'PFAM_IDS.txt'
 	TIGRFAM 		= 'TIGRFAM_IDS.txt'
 	CAZY      		= 'CAZY_IDS.txt'
@@ -410,20 +414,8 @@ class AnnotationParser:
 	ORTHOLOG 		= 'ORTHOLOG.txt'
 
 	def __init__(self, annotation_type):        
-		data_directory = Databases.IDS_DIR
-
-		if annotation_type == self.KO:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.KO))]
-		
-		elif annotation_type == self.EC:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.EC))]
-		
-		elif annotation_type == self.PFAM:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.PFAM))]
-		
-		elif annotation_type == self.TIGRFAM:
-			ids = [x.strip() for x in open(os.path.join(data_directory, self.TIGRFAM))]
-
+		pass
+	
 	def from_blast_results(self,
 						   blast_output,
 						   evalue_cutoff,
@@ -467,7 +459,8 @@ class AnnotationParser:
 							   evalue_cutoff,
 							   bitscore_cutoff, 
     						   percent_aln_query_cutoff,
-    						   percent_aln_reference_cutoff):
+    						   percent_aln_reference_cutoff,
+							   acc = False):
 		'''
 		Parse input hmmsearch file
 
@@ -479,14 +472,14 @@ class AnnotationParser:
 		bitscore_cutoff                 - Float. Bit score threshold for annotations.
 		percent_aln_query_cutoff        - Float. Threshold for the percent of the query 
 										  that must be aligned to consider the annotation.
-		percent_aln_reference_cutoff    - Float. Threshold for the percent of the reference 
+		percent_aln_reference_cutoff    - Float. Threshold for the percent of the reference 	
 										  that must be aligned to consider the annotation.
 		Yields
 		------
 		A sequence name, accession, E-value and region hit for every annottation result in 
 		blast_output_path that pass a set of cutoffs
 		'''
-
+		
 		# Filling in column
 		for line in open(hmmsearch_output_path):
 			
@@ -495,22 +488,23 @@ class AnnotationParser:
 				
 			# Parse HMMsearch line. '_'s represent unimportant entries. Line
 			# is trimmed using [:22] to remove sequence description
-			seqname, _, tlen, annotation, accession, qlen, evalue, score, \
-			bias, _, _, c_evalue, i_evalue, dom_score, dom_bias, hmm_from, \
-			hmm_to, seq_from, seq_to, _, _, acc = line.strip().split()[:22]				
+			seqname, _, tlen, ko_hmm, accession, qlen, _, score, \
+			_, _, _, _, i_evalue, _, _, _, \
+			_, seq_from, seq_to, _, _, _ = line.strip().split()[:22]				
 
 			# Determine sequence and HMM spans
 			seq_list = [int(seq_from), int(seq_to)]
-			hmm_list = [int(hmm_from), int(hmm_to)]
 
 			# Calculate percent of the query and reference aligned to each-other. 
 			perc_seq_aln = (max(seq_list)-min(seq_list))/float(tlen)
 			perc_hmm_aln = (max(seq_list)-min(seq_list))/float(qlen)
+			
+			if acc:
+				accession = ko_hmm
 
 			# If the annotation passes the specified cutoffs
 			if(float(i_evalue)<=evalue_cutoff and
 				float(score)>=bitscore_cutoff and
 				perc_seq_aln>=percent_aln_query_cutoff and
 				perc_hmm_aln>=percent_aln_reference_cutoff):
-				
 				yield seqname, [accession], i_evalue, range(min(seq_list), max(seq_list))

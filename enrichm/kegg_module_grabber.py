@@ -110,10 +110,10 @@ class KeggModuleGrabber:
 
         output_path = output_prefix + '_annotations.tsv'
 
-        if genome_and_ko_file:
-            genome_to_ko_sets = self._parse_genome_and_annotation_file_lf(genome_and_ko_file)
-        elif genome_and_ko_matrix:
-            genome_to_ko_sets = self._parse_genome_and_annotation_file_matrix(genome_and_ko_matrix)
+        if genome_and_annotation_file:
+            genome_to_ko_sets = self._parse_genome_and_annotation_file_lf(genome_and_annotation_file)
+        elif genome_and_annotation_matrix:
+            genome_to_ko_sets = self._parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix)
         ### ~ TODO: Add in an option for seamless input from Annotate function
 
         logging.info("Read in annotations for %i genomes" % len(genome_to_ko_sets))

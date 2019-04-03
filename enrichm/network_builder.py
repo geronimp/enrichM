@@ -35,18 +35,26 @@ from itertools import chain, product
 from enrichm.traverse import NetworkTraverser
 from enrichm.databases import Databases
 ###############################################################################
+
 def nested_dict_vals(d):
     reaction_regex = '(R\d{5})$'
 
-    for k,i in d.items():
+    for key, item in d.items():
 
-        if isinstance(i, dict):
-            yield from nested_dict_vals(i)
+        if isinstance(item, dict):
+            yield from nested_dict_vals(item)
         
         else:
-        
-            if re.match(str.encode(reaction_regex), str.encode(str(k))):
-                yield k
+            if type(reaction_regex) == str:
+                if re.match(reaction_regex, key):
+                    yield key
+            elif type(reaction_regex) == bytes:
+                key = key.decode()
+                if re.match(reaction_regex, key):
+                    yield key
+
+            else:
+                raise Exception("Invalid key in in nested dict!")
 
 class NetworkBuilder:
        
@@ -86,7 +94,7 @@ class NetworkBuilder:
                         =  ['query',
                             'step']
         self.compound_reaction_index_header \
-                        = []
+                        = list()
         self.step_header = ['step']
 
     def _gather_module(self, key):
@@ -122,9 +130,8 @@ class NetworkBuilder:
         '''
         return set([x.strip() for x in open(queries_file)])
 
-
     def normalise(self, reaction_abundances):
-        probability_list = []
+        probability_list = list()
         for reaction_abundance in reaction_abundances:
             probability = float(reaction_abundance)/sum(reaction_abundances)
             probability_list.append(probability)
@@ -132,7 +139,7 @@ class NetworkBuilder:
 
     def get_transition(self, probabilities):
         n=random.uniform(0,1)
-        x = []
+        x = list()
         for probability in probabilities:
             x.append(probability-n)
         return x.index(min(x, key=abs))
@@ -145,18 +152,13 @@ class NetworkBuilder:
                         number_of_queries,
                         steps): 
 
-        network_visitations={key:{} for key in self.metadata_keys}
+        network_visitations={key:dict() for key in self.metadata_keys}
 
         for _ in range(number_of_queries):
-            starting_compound = random.choice(query_list)
             previous_reaction=''
-            next_compound=''
-            for i in range(steps):
-                if i==0:
-                    iter_batch={key:starting_compound for key in self.metadata_keys}
+            for _ in range(steps):
 
                 for key in self.metadata_keys:
-                    compound = iter_batch[key]
                     reactions = list()
                     possible_reaction_abundance = list()
                     possible_reaction_name = list()
@@ -168,12 +170,9 @@ class NetworkBuilder:
                                     possible_reaction_name.append(reaction)
                                     possible_reaction_abundance.append(abundances_transcriptome[key][reaction])
 
-                    if any(possible_reaction_abundance):
-                        probabilities = self.normalise(possible_reaction_abundance)
-                        transition_reaction = possible_reaction_name[self.get_transition(probabilities)]
                     
         output_lines = ['\t'.join(['C'] + self.metadata_keys)]
-        for c in set(itertools.chain(*possible_reactions.values())):
+        for c in set(chain(*possible_reactions.values())):
             output_line = [c]
             for key in self.metadata_keys:
                 if c in network_visitations[key]:
@@ -182,8 +181,6 @@ class NetworkBuilder:
                     output_line.append('0')    
             output_lines.append('\t'.join(output_line))
         return output_lines
-
-
 
     def all_matrix(self, 
                    abundances, 
@@ -197,6 +194,7 @@ class NetworkBuilder:
         seen_nodes = set()
         # Construct headers to network matrices
         seen_reactions = set(nested_dict_vals(abundances))
+
         groups = list(abundances.keys())
         network_lines  = ['\t'.join(self.matrix_header + list(['_'.join([a,b]) for a,b in product(self.metadata_keys, groups)]))]
 
@@ -209,13 +207,13 @@ class NetworkBuilder:
         for reaction, entry in reference_dict.items():
 
             for compound in entry:
-                
+
                 if reaction in seen_reactions:
 
                     reaction_line = [compound, reaction]
-                    
                     if fisher_results:
                         enriched_term = list()
+                        
                         for compared_group in list(fisher_results.keys()):
 
                             if any(set(self.d.r2k[reaction]).intersection(fisher_results[compared_group])):
@@ -223,6 +221,7 @@ class NetworkBuilder:
                         
                         if len(enriched_term)>0:
                             enriched_term = '_'.join(enriched_term)
+                        
                         else:
                             enriched_term = 'NA'
                     else:
@@ -232,19 +231,17 @@ class NetworkBuilder:
 
                     for key in self.metadata_keys:
 
-                        for group, group_abundances in abundances.items():
-
+                        for _, group_abundances in abundances.items():
                             if reaction in group_abundances[key]:
                                 reaction_line.append(str(group_abundances[key][reaction]))
                             else:
                                 reaction_line.append(self.ZERO)
 
                     output_line = '\t'.join(reaction_line)
-                    if sum([float(x) for x in reaction_line[3:]])>0:
 
+                    if sum([float(x) for x in reaction_line[3:]])>0:
                         if output_line not in network_lines:
                             network_lines.append(output_line)
-
                     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
                     #~#~#~#~#~#~#~#~#~ Fill in node metadata ~#~#~#~#~#~#~#~#~#
                     if compound not in seen_nodes:
@@ -310,6 +307,7 @@ class NetworkBuilder:
                     = ['\t'.join(self.matrix_header + 
                                  self.transcriptome_header +
                                  self.step_header)]
+        
         else:
             network_lines  \
                     = ['\t'.join(self.matrix_header+
@@ -317,8 +315,7 @@ class NetworkBuilder:
         node_metadata_lines \
                     = ['\t'.join(self.metadata_header + 
                                  self.query_header )]
-        compound_reaction_index_lines \
-                    = ['\t'.join(self.compound_reaction_index_header)]
+        
         while depth>0:
             if any(level_queries):
                 queries_list = set(level_queries)
@@ -426,7 +423,6 @@ class NetworkBuilder:
                                               % (steps, len(level_queries)))
         return network_lines, node_metadata_lines
     
-    
     def pathway_matrix(self,
                        abundances_metagenome,
                        abundances_metabolome,
@@ -434,34 +430,40 @@ class NetworkBuilder:
                        limit,
                        filter):
 
-        
-        possible_reactions=set()
+        possible_reactions = set()
 
         if any(limit):
+            
             for entry in limit:
+            
                 if(entry.startswith(self.MAP_PREFIX) or 
                    entry.startswith(self.PATHWAY_PREFIX)): 
+            
                     for reaction in self.d.p2r[entry]:
                         possible_reactions.add(reaction)
+            
                 elif(entry.startswith(self.MODULE_PREFIX)):
+            
                     for reaction in self.d.m2r[entry]:
                         possible_reactions.add(reaction)
+            
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
-
             possible_reactions = {reaction:self.d.r2c[reaction] 
                                   for reaction in
-                                  possible_reactions}                
+                                  possible_reactions
+                                  if reaction in self.d.r2c}
         else:
             possible_reactions = self.d.r2c
         
         for entry in filter:
+
             if entry in possible_reactions:
+            
                 del possible_reactions[entry]
- 
 
         network_lines, node_metadata_lines = \
-            self.all_matrix(abundances_metagenome, 
+            self.all_matrix(abundances_metagenome,
                             abundances_metabolome,
                             fisher_results,
                             possible_reactions)
@@ -493,7 +495,7 @@ class NetworkBuilder:
             if entry in possible_reactions:
                 del possible_reactions[entry]
         
-        possible_compounds = set(itertools.chain(*possible_reactions.values()))
+        possible_compounds = set(chain(*possible_reactions.values()))
 
         if len(starting_compounds)==0:
             query_list=[x for x in self.d.c.keys()

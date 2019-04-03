@@ -25,9 +25,10 @@ __maintainer__  = "Joel Boyd"
 __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
-###############################################################################
+################################################################################
 # Imports
-import logging
+
+from enrichm.databases import Databases
 
 ################################################################################
 
@@ -78,29 +79,79 @@ class Parser:
 
 	
 	@staticmethod
-    def _parse_matrix(self, matrix):
-        
-        output_dict = {}
-        
-        for idx, line in enumerate(open(matrix)):
-            sline = line.strip().split('\t')
-            if idx==0:
-                self.sample_names = sline[1:]
-                    
-                for sample in self.sample_names: 
-                    output_dict[sample] = {}
-            else:   
-                ko_id      = sline[0]
-                abundances = sline[1:]
-                
-                for abundance, sample in zip(abundances, self.sample_names):
-                    output_dict[sample][ko_id] = float(abundance)
-        return output_dict
-    
-    @staticmethod
-    def _parse_matrix(self, matrix_file_io, colnames):
-        for line in matrix_file_io:
-            sline = line.strip().split('\t')
-            rowname, entries = sline[0], sline[1:]
-            for colname, entry in zip(colnames, entries):
-                yield colname, entry, rowname
+	def _parse_matrix(self, matrix):
+		
+		output_dict = dict()
+		
+		for idx, line in enumerate(open(matrix)):
+			sline = line.strip().split('\t')
+			if idx==0:
+				self.sample_names = sline[1:]
+				    
+				for sample in self.sample_names: 
+					output_dict[sample] = dict()
+			else:   
+				ko_id      = sline[0]
+				abundances = sline[1:]
+				
+				for abundance, sample in zip(abundances, self.sample_names):
+					output_dict[sample][ko_id] = float(abundance)
+		return output_dict
+	
+	@staticmethod
+	def _parse_matrix(self, matrix_file_io, colnames):
+		for line in matrix_file_io:
+			sline = line.strip().split('\t')
+			rowname, entries = sline[0], sline[1:]
+			for colname, entry in zip(colnames, entries):
+				yield colname, entry, rowname
+	
+	@staticmethod
+	def parse_tpm_values(tpm_values):
+		k2r = Databases().k2r
+
+		output_dict = dict()
+		annotation_types = set()
+		genome_types = set()
+
+		tpm_values_io = open(tpm_values, 'rb')
+		tpm_values_io.readline()
+
+		for line in tpm_values_io:
+			gene, contig, type, start, end, strand, forward_read_count, \
+			reverse_read_count, pvalue, normalized_read_count, tpm, \
+			feature_length, directionality,  annotation, sample = line.strip().split(b'\t')
+			annotation_list = annotation.split(b',')
+			tpm = float(tpm)
+			genome = '_'.join(str(gene, "utf-8").split('_')[:2]) # temporary
+			genome_types.add(genome)
+
+			if sample not in output_dict:
+				output_dict[sample] = dict()
+			
+			if genome not in output_dict[sample]:
+				output_dict[sample][genome] = dict()
+
+			for annotation_type in annotation_list:
+
+				if str(annotation_type, "utf-8") in k2r:
+					reactions = k2r[str(annotation_type, "utf-8")]
+
+					for reaction in reactions:
+						reaction = str.encode(reaction)
+
+						if reaction not in output_dict[sample][genome]:
+							output_dict[sample][genome][reaction] = 0.0
+							annotation_types.add(reaction)
+					
+					output_dict[sample][genome][reaction] += tpm
+												
+				#else:
+				#	
+				#	if annotation_type not in output_dict[sample][genome]:
+				#		output_dict[sample][genome][annotation_type] = 0.0
+				#		annotation_types.add(annotation_type)
+				#		
+				#	output_dict[sample][genome][annotation_type] += tpm
+
+		return output_dict, annotation_types, genome_types

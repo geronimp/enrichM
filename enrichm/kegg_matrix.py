@@ -34,7 +34,7 @@ from enrichm.databases import Databases
 
 class KeggMatrix:
     
-    def __init__(self, matrix, transcriptome):
+    def __init__(self, matrix):
         d = Databases()
         self.r2k = d.r2k
         logging.info("Parsing input matrix: %s" % matrix)
@@ -43,25 +43,6 @@ class KeggMatrix:
         logging.info("Calculating reaction abundances")
         self.reaction_matrix  \
                  = self._calculate_abundances(self.r2k, self.orthology_matrix)
-        if transcriptome:
-            logging.info("Parsing input transcriptome: %s" % transcriptome)
-            self.orthology_matrix_transcriptome \
-                        = self._parse_matrix(transcriptome)
-
-            logging.info("Calculating reaction transcriptome abundances")
-            self.reaction_matrix_transcriptome \
-                 = self._calculate_abundances(self.r2k, 
-                                              self.orthology_matrix_transcriptome)
-            
-            logging.info("Calculating normalized expression abundances")
-            self.orthology_matrix_expression \
-                = self._calculate_expression_matrix(self.orthology_matrix, 
-                                        self.orthology_matrix_transcriptome)
-            
-            logging.info("Calculating reaction expression abundances")
-            self.reaction_matrix_expression  \
-                 = self._calculate_abundances(self.r2k, 
-                                              self.orthology_matrix_expression)
    
     def _calculate_expression_matrix(self, matrix, transcriptome_matrix):
         '''
@@ -76,7 +57,7 @@ class KeggMatrix:
                     mt_abundance = float(abundance)
                     if mg_abundance>0:
                         output_dictionary[sample][ko] \
-                                = float(abundance)/float(matrix[sample][ko])
+                            = mt_abundance/mg_abundance
                 else:
                     continue 
                     # for now ignore genes that are expressed, but not detected

@@ -63,7 +63,6 @@ def phelp():
   Network analysis
     pathway         -> Generate a metabolic network from specific KEGG module or 
                        compounds.
-    explore         -> Explore a metabolic network from a given compound.
 
   Machine learning
     generate        -> Generate a model.
@@ -98,16 +97,15 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-  
     base_network = argparse.ArgumentParser(add_help=False)
     
     base_input_options = base_network.add_argument_group('Input options')
     base_input_options.add_argument('--matrix', required=True,
                 help='KO matrix. REQUIRED.')
-    base_input_options.add_argument('--transcriptome',
-                help='Transcriptome KO matrix.')
     base_input_options.add_argument('--abundance',
                 help='Abundance matrix.')
+    base_input_options.add_argument('--tpm_values',
+                help='TPM values produced by DetectM.')
     base_input_options.add_argument('--abundance_metadata',
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--metabolome',
@@ -141,7 +139,9 @@ if __name__ == "__main__":
 
     annotate_annotation_options = annotate.add_argument_group('Annotations options')
     annotate_annotation_options.add_argument('--ko', action='store_true',
-                help='Annotate with KO ids')   
+                help='Annotate with KO ids')
+    annotate_annotation_options.add_argument('--ko_hmm', action='store_true',
+                help='Annotate with KO ids')
     annotate_annotation_options.add_argument('--pfam', action='store_true',
                 help='Annotate with Pfam HMMs')
     annotate_annotation_options.add_argument('--tigrfam', action='store_true',

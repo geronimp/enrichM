@@ -49,8 +49,9 @@ class Classify:
         self.m                  = d.m
 
     def _update_with_custom_modules(self, custom_modules):
-        custom_modules_dict = {line.split('\t')[0]:line.strip().split('\t')[1]
-                               for line in open(custom_modules)}
+        custom_modules_dict = dict()
+        for line in open(custom_modules):
+                custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
         self.m2def.update(custom_modules_dict)
         
         for key in custom_modules_dict.keys():
@@ -138,11 +139,9 @@ class Classify:
                 pathway[name] = path
 
                 for genome, annotations in genome_to_annotation_sets.items():    
-                    num_covered, ko_covered, ko_total, ko_path = path.num_covered_steps(annotations)
+                    num_covered, _, _, ko_path = path.num_covered_steps(annotations)
                     num_all         = path.num_steps()
                     perc_covered    = num_covered / float(num_all)
-                    ko_perc         = ko_covered / float(ko_total)
-                    #if name == "M00001": import IPython ; IPython.embed()
 
                     if perc_covered >= cutoff:
                         
@@ -167,9 +166,6 @@ class Classify:
                                                   str(num_covered), 
                                                   str(num_all),
                                                   str(round(perc_covered * 100, 2))
-                                                  # str(ko_covered),
-                                                  # str(ko_total),
-                                                  # str(round(ko_perc * 100, 2))
                                                   ]) 
                         output_lines.append(output_line + '\n') 
                         

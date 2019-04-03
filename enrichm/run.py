@@ -182,6 +182,9 @@ class Run:
             if args.evalue:
                 logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
 
+        if args.ko and args.ko_hmm:
+            raise Exception("Pick only one of the following: %s, %s" % (args.ko, args.ko_hmm))
+            
     def _check_enrichment(self, args):
         '''
         Check enrichment input and output options are valid.
@@ -324,6 +327,7 @@ class Run:
                          args.output,
                          # Define type of annotation to be carried out
                          args.ko,
+                         args.ko_hmm,
                          args.pfam,
                          args.tigrfam,
                          args.hypothetical,
@@ -396,14 +400,11 @@ class Run:
                  args.cutoff,
                  args.output)
 
-        elif(args.subparser_name == NetworkAnalyser.PATHWAY or
-             args.subparser_name == NetworkAnalyser.EXPLORE or
-             args.subparser_name == NetworkAnalyser.TRAVERSE):
-
+        elif args.subparser_name == NetworkAnalyser.PATHWAY:
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
             na.do(args.matrix,
-                  args.transcriptome,
+                  args.tpm_values,
                   args.abundance,
                   args.abundance_metadata,
                   args.metabolome,
@@ -412,7 +413,6 @@ class Run:
                   args.filter,
                   args.limit,
                   args.queries,
-                  args.subparser_name,
                   args.starting_compounds, 
                   args.steps,
                   args.number_of_queries,

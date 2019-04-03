@@ -97,7 +97,6 @@ class Connect(object):
 			self._update_with_custom_modules(custom_modules)
 
 		genomes_list = list(annotations.keys())
-		existant_modules = set()
 		genomes_modules = dict()
 		module_to_genome = dict()
 		candidate_linkages = [["Genome 1",
@@ -140,7 +139,6 @@ class Connect(object):
 
 						if compound in self.c2m:
 							possible_modules 	= self.c2m[compound]
-							modules_covered 	= list()
 							modules_not_covered = list()
 
 							for possible_module in possible_modules:
