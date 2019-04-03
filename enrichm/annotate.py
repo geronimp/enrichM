@@ -82,7 +82,7 @@ class Annotate:
     
     def __init__(self,
                  output_directory,
-                 ko, pfam, tigrfam, hypothetical, cazy, ec,
+                 ko, ko_hmm, pfam, tigrfam, hypothetical, cazy, ec,
                  evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, chunk_number, chunk_max, count_domains,
                  threads, parallel, suffix, light):
 
@@ -91,6 +91,7 @@ class Annotate:
 
         # Define type of annotation to be carried out
         self.ko               = ko 
+        self.ko_hmm           = ko_hmm
         self.pfam             = pfam 
         self.tigrfam          = tigrfam 
         self.hypothetical     = hypothetical 
@@ -317,7 +318,8 @@ class Annotate:
         genome_dict = {genome.name: genome for genome in genomes_list}
 
         if (parser == AnnotationParser.TIGRFAM or 
-            parser == AnnotationParser.PFAM):
+            parser == AnnotationParser.PFAM,
+            parser == AnnotationParser.KO_HMM):
             hmmcutoff=True
         else:
             hmmcutoff=False
@@ -654,7 +656,7 @@ class Annotate:
 
         logging.info("Running pipeline: annotate")
         logging.info("Setting up for genome annotation")
-        
+
         genomes_list = self.parse_genome_inputs(genome_directory, protein_directory, genome_files, protein_files)
         if len(genomes_list)==0:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
@@ -678,6 +680,19 @@ class Annotate:
                 logging.info('    - Generating ko frequency table')
                 mg = MatrixGenerator(MatrixGenerator.KO)
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_KO)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
+
+            if self.ko_hmm:
+                logging.info('    - Annotating genomes with ko ids')
+                self.hmmsearch_annotation(genomes_list,
+                                          os.path.join(self.output_directory, self.GENOME_KO),
+                                          self.databases.KO_HMM_DB,
+                                          AnnotationParser.KO_HMM)
+
+                logging.info('    - Generating ko frequency table')
+                mg = MatrixGenerator(MatrixGenerator.KO)
+                freq_table = os.path.join(
+                    self.output_directory, self.OUTPUT_KO)
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ec:

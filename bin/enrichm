@@ -97,7 +97,6 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-  
     base_network = argparse.ArgumentParser(add_help=False)
     
     base_input_options = base_network.add_argument_group('Input options')
@@ -140,7 +139,9 @@ if __name__ == "__main__":
 
     annotate_annotation_options = annotate.add_argument_group('Annotations options')
     annotate_annotation_options.add_argument('--ko', action='store_true',
-                help='Annotate with KO ids')   
+                help='Annotate with KO ids')
+    annotate_annotation_options.add_argument('--ko_hmm', action='store_true',
+                help='Annotate with KO ids')
     annotate_annotation_options.add_argument('--pfam', action='store_true',
                 help='Annotate with Pfam HMMs')
     annotate_annotation_options.add_argument('--tigrfam', action='store_true',

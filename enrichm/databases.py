@@ -51,6 +51,7 @@ class Databases:
 		KO_DB_NAME			= 'uniref100.KO'
 		EC_DB_NAME			= 'uniref100.EC'
 		PFAM_DB_NAME		= 'pfam'
+		KO_HMM_DB_NAME		= 'ko'
 		TIGRFAM_DB_NAME		= 'tigrfam'
 		CAZY_DB_NAME		= 'cazy'
 		GTDB_DB_NAME		= 'GTDB_R80_DB'
@@ -158,6 +159,7 @@ class Databases:
 		self.GTDB_DB		= os.path.join(self.REF_DIR, self.GTDB_DB_NAME)
 
 		self.PFAM_DB 		= os.path.join(self.REF_DIR, self.PFAM_DB_NAME + self.HMM_SUFFIX)
+		self.KO_HMM_DB 		= os.path.join(self.REF_DIR, self.KO_HMM_DB_NAME + self.HMM_SUFFIX)
 		self.TIGRFAM_DB 	= os.path.join(self.REF_DIR, self.TIGRFAM_DB_NAME + self.HMM_SUFFIX)
 		self.CAZY_DB 		= os.path.join(self.REF_DIR, self.CAZY_DB_NAME + self.HMM_SUFFIX)
 		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 'PFAM_CLANS.txt')

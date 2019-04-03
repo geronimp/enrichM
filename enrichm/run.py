@@ -182,6 +182,9 @@ class Run:
             if args.evalue:
                 logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
 
+        if args.ko and args.ko_hmm:
+            raise Exception("Pick only one of the following: %s, %s" % (args.ko, args.ko_hmm))
+            
     def _check_enrichment(self, args):
         '''
         Check enrichment input and output options are valid.
@@ -324,6 +327,7 @@ class Run:
                          args.output,
                          # Define type of annotation to be carried out
                          args.ko,
+                         args.ko_hmm,
                          args.pfam,
                          args.tigrfam,
                          args.hypothetical,

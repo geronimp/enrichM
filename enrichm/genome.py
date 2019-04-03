@@ -98,22 +98,28 @@ class Genome:
 		# If annotation type is a hmmsearch result
 		if(annotation_type == AnnotationParser.PFAM or
 		   annotation_type == AnnotationParser.TIGRFAM or
-		   annotation_type == AnnotationParser.CAZY):
+		   annotation_type == AnnotationParser.CAZY or
+		   annotation_type == AnnotationParser.KO_HMM):
 			# Set up an iterator to produce the results
 			logging.debug("    - Parsing hmmsearch chunk")
 
-			if annotation_type == AnnotationParser.PFAM:
+			if(annotation_type == AnnotationParser.PFAM or
+			   annotation_type == AnnotationParser.KO_HMM):
 				percent_aln_query_cutoff = 0.0
 				percent_aln_reference_cutoff = 0.0
 
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
-												 percent_aln_reference_cutoff)
+												 percent_aln_reference_cutoff,
+                                       			 (True if annotation_type == AnnotationParser.KO_HMM else False))
 			
 			if annotation_type == AnnotationParser.PFAM:
 				self.pfam_dict = dict()
 				refdict = self.pfam_dict
 
+			elif annotation_type == AnnotationParser.KO_HMM:
+				self.ko_dict = dict()
+				refdict = self.ko_dict
 			
 			elif annotation_type == AnnotationParser.TIGRFAM:
 				self.tigrfam_dict = dict()
@@ -139,11 +145,9 @@ class Genome:
 			elif annotation_type == AnnotationParser.EC:
 				self.ec_dict = dict()
 				refdict = self.ec_dict
-
+		
 		for seqname, annotations, evalue, annotation_range in iterator:
-
 			self.sequences[seqname].add(annotations, evalue, annotation_range, annotation_type)
-
 			for annotation in annotations:
 
 				if annotation in refdict:
@@ -401,7 +405,8 @@ class AnnotationParser:
 	currently for: KO, PFAM and TIGRFAM. COG to come	
 	'''
 	KO      		= 'KO_IDS.txt'
-	EC      		= 'EC_IDS.txt'
+	KO_HMM 			= 'KO_IDS.txt'
+	EC				= 'EC_IDS.txt'
 	PFAM    		= 'PFAM_IDS.txt'
 	TIGRFAM 		= 'TIGRFAM_IDS.txt'
 	CAZY      		= 'CAZY_IDS.txt'
@@ -454,7 +459,8 @@ class AnnotationParser:
 							   evalue_cutoff,
 							   bitscore_cutoff, 
     						   percent_aln_query_cutoff,
-    						   percent_aln_reference_cutoff):
+    						   percent_aln_reference_cutoff,
+							   acc = False):
 		'''
 		Parse input hmmsearch file
 
@@ -466,14 +472,14 @@ class AnnotationParser:
 		bitscore_cutoff                 - Float. Bit score threshold for annotations.
 		percent_aln_query_cutoff        - Float. Threshold for the percent of the query 
 										  that must be aligned to consider the annotation.
-		percent_aln_reference_cutoff    - Float. Threshold for the percent of the reference 
+		percent_aln_reference_cutoff    - Float. Threshold for the percent of the reference 	
 										  that must be aligned to consider the annotation.
 		Yields
 		------
 		A sequence name, accession, E-value and region hit for every annottation result in 
 		blast_output_path that pass a set of cutoffs
 		'''
-
+		
 		# Filling in column
 		for line in open(hmmsearch_output_path):
 			
@@ -482,7 +488,7 @@ class AnnotationParser:
 				
 			# Parse HMMsearch line. '_'s represent unimportant entries. Line
 			# is trimmed using [:22] to remove sequence description
-			seqname, _, tlen, _, accession, qlen, _, score, \
+			seqname, _, tlen, ko_hmm, accession, qlen, _, score, \
 			_, _, _, _, i_evalue, _, _, _, \
 			_, seq_from, seq_to, _, _, _ = line.strip().split()[:22]				
 
@@ -492,11 +498,13 @@ class AnnotationParser:
 			# Calculate percent of the query and reference aligned to each-other. 
 			perc_seq_aln = (max(seq_list)-min(seq_list))/float(tlen)
 			perc_hmm_aln = (max(seq_list)-min(seq_list))/float(qlen)
+			
+			if acc:
+				accession = ko_hmm
 
 			# If the annotation passes the specified cutoffs
 			if(float(i_evalue)<=evalue_cutoff and
 				float(score)>=bitscore_cutoff and
 				perc_seq_aln>=percent_aln_query_cutoff and
 				perc_hmm_aln>=percent_aln_reference_cutoff):
-				
 				yield seqname, [accession], i_evalue, range(min(seq_list), max(seq_list))

@@ -49,8 +49,9 @@ class Classify:
         self.m                  = d.m
 
     def _update_with_custom_modules(self, custom_modules):
-        custom_modules_dict = {line.split('\t')[0]:line.strip().split('\t')[1]
-                               for line in open(custom_modules)}
+        custom_modules_dict = dict()
+        for line in open(custom_modules):
+                custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
         self.m2def.update(custom_modules_dict)
         
         for key in custom_modules_dict.keys():

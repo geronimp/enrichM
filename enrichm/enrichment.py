@@ -162,7 +162,7 @@ class Enrichment:
         attribute_dict  = dict()
         
         for line in matrix_file_io:
-            rowname, entry = line.strip().split('\t')
+            rowname, entry = line.strip().split('\t')   
             nr_values.add(entry)
 
             if entry in attribute_dict:
