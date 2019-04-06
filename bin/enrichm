@@ -68,7 +68,7 @@ def phelp():
     generate        -> Generate a model.
     predict         -> Run model on new data.
 
-  Authors: Joel Boyd, Boyd Woodcroft, Alex Baker
+  Authors: Joel Boyd, Ben Woodcroft, Alex Baker
   Version: %s 
 """ % (enrichm.__version__))
 
