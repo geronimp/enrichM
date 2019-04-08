@@ -125,13 +125,6 @@ class Annotate:
         # Load databases
         self.databases        = Databases()
 
-        self.annotation_type_dict = {ko: AnnotationParser.BLASTPARSER,
-                                     ec: AnnotationParser.BLASTPARSER,
-                                     ko_hmm:  AnnotationParser.HMMPARSER,
-                                     pfam:  AnnotationParser.HMMPARSER,
-                                     tigrfam:  AnnotationParser.HMMPARSER,
-                                     cazy: AnnotationParser.HMMPARSER}
-
     def prep_genome(self, genome_file_list, genome_directory):
         '''
         Do any preparation specific to the genome annotation pipeline. 
@@ -683,7 +676,7 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ko:
-                annotation_type = self.annotation_type_dict[self.ko]
+                annotation_type = AnnotationParser.BLASTPARSER
                 logging.info('    - Annotating genomes with ko ids')
                 self.annotate_diamond(
                     genomes_list, self.databases.KO_DB, annotation_type, AnnotationParser.KO, self.GENOME_KO)
@@ -694,7 +687,7 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ko_hmm:
-                annotation_type = self.annotation_type_dict[self.ko_hmm]
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with ko ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_KO),
@@ -709,7 +702,7 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ec:
-                annotation_type = self.annotation_type_dict[self.ec]
+                annotation_type = AnnotationParser.BLASTPARSER
                 logging.info('    - Annotating genomes with ec ids')
                 self.annotate_diamond(genomes_list, self.databases.EC_DB, annotation_type, AnnotationParser.EC, self.GENOME_EC)
                 
@@ -719,7 +712,7 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.pfam:
-                annotation_type = self.annotation_type_dict[self.pfam]
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with pfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_PFAM),
@@ -733,7 +726,7 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.tigrfam:
-                annotation_type = self.annotation_type_dict[self.tigrfam]
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with tigrfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_TIGRFAM),
@@ -747,7 +740,7 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
             
             if self.cazy:
-                annotation_type = self.annotation_type_dict[self.cazy]
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with CAZY ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_CAZY),

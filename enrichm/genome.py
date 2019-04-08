@@ -141,7 +141,7 @@ class Genome:
 			elif ref_ids == AnnotationParser.EC:
 				self.ec_dict = dict()
 				refdict = self.ec_dict
-		
+
 		for seqname, annotations, evalue, annotation_range in iterator:
 			self.sequences[seqname].add(annotations, evalue, annotation_range, ref_ids)
 			for annotation in annotations:
