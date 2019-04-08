@@ -207,6 +207,9 @@ class Run:
             
             raise Exception("Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
 
+        if not args.abundance and args.abundance_metadata:
+           raise Exception("values for both --abundance and --abundance_metadata are required") 
+
     def _check_classify(self, args):  
         '''
         Check classify input and output options are valid.
@@ -373,7 +376,8 @@ class Run:
                  args.annotate_output,
                  args.metadata,
                  args.modules,
-                 args.abundances,
+                 args.abundance,
+                 args.abundance_metadata,
                  # Runtime options
                  args.genomes_to_compare_with_group,
                  args.pval_cutoff,
