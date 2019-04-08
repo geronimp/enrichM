@@ -64,7 +64,7 @@ class Tests(unittest.TestCase):
                             % (path_to_script, path_to_annotate, metadata, tmp)
 
         subprocess.call(cmd, shell=True)
-
+        
         self.assertTrue(filecmp.dircmp(tmp, expected_output))
         for file in os.listdir(tmp):
             if file         == 'enrichment.log': continue

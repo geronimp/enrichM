@@ -75,7 +75,7 @@ class Genome:
 
 	def add(self, annotations, evalue_cutoff, bitscore_cutoff, 
 		    percent_aln_query_cutoff, percent_aln_reference_cutoff, 
-		    annotation_type):
+		    annotation_type, ref_ids):
 		'''
 		Adds a series of annotations to the proteins within a genome.
 
@@ -94,60 +94,56 @@ class Genome:
 		'''
 		# Load up annotation parser, and tell it what annotation type to expect
 		ap = AnnotationParser(annotation_type)
-
+		
 		# If annotation type is a hmmsearch result
-		if(annotation_type == AnnotationParser.PFAM or
-		   annotation_type == AnnotationParser.TIGRFAM or
-		   annotation_type == AnnotationParser.CAZY or
-		   annotation_type == AnnotationParser.KO_HMM):
+		if(annotation_type == AnnotationParser.HMMPARSER):
 			# Set up an iterator to produce the results
 			logging.debug("    - Parsing hmmsearch chunk")
 
-			if(annotation_type == AnnotationParser.PFAM or
-			   annotation_type == AnnotationParser.KO_HMM):
+			if(ref_ids == AnnotationParser.PFAM or
+			   ref_ids == AnnotationParser.KO_HMM):
 				percent_aln_query_cutoff = 0.0
 				percent_aln_reference_cutoff = 0.0
 
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
 												 percent_aln_reference_cutoff,
-                                       			 (True if annotation_type == AnnotationParser.KO_HMM else False))
+                                        (True if ref_ids == AnnotationParser.KO_HMM else False))
 			
-			if annotation_type == AnnotationParser.PFAM:
+			if ref_ids == AnnotationParser.PFAM:
 				self.pfam_dict = dict()
 				refdict = self.pfam_dict
 
-			elif annotation_type == AnnotationParser.KO_HMM:
+			elif ref_ids == AnnotationParser.KO_HMM:
 				self.ko_dict = dict()
 				refdict = self.ko_dict
 			
-			elif annotation_type == AnnotationParser.TIGRFAM:
+			elif ref_ids == AnnotationParser.TIGRFAM:
 				self.tigrfam_dict = dict()
 				refdict = self.tigrfam_dict
 			
-			elif annotation_type == AnnotationParser.CAZY:
+			elif ref_ids == AnnotationParser.CAZY:
 				self.cazy_dict = dict()
 				refdict = self.cazy_dict
 
 		# If annotation type is a blast result
 		
-		elif(annotation_type == AnnotationParser.KO or
-			 annotation_type == AnnotationParser.EC):
+		elif(annotation_type == AnnotationParser.BLASTPARSER):
 			# Set up an iterator to produce the results
 			logging.debug("    - Parsing blast chunk")
 			iterator = ap.from_blast_results(annotations, evalue_cutoff, 
 											 bitscore_cutoff, percent_aln_query_cutoff)
 
-			if annotation_type == AnnotationParser.KO:
+			if ref_ids == AnnotationParser.KO:
 				self.ko_dict = dict()
 				refdict = self.ko_dict
 
-			elif annotation_type == AnnotationParser.EC:
+			elif ref_ids == AnnotationParser.EC:
 				self.ec_dict = dict()
 				refdict = self.ec_dict
-		
+
 		for seqname, annotations, evalue, annotation_range in iterator:
-			self.sequences[seqname].add(annotations, evalue, annotation_range, annotation_type)
+			self.sequences[seqname].add(annotations, evalue, annotation_range, ref_ids)
 			for annotation in annotations:
 
 				if annotation in refdict:
@@ -412,6 +408,8 @@ class AnnotationParser:
 	CAZY      		= 'CAZY_IDS.txt'
 	HYPOTHETICAL 	= 'HYPOTHETICAL.txt'
 	ORTHOLOG 		= 'ORTHOLOG.txt'
+	HMMPARSER 		= 'hmm'
+	BLASTPARSER 	= 'blast'
 
 	def __init__(self, annotation_type):        
 		pass

@@ -24,7 +24,6 @@ enrichm/parse_annotate.py
 enrichm/parser.py
 enrichm/predict.py
 enrichm/run.py
-enrichm/run_test.py
 enrichm/sequence_io.py
 enrichm/traverse.py
 enrichm/version.py

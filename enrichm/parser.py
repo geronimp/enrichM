@@ -76,28 +76,29 @@ class Parser:
 			output_taxonomy_dictionary[genome] = taxonomy_string.split(';')
 			
 		return output_taxonomy_dictionary
-
 	
 	@staticmethod
-	def _parse_matrix(self, matrix):
-		
-		output_dict = dict()
-		
-		for idx, line in enumerate(open(matrix)):
+	def _parse_simple_matrix(matrix, numeric = False):
+		matrix_io = open(matrix)
+		header_values = matrix_io.readline().strip().split('\t')[1:]
+		output_dict = {header:{} for header in header_values}
+
+		for line in matrix_io:
 			sline = line.strip().split('\t')
-			if idx==0:
-				self.sample_names = sline[1:]
-				    
-				for sample in self.sample_names: 
-					output_dict[sample] = dict()
-			else:   
-				ko_id      = sline[0]
-				abundances = sline[1:]
-				
-				for abundance, sample in zip(abundances, self.sample_names):
-					output_dict[sample][ko_id] = float(abundance)
+			_, content = sline[0], sline[1:]
+
+			for key, value in zip(header_values, content):
+
+				if numeric == True:
+					try:
+						value = float(value)
+					except:
+						import IPython
+						IPython.embed()
+				output_dict[key] = value
+
 		return output_dict
-	
+
 	@staticmethod
 	def _parse_matrix(self, matrix_file_io, colnames):
 		for line in matrix_file_io:
@@ -118,9 +119,9 @@ class Parser:
 		tpm_values_io.readline()
 
 		for line in tpm_values_io:
-			gene, contig, type, start, end, strand, forward_read_count, \
-			reverse_read_count, pvalue, normalized_read_count, tpm, \
-			feature_length, directionality,  annotation, sample = line.strip().split(b'\t')
+			gene, _, _, _, _, _, _, \
+			_, _, _, tpm, \
+			_, _,  annotation, sample = line.strip().split(b'\t')
 			annotation_list = annotation.split(b',')
 			tpm = float(tpm)
 			genome = '_'.join(str(gene, "utf-8").split('_')[:2]) # temporary

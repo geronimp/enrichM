@@ -201,7 +201,7 @@ class Annotate:
         
         return genome_list
     
-    def annotate_diamond(self, genomes_list, database, parser_type, output_subdirectory):
+    def annotate_diamond(self, genomes_list, database, parser_type, ids_type, output_subdirectory):
         '''
         Annotate the proteins encoded by each genome with KO ids using either BLAST or using HMM
         searches (no implemented yet).
@@ -238,7 +238,8 @@ class Annotate:
                                  self.bit, 
                                  self.aln_query, 
                                  self.aln_reference,
-                                 parser_type)
+                                 parser_type,
+                               ids_type)
     
     def get_batches(self, input_file):
         last = None
@@ -305,7 +306,7 @@ class Annotate:
         subprocess.call(cmd, shell = True)
         logging.debug('Finished')
 
-    def hmmsearch_annotation(self, genomes_list, output_directory_path, database, parser):
+    def hmmsearch_annotation(self, genomes_list, output_directory_path, database, ids_type, parser):
         '''
         Annotate the proteins encoded by each genome with pfam ids using HMM searches.
 
@@ -317,9 +318,9 @@ class Annotate:
         os.mkdir(output_directory_path)
         genome_dict = {genome.name: genome for genome in genomes_list}
 
-        if (parser == AnnotationParser.TIGRFAM or 
-            parser == AnnotationParser.PFAM,
-            parser == AnnotationParser.KO_HMM):
+        if (ids_type == AnnotationParser.TIGRFAM or 
+            ids_type == AnnotationParser.PFAM,
+            ids_type == AnnotationParser.KO_HMM):
             hmmcutoff=True
         else:
             hmmcutoff=False
@@ -335,7 +336,8 @@ class Annotate:
                          self.bit, 
                          self.aln_query, 
                          self.aln_reference,
-                         parser)
+                         parser,
+                         ids_type)
 
     def annotate_hypothetical(self, genomes_list):
         '''
@@ -674,8 +676,10 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ko:
+                annotation_type = AnnotationParser.BLASTPARSER
                 logging.info('    - Annotating genomes with ko ids')
-                self.annotate_diamond(genomes_list, self.databases.KO_DB, AnnotationParser.KO, self.GENOME_KO)
+                self.annotate_diamond(
+                    genomes_list, self.databases.KO_DB, annotation_type, AnnotationParser.KO, self.GENOME_KO)
 
                 logging.info('    - Generating ko frequency table')
                 mg = MatrixGenerator(MatrixGenerator.KO)
@@ -683,11 +687,13 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ko_hmm:
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with ko ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_KO),
                                           self.databases.KO_HMM_DB,
-                                          AnnotationParser.KO_HMM)
+                                          AnnotationParser.KO,
+                                          annotation_type)
 
                 logging.info('    - Generating ko frequency table')
                 mg = MatrixGenerator(MatrixGenerator.KO)
@@ -696,8 +702,9 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ec:
+                annotation_type = AnnotationParser.BLASTPARSER
                 logging.info('    - Annotating genomes with ec ids')
-                self.annotate_diamond(genomes_list, self.databases.EC_DB, AnnotationParser.EC, self.GENOME_EC)
+                self.annotate_diamond(genomes_list, self.databases.EC_DB, annotation_type, AnnotationParser.EC, self.GENOME_EC)
                 
                 logging.info('    - Generating ec frequency table')
                 mg = MatrixGenerator(MatrixGenerator.EC)
@@ -705,11 +712,13 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.pfam:
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with pfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_PFAM),
                                           self.databases.PFAM_DB,
-                                          AnnotationParser.PFAM)
+                                          AnnotationParser.PFAM,
+                                          annotation_type)
                 
                 logging.info('    - Generating pfam frequency table')
                 mg = MatrixGenerator(MatrixGenerator.PFAM)
@@ -717,11 +726,13 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.tigrfam:
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with tigrfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_TIGRFAM),
                                           self.databases.TIGRFAM_DB,
-                                          AnnotationParser.TIGRFAM)
+                                          AnnotationParser.TIGRFAM,
+                                          annotation_type)
 
                 logging.info('    - Generating tigrfam frequency table')
                 mg = MatrixGenerator(MatrixGenerator.TIGRFAM)
@@ -729,11 +740,13 @@ class Annotate:
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
             
             if self.cazy:
+                annotation_type = AnnotationParser.HMMPARSER
                 logging.info('    - Annotating genomes with CAZY ids')
                 self.hmmsearch_annotation(genomes_list,
                                           os.path.join(self.output_directory, self.GENOME_CAZY),
                                           self.databases.CAZY_DB,
-                                          AnnotationParser.CAZY)
+                                          AnnotationParser.CAZY,
+                                          annotation_type)
 
                 logging.info('    - Generating CAZY frequency table')
                 mg = MatrixGenerator(MatrixGenerator.CAZY)

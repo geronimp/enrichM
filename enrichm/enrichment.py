@@ -43,6 +43,7 @@ from enrichm.module_description_parser import ModuleDescription
 from enrichm.databases import Databases
 from enrichm.draw_plots import Plot
 from enrichm.comparer import Compare
+from enrichm.parser import Parser
 ################################################################################
 
 def gene_fisher_calc(x):
@@ -354,7 +355,7 @@ class Enrichment:
         return output_dict, genomes
 
     def do(# Input options
-           self, annotate_output, metadata_path, input_modules, abundances, 
+           self, annotate_output, metadata_path, input_modules, abundances_path, abundance_metadata_path,
            # Runtime options
            genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
            threshold, multi_test_correction, batchfile, processes,
@@ -403,6 +404,11 @@ class Enrichment:
         logging.info('Parsing metadata')
         metadata, metadata_value_lists, attribute_dict \
                     = self.parse_metadata_matrix(metadata_path)
+    
+        if abundances_path:
+            abundances = Parser._parse_simple_matrix(abundances_path, True)
+            ab_metadata, ab_metadata_value_lists, ab_attribute_dict \
+                = self.parse_metadata_matrix(abundance_metadata_path)
 
         if batchfile:
             genomes_set = set()
@@ -513,7 +519,6 @@ class Enrichment:
                             if g2_perc_covered>0:
                                 output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, d.m[module]]
                                 module_output.append(output_line)
-        
                     prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
                     self._write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
 
@@ -768,7 +773,7 @@ class Test(Enrichment):
 
         for combination in combinations(group_dict, 2):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
-            prefix = '_vs_'.join(combination).replace(' ', '_')
+            prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
             logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
             
             if enrichment_test == stats.fisher_exact:
