@@ -50,7 +50,6 @@ class Tests(unittest.TestCase):
             if file         == 'enrichment.log': continue
             output_file     = os.path.join(tmp, file)
             expected_file   = os.path.join(expected_output, file)
-
             self.assertTrue(filecmp.cmp(output_file, expected_file))
 
     def test_enrichment_from_pfam_matrix(self):
