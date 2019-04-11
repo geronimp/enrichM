@@ -90,11 +90,7 @@ class Parser:
 			for key, value in zip(header_values, content):
 
 				if numeric == True:
-					try:
-						value = float(value)
-					except:
-						import IPython
-						IPython.embed()
+					value = float(value)
 				output_dict[key] = value
 
 		return output_dict
