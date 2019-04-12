@@ -359,7 +359,7 @@ class Enrichment:
            # Runtime options
            genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
            threshold, multi_test_correction, batchfile, processes,
-           ko, pfam, tigrfam, hypothetical, cazy, ec,
+           ko, pfam, tigrfam, hypothetical, cazy, ec, ko_hmm,
            # Output options
            output_directory):
 
@@ -374,9 +374,11 @@ class Enrichment:
         logging.info('Parsing annotate output: %s' % (annotate_output))
         pa = ParseAnnotate(annotate_output, processes)
         
-        logging.info('Parsing annotations')
         if ko:
             annotation_matrix = pa.ko
+            gtdb_annotation_matrix = d.GTDB_KO
+        elif ko_hmm:
+            annotation_matrix = pa.ko_hmm
             gtdb_annotation_matrix = d.GTDB_KO
         elif pfam:
             annotation_matrix = pa.pfam
@@ -393,7 +395,8 @@ class Enrichment:
         elif ec:
             annotation_matrix = pa.ec
             gtdb_annotation_matrix = d.GTDB_EC
-        
+        logging.info('Parsing annotations: %s' % annotation_matrix)
+
         annotations_dict, modules, genomes \
                     = self._parse_annotation_matrix(annotation_matrix)
 

@@ -144,6 +144,10 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
+        if args.cut_ko:
+            if int(Data.CURRENT_VERSION.split('_')[-1].replace('v', '')) < 10:
+                raise Exception("EnrichM database needs to be version 10 or higher to use KO HMM cutoffs. Please run enrichm data.")
+
         # ensure either a list of genomes or a directory of genomes have been specified
         if not(args.genome_files or args.genome_directory or args.protein_directory or args.protein_files):
             
@@ -181,9 +185,6 @@ class Run:
             
             if args.evalue:
                 logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
-
-        if args.ko and args.ko_hmm:
-            raise Exception("Pick only one of the following: %s, %s" % (args.ko, args.ko_hmm))
             
     def _check_enrichment(self, args):
         '''
@@ -197,7 +198,7 @@ class Run:
         ------
         '''
         ### ~ TODO: Check Multi test correction inputs...
-        types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy, args.ec]
+        types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy, args.ec, args.ko_hmm]
         
         if not any(types):
             
@@ -346,6 +347,7 @@ class Run:
                          args.cut_ga,
                          args.cut_nc,
                          args.cut_tc,
+                         args.cut_ko,
                          args.inflation,
                          args.chunk_number,
                          args.chunk_max,
@@ -392,6 +394,7 @@ class Run:
                  args.hypothetical,
                  args.cazy,
                  args.ec,
+                 args.ko_hmm,
                  # Outputs
                  args.output)
 

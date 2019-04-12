@@ -74,7 +74,7 @@ class Genome:
 				self.protein_ordered_dict[protein_count] = name
 
 	def add(self, annotations, evalue_cutoff, bitscore_cutoff, 
-		    percent_aln_query_cutoff, percent_aln_reference_cutoff, 
+         percent_aln_query_cutoff, percent_aln_reference_cutoff, specific_cutoffs,
 		    annotation_type, ref_ids):
 		'''
 		Adds a series of annotations to the proteins within a genome.
@@ -108,6 +108,7 @@ class Genome:
 			iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
 												 bitscore_cutoff, percent_aln_query_cutoff, 
 												 percent_aln_reference_cutoff,
+                                        specific_cutoffs,
                                         (True if ref_ids == AnnotationParser.KO_HMM else False))
 			
 			if ref_ids == AnnotationParser.PFAM:
@@ -458,6 +459,7 @@ class AnnotationParser:
 							   bitscore_cutoff, 
     						   percent_aln_query_cutoff,
     						   percent_aln_reference_cutoff,
+                            	specific_cutoffs,
 							   acc = False):
 		'''
 		Parse input hmmsearch file
@@ -487,7 +489,7 @@ class AnnotationParser:
 			# Parse HMMsearch line. '_'s represent unimportant entries. Line
 			# is trimmed using [:22] to remove sequence description
 			seqname, _, tlen, ko_hmm, accession, qlen, _, score, \
-			_, _, _, _, i_evalue, _, _, _, \
+			_, _, _, _, i_evalue, dom_score, _, _, \
 			_, seq_from, seq_to, _, _, _ = line.strip().split()[:22]				
 
 			# Determine sequence and HMM spans
@@ -501,8 +503,17 @@ class AnnotationParser:
 				accession = ko_hmm
 
 			# If the annotation passes the specified cutoffs
-			if(float(i_evalue)<=evalue_cutoff and
-				float(score)>=bitscore_cutoff and
-				perc_seq_aln>=percent_aln_query_cutoff and
-				perc_hmm_aln>=percent_aln_reference_cutoff):
+			if specific_cutoffs:
+				if ko_hmm in specific_cutoffs:
+					if specific_cutoffs[ko_hmm][1]=='full':
+						if float(score) < specific_cutoffs[ko_hmm][0]:
+							continue
+					elif specific_cutoffs[ko_hmm][1] == 'domain':
+						if float(dom_score) < specific_cutoffs[ko_hmm][0]:
+							continue
+
+			if(float(i_evalue) <= evalue_cutoff and
+									float(score) >= bitscore_cutoff and
+									perc_seq_aln >= percent_aln_query_cutoff and
+									perc_hmm_aln >= percent_aln_reference_cutoff):
 				yield seqname, [accession], i_evalue, range(min(seq_list), max(seq_list))

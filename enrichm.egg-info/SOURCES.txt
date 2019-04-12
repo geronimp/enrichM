@@ -6,6 +6,7 @@ enrichm/annotate.py
 enrichm/classifier.py
 enrichm/comparer.py
 enrichm/connect.py
+enrichm/correct_modules.py
 enrichm/data.py
 enrichm/databases.py
 enrichm/draw_plots.py

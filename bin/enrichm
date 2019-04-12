@@ -160,6 +160,8 @@ if __name__ == "__main__":
                 help='For PFAM and TIGRfam searches: use profiles NC noise cutoffs to set all thresholding')
     annotate_cutoff_options.add_argument('--cut_tc', action='store_true',
                 help='For PFAM and TIGRfam searches: use profiles TC trusted cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_ko', action='store_true',
+                help='For KO HMM annotation searches: use cutoffs defined by KEGG to maximise F-score.')
     annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-05,
                 help='Use this evalue cutoff to filter false positives (default: 1e-05)')
     annotate_cutoff_options.add_argument('--bit', type = float, default = 0,
@@ -246,7 +248,9 @@ if __name__ == "__main__":
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
     enrichment_runtime_options.add_argument('--ko', action='store_true',
-                help='Compare KO ids')   
+                help='Compare KO ids (annotated with DIAMOND)')   
+    enrichment_runtime_options.add_argument('--ko_hmm', action='store_true',
+                help='Compare KO ids (annotated with HMMs)')
     enrichment_runtime_options.add_argument('--pfam', action='store_true',
                 help='Compare Pfam ids')
     enrichment_runtime_options.add_argument('--tigrfam', action='store_true',
