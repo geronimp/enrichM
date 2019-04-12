@@ -45,6 +45,8 @@ class Databases:
 		IDS_DIR				= os.path.join(CUR_DATABASE_DIR, 'ids')
 		REF_DIR				= os.path.join(CUR_DATABASE_DIR, 'databases')
 		GTDB_DIR			= os.path.join(CUR_DATABASE_DIR, 'gtdb')
+		KO_HMM_CUTOFFS 		= os.path.join(CUR_DATABASE_DIR, 'ko_cutoffs.tsv')
+
 		PICKLE				= 'pickle'	
 		HMM_SUFFIX 			= '.hmm'
 		DMND_SUFFIX			= '.dmnd'
@@ -181,3 +183,16 @@ class Databases:
 			output_taxonomy_dictionary[genome] = taxonomy_string.split(';')
 			
 		return output_taxonomy_dictionary
+
+	def parse_ko_cutoffs(self):
+
+		cut_ko = dict()
+		out_io = open(self.KO_HMM_CUTOFFS)
+		header = out_io.readline()
+		for line in out_io:
+			sline = line.strip().split('\t')
+			if sline[1]=='-':
+				cut_ko[sline[0]] = [0.0, "NA"]
+			else:
+				cut_ko[sline[0]] = [float(sline[1]), sline[2]]
+		return cut_ko

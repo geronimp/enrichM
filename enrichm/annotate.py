@@ -59,6 +59,7 @@ class Annotate:
     GENOME_BIN                      = 'genome_bin'
     GENOME_PROTEINS                 = 'genome_proteins'    
     GENOME_KO                       = 'annotations_ko'
+    GENOME_KO_HMM                   = 'annotations_ko_hmm'
     GENOME_EC                       = 'annotations_ec'
     GENOME_PFAM                     = 'annotations_pfam'
     GENOME_TIGRFAM                  = 'annotations_tigrfam'
@@ -67,6 +68,7 @@ class Annotate:
     GENOME_GFF                      = 'annotations_gff'
     GENOME_OBJ                      = 'annotations_genomes'
     OUTPUT_KO                       = 'ko_frequency_table.tsv'
+    OUTPUT_KO_HMM                   = 'ko_hmm_frequency_table.tsv'
     OUTPUT_EC                       = 'ec_frequency_table.tsv'
     OUTPUT_PFAM                     = 'pfam_frequency_table.tsv'
     OUTPUT_TIGRFAM                  = 'tigrfam_frequency_table.tsv'
@@ -83,7 +85,7 @@ class Annotate:
     def __init__(self,
                  output_directory,
                  ko, ko_hmm, pfam, tigrfam, hypothetical, cazy, ec,
-                 evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, inflation, chunk_number, chunk_max, count_domains,
+                 evalue, bit, id, aln_query, aln_reference, c, cut_ga, cut_nc, cut_tc, cut_hmm, inflation, chunk_number, chunk_max, count_domains,
                  threads, parallel, suffix, light):
 
         # Define inputs and outputs
@@ -108,6 +110,7 @@ class Annotate:
         self.cut_ga           = cut_ga
         self.cut_nc           = cut_nc
         self.cut_tc           = cut_tc
+        self.cut_hmm          = cut_hmm
         self.inflation        = inflation
         self.chunk_number     = chunk_number
         self.chunk_max        = chunk_max
@@ -221,7 +224,7 @@ class Annotate:
                                              output_subdirectory)
         genome_dict = {genome.name:genome for genome in genomes_list}
         os.mkdir(output_directory_path)
-
+        specific_cutoffs = None
         with tempfile.NamedTemporaryFile() as temp:
             temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()
@@ -238,6 +241,7 @@ class Annotate:
                                  self.bit, 
                                  self.aln_query, 
                                  self.aln_reference,
+                                 specific_cutoffs,
                                  parser_type,
                                ids_type)
     
@@ -325,6 +329,11 @@ class Annotate:
         else:
             hmmcutoff=False
         
+        if ids_type == AnnotationParser.KO_HMM:
+            specific_cutoffs = self.databases.parse_ko_cutoffs()
+        else:
+            specific_cutoffs = None
+
         self._hmm_search(output_directory_path, database, hmmcutoff)
 
         for genome_annotation in os.listdir(output_directory_path):
@@ -336,6 +345,7 @@ class Annotate:
                          self.bit, 
                          self.aln_query, 
                          self.aln_reference,
+                         specific_cutoffs,
                          parser,
                          ids_type)
 
@@ -658,7 +668,6 @@ class Annotate:
 
         logging.info("Running pipeline: annotate")
         logging.info("Setting up for genome annotation")
-
         genomes_list = self.parse_genome_inputs(genome_directory, protein_directory, genome_files, protein_files)
         if len(genomes_list)==0:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
@@ -677,7 +686,7 @@ class Annotate:
 
             if self.ko:
                 annotation_type = AnnotationParser.BLASTPARSER
-                logging.info('    - Annotating genomes with ko ids')
+                logging.info('    - Annotating genomes with ko ids using DIAMOND')
                 self.annotate_diamond(
                     genomes_list, self.databases.KO_DB, annotation_type, AnnotationParser.KO, self.GENOME_KO)
 
@@ -688,9 +697,10 @@ class Annotate:
 
             if self.ko_hmm:
                 annotation_type = AnnotationParser.HMMPARSER
-                logging.info('    - Annotating genomes with ko ids')
+                logging.info('    - Annotating genomes with ko ids using HMMs')
                 self.hmmsearch_annotation(genomes_list,
-                                          os.path.join(self.output_directory, self.GENOME_KO),
+                                          os.path.join(
+                                              self.output_directory, self.GENOME_KO_HMM),
                                           self.databases.KO_HMM_DB,
                                           AnnotationParser.KO,
                                           annotation_type)
@@ -698,7 +708,7 @@ class Annotate:
                 logging.info('    - Generating ko frequency table')
                 mg = MatrixGenerator(MatrixGenerator.KO)
                 freq_table = os.path.join(
-                    self.output_directory, self.OUTPUT_KO)
+                    self.output_directory, self.OUTPUT_KO_HMM)
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ec:
