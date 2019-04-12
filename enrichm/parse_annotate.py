@@ -59,6 +59,11 @@ class ParseAnnotate:
 			self.ko = ko
 		else:
 			self.ko = None
+		ko_hmm = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_KO_HMM)
+		if os.path.isfile(ko_hmm):
+			self.ko_hmm = ko_hmm
+		else:
+			self.ko_hmm = None
 		pfam = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_PFAM)
 		if os.path.isfile(pfam):
 			self.pfam = pfam
@@ -108,8 +113,6 @@ class ParseAnnotate:
 		
 		output_genome_list 	= list()
 		paths 				= list()
-		
-
 
 		for pickled_genome in genome_list:
 			pickled_genome_path = os.path.join(path, pickled_genome + '.pickle')

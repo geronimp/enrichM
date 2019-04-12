@@ -248,7 +248,9 @@ if __name__ == "__main__":
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
     enrichment_runtime_options.add_argument('--ko', action='store_true',
-                help='Compare KO ids')   
+                help='Compare KO ids (annotated with DIAMOND)')   
+    enrichment_runtime_options.add_argument('--ko_hmm', action='store_true',
+                help='Compare KO ids (annotated with HMMs)')
     enrichment_runtime_options.add_argument('--pfam', action='store_true',
                 help='Compare Pfam ids')
     enrichment_runtime_options.add_argument('--tigrfam', action='store_true',
