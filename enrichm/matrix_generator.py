@@ -43,6 +43,8 @@ class MatrixGenerator:
     TIGRFAM = 'TIGRFAM_IDS.txt'
     CAZY = 'CAZY_IDS.txt'
     HYPOTHETICAL = 'HYPOTHETICAL'
+    ORTHOLOG = 'ORTHOLOG'
+
 
     def __init__(self, annotation_type, clusters = None):
         '''
@@ -70,6 +72,9 @@ class MatrixGenerator:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.CAZY))]
         
         elif self.annotation_type == self.HYPOTHETICAL:
+            self.annotation_list = clusters
+            
+        elif self.annotation_type == self.ORTHOLOG:
             self.annotation_list = clusters
 
     def write_matrix(self, genomes_list, count_domains, output_path):
