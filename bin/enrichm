@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
     enrichment_input_options.add_argument('--annotate_output', required=True,
-                help='Input annotation matrix (PFAM, Tigrfam, etc).')
+                help='Output directory provided by enrichm annotate')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
 
