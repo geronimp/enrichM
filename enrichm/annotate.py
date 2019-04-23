@@ -392,16 +392,20 @@ class Annotate:
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
             logging.debug('Finished')
-            
+            import IPython ; IPython.embed()
+
             logging.info('    - Computing Smith-Waterman alignments for clustering results')
-            cmd = "mmseqs align %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
+            cmd = "mmseqs alignall %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
+            logging.debug('Finished')
+
             logging.info('    - Converting to BLAST-like output')
-            cmd = "mmseqs convertalis %s %s %s %s  --format-output query,target,bits > /dev/null 2>&1 " % (
-                db_path, db_path, align_path, blast_output_path)
+            cmd = "mmseqs convertalis %s %s %s %s --format-output query,target,bits > /dev/null 2>&1 " % (db_path, db_path, align_path, blast_output_path)
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
+            logging.debug('Finished')
+            import IPython ; IPython.embed()
 
         ortholog_dict = self.run_mcl(blast_output_path,
                                      os.path.join(output_directory_path,
