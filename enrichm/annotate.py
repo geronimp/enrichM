@@ -323,8 +323,7 @@ class Annotate:
         genome_dict = {genome.name: genome for genome in genomes_list}
 
         if (ids_type == AnnotationParser.TIGRFAM or 
-            ids_type == AnnotationParser.PFAM,
-            ids_type == AnnotationParser.KO_HMM):
+            ids_type == AnnotationParser.PFAM):
             hmmcutoff=True
         else:
             hmmcutoff=False
