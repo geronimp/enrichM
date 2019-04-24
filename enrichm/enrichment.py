@@ -408,7 +408,7 @@ class Enrichment:
         if abundances_path:
             
             logging.info('Parsing sample abundance')
-            abundances_dict, samples, genomes  = self._parse_annotation_matrix(abundances_path)
+            abundances_dict, _, genomes  = self._parse_annotation_matrix(abundances_path)
 
             logging.info('Parsing sample metadata')
             ab_metadata, ab_metadata_value_lists, ab_attribute_dict \
@@ -494,7 +494,7 @@ class Enrichment:
             #unique_to_groups_path \
             #    = os.path.join(output_directory, self.UNIQUE_TO_GROUPS)
             raw_proportions_output_lines \
-                = self.calculate_portions(modules, combination_dict, annotations_dict, genome_list, proportions_cutoff)
+                = self.calculate_portions(annotations, combination_dict, annotations_dict, genome_list, proportions_cutoff)
 
             self._write(raw_proportions_output_lines, raw_portions_path)
 

@@ -31,7 +31,6 @@ __status__      = "Development"
 from enrichm.databases import Databases
 
 ################################################################################
-
 class Parser:
 	
 	@staticmethod
