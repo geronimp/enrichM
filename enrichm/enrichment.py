@@ -423,15 +423,19 @@ class Enrichment:
                      processes,
                      d)
 
-            output_lines = t.weight_annotation_matrix(abundances_dict,
-                                                        annotations_dict,
-                                                        ab_metadata,
-                                                        ab_metadata_value_lists,
-                                                        ab_attribute_dict,
-                                                        annotations)
+            results = t.weight_annotation_matrix(abundances_dict,
+                                                 annotations_dict,
+                                                 ab_metadata,
+                                                 ab_metadata_value_lists,
+                                                 ab_attribute_dict,
+                                                 annotations)
+            for result in results:
+                test_result_lines, test_result_output_file = result
 
-
-
+                test_result_output_path = os.path.join(output_directory,
+                                                       test_result_output_file)
+                self._write(test_result_lines, test_result_output_path)
+                                                        
         else:
             if batchfile:
                 genomes_set = set()
@@ -865,7 +869,9 @@ class Test(Enrichment):
                     output_dict[group][annotation].append(sample_annotation_abundance)
 
         logging.info('Calculating enrichment across samples using Mann-Whitney U test')
+        results = list()
         for combination in combinations(output_dict, 2):
+            prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
             res_list = list()
 
             for annotation in annotations:
@@ -875,7 +881,12 @@ class Test(Enrichment):
                 res_list.append(gene_count)
             
             output_lines = self.pool.map(mannwhitneyu_calc, res_list)
-        import IPython ; IPython.embed()
-        return output_lines
+        
+            for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                output_lines[idx].append(str(corrected_pval))
+            output_lines = self.add_descriptions(output_lines)
+            output_lines = self.MANNWHITNEYU_HEADER + output_lines 
+            results.append([output_lines, prefix + '_' + self.GVG_OUTPUT])
+        return results
                 
 
