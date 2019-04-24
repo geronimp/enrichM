@@ -76,7 +76,9 @@ class MatrixGenerator:
             
         elif self.annotation_type == self.ORTHOLOG:
             self.annotation_list = clusters
-
+        
+        else:
+            raise Exception("Annotation type not found: %s" % (self.annotation_type))
     def write_matrix(self, genomes_list, count_domains, output_path):
         '''
         Writes a frequency matrix with of each annotation (rows) per sample (columns)

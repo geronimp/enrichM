@@ -377,7 +377,6 @@ class Run:
             e.do(# Input options
                  args.annotate_output,
                  args.metadata,
-                 args.modules,
                  args.abundance,
                  args.abundance_metadata,
                  # Runtime options
