@@ -43,6 +43,8 @@ class MatrixGenerator:
     TIGRFAM = 'TIGRFAM_IDS.txt'
     CAZY = 'CAZY_IDS.txt'
     HYPOTHETICAL = 'HYPOTHETICAL'
+    ORTHOLOG = 'ORTHOLOG'
+
 
     def __init__(self, annotation_type, clusters = None):
         '''
@@ -71,7 +73,12 @@ class MatrixGenerator:
         
         elif self.annotation_type == self.HYPOTHETICAL:
             self.annotation_list = clusters
-
+            
+        elif self.annotation_type == self.ORTHOLOG:
+            self.annotation_list = clusters
+        
+        else:
+            raise Exception("Annotation type not found: %s" % (self.annotation_type))
     def write_matrix(self, genomes_list, count_domains, output_path):
         '''
         Writes a frequency matrix with of each annotation (rows) per sample (columns)

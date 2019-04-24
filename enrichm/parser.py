@@ -31,7 +31,6 @@ __status__      = "Development"
 from enrichm.databases import Databases
 
 ################################################################################
-
 class Parser:
 	
 	@staticmethod
@@ -82,7 +81,6 @@ class Parser:
 		matrix_io = open(matrix)
 		header_values = matrix_io.readline().strip().split('\t')[1:]
 		output_dict = {header:{} for header in header_values}
-
 		for line in matrix_io:
 			sline = line.strip().split('\t')
 			_, content = sline[0], sline[1:]

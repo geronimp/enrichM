@@ -323,8 +323,7 @@ class Annotate:
         genome_dict = {genome.name: genome for genome in genomes_list}
 
         if (ids_type == AnnotationParser.TIGRFAM or 
-            ids_type == AnnotationParser.PFAM,
-            ids_type == AnnotationParser.KO_HMM):
+            ids_type == AnnotationParser.PFAM):
             hmmcutoff=True
         else:
             hmmcutoff=False
@@ -371,8 +370,9 @@ class Annotate:
                 
             db_path = os.path.join(output_directory_path, "db")
             clu_path = os.path.join(output_directory_path, "clu")
-            #align_path = os.path.join(output_directory_path, "alignDb")
-            #blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
+            align_path = os.path.join(output_directory_path, "alignDb")
+            blast_output_path = os.path.join(output_directory_path, "alignDb.m8")
+
             clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
             
             logging.info('    - Generating MMSeqs2 database')
@@ -393,21 +393,28 @@ class Annotate:
             subprocess.call(cmd, shell = True)
             logging.debug('Finished')
 
-            # logging.info('    - Computing Smith-Waterman alignments for clustering results')
-            # cmd = "mmseqs align %s %s %s %s -a  > /dev/null 2>&1 " % (db_path, db_path, clu_path, align_path)
-            # logging.debug(cmd)
-            # subprocess.call(cmd, shell = True)
+            logging.info('    - Computing Smith-Waterman alignments for clustering results')
+            cmd = "mmseqs alignall %s %s %s -a > /dev/null 2>&1 " % (db_path, clu_path, align_path)
+            logging.debug(cmd)
+            subprocess.call(cmd, shell = True)
+            logging.debug('Finished')
 
-            # logging.info('    - Converting to BLAST-like output')
-            # cmd = "mmseqs convertalis %s %s %s %s  > /dev/null 2>&1 " % (db_path, db_path, align_path, blast_output_path)
-            # logging.debug(cmd)
-            # subprocess.call(cmd, shell = True)
+            logging.info('    - Converting to BLAST-like output')
+            cmd = "mmseqs convertalis %s %s %s %s  > /dev/null 2>&1 " % (db_path, db_path, align_path, blast_output_path)
+            # --format-output query,target,bits
+            logging.debug(cmd)
+            subprocess.call(cmd, shell = True)
+            logging.debug('Finished')
 
-        #ortholog_dict = self.run_mcl(clu_tsv_path, os.path.join(output_directory_path, "mcl_clusters.tsv"))
-        ortholog_dict = dict()
-        cluster_ids = self.parse_cluster_results(clu_tsv_path, genomes_list, ortholog_dict, output_directory_path)
+        ortholog_dict = self.run_mcl(blast_output_path,
+                                     os.path.join(output_directory_path,
+                                        "mcl_clusters.tsv"))
+        cluster_ids = self.parse_cluster_results(clu_tsv_path,
+                                        genomes_list,
+                                        ortholog_dict,
+                                        output_directory_path)
 
-        return cluster_ids
+        return cluster_ids, ortholog_dict.keys()
 
     def run_mcl(self, clu_tsv_path, output_path):
         logging.info('    - Finding orthologs')
@@ -469,10 +476,10 @@ class Annotate:
                     genome_dictionary[genome_id].add_cluster(sequence_id, "cluster_%i" % counter)
                 out_io.write('\t'.join([genome_id, sequence_id, "cluster_%i" % counter]) + '\n')
         
-        #for ortholog, group in ortholog_dict.items():
-        #    for member in group:
-        #        genome, protein = member.split('~')
-        #        genome_dictionary[genome].add_ortholog(protein, ortholog)
+        for ortholog, group in ortholog_dict.items():
+            for member in group:
+                genome, protein = member.split('~')
+                genome_dictionary[genome].add_ortholog(protein, ortholog)
         
         return cluster_ids
 
@@ -677,11 +684,14 @@ class Annotate:
 
             if self.hypothetical:
                 logging.info('    - Annotating genomes with hypothetical clusters')
-                cluster_ids = self.annotate_hypothetical(genomes_list)
-                
+                cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list)
                 logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)
                 freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_CLUSTER)
+                mg.write_matrix(genomes_list, self.count_domains, freq_table)
+
+                mg = MatrixGenerator(MatrixGenerator.ORTHOLOG, ortholog_ids)
+                freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_ORTHOLOG)
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
             if self.ko:

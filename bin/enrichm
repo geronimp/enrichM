@@ -220,7 +220,7 @@ if __name__ == "__main__":
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
     enrichment_input_options.add_argument('--annotate_output', required=True,
-                help='Input annotation matrix (PFAM, Tigrfam, etc).')
+                help='Output directory provided by enrichm annotate')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
 
@@ -229,8 +229,6 @@ if __name__ == "__main__":
                 help='metadata file to compare with.')
 
     enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
-    enrichment_runtime_options.add_argument('--modules',
-                help='Modules to limit analysis to.')
     enrichment_runtime_options.add_argument('--genomes_to_compare_with_group', 
                 help='File containing genome ids to compare with the average of the group.')
     enrichment_runtime_options.add_argument('--abundance',

@@ -65,12 +65,9 @@ class Classify:
             
             genome, annotation = sline
             
-            if self.ko_re.match(annotation):
-                if genome not in genome_to_annotation_sets:
-                    genome_to_annotation_sets[genome] = set()
-                genome_to_annotation_sets[genome].add(annotation)
-            else:
-                raise Exception("Malformed annotation line: %i" % line)
+            if genome not in genome_to_annotation_sets:
+                genome_to_annotation_sets[genome] = set()
+            genome_to_annotation_sets[genome].add(annotation)
         return genome_to_annotation_sets
     
     def _parse_genome_and_annotation_file_matrix(self, genome_and_annotation_file):
@@ -143,6 +140,7 @@ class Classify:
                     num_all         = path.num_steps()
                     perc_covered    = num_covered / float(num_all)
 
+
                     if perc_covered >= cutoff:
                         
                         if path.is_single_step:
@@ -152,6 +150,7 @@ class Classify:
                                 if cutoff < 1:
                                     num_all = 1
                                     num_covered = 0
+                                    perc_covered = 0.0
 
                                 else:
                                     continue
