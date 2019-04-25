@@ -34,7 +34,7 @@ from enrichm.databases import Databases
 class Parser:
 	
 	@staticmethod
-	def parse_genome_and_annotation_file_lf(self, genome_and_annotation_file):
+	def parse_genome_and_annotation_file_lf(genome_and_annotation_file):
 		genome_to_annotation_sets = dict()
 		
 		for line in open(genome_and_annotation_file):
@@ -51,7 +51,7 @@ class Parser:
 		return genome_to_annotation_sets
 	
 	@staticmethod
-	def parse_genome_and_annotation_file_matrix(self, genome_and_annotation_matrix):
+	def parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix):
 		genome_and_annotation_matrix_io = open(genome_and_annotation_matrix)
 		headers=genome_and_annotation_matrix_io.readline().strip().split('\t')[1:]
 		genome_to_annotation_sets = {genome_name:set() for genome_name in headers}
@@ -66,7 +66,7 @@ class Parser:
 		return genome_to_annotation_sets
 	
 	@staticmethod
-	def parse_taxonomy(self, taxonomy_path):
+	def parse_taxonomy(taxonomy_path):
 		
 		output_taxonomy_dictionary = dict()
 
@@ -77,24 +77,24 @@ class Parser:
 		return output_taxonomy_dictionary
 	
 	@staticmethod
-	def _parse_simple_matrix(matrix, numeric = False):
+	def parse_simple_matrix(matrix, numeric = False):
 		matrix_io = open(matrix)
 		header_values = matrix_io.readline().strip().split('\t')[1:]
 		output_dict = {header:{} for header in header_values}
 		for line in matrix_io:
 			sline = line.strip().split('\t')
-			_, content = sline[0], sline[1:]
+			annot, content = sline[0], sline[1:]
 
 			for key, value in zip(header_values, content):
 
 				if numeric == True:
 					value = float(value)
-				output_dict[key] = value
+				output_dict[key][annot] = value
 
 		return output_dict
 
 	@staticmethod
-	def _parse_matrix(self, matrix_file_io, colnames):
+	def parse_matrix(matrix_file_io, colnames):
 		for line in matrix_file_io:
 			sline = line.strip().split('\t')
 			rowname, entries = sline[0], sline[1:]

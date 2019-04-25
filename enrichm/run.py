@@ -42,6 +42,7 @@ from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
 from enrichm.connect import Connect
+from enrichm.aggregate import Aggregate
 ###############################################################################
 
 debug={1:logging.CRITICAL,
@@ -67,6 +68,7 @@ class Run:
         self.PREDICT         = 'predict'
         self.GENERATE        = 'generate'
         self.CONNECT         = 'connect'
+        self.AGGREGATE       = 'aggregate'
 
     def _logging_setup(self, args):
 
@@ -221,9 +223,11 @@ class Run:
         '''
         # Ensure either an annotation matrix or list file has been specified:
         if not(args.genome_and_annotation_file or args.genome_and_annotation_matrix):
-            
             raise Exception("Input error: An input file must be specified to either \
 --genome_and_annotation_file or --genome_and_annotation_matrix")
+
+        elif(args.aggregate and args.genome_and_annotation_file):
+            raise Exception("--aggregate needs to be run with the genome and annotation matrix")
 
     def _check_build(self, args):
         '''
@@ -362,11 +366,13 @@ class Run:
                  args.genome_files,
                  args.protein_files)
 
+        
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
             c = Classify()
             c.do(args.custom_modules, 
                  args.cutoff,
+                 args.aggregate,
                  args.genome_and_annotation_file,
                  args.genome_and_annotation_matrix,
                  args.output)

@@ -33,13 +33,15 @@ from itertools import chain
 # Local
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
+from enrichm.parser import Parser
 ###############################################################################
 
 class Classify:
     
     KO_OUTPUT       = "module_completeness.tsv"
     MODULE_PATHS    = "module_paths.tsv"
-    
+    AGGREGATE_OUTPUT = "aggregate_output.tsv"
+
     def __init__(self):
 
         d=Databases()
@@ -90,9 +92,11 @@ class Classify:
 
         with open(output_path, 'w') as output_path_io:
             for line in lines:
-                output_path_io.write(line)      
-
-    def do(self, custom_modules, cutoff, genome_and_annotation_file, 
+                try:
+                    output_path_io.write(line)      
+                except:
+                    import IPython ; IPython.embed()
+    def do(self, custom_modules, cutoff, aggregate, genome_and_annotation_file, 
            genome_and_annotation_matrix, output_directory):
         '''
         
@@ -117,11 +121,20 @@ class Classify:
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
             self._update_with_custom_modules(custom_modules)
+        
         if genome_and_annotation_file:
-            genome_to_annotation_sets = self._parse_genome_and_annotation_file_lf(genome_and_annotation_file)
+            genome_to_annotation_sets = Parser.parse_genome_and_annotation_file_lf(genome_and_annotation_file)
+        
         elif genome_and_annotation_matrix:
-            genome_to_annotation_sets = self._parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix)
+            genome_to_annotation_sets = Parser.parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix)
 
+        if aggregate:
+            logging.info('Reading in abundances: %s' %
+                         (genome_and_annotation_matrix))
+            abundances = Parser.parse_simple_matrix(genome_and_annotation_matrix, True)
+            abundance_result = dict()
+
+            
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
         
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found", 
@@ -136,13 +149,13 @@ class Classify:
                 pathway[name] = path
 
                 for genome, annotations in genome_to_annotation_sets.items():    
+
                     num_covered, _, _, ko_path = path.num_covered_steps(annotations)
                     num_all         = path.num_steps()
                     perc_covered    = num_covered / float(num_all)
-
-
+                    ko_path_list    = list(chain(*ko_path.values()))
                     if perc_covered >= cutoff:
-                        
+
                         if path.is_single_step:
                         
                             if perc_covered!=1:
@@ -159,8 +172,16 @@ class Classify:
                                 num_all = 1
                                 num_covered = 1
 
+                        if aggregate:
+
+                            if genome not in abundance_result:
+                                abundance_result[genome] = dict()
+                            pathway_abundance = [abundances[genome][ko] for ko in ko_path_list]
+                            pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
+                            abundance_result[genome][name] = pathway_average_abundance
+
                         genome_output_lines.append('\t'.join([genome, name, self.m[name], 
-                                                              ','.join(chain(*ko_path.values())) + '\n']))
+                                                              ','.join(ko_path_list) + '\n']))
                         output_line = "\t".join([genome, name, self.m[name],
                                                   str(num_covered), 
                                                   str(num_all),
@@ -171,5 +192,25 @@ class Classify:
         self.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT))
         self.write(genome_output_lines, os.path.join(output_directory, self.MODULE_PATHS)) 
         
+        if aggregate:
+            samples = list(abundance_result.keys() )
+            output_lines = ['\t'.join(["ID"] + samples) + '\n']
+
+            for module in self.m2def.keys():
+            
+                if name not in self.signature_modules:
+                    ol = [name]
+
+                    for sample in samples:
+            
+                        if name in abundance_result[sample]:
+                            ol.append(str(abundance_result[sample][name]))
+            
+                        else:
+                            ol.append('0.0')
+                    output_lines.append('\t'.join(ol) + '\n')
+            output_lines.append(output_line)
+            self.write(output_lines, os.path.join(output_directory, self.AGGREGATE_OUTPUT))
+
 
 

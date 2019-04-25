@@ -652,6 +652,7 @@ class Test(Enrichment):
         if any(group == 1 for group in groups):
             enrichment_test = self.PA
             overrepresentation_test = stats.norm.cdf
+            
         else:
             enrichment_test = stats.fisher_exact
             overrepresentation_test = stats.mannwhitneyu
@@ -674,7 +675,6 @@ class Test(Enrichment):
         return set(kos_list)
 
     def gather_genome_annotations(self, group, target_annotations):
-        
         genome_annotation_list = list()
         
         for genome in self.groups[group]:

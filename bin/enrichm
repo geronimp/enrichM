@@ -212,6 +212,9 @@ if __name__ == "__main__":
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
                 help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
 
+    classify_runtime_options = classify.add_argument_group('Runtime options')
+    classify_runtime_options.add_argument('--aggregate', action='store_true',
+                                         help='Calculate the abundance of each pathway within each genome/sample (column)')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Enrichment  
