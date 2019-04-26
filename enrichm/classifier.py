@@ -59,43 +59,14 @@ class Classify:
         for key in custom_modules_dict.keys():
             self.m[key] = 'Custom'
     
-    def _parse_genome_and_annotation_file_lf(self, genome_and_annotation_file):
-        genome_to_annotation_sets = dict()
-        for line in open(genome_and_annotation_file):
-            sline = line.strip().split("\t")
-            if len(sline) != 2: raise Exception("Input genomes/annotation file error on %s" % line)
-            
-            genome, annotation = sline
-            
-            if genome not in genome_to_annotation_sets:
-                genome_to_annotation_sets[genome] = set()
-            genome_to_annotation_sets[genome].add(annotation)
-        return genome_to_annotation_sets
-    
-    def _parse_genome_and_annotation_file_matrix(self, genome_and_annotation_file):
-        genome_and_annotation_file_io = open(genome_and_annotation_file)
-        headers=genome_and_annotation_file_io.readline().strip().split('\t')[1:]
-        genome_to_annotation_sets = {genome_name:set() for genome_name in headers}
-
-        for line in genome_and_annotation_file_io:
-            sline = line.strip().split('\t')
-            annotation, entries = sline[0], sline[1:]
-            for genome_name, entry in zip(headers, entries):
-                if float(entry) > 0:
-                    genome_to_annotation_sets[genome_name].add(annotation)
-
-        return genome_to_annotation_sets
-
     def write(self, lines, output_path):
         
         logging.info('Writing results to file: %s' % output_path)
 
         with open(output_path, 'w') as output_path_io:
             for line in lines:
-                try:
-                    output_path_io.write(line)      
-                except:
-                    import IPython ; IPython.embed()
+                output_path_io.write(line)
+
     def do(self, custom_modules, cutoff, aggregate, genome_and_annotation_file, 
            genome_and_annotation_matrix, output_directory):
         '''
@@ -154,6 +125,7 @@ class Classify:
                     num_all         = path.num_steps()
                     perc_covered    = num_covered / float(num_all)
                     ko_path_list    = list(chain(*ko_path.values()))
+
                     if perc_covered >= cutoff:
 
                         if path.is_single_step:
@@ -173,7 +145,7 @@ class Classify:
                                 num_covered = 1
 
                         if aggregate:
-
+                            
                             if genome not in abundance_result:
                                 abundance_result[genome] = dict()
                             pathway_abundance = [abundances[genome][ko] for ko in ko_path_list]
@@ -195,21 +167,19 @@ class Classify:
         if aggregate:
             samples = list(abundance_result.keys() )
             output_lines = ['\t'.join(["ID"] + samples) + '\n']
-
             for module in self.m2def.keys():
             
-                if name not in self.signature_modules:
-                    ol = [name]
+                if module not in self.signature_modules:
+                    ol = [module]
 
                     for sample in samples:
             
-                        if name in abundance_result[sample]:
-                            ol.append(str(abundance_result[sample][name]))
+                        if module in abundance_result[sample]:
+                            ol.append(str(abundance_result[sample][module]))
             
                         else:
                             ol.append('0.0')
                     output_lines.append('\t'.join(ol) + '\n')
-            output_lines.append(output_line)
             self.write(output_lines, os.path.join(output_directory, self.AGGREGATE_OUTPUT))
 
 

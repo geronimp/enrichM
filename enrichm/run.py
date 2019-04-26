@@ -152,11 +152,9 @@ class Run:
 
         # ensure either a list of genomes or a directory of genomes have been specified
         if not(args.genome_files or args.genome_directory or args.protein_directory or args.protein_files):
-            
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
 
         if len([x for x in [args.genome_files, args.genome_directory, args.protein_directory, args.protein_files] if x]) != 1:
-            
             raise Exception("Input error: Only one type of input can be specified (--genome_files, --genome_directory, --protein_directory, or --protein_files).")
         
         if not args.suffix:
@@ -168,21 +166,16 @@ class Run:
                 args.suffix = '.faa'
         
         if(args.id>1 or args.id<0):
-            
             raise Exception("Identity (--id) must be between 0 and 1.")
         
         if(args.aln_query>1 or args.aln_query<0):
-           
             raise Exception("Alignment to query cutoff (--aln_query) must be between 0 and 1")
         
         if(args.aln_reference>1 or args.aln_reference<0):
-           
             raise Exception("Alignment to reference cutoff (--aln_reference) must be between 0 and 1")
         
         if any([args.cut_ga, args.cut_nc, args.cut_tc]):
-           
             if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
-                
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
             
             if args.evalue:
@@ -338,7 +331,8 @@ class Run:
                          args.ko_hmm,
                          args.pfam,
                          args.tigrfam,
-                         args.hypothetical,
+                         args.clusters,
+                         args.orthologs,
                          args.cazy,
                          args.ec,
                          # Cutoffs
