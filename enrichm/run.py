@@ -42,6 +42,7 @@ from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
 from enrichm.connect import Connect
+from enrichm.aggregate import Aggregate
 ###############################################################################
 
 debug={1:logging.CRITICAL,
@@ -67,6 +68,7 @@ class Run:
         self.PREDICT         = 'predict'
         self.GENERATE        = 'generate'
         self.CONNECT         = 'connect'
+        self.AGGREGATE       = 'aggregate'
 
     def _logging_setup(self, args):
 
@@ -150,11 +152,9 @@ class Run:
 
         # ensure either a list of genomes or a directory of genomes have been specified
         if not(args.genome_files or args.genome_directory or args.protein_directory or args.protein_files):
-            
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
 
         if len([x for x in [args.genome_files, args.genome_directory, args.protein_directory, args.protein_files] if x]) != 1:
-            
             raise Exception("Input error: Only one type of input can be specified (--genome_files, --genome_directory, --protein_directory, or --protein_files).")
         
         if not args.suffix:
@@ -166,21 +166,16 @@ class Run:
                 args.suffix = '.faa'
         
         if(args.id>1 or args.id<0):
-            
             raise Exception("Identity (--id) must be between 0 and 1.")
         
         if(args.aln_query>1 or args.aln_query<0):
-           
             raise Exception("Alignment to query cutoff (--aln_query) must be between 0 and 1")
         
         if(args.aln_reference>1 or args.aln_reference<0):
-           
             raise Exception("Alignment to reference cutoff (--aln_reference) must be between 0 and 1")
         
         if any([args.cut_ga, args.cut_nc, args.cut_tc]):
-           
             if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
-                
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
             
             if args.evalue:
@@ -221,9 +216,11 @@ class Run:
         '''
         # Ensure either an annotation matrix or list file has been specified:
         if not(args.genome_and_annotation_file or args.genome_and_annotation_matrix):
-            
             raise Exception("Input error: An input file must be specified to either \
 --genome_and_annotation_file or --genome_and_annotation_matrix")
+
+        elif(args.aggregate and args.genome_and_annotation_file):
+            raise Exception("--aggregate needs to be run with the genome and annotation matrix")
 
     def _check_build(self, args):
         '''
@@ -334,7 +331,8 @@ class Run:
                          args.ko_hmm,
                          args.pfam,
                          args.tigrfam,
-                         args.hypothetical,
+                         args.clusters,
+                         args.orthologs,
                          args.cazy,
                          args.ec,
                          # Cutoffs
@@ -362,11 +360,13 @@ class Run:
                  args.genome_files,
                  args.protein_files)
 
+        
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
             c = Classify()
             c.do(args.custom_modules, 
                  args.cutoff,
+                 args.aggregate,
                  args.genome_and_annotation_file,
                  args.genome_and_annotation_matrix,
                  args.output)

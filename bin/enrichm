@@ -146,8 +146,10 @@ if __name__ == "__main__":
                 help='Annotate with Pfam HMMs')
     annotate_annotation_options.add_argument('--tigrfam', action='store_true',
                 help='Annotate with TIGRFAM HMMs')
-    annotate_annotation_options.add_argument('--hypothetical', action='store_true',
-                help='Annotate with hypothetical clusters')
+    annotate_annotation_options.add_argument('--clusters', action='store_true',
+                help='Annotate with cluster ids')
+    annotate_annotation_options.add_argument('--orthologs', action='store_true',
+                help='Annotate with ortholog ids')
     annotate_annotation_options.add_argument('--cazy', action='store_true',
                 help='Annotate with dbCAN HMMs')
     annotate_annotation_options.add_argument('--ec', action='store_true',
@@ -212,6 +214,9 @@ if __name__ == "__main__":
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
                 help='Output only modules with greater than this percent of the requied KO groups (default = print all modules)')
 
+    classify_runtime_options = classify.add_argument_group('Runtime options')
+    classify_runtime_options.add_argument('--aggregate', action='store_true',
+                                         help='Calculate the abundance of each pathway within each genome/sample (column)')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     # Enrichment  

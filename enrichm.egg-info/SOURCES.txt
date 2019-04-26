@@ -11,6 +11,7 @@ enrichm/data.py
 enrichm/databases.py
 enrichm/draw_plots.py
 enrichm/enrichment.py
+enrichm/enrichment_abundance.py
 enrichm/generate.py
 enrichm/genome.py
 enrichm/gff_generator.py
