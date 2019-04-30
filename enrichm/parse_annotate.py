@@ -84,16 +84,16 @@ class ParseAnnotate:
 			self.ec = ec
 		else:
 			self.ec = None
-		hypothetical_cluster = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_HYPOTHETICAL_CLUSTER)
-		if os.path.isfile(hypothetical_cluster):
-			self.hypothetical_cluster = hypothetical_cluster
+		cluster = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_CLUSTER)
+		if os.path.isfile(cluster):
+			self.cluster = cluster
 		else:
-			self.hypothetical_cluster = None
-		hypothetical_ortholog = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_HYPOTHETICAL_ORTHOLOG)
-		if os.path.isfile(hypothetical_ortholog):
-			self.hypothetical_ortholog = hypothetical_ortholog
+			self.cluster = None
+		ortholog = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_ORTHOLOG)
+		if os.path.isfile(ortholog):
+			self.ortholog = ortholog
 		else:
-			self.hypothetical_ortholog = None
+			self.ortholog = None
 
 	def parse_pickles(self, path, genome_list):
 		'''

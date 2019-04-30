@@ -129,8 +129,9 @@ class Enrichment:
     KEGG                    = "kegg"
     CAZY                    = "cazy"
     EC                      = "ec"
-    HYPOTHETICAL            = "hypothetical"
+    CLUSTER                 = "cluster"
     ORTHOLOG                = "ortholog"
+    OTHER                   = "other"
 
     def __init__(self):
 
@@ -179,7 +180,7 @@ class Enrichment:
 
         return cols_to_rows, nr_values, attribute_dict
 
-    def _parse_annotation_matrix(self, annotation_matrix):
+    def _parse_annotation_matrix(self, annotation_matrix, allow_negative_values):
         '''        
         Parameters
         ----------
@@ -195,9 +196,11 @@ class Enrichment:
                         in self._parse_matrix(matrix_file_io, colnames):
             
             rownames.add(rowname)
-            if float(entry) > 0:
+            if allow_negative_values:
                 cols_to_rows[genome_name][rowname] = float(entry)
-
+            else:
+                if float(entry) > 0:
+                    cols_to_rows[genome_name][rowname] = float(entry)
         return cols_to_rows, rownames, colnames
 
     def check_annotation_type(self, annotations):
@@ -234,6 +237,8 @@ class Enrichment:
             return self.CAZY
         elif sample.split('.')[0] in self.EC_PREFIX:
             return self.EC
+        else:
+            return self.OTHER
 
     def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
         '''
@@ -356,11 +361,11 @@ class Enrichment:
         return output_dict, genomes
 
     def do(# Input options
-           self, annotate_output, metadata_path, abundances_path, abundance_metadata_path,
+           self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path,
            # Runtime options
            genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
-           threshold, multi_test_correction, batchfile, processes,
-           ko, pfam, tigrfam, hypothetical, cazy, ec, ko_hmm,
+           threshold, multi_test_correction, batchfile, processes, allow_negative_values,
+           ko, pfam, tigrfam, cluster, cazy, ec, ko_hmm,
            # Output options
            output_directory):
 
@@ -371,36 +376,39 @@ class Enrichment:
             self.genomes_to_compare_with_group = self.parse_genomes_to_compare(genomes_to_compare_with_group_file)
         else:
             self.genomes_to_compare_with_group = None
-
-        logging.info('Parsing annotate output: %s' % (annotate_output))
-        pa = ParseAnnotate(annotate_output, processes)
         
-        if ko:
-            annotation_matrix = pa.ko
-            gtdb_annotation_matrix = d.GTDB_KO
-        elif ko_hmm:
-            annotation_matrix = pa.ko_hmm
-            gtdb_annotation_matrix = d.GTDB_KO
-        elif pfam:
-            annotation_matrix = pa.pfam
-            gtdb_annotation_matrix = d.GTDB_PFAM
-        elif tigrfam:
-            annotation_matrix = pa.tigrfam
-            gtdb_annotation_matrix = d.GTDB_TIGRFAM
-        elif hypothetical:
-            annotation_matrix = pa.hypothetical_cluster
-            gtdb_annotation_matrix = None
-        elif cazy:
-            annotation_matrix = pa.cazy
-            gtdb_annotation_matrix = d.GTDB_CAZY
-        elif ec:
-            annotation_matrix = pa.ec
-            gtdb_annotation_matrix = d.GTDB_EC
+        if annotate_output:
+            logging.info('Parsing annotate output: %s' % (annotate_output))
+            pa = ParseAnnotate(annotate_output, processes)
+        
+            if ko:
+                annotation_matrix = pa.ko
+                gtdb_annotation_matrix = d.GTDB_KO
+            elif ko_hmm:
+                annotation_matrix = pa.ko_hmm
+                gtdb_annotation_matrix = d.GTDB_KO
+            elif pfam:
+                annotation_matrix = pa.pfam
+                gtdb_annotation_matrix = d.GTDB_PFAM
+            elif tigrfam:
+                annotation_matrix = pa.tigrfam
+                gtdb_annotation_matrix = d.GTDB_TIGRFAM
+            elif cluster:
+                annotation_matrix = pa.cluster_cluster
+                gtdb_annotation_matrix = None
+            elif cazy:
+                annotation_matrix = pa.cazy
+                gtdb_annotation_matrix = d.GTDB_CAZY
+            elif ec:
+                annotation_matrix = pa.ec
+                gtdb_annotation_matrix = d.GTDB_EC
+        else:
+                gtdb_annotation_matrix = None
+
         logging.info('Parsing annotations: %s' % annotation_matrix)
         annotations_dict, annotations, genomes \
-                    = self._parse_annotation_matrix(annotation_matrix)
+            = self._parse_annotation_matrix(annotation_matrix, allow_negative_values)
         annotation_type = self.check_annotation_type(annotations)
-
         logging.info('Parsing metadata')
         metadata, metadata_value_lists, attribute_dict \
                     = self.parse_metadata_matrix(metadata_path)
@@ -408,7 +416,7 @@ class Enrichment:
         if abundances_path:
             
             logging.info('Parsing sample abundance')
-            abundances_dict, _, genomes  = self._parse_annotation_matrix(abundances_path)
+            abundances_dict, _, genomes = self._parse_annotation_matrix(abundances_path, allow_negative_values)
 
             logging.info('Parsing sample metadata')
             ab_metadata, ab_metadata_value_lists, ab_attribute_dict \
@@ -666,7 +674,7 @@ class Test(Enrichment):
                                alpha        = self.threshold,
                                method       = self.multi_test_correction,
                                returnsorted = False,
-                               is_sorted    = False)[1]        
+                               is_sorted    = False)[1]
 
         return corrected_pvals
 
@@ -710,7 +718,6 @@ class Test(Enrichment):
         
                 if freq:
                     group_true.append(self.genome_annotations[genome][annotation])
-        
                 else:
                     group_true+=1
         
@@ -774,9 +781,11 @@ class Test(Enrichment):
         if self.annotation_type == Enrichment.EC:
             desc = self.ec2description
 
+        if self.annotation_type == Enrichment.OTHER:
+            desc = None
         for line in output_lines:
             annotation = line[0]
-            
+
             if desc:
             
                 if annotation in desc:
@@ -789,8 +798,6 @@ class Test(Enrichment):
                 line.append("NA")
         
         return output_lines
-
-
 
     def do(self, group_dict):
         results = list()
