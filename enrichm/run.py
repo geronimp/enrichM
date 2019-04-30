@@ -42,7 +42,6 @@ from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
 from enrichm.connect import Connect
-from enrichm.aggregate import Aggregate
 ###############################################################################
 
 debug={1:logging.CRITICAL,
@@ -186,7 +185,8 @@ class Run:
         Check enrichment input and output options are valid.
 
         Parameters
-        ----------
+
+args.annotation_matrix,        ----------
         args    - object. Argparse object
 
         Output
@@ -195,16 +195,21 @@ class Run:
         ### ~ TODO: Check Multi test correction inputs...
         types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy, args.ec, args.ko_hmm]
         
-        if not any(types):
-            
-            raise Exception("Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --hypothetical --cazy")
-        
-        if len([x for x in types if x])>1:
-            
-            raise Exception("Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
-
         if not args.abundance and args.abundance_metadata:
-           raise Exception("values for both --abundance and --abundance_metadata are required") 
+           raise Exception("Values for both --abundance and --abundance_metadata are required") 
+        
+        if args.annotation_matrix and args.annotate_output:
+            raise Exception("Use either --annotate_output or --annotation_matrix")
+        
+        if args.annotate_output:
+
+            if not any(types):
+                raise Exception(
+                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --hypothetical --cazy")
+
+            if len([x for x in types if x]) > 1:
+                raise Exception(
+                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
 
     def _check_classify(self, args):  
         '''
@@ -376,6 +381,7 @@ class Run:
             e = Enrichment()
             e.do(# Input options
                  args.annotate_output,
+                 args.annotation_matrix,
                  args.metadata,
                  args.abundance,
                  args.abundance_metadata,
@@ -387,6 +393,7 @@ class Run:
                  args.multi_test_correction,
                  args.batchfile,
                  args.processes,
+                 args.allow_negative_values,
                  args.ko,
                  args.pfam,
                  args.tigrfam,

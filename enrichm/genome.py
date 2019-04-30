@@ -36,7 +36,7 @@ class Genome:
 	A genome object which collects all the attirbutes of an imput genome,
 	including protein sequences and their annotations
 	'''
-	def __init__(self, light, path, nucl):
+	def __init__(self, light, path, nucl, gene):
 		seqio = SequenceIO()
 		self.clusters = set()
 		self.orthologs = set()
@@ -45,6 +45,7 @@ class Genome:
 		self.cluster_dict = dict()
 		self.ortholog_dict = dict()
 		self.path = path
+		self.gene = gene
 		self.name = os.path.split(os.path.splitext(path)[0])[1]
 		
 		if light == False:
@@ -60,12 +61,20 @@ class Genome:
 				
 				self.gc = round((gc_list/float(self.length))*100, 2)
 		
-			for protein_count, (description, sequence) in enumerate(seqio.each(open(path))):
-				name = description.partition(' ')[0]
-				sequence = Sequence(description, sequence)
-				self.sequences[name] = sequence
-				self.protein_ordered_dict[protein_count] = name
-		
+			if gene:
+				for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
+					for gene_description, gene_sequence in seqio.each(open(gene)):
+						name = protein_description.partition(' ')[0]
+						sequence = Sequence(protein_description, protein_sequence, gene_sequence)
+						self.sequences[name] = sequence
+						self.protein_ordered_dict[protein_count] = name
+			else:
+				for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
+					name = protein_description.partition(' ')[0]
+					sequence = Sequence(protein_description, protein_sequence)
+					self.sequences[name] = sequence
+					self.protein_ordered_dict[protein_count] = name
+
 		else:
 			for protein_count, (description, _) in enumerate(seqio.each(open(path))):
 				name = description.partition(' ')[0]
@@ -244,10 +253,12 @@ class Sequence(Genome):
 	Sequence object which collects all attributes of a sequence including its length,
 	and annotations. Can compare current annotation with new annotaitons.
 	'''
-	def __init__(self, description, sequence=None):
+	def __init__(self, description, sequence=None, gene=None):
 		self.annotations = list()
 		line_split = description.split(' # ')
-		
+
+		if gene:
+			self.gene = gene
 		if sequence:
 			self.seq = str(sequence)
 			self.length = int(len(sequence))	

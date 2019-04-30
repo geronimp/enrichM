@@ -58,6 +58,7 @@ class Annotate:
 
     GENOME_BIN                      = 'genome_bin'
     GENOME_PROTEINS                 = 'genome_proteins'    
+    GENOME_GENES                    = 'genome_genes'    
     GENOME_KO                       = 'annotations_ko'
     GENOME_KO_HMM                   = 'annotations_ko_hmm'
     GENOME_EC                       = 'annotations_ec'
@@ -73,8 +74,8 @@ class Annotate:
     OUTPUT_PFAM                     = 'pfam_frequency_table.tsv'
     OUTPUT_TIGRFAM                  = 'tigrfam_frequency_table.tsv'
     OUTPUT_CAZY                     = 'cazy_frequency_table.tsv'
-    OUTPUT_HYPOTHETICAL_CLUSTER     = 'cluster_frequency_table.tsv'
-    OUTPUT_HYPOTHETICAL_ORTHOLOG    = 'ortholog_frequency_table.tsv'
+    OUTPUT_CLUSTER                  = 'cluster_frequency_table.tsv'
+    OUTPUT_ORTHOLOG                 = 'ortholog_frequency_table.tsv'
     OUTPUT_HYPOTHETICAL_ANNOTATIONS = 'hypothetical_annotations.tsv'
     OUTPUT_DIAMOND                  = "DIAMOND_search"
     GFF_SUFFIX                      = '.gff'
@@ -174,9 +175,12 @@ class Annotate:
         -------
         returns the directory containing an .faa file for each input genomes
         '''   
-        output_directory_path = os.path.join(self.output_directory, 
+        protein_directory_path = os.path.join(self.output_directory, 
                                              self.GENOME_PROTEINS) 
-        os.mkdir(output_directory_path)
+        gene_directory_path = os.path.join(self.output_directory, 
+                                             self.GENOME_GENES) 
+        os.mkdir(protein_directory_path)
+        os.mkdir(gene_directory_path)
         genome_list     = list()
         genome_paths    = list()
 
@@ -185,23 +189,26 @@ class Annotate:
                 genome_paths.append(os.path.splitext(genome)[0])
 
         logging.info("    - Calling proteins for %i genomes" % (len(genome_paths)))
-        cmd = "ls %s/*%s | sed 's/%s//g' | grep -o '[^/]*$' | parallel -j %s prodigal -q -p meta -o /dev/null -a %s/{}%s -i %s/{}%s  > /dev/null 2>&1" \
+        cmd = "ls %s/*%s | sed 's/%s//g' | grep -o '[^/]*$' | parallel -j %s prodigal -q -p meta -o /dev/null -d %s/{}%s -a %s/{}%s -i %s/{}%s  > /dev/null 2>&1" \
                 % (genome_directory,
                    self.suffix,
                    self.suffix,
                    self.parallel,
-                   output_directory_path,
+                   gene_directory_path,
+                   self.suffix,
+                   protein_directory_path,
                    self.PROTEINS_SUFFIX,
                    genome_directory,
                    self.suffix)
-
         logging.debug(cmd)
         subprocess.call(cmd, shell = True)
         logging.debug('Finished')
-        for genome_protein, genome_nucl in zip(os.listdir(output_directory_path), os.listdir(genome_directory)):
-            output_genome_protein_path = os.path.join(output_directory_path, genome_protein)
+
+        for genome_protein, genome_nucl in zip(os.listdir(protein_directory_path), os.listdir(genome_directory)):
+            output_genome_protein_path = os.path.join(protein_directory_path, genome_protein)
             output_genome_nucl_path = os.path.join(genome_directory, genome_nucl)
-            genome = (self.light, output_genome_protein_path, output_genome_nucl_path)
+            output_genome_gene_path = os.path.join(gene_directory_path, genome_protein.replace(self.PROTEINS_SUFFIX, self.suffix))
+            genome = (self.light, output_genome_protein_path, output_genome_nucl_path, output_genome_gene_path)
             genome_list.append(genome)
         
         return genome_list
@@ -584,8 +591,22 @@ class Annotate:
         genomes_list - List. List of Genome objects
         '''
         seqio = SequenceIO()
+        
         for genome in genomes_list:
             fd, fname = tempfile.mkstemp(suffix='.faa', text=True)
+
+            if genome.gene:
+                fd_gene, fname_gene = tempfile.mkstemp(suffix='.fna', text=True)
+                with open(fname_gene, 'w') as out_gene_io:
+                    for description, sequence in seqio.each(open(genome.gene)):
+                        name = description.partition(' ')[0]
+                        annotations = ' '.join(genome.sequences[name].all_annotations())
+                        out_gene_io.write(">%s %s\n" % (name, annotations))
+                        out_gene_io.write(genome.sequences[name].gene + '\n')
+                os.close(fd_gene)
+                logging.debug('Moving %s to %s' % (fname_gene, genome.gene))
+                shutil.move(fname_gene, genome.gene)
+
             with open(fname, 'w') as out_io:
                 for description, sequence in seqio.each(open(genome.path)):
                     name = description.partition(' ')[0]
@@ -618,6 +639,7 @@ class Annotate:
 
         if chunk_size > chunk_max:
             chunk_size = chunk_max
+        
         elif chunk_size < 1:
             chunk_size = list_size
 
@@ -662,7 +684,7 @@ class Annotate:
             for genome_proteins_file in os.listdir(directory):
 
                 if genome_proteins_file.endswith(self.suffix):
-                    genome = (self.light, os.path.join(directory, genome_proteins_file), None)
+                    genome = (self.light, os.path.join(directory, genome_proteins_file), None, None)
                     prep_genomes_list.append(genome)
 
         elif protein_files:
@@ -672,7 +694,7 @@ class Annotate:
                                           self.GENOME_PROTEINS))
             
             for protein_file in os.listdir(directory):
-                prep_genomes_list.append((self.light, os.path.join(directory, os.path.basename(protein_file)), None))
+                prep_genomes_list.append((self.light, os.path.join(directory, os.path.basename(protein_file)), None, None))
 
         elif genome_directory:
             logging.info("Calling proteins for annotation")
@@ -719,12 +741,12 @@ class Annotate:
 
                 logging.info('    - Generating hypotheticals frequency table') 
                 mg = MatrixGenerator(MatrixGenerator.HYPOTHETICAL, cluster_ids)
-                freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_CLUSTER)
+                freq_table = os.path.join(self.output_directory, self.OUTPUT_CLUSTER)
                 mg.write_matrix(genomes_list, self.count_domains, freq_table)
 
                 if self.ortholog:
                     mg = MatrixGenerator(MatrixGenerator.ORTHOLOG, ortholog_ids)
-                    freq_table = os.path.join(self.output_directory, self.OUTPUT_HYPOTHETICAL_ORTHOLOG)
+                    freq_table = os.path.join(self.output_directory, self.OUTPUT_ORTHOLOG)
                     mg.write_matrix(genomes_list, self.count_domains, freq_table)
                 
 

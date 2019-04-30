@@ -224,10 +224,12 @@ if __name__ == "__main__":
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
-    enrichment_input_options.add_argument('--annotate_output', required=True,
+    enrichment_input_options.add_argument('--annotate_output',
                 help='Output directory provided by enrichm annotate')
     enrichment_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+    enrichment_input_options.add_argument('--annotation_matrix',
+                                          help='Annotation matrix to compare.')
 
     enrichment_gtdb_options = enrichment.add_argument_group('Genome Taxonomy DataBase (GTDB) options')
     enrichment_gtdb_options.add_argument('--batchfile',
@@ -250,6 +252,8 @@ if __name__ == "__main__":
                 help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options. (Default = Benjamini-Hochberg FDR)', default='fdr_bh')
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
+    enrichment_runtime_options.add_argument('--allow_negative_values', 
+                help='Allow negative values in input matrix.', action='store_true',)
     enrichment_runtime_options.add_argument('--ko', action='store_true',
                 help='Compare KO ids (annotated with DIAMOND)')   
     enrichment_runtime_options.add_argument('--ko_hmm', action='store_true',
