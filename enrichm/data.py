@@ -48,11 +48,12 @@ class Data:
 		DATABASE_DIR	= os.path.join(DATA_PATH, 'databases')
 	VERSION 		= 'VERSION'
 	ARCHIVE_SUFFIX 	= '.tar.gz'
-	CURRENT_VERSION = open(os.path.join(
-		DATABASE_DIR, VERSION)).readline().strip().replace(ARCHIVE_SUFFIX, "")
 	
 	def __init__(self):
 		self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
+		self.CURRENT_VERSION = open(os.path.join(DATABASE_DIR, VERSION)
+		                       ).readline().strip().replace(ARCHIVE_SUFFIX, "")
+
 
 	def _archive_db(self, old_db_file):
 		'''
