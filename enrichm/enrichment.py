@@ -365,7 +365,7 @@ class Enrichment:
            # Runtime options
            genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
            threshold, multi_test_correction, batchfile, processes, allow_negative_values,
-           ko, pfam, tigrfam, cluster, cazy, ec, ko_hmm,
+           ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm,
            # Output options
            output_directory):
 
@@ -380,7 +380,7 @@ class Enrichment:
         if annotate_output:
             logging.info('Parsing annotate output: %s' % (annotate_output))
             pa = ParseAnnotate(annotate_output, processes)
-        
+
             if ko:
                 annotation_matrix = pa.ko
                 gtdb_annotation_matrix = d.GTDB_KO
@@ -394,7 +394,10 @@ class Enrichment:
                 annotation_matrix = pa.tigrfam
                 gtdb_annotation_matrix = d.GTDB_TIGRFAM
             elif cluster:
-                annotation_matrix = pa.cluster_cluster
+                annotation_matrix = pa.cluster
+                gtdb_annotation_matrix = None
+            elif ortholog:
+                annotation_matrix = pa.ortholog
                 gtdb_annotation_matrix = None
             elif cazy:
                 annotation_matrix = pa.cazy
