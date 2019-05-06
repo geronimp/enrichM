@@ -193,7 +193,7 @@ args.annotation_matrix,        ----------
         ------
         '''
         ### ~ TODO: Check Multi test correction inputs...
-        types = [args.ko, args.pfam, args.tigrfam, args.hypothetical, args.cazy, args.ec, args.ko_hmm]
+        types = [args.ko, args.pfam, args.tigrfam, args.cluster, args.ortholog, args.cazy, args.ec, args.ko_hmm]
         
         if not args.abundance and args.abundance_metadata:
            raise Exception("Values for both --abundance and --abundance_metadata are required") 
@@ -397,7 +397,8 @@ args.annotation_matrix,        ----------
                  args.ko,
                  args.pfam,
                  args.tigrfam,
-                 args.hypothetical,
+                 args.cluster,
+                 args.ortholog,
                  args.cazy,
                  args.ec,
                  args.ko_hmm,

@@ -182,8 +182,8 @@ if __name__ == "__main__":
                 help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
     annotate_runtime_options.add_argument('--parallel', default = '5',
                 help='Run this number of jobs in parallel when annotating with HMMsearch (default: 5)')
-    annotate_runtime_options.add_argument('--inflation', type = float, default = 2.0,
-                help='Inflation factor to use when calling clusters in ortholog (default = 2.0)')
+    annotate_runtime_options.add_argument('--inflation', type = float, default = 5.0,
+                help='Inflation factor to use when calling clusters in ortholog (default = 5.0)')
     annotate_runtime_options.add_argument('--suffix',
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
     annotate_runtime_options.add_argument('--light', action='store_true',
@@ -262,8 +262,10 @@ if __name__ == "__main__":
                 help='Compare Pfam ids')
     enrichment_runtime_options.add_argument('--tigrfam', action='store_true',
                 help='Compare TIGRFAM ids')
-    enrichment_runtime_options.add_argument('--hypothetical', action='store_true',
-                help='Compare hypothetical ids')
+    enrichment_runtime_options.add_argument('--cluster', action='store_true',
+                help='Compare cluster ids')
+    enrichment_runtime_options.add_argument('--ortholog', action='store_true',
+                help='Compare ortholog ids')
     enrichment_runtime_options.add_argument('--cazy', action='store_true',
                 help='Compare dbCAN ids')
     enrichment_runtime_options.add_argument('--ec', action='store_true',
