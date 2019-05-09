@@ -70,7 +70,6 @@ class Run:
         self.AGGREGATE       = 'aggregate'
 
     def _logging_setup(self, args):
-
         if args.verbosity not in range(1, 6):
             raise Exception("Logging verbosity must be a positive integer between 1 and 5.")
 
@@ -97,7 +96,6 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-
         dependencies = {'hmmsearch': "http://hmmer.org/download.html",
                         'diamond': "https://github.com/bbuchfink/diamond",
                         'R': "https://www.r-project.org",
@@ -116,8 +114,7 @@ class Run:
             dependency_string = '\n'.join(['\t%s\t%s' % (d, dependencies[d]) for d in missing_dependencies])
             raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
 
-        # We dont need an output directory for the DATA pipeline
-        if args.subparser_name!=self.DATA:
+        if args.subparser_name != self.DATA:
             # Set up working directory
             if not args.output:
                 args.output = '%s-enrichm_%s_output' % (time.strftime("%Y-%m-%d_%H-%M"), args.subparser_name)
@@ -450,4 +447,4 @@ args.annotation_matrix,        ----------
                   args.threads,
                   args.output)
         
-        logging.info('Done!')
+        logging.info('Finished running EnrichM')

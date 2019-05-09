@@ -42,20 +42,14 @@ import logging
 import subprocess
 import os
 
-# Local
-
-###############################################################################
-###############################################################################
-
 def parse_genomes(params):
     genome = Genome(*params)
     return genome
 
-###############################################################################
-################################ - Classes - ##################################
-
 class Annotate:
-
+    '''
+    Annotates proteins, and MAGs
+    '''
     GENOME_BIN                      = 'genome_bin'
     GENOME_PROTEINS                 = 'genome_proteins'    
     GENOME_GENES                    = 'genome_genes'    
@@ -146,12 +140,16 @@ class Annotate:
         '''
         # link all the genomes into one file
         logging.info('Preparing genomes for annotation')
+        
         if genome_file_list:
             os.mkdir(genome_directory)
             genome_paths = list()
+        
             for genome_path in genome_file_list:
+        
                 if genome_path.endswith(self.suffix):
                     genome_paths.append(genome_path) 
+        
             cmd = "xargs --arg-file=/dev/stdin cp --target-directory=%s" % genome_directory
             logging.debug(cmd)
             process = subprocess.Popen(["bash", "-c", cmd], 
@@ -159,6 +157,7 @@ class Annotate:
                                        stdout=subprocess.PIPE,
                                        universal_newlines=True)
             process.communicate(input=str('\n'.join(genome_paths)))
+        
         return genome_directory
 
     def call_proteins(self, genome_directory):

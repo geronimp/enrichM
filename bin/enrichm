@@ -17,7 +17,7 @@
 ###############################################################################
 
 __author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
+__copyright__   = "Copyright 2018"
 __credits__     = ["Joel Boyd"]
 __license__     = "GPL3"
 __version__     = "0.0.7"
@@ -54,10 +54,10 @@ def phelp():
   ------------------------------------------------------------------------------------
 
   Annotation 
-    annotate        -> Basic annotation of genomes.
+    annotate        -> Genome annotation pipeline.
 
   Enrichment analysis
-    classify        -> Determine what KEGG modules a genome encodes.
+    classify        -> Determine what pathways a genome encodes.
     enrichment      -> Calculate enrichment of functional genes between groups.
     
   Network analysis
@@ -65,8 +65,8 @@ def phelp():
                        compounds.
 
   Machine learning
-    generate        -> Generate a model.
-    predict         -> Run model on new data.
+    generate        -> Generate a random forest model.
+    predict         -> Run random forest model on new data.
 
   Authors: Joel Boyd, Ben Woodcroft, Alex Baker
   Version: %s 
@@ -78,7 +78,6 @@ if __name__ == "__main__":
     parser.add_argument('--version', action='version', version='enrichm v%s' % enrichm.__version__)
     subparsers = parser.add_subparsers(help="--", dest='subparser_name')
     
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     
     base_all             = argparse.ArgumentParser(add_help=False)
@@ -96,7 +95,7 @@ if __name__ == "__main__":
                 help='Overwrite previous run')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
     base_network = argparse.ArgumentParser(add_help=False)
     
     base_input_options = base_network.add_argument_group('Input options')
@@ -113,8 +112,6 @@ if __name__ == "__main__":
     base_input_options.add_argument('--metadata', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Data
     
     data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
     data_input_options = data.add_argument_group('Uninstall')
@@ -122,8 +119,6 @@ if __name__ == "__main__":
                 help = 'Remove enrichm database')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Annotate
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
     
@@ -196,8 +191,6 @@ if __name__ == "__main__":
                 help='Maximum number of genomes to load per chunk (default = 2500)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Classify  
 
     classify = subparsers.add_parser('classify', formatter_class=CustomHelpFormatter, parents=[base_all])
 
@@ -218,9 +211,7 @@ if __name__ == "__main__":
     classify_runtime_options.add_argument('--aggregate', action='store_true',
                                          help='Calculate the abundance of each pathway within each genome/sample (column)')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Enrichment  
-
+    
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
@@ -272,8 +263,7 @@ if __name__ == "__main__":
                 help='Compare EC ids')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Connect
+
     connect = subparsers.add_parser('connect', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     connect_input_options = connect.add_argument_group('Input options')
@@ -292,8 +282,7 @@ if __name__ == "__main__":
                 default=1.0)
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Pathway
+
     pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
     pathway_pathway_options = pathway.add_argument_group('Pathway options')
@@ -305,8 +294,6 @@ if __name__ == "__main__":
                 help='Supply an enrichment output to integrate the results into the output network.')    
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Explore
 
     explore = subparsers.add_parser('explore', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
@@ -317,8 +304,6 @@ if __name__ == "__main__":
                 help='Number of steps to take into the metabolic network')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Traverse
 
     traverse = subparsers.add_parser('traverse', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
@@ -335,7 +320,6 @@ if __name__ == "__main__":
                 help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     generate = subparsers.add_parser('generate', formatter_class=CustomHelpFormatter, parents=[base_all])
 
@@ -350,7 +334,6 @@ if __name__ == "__main__":
     generate_tuning_options.add_argument('--threads', type=int, default = -1, help = 'number of threads to use for hyperparameterization (default = all available)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     predict = subparsers.add_parser('predict', formatter_class=CustomHelpFormatter, parents=[base_all])
     
@@ -359,8 +342,6 @@ if __name__ == "__main__":
     predict_input_options.add_argument('--input_matrix', required = True, help = 'matrix of data to predict')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
 
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
@@ -373,3 +354,5 @@ if __name__ == "__main__":
         r = Run()
         r.main(args, sys.argv)
 
+        # TODO: centralise parser.py
+        # TODO: centralise writer.py

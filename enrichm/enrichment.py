@@ -30,6 +30,9 @@ from enrichm.draw_plots import Plot
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parse_annotate import ParseAnnotate
+from enrichm.parser import Parser
+from enrichm.writer import Writer
+from enrichm.matrix_generator import MatrixGenerator
 from collections import Counter
 from itertools import product, combinations, chain
 from scipy import stats
@@ -40,8 +43,6 @@ import re
 import random
 import os
 import logging
-from enrichm.parser import Parser
-from enrichm.matrix_generator import MatrixGenerator
 
 ################################################################################
 
@@ -53,6 +54,7 @@ def gene_fisher_calc(x):
     
     if (dat[0][0]>0 or dat[1][0]>0) and (dat[0][1]>0 or dat[1][1]>0):
         score, pval = stats.fisher_exact(dat)
+ 
     else:
         score, pval = 'nan', 1.0
 
@@ -65,10 +67,12 @@ def mannwhitneyu_calc(x):
     group_2_module_annotations = group_2_module_annotations[0]
 
     if(sum(group_1_module_annotations)>0 and sum(group_2_module_annotations)>0):
+
         if(len(set(group_1_module_annotations)) == 1
             or
            len(set(group_2_module_annotations)) == 1):
             mw_t_stat, mw_p_value = 'NA', 1
+
         else:
             group_1_module_annotations = np.array(group_1_module_annotations)       
             group_2_module_annotations = np.array(group_2_module_annotations)           
@@ -77,6 +81,7 @@ def mannwhitneyu_calc(x):
                                          group_2_module_annotations)            
     else:
         mw_t_stat, mw_p_value = 'NA', 1
+
     return [annotation, group_1, group_2, str(np.mean(group_1_module_annotations)),
             str(np.mean(group_2_module_annotations)), mw_t_stat, mw_p_value]
 
@@ -91,6 +96,7 @@ def zscore_calc(x):
         reference_name = group_1
         genome = group_2_module_annotations[0]
         genome_name = group_2
+ 
     else:
         reference_name = group_2
         reference = group_2_module_annotations
@@ -104,9 +110,11 @@ def zscore_calc(x):
             = np.mean(reference, axis=0)
 
         if (genome-reference_group_comp_mean)>0:
+   
             if reference_group_comp_sd==0:
                 z_score = np.inf
                 p_value = 0.0
+     
             else:
                 z_score = (genome-reference_group_comp_mean) / reference_group_comp_sd
                 p_value = 2-2*stats.norm.cdf(z_score)
@@ -142,44 +150,9 @@ class Enrichment:
         self.EC_PREFIX             = ["1", "2", "3","4","5","6", "7"]
         self.PROPORTIONS             = 'proportions.tsv'
         self.MODULE_COMPLETENESS     = 'modules.tsv'
-        self.UNIQUE_TO_GROUPS        = 'unique_to_groups.tsv'
-        self.taxonomy_index_dictionary = {"d__":0, "p__":1, "c__":2, "o__":3, "f__":4, "g__":5, "s__":6}    
 
-    def _parse_matrix(self, matrix_file_io, colnames):
-        for line in matrix_file_io:
-            sline = line.strip().split('\t')
-            rowname, entries = sline[0], sline[1:]
-            for colname, entry in zip(colnames, entries):
-                yield colname, entry, rowname
 
-    def parse_metadata_matrix(self, matrix_path):
-        '''        
-        Parameters
-        ----------
-        matrix_path : String. Path to file containing a matrix of genome rownames.        
-        '''
-
-        matrix_file_io  = open(matrix_path)
-        cols_to_rows    = dict()
-        nr_values       = set()
-        attribute_dict  = dict()
-        
-        for line in matrix_file_io:
-            rowname, entry = line.strip().split('\t')   
-            nr_values.add(entry)
-
-            if entry in attribute_dict:
-                attribute_dict[entry].add(rowname)
-            else:
-                attribute_dict[entry] = set([rowname])
-
-            if rowname not in cols_to_rows:
-                cols_to_rows[rowname] = set([entry])
-            else:
-                cols_to_rows[rowname].add(entry)
-
-        return cols_to_rows, nr_values, attribute_dict
-
+    # TODO: This has to go
     def _parse_annotation_matrix(self, annotation_matrix, allow_negative_values):
         '''        
         Parameters
@@ -193,14 +166,18 @@ class Enrichment:
         rownames        = set()
 
         for genome_name, entry, rowname \
-                        in self._parse_matrix(matrix_file_io, colnames):
+                        in Parser.parse_matrix(matrix_file_io, colnames):
             
             rownames.add(rowname)
+
             if allow_negative_values:
                 cols_to_rows[genome_name][rowname] = float(entry)
+            
             else:
+            
                 if float(entry) > 0:
                     cols_to_rows[genome_name][rowname] = float(entry)
+        
         return cols_to_rows, rownames, colnames
 
     def check_annotation_type(self, annotations):
@@ -297,69 +274,6 @@ class Enrichment:
 
         return raw_proportions_output_lines
 
-    def _write(self, output_lines_list, output_path):
-        '''
-        
-        Parameters
-        ----------
-        output_lines_list   - List. A list of lists. Each sublist is a line, 
-                              where each entry is a column entry
-        output_path         - String. Path to write output lines to.
-        Output
-        ------
-        '''
-        logging.info("Writing results to file: %s" % output_path)
-
-        with open(output_path, 'w') as out_io:
-            for line in output_lines_list:
-                string = '\t'.join([str(x) for x in line]) + '\n'
-                out_io.write(string)
-                
-    def parse_genomes_to_compare(self, genomes_to_compare_with_group_file):
-        genomes_to_compare = set()
-        
-        for genome in open(genomes_to_compare_with_group_file):
-            genome = genome.strip()
-            genomes_to_compare.add(genome)
-        
-        return genomes_to_compare
-
-    def parse_gtdb_matrix(self, genomes, matrix):
-        '''
-        description
-        
-        Inputs
-        ------
-        
-        Outputs
-        -------
-        
-        '''
-        logging.info('Parsing GTDB matrix')
-        
-        genomes = list(genomes)
-        matrix_io = open(matrix)
-        header = matrix_io.readline().strip().split('\t')
-        
-        indexes = list()
-        include = list()
-        for genome in genomes:
-            if genome in header:
-                indexes.append(header.index(genome))
-                include.append(genome)
-        genomes = include
-
-        output_dict = {genome:dict() for genome in genomes}
-        for row in matrix_io:
-            srow = row.strip().split()
-            annotation = srow[0]
-            for genome, index in zip(genomes, indexes):
-                count = int(srow[index])
-                if count > 0:
-                    output_dict[genome][annotation] = int(srow[index])
-
-        return output_dict, genomes
-
     def do(# Input options
            self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path,
            # Runtime options
@@ -373,7 +287,7 @@ class Enrichment:
         d  = Databases()
         
         if genomes_to_compare_with_group_file:
-            self.genomes_to_compare_with_group = self.parse_genomes_to_compare(genomes_to_compare_with_group_file)
+            self.genomes_to_compare_with_group = Parser.parse_single_column_text_file(genomes_to_compare_with_group_file)
         else:
             self.genomes_to_compare_with_group = None
         
@@ -414,7 +328,7 @@ class Enrichment:
         annotation_type = self.check_annotation_type(annotations)
         logging.info('Parsing metadata')
         metadata, metadata_value_lists, attribute_dict \
-                    = self.parse_metadata_matrix(metadata_path)
+                    = Parser.parse_metadata_matrix(metadata_path)
 
         if abundances_path:
             
@@ -423,7 +337,7 @@ class Enrichment:
 
             logging.info('Parsing sample metadata')
             ab_metadata, ab_metadata_value_lists, ab_attribute_dict \
-                = self.parse_metadata_matrix(abundance_metadata_path)
+                = Parser.parse_metadata_matrix(abundance_metadata_path)
             t = Test(annotations_dict,
                      genomes,
                      None,
@@ -445,15 +359,15 @@ class Enrichment:
 
                 test_result_output_path = os.path.join(output_directory,
                                                        test_result_output_file)
-                self._write(test_result_lines, test_result_output_path)
+                Writer.write(test_result_lines, test_result_output_path)
                                                         
         else:
             if batchfile:
                 genomes_set = set()
                 batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict \
-                            = self.parse_metadata_matrix(batchfile)
+                            = Parser.parse_metadata_matrix(batchfile)
                 genomes_set = genomes_set.union(set(batchfile_metadata.keys()))
-                reference_genome_annotations, genomes_set = self.parse_gtdb_matrix(genomes_set, gtdb_annotation_matrix)
+                reference_genome_annotations, genomes_set = Parser.filter_large_matrix(genomes_set, gtdb_annotation_matrix)
 
                 annotations_dict.update(reference_genome_annotations)
                 new_batchfile_attribute_dict = dict()
@@ -498,16 +412,14 @@ class Enrichment:
 
                 test_result_output_path = os.path.join(output_directory,
                                                     test_result_output_file)
-                self._write(test_result_lines, test_result_output_path)
+                Writer.write(test_result_lines, test_result_output_path)
 
             raw_portions_path \
                 = os.path.join(output_directory, self.PROPORTIONS)
-            #unique_to_groups_path \
-            #    = os.path.join(output_directory, self.UNIQUE_TO_GROUPS)
             raw_proportions_output_lines \
                 = self.calculate_portions(annotations, combination_dict, annotations_dict, genome_list, proportions_cutoff)
 
-            self._write(raw_proportions_output_lines, raw_portions_path)
+            Writer.write(raw_proportions_output_lines, raw_portions_path)
 
             logging.info('Generating summary plots')
 
@@ -555,7 +467,7 @@ class Enrichment:
                                     output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, d.m[module]]
                                     module_output.append(output_line)
                         prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
-                        self._write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
+                        Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
 
             p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
@@ -827,6 +739,7 @@ class Test(Enrichment):
                 logging.info('See prevalence matrix for unique genes in groups')
 
             logging.info('Comparing gene over-representation among genomes')
+            
             if overrepresentation_test == stats.mannwhitneyu:
                 logging.info('Testing over-representation using Mann-Whitney U test')
                 gene_count = self.gene_frequencies(*combination, True)
@@ -880,6 +793,7 @@ class Test(Enrichment):
 
         logging.info('Calculating enrichment across samples using Mann-Whitney U test')
         results = list()
+
         for combination in combinations(output_dict, 2):
             prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
             res_list = list()
@@ -894,9 +808,11 @@ class Test(Enrichment):
         
             for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                 output_lines[idx].append(str(corrected_pval))
+          
             output_lines = self.add_descriptions(output_lines)
             output_lines = self.MANNWHITNEYU_HEADER + output_lines 
             results.append([output_lines, prefix + '_' + self.GVG_OUTPUT])
+        
         return results
                 
 

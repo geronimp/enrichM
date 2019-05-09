@@ -32,14 +32,19 @@ from enrichm.databases import Databases
 
 ################################################################################
 class Parser:
-	
+	'''
+	A collection of functions to parse files in various formats.
+	'''
+
 	@staticmethod
 	def parse_genome_and_annotation_file_lf(genome_and_annotation_file):
 		genome_to_annotation_sets = dict()
 		
 		for line in open(genome_and_annotation_file):
+			
 			try:
 				genome, annotation = line.strip().split("\t")
+			
 			except:
 				raise Exception("Input genomes/annotation file error on %s" % line)
 			
@@ -59,7 +64,9 @@ class Parser:
 		for line in genome_and_annotation_matrix_io:
 			sline = line.strip().split('\t')
 			annotation, entries = sline[0], sline[1:]
+			
 			for genome_name, entry in zip(headers, entries):
+			
 				if float(entry) > 0:
 					genome_to_annotation_sets[genome_name].add(annotation)
 
@@ -81,6 +88,7 @@ class Parser:
 		matrix_io = open(matrix)
 		header_values = matrix_io.readline().strip().split('\t')[1:]
 		output_dict = {header:{} for header in header_values}
+		
 		for line in matrix_io:
 			sline = line.strip().split('\t')
 			annot, content = sline[0], sline[1:]
@@ -95,12 +103,95 @@ class Parser:
 
 	@staticmethod
 	def parse_matrix(matrix_file_io, colnames):
+		
 		for line in matrix_file_io:
 			sline = line.strip().split('\t')
 			rowname, entries = sline[0], sline[1:]
+		
 			for colname, entry in zip(colnames, entries):
 				yield colname, entry, rowname
-	
+
+	@staticmethod
+	def parse_metadata_matrix(matrix_path):
+		'''        
+		Parameters
+		----------
+		matrix_path : String. Path to file containing a matrix of genome rownames.        
+		'''
+
+		matrix_file_io = open(matrix_path)
+		cols_to_rows = dict()
+		nr_values = set()
+		attribute_dict = dict()
+
+		for line in matrix_file_io:
+			rowname, entry = line.strip().split('\t')   
+			nr_values.add(entry)
+
+			if entry in attribute_dict:
+				attribute_dict[entry].add(rowname)
+			else:
+				attribute_dict[entry] = set([rowname])
+
+			if rowname not in cols_to_rows:
+				cols_to_rows[rowname] = set([entry])
+			else:
+				cols_to_rows[rowname].add(entry)
+		
+		return cols_to_rows, nr_values, attribute_dict
+
+	@staticmethod
+	def parse_single_column_text_file(text_file):
+		entries = set()
+
+		for entry in open(text_file):
+			entry = entry.strip()
+			entries.add(entry)
+
+		return entries
+
+	def filter_large_matrix(columns, matrix):
+		'''
+		description
+
+		Inputs
+		------
+
+		Outputs
+		-------
+
+		'''
+		logging.info('Parsing GTDB matrix')
+
+		columns = list(columns)
+		matrix_io = open(matrix)
+		header = matrix_io.readline().strip().split('\t')
+
+		indexes = list()
+		include = list()
+        
+		for column in columns:
+			
+			if column in header:
+				indexes.append(header.index(column))
+				include.append(column)
+				
+		columns = include
+
+		output_dict = {column:dict() for column in columns}
+		
+		for row in matrix_io:
+			srow = row.strip().split()
+			annotation = srow[0]
+
+			for column, index in zip(columns, indexes):
+				count = int(srow[index])
+
+				if count > 0:
+					output_dict[column][annotation] = int(srow[index])
+
+		return output_dict, columns
+
 	@staticmethod
 	def parse_tpm_values(tpm_values):
 		k2r = Databases().k2r
@@ -141,12 +232,4 @@ class Parser:
 					
 					output_dict[sample][genome][reaction] += tpm
 												
-				#else:
-				#	
-				#	if annotation_type not in output_dict[sample][genome]:
-				#		output_dict[sample][genome][annotation_type] = 0.0
-				#		annotation_types.add(annotation_type)
-				#		
-				#	output_dict[sample][genome][annotation_type] += tpm
-
 		return output_dict, annotation_types, genome_types
