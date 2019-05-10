@@ -729,10 +729,11 @@ class Test(Enrichment):
             
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
-
+                header = self.FISHER_HEADER
+                output = self.GENE_FISHER_OUTPUT
                 output_lines = self.add_descriptions(output_lines)
-                output_lines = self.FISHER_HEADER + output_lines
-                results.append([output_lines, prefix +'_'+ self.GENE_FISHER_OUTPUT])
+                output_lines = header + output_lines
+                results.append([output_lines, prefix +'_'+ output])
             
             elif enrichment_test == self.PA:
                 logging.info('enrichment statistics not possible with only one genome to compare')
@@ -747,10 +748,8 @@ class Test(Enrichment):
 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
-                
-                output_lines = self.add_descriptions(output_lines)
-                output_lines = self.MANNWHITNEYU_HEADER + output_lines 
-                results.append([output_lines, prefix +'_'+ self.GVG_OUTPUT])
+                header = self.MANNWHITNEYU_HEADER
+                output = self.GVG_OUTPUT
 
             elif overrepresentation_test == stats.norm.cdf:
                 logging.info('Testing over-representation using Z score test')
@@ -760,10 +759,12 @@ class Test(Enrichment):
                 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
-
-                output_lines = self.add_descriptions(output_lines)
-                output_lines = self.ZSCORE_HEADER + output_lines
-                results.append([output_lines, prefix +'_'+ self.IVG_OUTPUT])
+                header = self.ZSCORE_HEADER
+                output = self.IVG_OUTPUT
+            
+            output_lines = self.add_descriptions(output_lines)
+            output_lines = header + output_lines
+            results.append([output_lines, prefix +'_'+ output])
 
         return results
 

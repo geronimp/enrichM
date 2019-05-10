@@ -4,8 +4,8 @@
 
 EnrichM is a set of tools for comparative genomics of large sets of metagenome assembled genomes (MAGs). The current functionality includes:
 
-1. A basic pipeline for annotating population genomes.
-2. A pipeline to identify genes or metabolic pathways that are enriched within and between user-defined groups  
+1. An annotation pipeline for MAGs.
+2. A pipeline to identify genes or metabolic pathways that are enriched within and between user-defined groups.
 3. To construct metabolic networks from annotated population genomes. 
 
 EnrichM is under active development, so use at your own risk. Currently, there are the following sub-commands:
@@ -35,6 +35,7 @@ EnrichM has the following non-python dependencies:
 * [parallel](https://www.gnu.org/software/parallel/) >= 20180222
 * [mmseqs](https://github.com/soedinglab/MMseqs2) >= 2-23394
 * [R](https://www.r-project.org/) >= 3.0.1
+* [mcl](https://micans.org/mcl/) >= 14-137
 ## PyPi 
 ```
 sudo pip3 install enrichm
