@@ -335,9 +335,11 @@ class Enrichment:
             logging.info('Parsing sample abundance')
             abundances_dict, _, genomes = self._parse_annotation_matrix(abundances_path, allow_negative_values)
 
+
             logging.info('Parsing sample metadata')
             ab_metadata, ab_metadata_value_lists, ab_attribute_dict \
                 = Parser.parse_metadata_matrix(abundance_metadata_path)
+
             t = Test(annotations_dict,
                      genomes,
                      None,
@@ -347,7 +349,6 @@ class Enrichment:
                      pval_cutoff,
                      processes,
                      d)
-
             results = t.weight_annotation_matrix(abundances_dict,
                                                  annotations_dict,
                                                  ab_metadata,
@@ -786,9 +787,8 @@ class Test(Enrichment):
                             
                         if annotation in genome_annotation_dict:
                             value = genome_annotation_dict[annotation]
-                            
-                            if sample in sample_abundance[genome]:
-                                sample_annotation_abundance += sample_abundance[genome][sample]*value
+                            if genome in sample_abundance[sample]:
+                                sample_annotation_abundance += sample_abundance[sample][genome]*value
 
                     output_dict[group][annotation].append(sample_annotation_abundance)
 
