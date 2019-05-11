@@ -594,31 +594,6 @@ class Test(Enrichment):
 
         return corrected_pvals
 
-    def _strip_kegg_definitions(self, definition):
-        kos_list = [ko for ko in re.split("[^\w]", definition) if ko]
-        return set(kos_list)
-
-    def gather_genome_annotations(self, group, target_annotations):
-        genome_annotation_list = list()
-        
-        for genome in self.groups[group]:
-            genome_target_list = self.genome_annotations[genome].intersection(target_annotations)
-            genome_annotation_list.append(len(genome_target_list))
-        
-        return genome_annotation_list
-
-    def get_annotations(self):
-
-        if self.annotation_type==Enrichment.TIGRFAM:
-            logging.warning('Comparisons are not possible with TIGRFAM because heirarchical classifications aEnrichmentre needed (like in KEGG, COG or PFAM).')
-        elif self.annotation_type==Enrichment.KEGG:
-            iterator = self.m2def
-            annotation_description = self.m
-        elif self.annotation_type==Enrichment.PFAM:
-            iterator = self.clan2pfam
-            annotation_description = self.clan_to_description
-        return iterator, annotation_description
-
     def _count(self, annotation, group, freq):
         if freq:
             group_true = list()
@@ -679,6 +654,7 @@ class Test(Enrichment):
     def corrected_pvals(self, output_lines):
         pvalues = [output_line[-1] for output_line in output_lines]
         corrected_pvalues = self.correct_multi_test(pvalues)
+
         return corrected_pvalues
 
     def add_descriptions(self, output_lines):
@@ -714,6 +690,57 @@ class Test(Enrichment):
                 line.append("NA")
         
         return output_lines
+
+    def weight_annotation_matrix(self, sample_abundance, annotation_abundance, sample_metadata, sample_groups, sample_dict, annotations):
+
+        output_dict = {sample_group: dict() for sample_group in sample_groups}
+
+        logging.info('Aggregating abundances across samples')
+        for group, samples in sample_dict.items():
+            output_dict[group] = dict()
+
+            for annotation in annotations:
+                output_dict[group][annotation] = list()
+
+                for sample in samples:
+                    sample_annotation_abundance = 0.0
+
+                    for genome, genome_annotation_dict in annotation_abundance.items():
+
+                        if annotation in genome_annotation_dict:
+                            value = genome_annotation_dict[annotation]
+                            if genome in sample_abundance[sample]:
+                                sample_annotation_abundance += sample_abundance[sample][genome]*value
+
+                    output_dict[group][annotation].append(
+                        sample_annotation_abundance)
+
+        logging.info(
+            'Calculating enrichment across samples using Mann-Whitney U test')
+        results = list()
+
+        for combination in combinations(output_dict, 2):
+            prefix = '_vs_'.join(
+                [sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
+            res_list = list()
+
+            for annotation in annotations:
+                group_1 = output_dict[combination[0]][annotation]
+                group_2 = output_dict[combination[1]][annotation]
+                gene_count = [annotation, combination[0],
+                              combination[1], [group_1], [group_2]]
+                res_list.append(gene_count)
+
+            output_lines = self.pool.map(mannwhitneyu_calc, res_list)
+
+            for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                output_lines[idx].append(str(corrected_pval))
+
+            output_lines = self.add_descriptions(output_lines)
+            output_lines = self.MANNWHITNEYU_HEADER + output_lines
+            results.append([output_lines, prefix + '_' + self.GVG_OUTPUT])
+
+        return results
 
     def do(self, group_dict):
         results = list()
@@ -768,52 +795,3 @@ class Test(Enrichment):
             results.append([output_lines, prefix +'_'+ output])
 
         return results
-
-    def weight_annotation_matrix(self, sample_abundance, annotation_abundance, sample_metadata, sample_groups, sample_dict, annotations):
-
-        output_dict = {sample_group:dict() for sample_group in sample_groups}
-
-        logging.info('Aggregating abundances across samples')
-        for group, samples in sample_dict.items():
-            output_dict[group] = dict()
-
-            for annotation in annotations:
-                output_dict[group][annotation] = list()
-
-                for sample in samples:
-                    sample_annotation_abundance = 0.0
-
-                    for genome, genome_annotation_dict in annotation_abundance.items():
-                            
-                        if annotation in genome_annotation_dict:
-                            value = genome_annotation_dict[annotation]
-                            if genome in sample_abundance[sample]:
-                                sample_annotation_abundance += sample_abundance[sample][genome]*value
-
-                    output_dict[group][annotation].append(sample_annotation_abundance)
-
-        logging.info('Calculating enrichment across samples using Mann-Whitney U test')
-        results = list()
-
-        for combination in combinations(output_dict, 2):
-            prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
-            res_list = list()
-
-            for annotation in annotations:
-                group_1 = output_dict[combination[0]][annotation]
-                group_2 = output_dict[combination[1]][annotation]
-                gene_count = [annotation, combination[0], combination[1], [group_1], [group_2]]
-                res_list.append(gene_count)
-            
-            output_lines = self.pool.map(mannwhitneyu_calc, res_list)
-        
-            for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
-                output_lines[idx].append(str(corrected_pval))
-          
-            output_lines = self.add_descriptions(output_lines)
-            output_lines = self.MANNWHITNEYU_HEADER + output_lines 
-            results.append([output_lines, prefix + '_' + self.GVG_OUTPUT])
-        
-        return results
-                
-

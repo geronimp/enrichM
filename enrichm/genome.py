@@ -62,13 +62,16 @@ class Genome:
 				self.gc = round((gc_list/float(self.length))*100, 2)
 		
 			if gene:
+
 				for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
-					for gene_description, gene_sequence in seqio.each(open(gene)):
+				
+					for _, gene_sequence in seqio.each(open(gene)):
 						name = protein_description.partition(' ')[0]
 						sequence = Sequence(protein_description, protein_sequence, gene_sequence)
 						self.sequences[name] = sequence
 						self.protein_ordered_dict[protein_count] = name
 			else:
+
 				for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
 					name = protein_description.partition(' ')[0]
 					sequence = Sequence(protein_description, protein_sequence)
@@ -76,6 +79,7 @@ class Genome:
 					self.protein_ordered_dict[protein_count] = name
 
 		else:
+
 			for protein_count, (description, _) in enumerate(seqio.each(open(path))):
 				name = description.partition(' ')[0]
 				sequence = Sequence(description)
@@ -137,7 +141,6 @@ class Genome:
 				refdict = self.cazy_dict
 
 		# If annotation type is a blast result
-		
 		elif(annotation_type == AnnotationParser.BLASTPARSER):
 			# Set up an iterator to produce the results
 			logging.debug("    - Parsing blast chunk")
@@ -154,11 +157,11 @@ class Genome:
 
 		for seqname, annotations, evalue, annotation_range in iterator:
 			self.sequences[seqname].add(annotations, evalue, annotation_range, ref_ids)
+
 			for annotation in annotations:
 
 				if annotation in refdict:
 					refdict[annotation].append(seqname)
-				
 				else:
 					refdict[annotation]=[seqname]
 			
@@ -215,7 +218,6 @@ class Genome:
 	
 		if cluster_id in self.cluster_dict:
 			self.cluster_dict[cluster_id].append(sequence_id)
-		
 		else:
 			self.cluster_dict[cluster_id] = [sequence_id]
 		
@@ -238,7 +240,6 @@ class Genome:
 	
 		if ortholog_id in self.ortholog_dict:
 			self.ortholog_dict[ortholog_id].append(sequence_id)
-		
 		else:
 			self.ortholog_dict[ortholog_id] = [sequence_id]
 		
@@ -271,7 +272,6 @@ class Sequence(Genome):
 		
 		elif len(line_split)==1:
 			self.seqname = description
-			
 		else:
 			raise Exception("Malformatted sequence file!")
 

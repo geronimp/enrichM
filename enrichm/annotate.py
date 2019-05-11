@@ -28,10 +28,11 @@ __status__ = "Development"
 ###############################################################################
 # System imports
 from enrichm.genome import Genome, AnnotationParser
-from enrichm.gff_generator import GffGenerator
 from enrichm.matrix_generator import MatrixGenerator
 from enrichm.databases import Databases
 from enrichm.sequence_io import SequenceIO
+from enrichm.writer import Writer
+
 import numpy as np
 import statsmodels.sandbox.stats.multicomp as sm
 import multiprocessing as mp
@@ -238,7 +239,7 @@ class Annotate:
             temp.flush()
             output_annotation_path = os.path.join(output_directory_path, self.OUTPUT_DIAMOND) + self.ANNOTATION_SUFFIX
             logging.info('    - BLASTing genomes' )
-            self._diamond_search(temp.name, output_annotation_path, database)
+            self.diamond_search(temp.name, output_annotation_path, database)
 
             for genome_name, batch in self.get_batches(output_annotation_path):
                 
@@ -284,7 +285,7 @@ class Annotate:
 
             yield last, batch
 
-    def _diamond_search(self, tmp_name, output_path, database):
+    def diamond_search(self, tmp_name, output_path, database):
         '''
         Carry out a diamond blastp search. 
 
@@ -341,7 +342,7 @@ class Annotate:
         else:
             specific_cutoffs = None
 
-        self._hmm_search(output_directory_path, database, hmmcutoff)
+        self.hmm_search(output_directory_path, database, hmmcutoff)
 
         for genome_annotation in os.listdir(output_directory_path):
             genome_id = os.path.splitext(genome_annotation)[0]
@@ -514,6 +515,7 @@ class Annotate:
                 out_io.write('\t'.join([genome_id, sequence_id, "cluster_%i" % counter]) + '\n')
         
         for ortholog, group in ortholog_dict.items():
+
             for member in group:
                 genome, protein = member.split('~')
                 genome_dictionary[genome].add_ortholog(protein, ortholog)
@@ -522,13 +524,15 @@ class Annotate:
 
     def _default_hmmsearch_options(self):
         cmd = ''
+
         if self.bit:
             cmd += '-T %s ' % (str(self.bit))    
         else:
             cmd += '-E %s ' % (str(self.evalue)) 
+        
         return cmd
 
-    def _hmm_search(self, output_path, database, hmmcutoff):
+    def hmm_search(self, output_path, database, hmmcutoff):
         '''
         Carry out a hmmsearch. 
 
@@ -564,7 +568,7 @@ class Annotate:
         subprocess.call(cmd, shell = True)        
         logging.debug('Finished')
     
-    def _generate_gff_files(self, genomes_list):
+    def generate_gff_files(self, genomes_list):
         '''
         Write GFF files for each of the genome objects in genomes_list
 
@@ -578,10 +582,9 @@ class Annotate:
         for genome in genomes_list:
             logging.info('    - Generating .gff file for %s' % genome.name)
             gff_output = os.path.join(output_directory_path, genome.name + self.GFF_SUFFIX)
-            gg = GffGenerator()
-            gg.write(genome, gff_output)
+            Writer.write_gff(genome, gff_output)
 
-    def _rename_fasta(self, genomes_list):
+    def rename_fasta(self, genomes_list):
         '''
         Rename the called proteins with annotation ids.
         
@@ -616,7 +619,7 @@ class Annotate:
             logging.debug('Moving %s to %s' % (fname, genome.path))
             shutil.move(fname, genome.path)
 
-    def _pickle_objects(self, genomes_list):
+    def pickle_objects(self, genomes_list):
         '''
         Store annotated genome objects as pickles.
         
@@ -635,10 +638,8 @@ class Annotate:
         list_size   = float( len(input_list) )
         chunk_size  = int(round( (list_size/chunk_number), 0 ))
 
-
         if chunk_size > chunk_max:
             chunk_size = chunk_max
-        
         elif chunk_size < 1:
             chunk_size = list_size
 
@@ -707,7 +708,6 @@ class Annotate:
                                                       self.GENOME_BIN))      
             prep_genomes_list = self.call_proteins(directory)
         
-        
         for chunk in self.list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
             genomes_list += self.pool.map(parse_genomes, chunk)
 
@@ -728,6 +728,7 @@ class Annotate:
         logging.info("Running pipeline: annotate")
         logging.info("Setting up for genome annotation")
         genomes_list = self.parse_genome_inputs(genome_directory, protein_directory, genome_files, protein_files)
+        
         if len(genomes_list)==0:
             logging.error('There were no genomes found with the suffix %s within the provided directory' \
                                         %  (self.suffix))
@@ -830,14 +831,14 @@ class Annotate:
 
             if hasattr(list(genomes_list[0].sequences.values())[0], "prod_id"):
                 logging.info('Generating .gff files:')
-                self._generate_gff_files(genomes_list)
+                self.generate_gff_files(genomes_list)
 
                 logging.info('Renaming protein headers')
-                self._rename_fasta(genomes_list)
+                self.rename_fasta(genomes_list)
 
             if not self.light:
                 logging.info('Storing genome objects')
-                self._pickle_objects(genomes_list)
+                self.pickle_objects(genomes_list)
 
             logging.info('Finished annotation')
 

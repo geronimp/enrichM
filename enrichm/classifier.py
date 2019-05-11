@@ -34,6 +34,7 @@ from itertools import chain
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser
+from enrichm.writer import Writer
 ###############################################################################
 
 class Classify:
@@ -43,7 +44,6 @@ class Classify:
     AGGREGATE_OUTPUT = "aggregate_output.tsv"
 
     def __init__(self):
-
         d=Databases()
         self.ko_re              = re.compile('^K\d+$')
         self.signature_modules  = d.signature_modules
@@ -52,20 +52,14 @@ class Classify:
 
     def _update_with_custom_modules(self, custom_modules):
         custom_modules_dict = dict()
+
         for line in open(custom_modules):
                 custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
+        
         self.m2def.update(custom_modules_dict)
         
         for key in custom_modules_dict.keys():
             self.m[key] = 'Custom'
-    
-    def write(self, lines, output_path):
-        
-        logging.info('Writing results to file: %s' % output_path)
-
-        with open(output_path, 'w') as output_path_io:
-            for line in lines:
-                output_path_io.write(line)
 
     def do(self, custom_modules, cutoff, aggregate, genome_and_annotation_file, 
            genome_and_annotation_matrix, output_directory):
@@ -148,39 +142,34 @@ class Classify:
                             
                             if genome not in abundance_result:
                                 abundance_result[genome] = dict()
+                                
                             pathway_abundance = [abundances[genome][ko] for ko in ko_path_list]
                             pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
                             abundance_result[genome][name] = pathway_average_abundance
 
-                        genome_output_lines.append('\t'.join([genome, name, self.m[name], 
-                                                              ','.join(ko_path_list) + '\n']))
-                        output_line = "\t".join([genome, name, self.m[name],
-                                                  str(num_covered), 
-                                                  str(num_all),
-                                                  str(round(perc_covered * 100, 2))
-                                                  ]) 
-                        output_lines.append(output_line + '\n') 
+                        genome_output_lines.append([genome, name, self.m[name], ','.join(ko_path_list)])
+                        output_line = [genome, name, self.m[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
+                        output_lines.append(output_line) 
                         
-        self.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT))
-        self.write(genome_output_lines, os.path.join(output_directory, self.MODULE_PATHS)) 
+        Writer.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT))
+        Writer.write(genome_output_lines, os.path.join(output_directory, self.MODULE_PATHS)) 
         
         if aggregate:
             samples = list(abundance_result.keys() )
             output_lines = ['\t'.join(["ID"] + samples) + '\n']
+
             for module in self.m2def.keys():
             
                 if module not in self.signature_modules:
-                    ol = [module]
+                    output_line = [module]
 
                     for sample in samples:
             
                         if module in abundance_result[sample]:
-                            ol.append(str(abundance_result[sample][module]))
+                            output_line.append(str(abundance_result[sample][module]))
             
                         else:
-                            ol.append('0.0')
-                    output_lines.append('\t'.join(ol) + '\n')
-            self.write(output_lines, os.path.join(output_directory, self.AGGREGATE_OUTPUT))
-
-
-
+                            output_line.append('0.0')
+                    output_lines.append(output_line)
+            
+            Writer.write(output_lines, os.path.join(output_directory, self.AGGREGATE_OUTPUT))

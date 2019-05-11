@@ -53,8 +53,6 @@ class Data:
 	def __init__(self):
 		self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
 
-
-
 	def _archive_db(self, old_db_file):
 		'''
 		Archive an old database file
@@ -111,25 +109,41 @@ class Data:
 		'''
 
 		if uninstall:
+
 			for file in os.listdir(self.DATABASE_DIR):
 				file_path = os.path.join(self.DATABASE_DIR, file)
+			
 				if os.path.isdir(file_path):
 					shutil.rmtree(file_path)
 				else:
 					os.remove(file_path)
+			
 			os.rmdir(self.DATABASE_DIR)
 
 		else:
-			version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
-
+			
+			try:
+				version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
+			except:
+				raise Exception(
+					"Unable to find most current EnrichM database VERSION in ftp. Please complain at https://github.com/geronimp/enrichM")
+				
 			if os.path.isdir(self.DATABASE_DIR):
-				version_local  = open(os.path.join(self.DATABASE_DIR, self.VERSION)).readline().strip()
+				version_local_path = os.path.join(self.DATABASE_DIR, self.VERSION)
+			
+				if os.path.isfile(version_local_path):
+					version_local = open(version_local_path).readline().strip()
+				else:
+					raise Exception(
+						"Unable to locate enrichM database! Please specify its location by creating a local BASH variable called ENRICHM_DIR: export ENRICHM_DB=/path/to/database/")
+			
 				if version_local!=version_remote:
 					logging.info('New database found. Archiving old database.')
 					self._archive_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
 					self._download_db(version_remote)
 				else:
 					logging.info('Database is up to date!')
+			
 			else:
 				logging.info('Creating file to store databases.')
 				os.makedirs(self.DATABASE_DIR)

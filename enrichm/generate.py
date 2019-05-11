@@ -59,8 +59,6 @@ class GenerateModel():
         self.MODEL_PICKLE = "rf_model.pickle"
         self.LABELS_DICT = "labels_dict.pickle"
     
-
-    
     def parse_input_matrix(self, input_matrix_path):
         '''     
         Inputs
@@ -83,8 +81,10 @@ class GenerateModel():
         
             for header, value in zip(headers, values[1:]):
                 output_dictionary[header][attribute_value] = value
+        
         logging.info('\t\tRead in matrix of %i samples associated with %i attributes' \
                 % (len(output_dictionary), len(attribute_list)))
+        
         return output_dictionary, attribute_list
 
     def parse_groups_matrix(self, groups_matrix_path):
@@ -125,14 +125,17 @@ class GenerateModel():
         output_list = []
         
         for group in input_list:
+
             if group not in output_dictionary:
                 output_dictionary[group] = idx
                 idx += 1
             output_list.append(output_dictionary[group])
         output_dictionary = {item:key for key, item in output_dictionary.items()}
+
         return output_dictionary, output_list
 
     def _write_attribute_list(self, attribute_list, output_directory):
+
         with open(os.path.join(output_directory, self.ATTRIBUTE_LIST), 'wb') as out_io:
             out_io.write(str.encode('\n'.join(attribute_list)))
     
@@ -154,8 +157,10 @@ class GenerateModel():
         # Print out the feature and importances 
         logging.info('%i attributes found with an importance > 0' % (len([x for x in feature_importances if x[1]>0])))
         logging.info('Writing attribute importances')
+
         with open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES), 'wb') as out_io:
             out_io.write(str.encode('\t'.join(['Variable', 'Importance']) + '\n'))
+
             for pair in feature_importances:
                 var, imp = pair
                 out_io.write(str.encode('\t'.join([str(var), str(imp)]) + '\n'))
@@ -212,7 +217,6 @@ class GenerateModel():
             'n_estimators':[x for x in n_estimators if x>0]
         }
         
-
         grid_search = GridSearchCV(estimator = rf,
                                    param_grid = param_grid, 
                                    cv = 3,
@@ -237,6 +241,7 @@ class GenerateModel():
         min_samples_split       = [2, 5, 10]
         min_samples_leaf        = [1, 2, 4]
         bootstrap               = [True, False]
+
         random_grid = {'n_estimators': n_estimators,
                        'max_features': max_features,
                        'max_depth': max_depth,
@@ -274,18 +279,22 @@ class GenerateModel():
         rf_random_trained_model = rf_random_model.fit(train_features, train_labels)
 
         logging.info('Best parameters from random search cross validation:')
+        
         for x,y in rf_random_trained_model.best_params_.items():
             logging.info("\t\t%s: %s" % (x, str(y)))
+
         if grid_search:
             rf_grid_model = self.grid_search_cv(rf_random_model, threads, rf)   
             logging.info('Fitting model')
             rf_grid_trained_model = rf_grid_model.fit(train_features, train_labels)
 
             logging.info('Best parameters from grid search cross validation:')
+        
             for x,y in rf_grid_trained_model.best_params_.items():
                 logging.info("\t\t%s: %s" % (x, str(y)))
 
             best_model = rf_grid_trained_model.best_estimator_
+        
         else:
             best_model = rf_random_trained_model.best_estimator_
 
@@ -337,7 +346,9 @@ class GenerateModel():
         logging.info('\t\tMean Absolute Error: %f degrees' % (round(np.mean(errors), 2)))
         
         correctness = []
+ 
         for prediction, label in zip(np.round(predictions), test_labels):
+ 
             if prediction==label:
                 correctness.append(1)
             else:

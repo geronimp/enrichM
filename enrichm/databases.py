@@ -34,7 +34,6 @@ import pickle
 from enrichm.data import Data
 ###############################################################################
 
-
 class Databases:
 	
 	if os.path.isfile(os.path.join(Data.DATABASE_DIR, 'VERSION')):
@@ -146,8 +145,8 @@ class Databases:
 		self.tigrfamdescription = self.load_pickle(self.TIGRFAM2DESCRIPTION)
 		logging.info("Loading reference db paths")		
 
-
 		self.k2r = dict()
+
 		for reaction, kos in self.r2k.items():
 			for ko in kos:
 				if ko not in self.k2r:
@@ -185,14 +184,16 @@ class Databases:
 		return output_taxonomy_dictionary
 
 	def parse_ko_cutoffs(self):
-
 		cut_ko = dict()
 		out_io = open(self.KO_HMM_CUTOFFS)
-		header = out_io.readline()
+		_ = out_io.readline()
+
 		for line in out_io:
 			sline = line.strip().split('\t')
+		
 			if sline[1]=='-':
 				cut_ko[sline[0]] = [0.0, "NA"]
 			else:
 				cut_ko[sline[0]] = [float(sline[1]), sline[2]]
+		
 		return cut_ko
