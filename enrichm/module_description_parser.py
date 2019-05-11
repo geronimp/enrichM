@@ -38,7 +38,6 @@ PFAM = '(PF\d+)'
 CE = '(CE\d+)'
 EC = '\\d{1,2}(\\.(\\-|\\d{1,2})){3}'
 
-
 class ModuleDescription:
 
     def __init__(self, module_description_string):
@@ -107,7 +106,6 @@ class ModuleDescription:
         else:
             raise Exception("Cannot work with non-AND type modules")
 
-
 class GetLowestRelation:
 
     @staticmethod
@@ -123,7 +121,6 @@ class GetLowestRelation:
                 else:
                     GetLowestRelation.get_lowest_relation(relation, to_fill)
         return to_fill
-
 
 class ModuleDescriptionAndRelation:
 
@@ -152,10 +149,8 @@ class ModuleDescriptionAndRelation:
 
         return step_passed, counts, reaction_counts, kos
 
-
 class ModuleDescriptionPlusRelation(ModuleDescriptionAndRelation):
     pass
-
 
 class ModuleDescriptionOrRelation:
     def satisfied_with(self, set_of_kos, kos):

@@ -237,7 +237,7 @@ class NetworkBuilder:
                             else:
                                 reaction_line.append(self.ZERO)
 
-                    output_line = '\t'.join(reaction_line)
+                    output_line = reaction_line
 
                     if sum([float(x) for x in reaction_line[3:]])>0:
                         if output_line not in network_lines:
@@ -281,7 +281,7 @@ class NetworkBuilder:
                                          'reaction']
                         if abundances_metabolome:   
                             metadata_list += ['-5' for sample in self.metadata_keys]
-                        node_metadata_lines.append('\t'.join(metadata_list))
+                        node_metadata_lines.append(metadata_list)
                         seen_nodes.add(reaction)
 
         return network_lines, node_metadata_lines
@@ -474,24 +474,32 @@ class NetworkBuilder:
                  starting_compounds, steps, number_of_queries):
 
         if any(limit):
+
             for entry in limit:
+            
                 if(entry.startswith(self.MAP_PREFIX) or 
                    entry.startswith(self.PATHWAY_PREFIX)): 
+            
                     for reaction in self.d.p2r[entry]:
                         possible_reactions.add(reaction)
+            
                 elif(entry.startswith(self.MODULE_PREFIX)):
+            
                     for reaction in self.d.m2r[entry]:
                         possible_reactions.add(reaction)
+            
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
 
             possible_reactions = {reaction:self.d.r2c[reaction] 
                                   for reaction in
                                   possible_reactions}                
+        
         else:
             possible_reactions = self.d.r2c
         
         for entry in filter:
+        
             if entry in possible_reactions:
                 del possible_reactions[entry]
         

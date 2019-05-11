@@ -44,8 +44,6 @@ def parse_genomes(path):
 
 class ParseAnnotate:
 	
-	"""docstring for ParseAnnotate"""
-
 	def __init__(self, enrichm_annotate_output, processes):
 		self.path = enrichm_annotate_output
 		# Parse genome objects
@@ -124,4 +122,5 @@ class ParseAnnotate:
 		output_genome_list.wait()
 		genome_objects = output_genome_list.get()
 		self.pool.close()
+
 		return genome_objects

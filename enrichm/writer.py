@@ -46,21 +46,20 @@ class Writer:
                 out_io.write(output_line_string)
     
     @staticmethod
-	def write_gff(genome, output_file):
-		'''
-		Writes a gff file for a Genome object
-		
-		Parameters
-		----------
-		genome 			- Genome object
-		output_file 	- string. file name to output results to.
-		'''
+    def write_gff(genome, output_file):
+        '''
+        Writes a gff file for a Genome object
 
-		with open(output_file, 'w') as out_io:
-			for sequence in genome.ordered_sequences():
-				contig_id = '_'.join(sequence.seqname.split('_')[:-1])
+        Parameters
+        ----------
+        genome 			- Genome object
+        output_file 	- string. file name to output results to.
+        '''
+        with open(output_file, 'w') as out_io:
+            for sequence in genome.ordered_sequences():
+                contig_id = '_'.join(sequence.seqname.split('_')[:-1])
 
-				features = ['seq_id=%s' % sequence.seqname,
+                features = ['seq_id=%s' % sequence.seqname,
                                     'prodigal_id=%s' % sequence.prod_id,
                                     'partial=%s' % sequence.partial,
                                     'start_type=%s' % sequence.starttype,
@@ -68,12 +67,12 @@ class Writer:
                                     'rbs_spacer=%s' % sequence.rbs_spacer,
                                     'gc=%s' % sequence.gc]
 
-				if len(sequence.all_annotations()) > 0:
-					features.append('annotations=%s' % ','.join(sequence.all_annotations()))
-				else:
-					features.append('annotations=hypothetical_protein')
+                if len(sequence.all_annotations()) > 0:
+                    features.append('annotations=%s' % ','.join(sequence.all_annotations()))
+                else:
+                    features.append('annotations=hypothetical_protein')
 
-				line = [contig_id,
+                line = [contig_id,
                                     'prodigal',
                                     'CDS',
                                     sequence.startpos,
@@ -84,4 +83,4 @@ class Writer:
                                     '0',
                                     ';'.join(features)]
 
-				out_io.write('\t'.join(line) + '\n')
+                out_io.write('\t'.join(line) + '\n')

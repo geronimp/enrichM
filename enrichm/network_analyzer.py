@@ -23,6 +23,8 @@ from enrichm.network_builder import NetworkBuilder
 from enrichm.parser import Parser
 from enrichm.databases import Databases
 from enrichm.kegg_matrix import KeggMatrix
+from enrichm.writer import Writer
+
 
 __author__ = "Joel Boyd"
 __copyright__ = "Copyright 2017"
@@ -70,21 +72,6 @@ class NetworkAnalyser:
                 self.metadata[group].append(sample_id)
             else:
                 self.metadata[group] = [sample_id]
-
-    def _write_results(self, output_path, output_lines):
-        '''
-        Parameters
-        ----------
-        output_path: string
-            Path to non-existent file to write output lines to
-        output_lines: list
-            list containing lines to write to output path
-        '''
-        logging.info('Writing results to file: %s' % output_path)
-
-        with open(output_path, 'w') as output_path_io: 
-            output_path_io.write('\n'.join(output_lines))
-            output_path_io.flush()
     
     def _average(self, d):
             
@@ -335,5 +322,7 @@ class NetworkAnalyser:
                                            limit,
                                            filter)
 
-        self._write_results(os.path.join(output_directory, self.NETWORK_OUTPUT_FILE), network_lines)
-        self._write_results(os.path.join(output_directory, self.METADATA_OUTPUT_FILE), node_metadata)
+        Writer.write(network_lines, os.path.join(
+            output_directory, self.NETWORK_OUTPUT_FILE))
+        Writer.write(node_metadata, os.path.join(
+            output_directory, self.METADATA_OUTPUT_FILE))
