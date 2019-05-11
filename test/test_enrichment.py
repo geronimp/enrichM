@@ -32,8 +32,30 @@ path_to_annotate	= os.path.join(path_to_data, 'enrichm_annotate')
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
 
 ###############################################################################
+from enrichm.enrichment import Enrichment, Test
 
 class Tests(unittest.TestCase):
+
+    def test_test_chooser(self):
+        groups_1 = [[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]]
+        groups_2 = [[1], [1, 2, 3, 4, 5]]
+
+    def test_check_annotation_type(self):
+        pfam = ['PF10117']
+        self.assertEqual(
+            Enrichment().check_annotation_type(pfam), Enrichment.PFAM)
+        cazy = ['GH42']
+        self.assertEqual(
+            Enrichment().check_annotation_type(cazy), Enrichment.CAZY)
+        tigrfam = ['TIGR00008']
+        self.assertEqual(
+            Enrichment().check_annotation_type(tigrfam), Enrichment.TIGRFAM)
+        ko = ['K00399']
+        self.assertEqual(
+            Enrichment().check_annotation_type(ko), Enrichment.KEGG)
+        ec = ['1.2.3.4']
+        self.assertEqual(
+            Enrichment().check_annotation_type(ec), Enrichment.EC)
 
     def test_enrichment_from_ko_matrix(self):
 

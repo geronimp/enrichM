@@ -151,7 +151,6 @@ class Enrichment:
         self.PROPORTIONS             = 'proportions.tsv'
         self.MODULE_COMPLETENESS     = 'modules.tsv'
 
-
     # TODO: This has to go
     def _parse_annotation_matrix(self, annotation_matrix, allow_negative_values):
         '''        
@@ -197,10 +196,12 @@ class Enrichment:
         '''
 
         sample = random.sample(annotations, 1)[0]
-        
         cazy_prefix = ''
+
         for character in list(sample):
+
             if character.isdigit()!=True:
+            
                 if character!='_':
                     cazy_prefix+=character
 
@@ -233,7 +234,7 @@ class Enrichment:
         proportions_cutoff  - Float. Value with which to cutoff
         '''
         ### ~ TODO: Add a portion of genome column too?
-
+        # TODO: test me
         raw_proportions_output_lines        = [['Module'] + list(combination_dict.keys())]
 
         for module in modules:
@@ -437,6 +438,7 @@ class Enrichment:
         
                         result_file_io = open(os.path.join(output_directory, result_file))
                         result_file_io.readline()
+                        
                         for line in result_file_io:
                             sline = line.strip().split('\t')
                             if float(sline[-2])<pval_cutoff:

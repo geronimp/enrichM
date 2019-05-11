@@ -44,6 +44,8 @@ class Writer:
             for output_line_list in output_lines_list:
                 output_line_string = '\t'.join([str(column_entry) for column_entry in output_line_list]) + '\n'
                 out_io.write(output_line_string)
+            out_io.flush()
+            out_io.close()
     
     @staticmethod
     def write_gff(genome, output_file):

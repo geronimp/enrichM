@@ -37,7 +37,7 @@ sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.
 import enrichm
 from enrichm.run import Run
 from enrichm.network_analyzer import NetworkAnalyser
-from enrichm.kegg_module_grabber import KeggModuleGrabber
+
 ###############################################################################
       
 class CustomHelpFormatter(argparse.HelpFormatter):
