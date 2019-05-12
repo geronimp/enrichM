@@ -475,7 +475,33 @@ class Enrichment:
             p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
 class Test(Enrichment):
+    
+    FISHER_HEADER = [['annotation', 'group_1', 'group_2', 'group_1_true', 'group_1_false',
+                      'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue', 'description']]
 
+    MANNWHITNEYU_HEADER =[['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean',
+                           'score', 'pvalue', 'corrected_pvalue', 'description']]
+    
+    ZSCORE_HEADER = [['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_1_sd',
+                      'group_2_count', 'score', 'pvalue', 'corrected_pvalue', 'description']]
+    
+    PA                     = 'presence_absence'
+    IVG_OUTPUT             = 'ivg_results.cdf.tsv'
+    GENE_FISHER_OUTPUT     = 'gvg_results.fisher.tsv'
+    GVG_OUTPUT             = 'gvg_results.mannwhitneyu.tsv'
+    
+    mtc_dict = {'b': 'Bonferroni',
+                's': 'Sidak',
+                'h': 'Holm',
+                'hs': 'Holm-Sidak',
+                'sh': 'Simes-Hochberg',
+                'ho': 'Hommel',
+                'fdr_bh': 'FDR Benjamini-Hochberg',
+                'fdr_by': 'FDR Benjamini-Yekutieli',
+                'fdr_tsbh': 'FDR 2-stage Benjamini-Hochberg',
+                'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
+                'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'}
+    
     def __init__(self, genome_annotations, genomes, groups, 
                  annotation_type, threshold, multi_test_correction, 
                  pval_cutoff, processes, d):
@@ -487,43 +513,6 @@ class Test(Enrichment):
         Output
         ------
         '''
-        self.FISHER_HEADER = [['annotation',
-                               'group_1',
-                               'group_2',
-                               'group_1_true',
-                               'group_1_false',
-                               'group_2_true',
-                               'group_2_false',
-                               'score',
-                               'pvalue',
-                               'corrected_pvalue',
-                               'description']]
-
-        self.MANNWHITNEYU_HEADER =[['annotation',
-                                    'group_1',
-                                    'group_2',
-                                    'group_1_mean',
-                                    'group_2_mean',
-                                    'score',
-                                    'pvalue',
-                                    'corrected_pvalue',
-                                    'description']]
-        
-        self.ZSCORE_HEADER = [['annotation',
-                               'group_1',
-                               'group_2',
-                               'group_1_mean',
-                               'group_1_sd',
-                               'group_2_count',
-                               'score',
-                               'pvalue',
-                               'corrected_pvalue',
-                               'description']]
-        
-        self.PA                     = 'presence_absence'
-        self.IVG_OUTPUT             = 'ivg_results.cdf.tsv'
-        self.GENE_FISHER_OUTPUT     = 'gvg_results.fisher.tsv'
-        self.GVG_OUTPUT             = 'gvg_results.mannwhitneyu.tsv'
 
         self.threshold              = threshold
         self.multi_test_correction  = multi_test_correction
@@ -541,19 +530,7 @@ class Test(Enrichment):
         self.pval_cutoff            = pval_cutoff
         self.pool                   = mp.Pool(processes = processes)
 
-        self.mtc_dict = {'b': 'Bonferroni',
-                         's': 'Sidak',
-                         'h': 'Holm',
-                         'hs': 'Holm-Sidak',
-                         'sh': 'Simes-Hochberg',
-                         'ho': 'Hommel',
-                         'fdr_bh': 'FDR Benjamini-Hochberg',
-                         'fdr_by': 'FDR Benjamini-Yekutieli',
-                         'fdr_tsbh': 'FDR 2-stage Benjamini-Hochberg',
-                         'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
-                         'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'}
-
-        if annotation_type==Enrichment.PFAM:
+        if annotation_type==self.PFAM:
             self.genome_annotations = dict()
             for key, item in genome_annotations.items():                
                 self.genome_annotations[key] = {key.split('.')[0]:entry for key,entry in item.items()}
@@ -570,7 +547,7 @@ class Test(Enrichment):
             description = "%s; %s" % (id, ' '.join(sline[2:]))
             self.pfam[pfam]  = description
             self.id2pfam[id] = pfam
-    
+
     def test_chooser(self, groups):
         groups = [len(x) for x in groups]
         
@@ -660,23 +637,24 @@ class Test(Enrichment):
         return corrected_pvalues
 
     def add_descriptions(self, output_lines):
-        if self.annotation_type == Enrichment.KEGG:
+        if self.annotation_type == self.KEGG:
             desc = self.k
 
-        if self.annotation_type == Enrichment.CAZY:
+        if self.annotation_type == self.CAZY:
             desc = None
 
-        if self.annotation_type == Enrichment.TIGRFAM:
+        if self.annotation_type == self.TIGRFAM:
             desc = self.tigrfamdescription
 
-        if self.annotation_type == Enrichment.PFAM:
+        if self.annotation_type == self.PFAM:
             desc = self.pfam2description
             
-        if self.annotation_type == Enrichment.EC:
+        if self.annotation_type == self.EC:
             desc = self.ec2description
 
-        if self.annotation_type == Enrichment.OTHER:
+        if self.annotation_type == self.OTHER:
             desc = None
+        
         for line in output_lines:
             annotation = line[0]
 
@@ -750,6 +728,7 @@ class Test(Enrichment):
         for combination in combinations(group_dict, 2):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
             prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
+            
             logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
             
             if enrichment_test == stats.fisher_exact:
@@ -759,6 +738,7 @@ class Test(Enrichment):
             
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+                
                 header = self.FISHER_HEADER
                 output = self.GENE_FISHER_OUTPUT
                 output_lines = self.add_descriptions(output_lines)
@@ -778,6 +758,7 @@ class Test(Enrichment):
 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+                
                 header = self.MANNWHITNEYU_HEADER
                 output = self.GVG_OUTPUT
 
@@ -789,6 +770,7 @@ class Test(Enrichment):
                 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
+                
                 header = self.ZSCORE_HEADER
                 output = self.IVG_OUTPUT
             

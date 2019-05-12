@@ -23,22 +23,17 @@ import subprocess
 import tempfile
 import filecmp
 
-###############################################################################
-
 path_to_script 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
 path_to_data 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
 path_to_annotate	= os.path.join(path_to_data, 'enrichm_annotate')
 
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
 
+from enrichm.enrichment import Enrichment
+
 ###############################################################################
-from enrichm.enrichment import Enrichment, Test
 
 class Tests(unittest.TestCase):
-
-    def test_test_chooser(self):
-        groups_1 = [[1, 2, 3, 4, 5], [1, 2, 3, 4, 5]]
-        groups_2 = [[1], [1, 2, 3, 4, 5]]
 
     def test_check_annotation_type(self):
         pfam = ['PF10117']
@@ -63,7 +58,7 @@ class Tests(unittest.TestCase):
         bin             = os.path.join(path_to_data, 'test_nucleic_bin')
         expected_output = os.path.join(path_to_data, 'enrichm_enrichment_ko')
         metadata        = os.path.join(path_to_data, 'metadata.tsv')
-        cmd             = '%s enrichment --annotate_output %s --metadata %s --output %s --force --ko' \
+        cmd             = '%s enrichment --annotate_output %s --metadata %s --output %s --force --ko --verbosity 1' \
                             % (path_to_script, path_to_annotate, metadata, tmp)
         subprocess.call(cmd, shell=True)
         self.assertTrue(filecmp.dircmp(tmp, expected_output))
@@ -81,7 +76,7 @@ class Tests(unittest.TestCase):
         expected_output = os.path.join(path_to_data, 'enrichm_enrichment_pfam')
         metadata        = os.path.join(path_to_data, 'metadata.tsv')
         genomes_to_compare = os.path.join(path_to_data, 'genomes_to_compare.tsv')
-        cmd             = '%s enrichment --annotate_output %s --metadata %s --output %s --force --pfam' \
+        cmd             = '%s enrichment --annotate_output %s --metadata %s --output %s --force --pfam  --verbosity 1' \
                             % (path_to_script, path_to_annotate, metadata, tmp)
 
         subprocess.call(cmd, shell=True)

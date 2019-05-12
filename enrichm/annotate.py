@@ -185,6 +185,7 @@ class Annotate:
         genome_paths    = list()
 
         for genome in os.listdir(genome_directory):
+
             if genome.endswith(self.suffix):
                 genome_paths.append(os.path.splitext(genome)[0])
 
@@ -234,6 +235,7 @@ class Annotate:
         genome_dict = {genome.name:genome for genome in genomes_list}
         os.mkdir(output_directory_path)
         specific_cutoffs = None
+
         with tempfile.NamedTemporaryFile() as temp:
             temp.write(str.encode('\n'.join(["sed \"s/>/>%s~/g\" %s" % (genome.name, genome.path) for genome in genomes_list])))
             temp.flush()
@@ -270,19 +272,14 @@ class Annotate:
             
                 if last==genome_id:
                     batch.append(split_line)
-            
                 else:
-            
                     yield last, batch
                     batch = [split_line]
                     last = genome_id
         
         if last is None:
-        
             yield None, None
-        
         else:
-
             yield last, batch
 
     def diamond_search(self, tmp_name, output_path, database):
@@ -384,20 +381,22 @@ class Annotate:
             formatted_blast_output_path = os.path.join(output_directory_path, "alignDb.formatted.m8")
 
             clu_tsv_path = os.path.join(output_directory_path, "hypothetical_clusters.tsv")
+            
             logging.info('    - Generating MMSeqs2 database')
             cmd = "bash %s | sponge | mmseqs createdb /dev/stdin %s -v 0 > /dev/null 2>&1" % (
                 temp.name, db_path)
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
             logging.debug('Finished')
+            
             logging.info('    - Clustering genome proteins')
             cmd = "mmseqs cluster %s %s %s --max-seqs 1000 --threads %s --min-seq-id %s -e %f -c %s -v 0 " % (
                 db_path, clu_path, tmp_dir, self.threads, self.id, self.evalue, self.c)
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
             logging.debug('Finished')
+            
             logging.info('    - Extracting clusters')
-
             cmd = 'mmseqs createtsv %s %s %s %s -v 0 > /dev/null 2>&1' % (
                 db_path, db_path, clu_path, clu_tsv_path)
             logging.debug(cmd)
@@ -418,6 +417,7 @@ class Annotate:
             logging.debug(cmd)
             subprocess.call(cmd, shell = True)
             logging.debug('Finished')
+            
             logging.info('    - Reformatting BLAST output')
             cmd = "OFS=\"\t\" awk 'FNR==NR{a[$1]=$2;next}{$3=a[$3]; $1=\"\"; for(i=2;i<NF;i++){printf(\"%s\t\",$i)} printf(\"\\n\")}' %s %s | cut -f1,2,5 > %s" % ("%s", db_path + '.lookup', blast_output_path, formatted_blast_output_path)
             logging.debug(cmd)

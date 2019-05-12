@@ -22,16 +22,16 @@ import sys
 import subprocess
 import tempfile
 
-###############################################################################
+path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'bin', 'enrichm')
+path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
+sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')]+sys.path
 
-path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
-path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
-sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
+from enrichm.annotate import Annotate
 
 ###############################################################################
 
 class Tests(unittest.TestCase):
-
+    
     def test_hello_world_nucleic(self):
         tmp = tempfile.mkdtemp()
         bin = os.path.join(path_to_data, 'test_nucleic_bin')
