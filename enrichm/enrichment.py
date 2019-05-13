@@ -156,7 +156,7 @@ class Enrichment:
         '''        
         Parameters
         ----------
-        matrix_path : String. Path to file containing a matrix of genome rownames.        
+        matrix_path : String. Path to file containing a matrix of genome rownames.
         '''
 
         matrix_file_io  = open(annotation_matrix)
@@ -217,8 +217,43 @@ class Enrichment:
             return self.EC
         else:
             return self.OTHER
+    
+    def weight_annotation_matrix(self,
+                                 sample_abundance,
+                                 annotation_abundance,
+                                 sample_dict,
+                                 annotations):
 
-    def calculate_portions(self, modules, combination_dict, annotations_dict, genome_list, proportions_cutoff):
+        output_dict = {sample_group: dict() for sample_group in sample_dict.keys()}
+
+        logging.info('Aggregating abundances across samples')
+        for group, samples in sample_dict.items():
+            output_dict[group] = dict()
+
+            for annotation in annotations:
+                output_dict[group][annotation] = list()
+
+                for sample in samples:
+                    sample_annotation_abundance = 0.0
+
+                    for genome, genome_annotation_dict in annotation_abundance.items():
+
+                        if annotation in genome_annotation_dict:
+                            value = genome_annotation_dict[annotation]
+                            
+                            if genome in sample_abundance[sample]:
+                                sample_annotation_abundance += sample_abundance[sample][genome]*value
+
+                    output_dict[group][annotation].append(sample_annotation_abundance)
+        
+        return output_dict
+
+    def calculate_portions(self,
+                           modules,
+                           combination_dict,
+                           annotations_dict,
+                           genome_list,
+                           proportions_cutoff):
         '''
         Calculates the portions of genome
 
@@ -285,7 +320,7 @@ class Enrichment:
            output_directory):
 
         p  = Plot()
-        d  = Databases()
+        database  = Databases()
         
         if genomes_to_compare_with_group_file:
             self.genomes_to_compare_with_group = Parser.parse_single_column_text_file(genomes_to_compare_with_group_file)
@@ -298,16 +333,16 @@ class Enrichment:
 
             if ko:
                 annotation_matrix = pa.ko
-                gtdb_annotation_matrix = d.GTDB_KO
+                gtdb_annotation_matrix = database.GTDB_KO
             elif ko_hmm:
                 annotation_matrix = pa.ko_hmm
-                gtdb_annotation_matrix = d.GTDB_KO
+                gtdb_annotation_matrix = database.GTDB_KO
             elif pfam:
                 annotation_matrix = pa.pfam
-                gtdb_annotation_matrix = d.GTDB_PFAM
+                gtdb_annotation_matrix = database.GTDB_PFAM
             elif tigrfam:
                 annotation_matrix = pa.tigrfam
-                gtdb_annotation_matrix = d.GTDB_TIGRFAM
+                gtdb_annotation_matrix = database.GTDB_TIGRFAM
             elif cluster:
                 annotation_matrix = pa.cluster
                 gtdb_annotation_matrix = None
@@ -316,15 +351,15 @@ class Enrichment:
                 gtdb_annotation_matrix = None
             elif cazy:
                 annotation_matrix = pa.cazy
-                gtdb_annotation_matrix = d.GTDB_CAZY
+                gtdb_annotation_matrix = database.GTDB_CAZY
             elif ec:
                 annotation_matrix = pa.ec
-                gtdb_annotation_matrix = d.GTDB_EC
+                gtdb_annotation_matrix = database.GTDB_EC
         else:
                 gtdb_annotation_matrix = None
 
         logging.info('Parsing annotations: %s' % annotation_matrix)
-        annotations_dict, annotations, genomes \
+        annotations_dict, annotations, _ \
             = self._parse_annotation_matrix(annotation_matrix, allow_negative_values)
         annotation_type = self.check_annotation_type(annotations)
         logging.info('Parsing metadata')
@@ -334,28 +369,28 @@ class Enrichment:
         if abundances_path:
             
             logging.info('Parsing sample abundance')
-            abundances_dict, _, genomes = self._parse_annotation_matrix(abundances_path, allow_negative_values)
-
+            abundances_dict, _, _ = self._parse_annotation_matrix(abundances_path, allow_negative_values)
 
             logging.info('Parsing sample metadata')
-            ab_metadata, ab_metadata_value_lists, ab_attribute_dict \
+            _, _, ab_attribute_dict \
                 = Parser.parse_metadata_matrix(abundance_metadata_path)
 
             t = Test(annotations_dict,
-                     genomes,
                      None,
                      annotation_type,
                      threshold,
                      multi_test_correction,
-                     pval_cutoff,
                      processes,
-                     d)
-            results = t.weight_annotation_matrix(abundances_dict,
+                     database)
+            
+            weighted_abundance = self.weight_annotation_matrix(abundances_dict,
                                                  annotations_dict,
-                                                 ab_metadata,
-                                                 ab_metadata_value_lists,
                                                  ab_attribute_dict,
                                                  annotations)
+
+            results = t.test_weighted_abundances(weighted_abundance,
+                                                 annotations)
+
             for result in results:
                 test_result_lines, test_result_output_file = result
 
@@ -399,14 +434,12 @@ class Enrichment:
                 combination_dict['_'.join(combination)] = genome_list
 
             t = Test(annotations_dict,
-                    genomes,
                     combination_dict,
                     annotation_type,
                     threshold,
                     multi_test_correction,
-                    pval_cutoff, 
                     processes,
-                    d)
+                    database)
             results = t.do(attribute_dict)
 
             for result in results:
@@ -454,8 +487,8 @@ class Enrichment:
                                     g2_sig_kos.add(sline[0])
         
                         module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
-                        for module, definition in d.m2def.items():
-                            if module not in d.signature_modules:
+                        for module, definition in database.m2def.items():
+                            if module not in database.signature_modules:
                                 pathway = ModuleDescription(definition)
                                 num_all         = pathway.num_steps()
                                 g1_num_covered, _, _, _ = pathway.num_covered_steps(g1_sig_kos)
@@ -464,10 +497,10 @@ class Enrichment:
                                 g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_kos)
                                 g2_perc_covered    = g2_num_covered / float(num_all)
                                 if g1_perc_covered>0:
-                                    output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, d.m[module]]
+                                    output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, database.m[module]]
                                     module_output.append(output_line)
                                 if g2_perc_covered>0:
-                                    output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, d.m[module]]
+                                    output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, database.m[module]]
                                     module_output.append(output_line)
                         prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
                         Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
@@ -502,51 +535,33 @@ class Test(Enrichment):
                 'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
                 'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'}
     
-    def __init__(self, genome_annotations, genomes, groups, 
+    def __init__(self, genome_annotations, groups, 
                  annotation_type, threshold, multi_test_correction, 
-                 pval_cutoff, processes, d):
+                 processes, database):
         '''
-        
-        Parameters
-        ----------
-        
-        Output
-        ------
+        Collects functions to count and test differential abundance among groups of genomes.
         '''
 
         self.threshold              = threshold
         self.multi_test_correction  = multi_test_correction
-        self.m2def                  = d.m2def
-        self.m                      = d.m
-        self.clan2pfam              = d.clan2pfam
-        self.clan_to_description    = d.clan2name
-        self.k                      = d.k
-        self.tigrfamdescription     = d.tigrfamdescription
-        self.pfam2description       = d.pfam2description
-        self.ec2description         = d.ec2description
-        self.genomes                = genomes
         self.annotation_type        = annotation_type
         self.groups                 = groups
-        self.pval_cutoff            = pval_cutoff
         self.pool                   = mp.Pool(processes = processes)
-
+        self.m2def                  = database.m2def
+        self.m                      = database.m
+        self.clan2pfam              = database.clan2pfam
+        self.clan_to_description    = database.clan2name
+        self.k                      = database.k
+        self.tigrfamdescription     = database.tigrfamdescription
+        self.pfam2description       = database.pfam2description
+        self.ec2description         = database.ec2description
+        
         if annotation_type==self.PFAM:
             self.genome_annotations = dict()
             for key, item in genome_annotations.items():                
                 self.genome_annotations[key] = {key.split('.')[0]:entry for key,entry in item.items()}
         else:
             self.genome_annotations = genome_annotations
-
-        self.pfam    = dict()
-        self.id2pfam = dict()
-        
-        for line in open(d.PFAM_CLAN_DB):
-            sline       = line.strip().split()
-            pfam        = sline[0]
-            id          = sline[2]
-            description = "%s; %s" % (id, ' '.join(sline[2:]))
-            self.pfam[pfam]  = description
-            self.id2pfam[id] = pfam
 
     def test_chooser(self, groups):
         groups = [len(x) for x in groups]
@@ -573,7 +588,8 @@ class Test(Enrichment):
 
         return corrected_pvals
 
-    def _count(self, annotation, group, freq):
+    def count(self, annotation, group, freq):
+
         if freq:
             group_true = list()
 
@@ -583,7 +599,7 @@ class Test(Enrichment):
         group_false = 0
 
         for genome in self.groups[group]:
-        
+
             if annotation in self.genome_annotations[genome]:
         
                 if freq:
@@ -609,11 +625,11 @@ class Test(Enrichment):
         for annotation in annotations:
             passed = True
             group_1_true, group_1_false \
-                = self._count(annotation,
+                = self.count(annotation,
                               group_1,
                               freq)
             group_2_true, group_2_false \
-                = self._count(annotation,
+                = self.count(annotation,
                               group_2,
                               freq)
 
@@ -671,42 +687,21 @@ class Test(Enrichment):
         
         return output_lines
 
-    def weight_annotation_matrix(self, sample_abundance, annotation_abundance, sample_metadata, sample_groups, sample_dict, annotations):
+    def test_weighted_abundances(self,
+                                 weighted_abundance,
+                                 annotations):
 
-        output_dict = {sample_group: dict() for sample_group in sample_groups}
-
-        logging.info('Aggregating abundances across samples')
-        for group, samples in sample_dict.items():
-            output_dict[group] = dict()
-
-            for annotation in annotations:
-                output_dict[group][annotation] = list()
-
-                for sample in samples:
-                    sample_annotation_abundance = 0.0
-
-                    for genome, genome_annotation_dict in annotation_abundance.items():
-
-                        if annotation in genome_annotation_dict:
-                            value = genome_annotation_dict[annotation]
-                            if genome in sample_abundance[sample]:
-                                sample_annotation_abundance += sample_abundance[sample][genome]*value
-
-                    output_dict[group][annotation].append(
-                        sample_annotation_abundance)
-
-        logging.info(
-            'Calculating enrichment across samples using Mann-Whitney U test')
+        logging.info('Calculating enrichment across samples using Mann-Whitney U test')
         results = list()
 
-        for combination in combinations(output_dict, 2):
+        for combination in combinations(weighted_abundance, 2):
             prefix = '_vs_'.join(
                 [sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
             res_list = list()
 
             for annotation in annotations:
-                group_1 = output_dict[combination[0]][annotation]
-                group_2 = output_dict[combination[1]][annotation]
+                group_1 = weighted_abundance[combination[0]][annotation]
+                group_2 = weighted_abundance[combination[1]][annotation]
                 gene_count = [annotation, combination[0],
                               combination[1], [group_1], [group_2]]
                 res_list.append(gene_count)
