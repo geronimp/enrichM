@@ -34,6 +34,7 @@ from itertools import chain, product
 # Local
 from enrichm.traverse import NetworkTraverser
 from enrichm.databases import Databases
+from enrichm.parser import Parser
 ###############################################################################
 
 def nested_dict_vals(d):
@@ -117,19 +118,6 @@ class NetworkBuilder:
             pathway_description='NA'
         return pathway, pathway_description
     
-    def _parse_queries(self, queries_file):
-        '''
-        Parse file with one column, each entry a compound ID from kegg
-        Parameters
-        ----------
-        queries_file    - String. Path to file containing Compound ids 
-        
-        Output
-        ------
-        Set. Compound Ids to start from in the explore network
-        '''
-        return set([x.strip() for x in open(queries_file)])
-
     def normalise(self, reaction_abundances):
         probability_list = list()
         for reaction_abundance in reaction_abundances:
@@ -289,7 +277,7 @@ class NetworkBuilder:
     def query_matrix(self, 
                      abundances_metagenome, 
                      abundances_transcriptome,
-                     abundances_expression,
+                     # abundances_expression, # FIXME: This parameter is old, outdated.
                      queries, 
                      depth):
         '''
@@ -297,7 +285,7 @@ class NetworkBuilder:
         ----------
         '''
         steps         = 0
-        queries_list  = self._parse_queries(queries)
+        queries_list  = Parser.parse_single_column_text_file(queries)
         seen_steps    = set()
         seen_nodes    = set()
         level_queries = set()
@@ -363,12 +351,6 @@ class NetworkBuilder:
                                          in queries_list else steps+1))
                             
                             if compound not in seen_nodes:
-                                #if compound in query_list:
-                                #    query_ab = [str(query_list[compound][key]) 
-                                #                for key in self.metadata_keys]
-                                #else:
-                                #    query_ab = ['NA' for key 
-                                #                in self.metadata_keys]
                                 
                                 if compound in self.d.compound_desc_dict:
                                     compound_type = \
@@ -390,13 +372,13 @@ class NetworkBuilder:
                                                'NA',
                                                'NA',  
                                                'compound'] +
-                                               #query_ab +
                                                [is_query, index])
                                                            )
                                 
                                 seen_nodes.add(compound)
                                 if compound not in queries_list:
                                     level_queries.add(compound)
+                            
                             if reaction not in seen_nodes:
                                 module, module_description \
                                                 = self._gather_module(reaction)
@@ -419,8 +401,8 @@ class NetworkBuilder:
             steps+=1
             depth-=1
             
-            logging.info("Step %i complete with %i queries to continue with" \
-                                              % (steps, len(level_queries)))
+            logging.info("Step %i complete with %i queries to continue with" % (steps, len(level_queries)))
+        
         return network_lines, node_metadata_lines
     
     def pathway_matrix(self,

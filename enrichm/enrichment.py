@@ -289,7 +289,7 @@ class Enrichment:
            # Output options
            output_directory):
 
-        p  = Plot()
+        plot  = Plot()
         database  = Databases()
         
         if genomes_to_compare_with_group_file:
@@ -434,7 +434,7 @@ class Enrichment:
                 for result_file in os.listdir(output_directory):
                 
                     if(result_file.endswith("fisher.tsv") or result_file.endswith("cdf.tsv")):
-                        p.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
+                        plot.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
                         
                         g1_sig_kos = set()
                         g2_sig_kos = set()
@@ -475,7 +475,7 @@ class Enrichment:
                         prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
                         Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
 
-            p.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
+            plot.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
 class Test(Enrichment):
     

@@ -236,7 +236,7 @@ if __name__ == "__main__":
     enrichment_runtime_options.add_argument('--pval_cutoff', type=float, default=0.05,
                 help='Only output results with a p-value below a this cutoff (default=0.05).')
     enrichment_runtime_options.add_argument('--proportions_cutoff', type=float, default=1,
-                help='Proportion enrichment cutoff.') ### ~ TODO: Fill in better description
+                help='Proportion enrichment cutoff.')
     enrichment_runtime_options.add_argument('--threshold', type=float, default=0.1,
                 help='The threshold to control for in false discovery rate of familywise error rate.')
     enrichment_runtime_options.add_argument('--multi_test_correction',

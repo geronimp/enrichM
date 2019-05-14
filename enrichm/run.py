@@ -414,7 +414,8 @@ args.annotation_matrix,        ----------
         elif args.subparser_name == NetworkAnalyser.PATHWAY:
             self._check_network(args)
             na=NetworkAnalyser(args.metadata)
-            na.do(args.matrix,
+            na.do(args.subparser_name,
+                  args.matrix,
                   args.tpm_values,
                   args.abundance,
                   args.abundance_metadata,

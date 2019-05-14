@@ -73,16 +73,16 @@ class NetworkAnalyser:
             else:
                 self.metadata[group] = [sample_id]
     
-    def _average(self, d):
+    def average(self, input_dictionary):
             
-        for sample_group, group_dict in d.items():
+        for sample_group, group_dict in input_dictionary.items():
 
             for group, reaction_dict in group_dict.items():
             
                 for reaction, value in reaction_dict.items():
-                    d[sample_group][group][reaction] = sum(value) / len(value)
+                    input_dictionary[sample_group][group][reaction] = sum(value) / len(value)
         
-        return d
+        return input_dictionary
 
     def normalise_by_abundance(self, sample_abundance_dict, sample_metadata, reaction_abundance_dict, metadata):
 
@@ -130,11 +130,11 @@ class NetworkAnalyser:
 
                             new_dict[sample_group][group][reaction].append( normalised_value )
         
-        new_dict = self._average(new_dict) # taking averages here again, might be better accumulated?
+        new_dict = self.average(new_dict) # taking averages here again, might be better accumulated?
 
         return new_dict
 
-    def _parse_enrichment_output(self, enrichment_output):
+    def parse_enrichment_output(self, enrichment_output):
         fisher_results = dict()
         
         for file in os.listdir(enrichment_output):
@@ -233,20 +233,8 @@ class NetworkAnalyser:
         return new_output_dict
 
     def do(self,
-            matrix,
-            tpm_values,
-            abundance,
-            abundance_metadata,
-            metabolome,
-            enrichment_output,
-            depth,
-            filter,
-            limit,
-            queries,
-            starting_compounds,
-            steps,
-            number_of_queries,
-            output_directory):
+           subparser_name, matrix, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output,
+           depth, filter, limit, queries, starting_compounds, steps, number_of_queries, output_directory):
         '''
         Parameters
         ----------
@@ -271,7 +259,7 @@ class NetworkAnalyser:
 
         # Read in fisher results
         if enrichment_output:
-            fisher_results = self._parse_enrichment_output(enrichment_output)
+            fisher_results = self.parse_enrichment_output(enrichment_output)
         else:
             fisher_results = None    
 
@@ -313,16 +301,22 @@ class NetworkAnalyser:
         else:
             abundances_metabolome = None
 
-        logging.info('Generating pathway network')
+        if subparser_name == self.EXPLORE:
+            nb.query_matrix(normalised_abundances,
+                            tpm_values,
+                            queries,
+                            depth)
+        
+        elif subparser_name == self.PATHWAY:
+            logging.info('Generating pathway network')        
+            network_lines, node_metadata = \
+                            nb.pathway_matrix(normalised_abundances, 
+                                            abundances_metabolome,
+                                            fisher_results,
+                                            limit,
+                                            filter)
 
-        network_lines, node_metadata = \
-                        nb.pathway_matrix(normalised_abundances, 
-                                          abundances_metabolome,
-                                           fisher_results,
-                                           limit,
-                                           filter)
-
-        Writer.write(network_lines, os.path.join(
-            output_directory, self.NETWORK_OUTPUT_FILE))
-        Writer.write(node_metadata, os.path.join(
-            output_directory, self.METADATA_OUTPUT_FILE))
+            Writer.write(network_lines, os.path.join(
+                output_directory, self.NETWORK_OUTPUT_FILE))
+            Writer.write(node_metadata, os.path.join(
+                output_directory, self.METADATA_OUTPUT_FILE))

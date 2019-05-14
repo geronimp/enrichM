@@ -313,7 +313,7 @@ class GenerateModel:
         
         logging.info("Generating attribute importances")
         output_attribute_importances = self.get_importances(rf, attribute_list)
-        Writer.write(output_attribute_importances, open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES))
+        Writer.write(output_attribute_importances, open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES)))
                      
         logging.info("Preserving model")
         pickle.dump(rf, open(os.path.join(output_directory, self.MODEL_PICKLE) , 'wb'))
