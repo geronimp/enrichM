@@ -29,13 +29,15 @@ __status__      = "Development"
 # Imports
 
 from enrichm.databases import Databases
+import os
+import pickle
 
 ################################################################################
+
 class Parser:
 	'''
 	A collection of functions to parse files in various formats.
 	'''
-
 	@staticmethod
 	def parse_genome_and_annotation_file_lf(genome_and_annotation_file):
 		genome_to_annotation_sets = dict()

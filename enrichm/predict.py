@@ -16,14 +16,15 @@
 #                                                                             #
 ###############################################################################
 
-from enrichm.writer import Writer
-from enrichm.generate import GenerateModel
+
 import logging
 import pickle
 import os
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from enrichm.parser import RFModel
+from enrichm.writer import Writer
+from enrichm.generate import GenerateModel
 
 class Predict:
 
@@ -70,7 +71,7 @@ class Predict:
 
 		logging.info('Parsing input')
 		gm = GenerateModel()
-		logging.info('Loading model: %s' % (self.RF_MODEL))
+		logging.info('Loading model: %s' % (forester_model.RF_MODEL))
 
 		logging.info('Parsing data')
 		features, _ \
