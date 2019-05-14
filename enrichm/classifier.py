@@ -96,7 +96,7 @@ class Classify:
         if aggregate:
             logging.info('Reading in abundances: %s' %
                          (genome_and_annotation_matrix))
-            abundances = Parser.parse_simple_matrix(genome_and_annotation_matrix, True)
+            abundances, _, _ = Parser.parse_simple_matrix(genome_and_annotation_matrix)
             abundance_result = dict()
 
             

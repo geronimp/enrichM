@@ -36,9 +36,12 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, GridSearchCV
 # Local
 import enrichm.generate
+from enrichm.writer import Writer
+from enrichm.parser import Parser
+
 ################################################################################
 
-class GenerateModel():
+class GenerateModel:
 
     def __init__(self):
         '''     
@@ -55,12 +58,15 @@ class GenerateModel():
 
         # Output file names
         self.ATTRIBUTE_IMPORTANCES = 'attribute_importances.tsv'
-        self.ATTRIBUTE_LIST = "attribute_list.txt"
         self.MODEL_PICKLE = "rf_model.pickle"
         self.LABELS_DICT = "labels_dict.pickle"
-    
-    def parse_input_matrix(self, input_matrix_path):
-        '''     
+        
+        # Headers
+        self.ATTRIBUTE_IMPORTANCES_HEADER = ['Variable', 'Importance']
+
+    def numerify(self, input_list):
+        '''
+        
         Inputs
         ------
         
@@ -68,78 +74,21 @@ class GenerateModel():
         -------
         
         '''
-        input_matrix_io = open(input_matrix_path)
-        headers = input_matrix_io.readline().strip().split('\t')[1:]
-        
-        output_dictionary = {header:{} for header in headers}
-        attribute_list = list()
-
-        for line in input_matrix_io:
-            values = line.strip().split('\t')
-            attribute_value = values[0]
-            attribute_list.append(attribute_value)
-        
-            for header, value in zip(headers, values[1:]):
-                output_dictionary[header][attribute_value] = value
-        
-        logging.info('\t\tRead in matrix of %i samples associated with %i attributes' \
-                % (len(output_dictionary), len(attribute_list)))
-        
-        return output_dictionary, attribute_list
-
-    def parse_groups_matrix(self, groups_matrix_path):
-        '''     
-        Inputs
-        ------
-        
-        Outputs
-        -------
-        
-        '''
+        counter = 0
         output_dictionary = dict()
-
-        for line in open(groups_matrix_path):
-            attribute_value, group = line.strip().split('\t')
-
-            if group in output_dictionary:
-                raise Exception("Duplicated entry in groups file: %s" % attribute_value)
-            else:
-                output_dictionary[attribute_value] = group
-
-        logging.info('\t\tRead in metadata for %i samples' % (len(output_dictionary)))
-        
-        return output_dictionary
-
-    def _numerify(self, input_list):
-        '''
-        
-        Inputs
-        ------
-        
-        Outputs
-        -------
-        
-        '''
-        idx = 0
-        output_dictionary = {}
-        output_list = []
+        output_list = list()
         
         for group in input_list:
 
             if group not in output_dictionary:
-                output_dictionary[group] = idx
-                idx += 1
+                output_dictionary[group] = counter
+                counter += 1
             output_list.append(output_dictionary[group])
         output_dictionary = {item:key for key, item in output_dictionary.items()}
 
         return output_dictionary, output_list
 
-    def _write_attribute_list(self, attribute_list, output_directory):
-
-        with open(os.path.join(output_directory, self.ATTRIBUTE_LIST), 'wb') as out_io:
-            out_io.write(str.encode('\n'.join(attribute_list)))
-    
-    def _write_importances(self, model, attribute_list, output_directory):
+    def get_importances(self, model, attribute_list):
         '''
         
         Inputs
@@ -150,20 +99,24 @@ class GenerateModel():
         
         '''
         importances = list(model.feature_importances_)
+        
         # List of tuples with variable and importance
         feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(attribute_list, importances)]
+        
         # Sort the feature importances by most important first
         feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse = True)
+        
         # Print out the feature and importances 
         logging.info('%i attributes found with an importance > 0' % (len([x for x in feature_importances if x[1]>0])))
         logging.info('Writing attribute importances')
 
-        with open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES), 'wb') as out_io:
-            out_io.write(str.encode('\t'.join(['Variable', 'Importance']) + '\n'))
+        output_lines = [self.ATTRIBUTE_IMPORTANCES_HEADER]
 
-            for pair in feature_importances:
-                var, imp = pair
-                out_io.write(str.encode('\t'.join([str(var), str(imp)]) + '\n'))
+        for pair in feature_importances:
+            var, imp = pair
+            output_lines.append([str(var), str(imp)])
+        
+        return output_lines
     
     def transpose(self, labels, features, attribute_list):
         '''
@@ -320,14 +273,15 @@ class GenerateModel():
             raise Exception("Model type not recognised: %s" % (model_type))
 
         logging.info('Parsing inputs:')
+        # FIXME: Below are replaced with parser class generic function, this is untested
         labels \
-            = self.parse_groups_matrix(groups_path)
-        features, attribute_list \
-            = self.parse_input_matrix(input_matrix_path)
+            = Parser.parse_genome_and_annotation_file_matrix(groups_path)
+        features, _, attribute_list \
+            = Parser.parse_matrix(input_matrix_path)
 
         labels_list, features_list = self.transpose(labels, features, attribute_list)
 
-        labels_dict, labels_list_numeric = self._numerify(labels_list)
+        labels_dict, labels_list_numeric = self.numerify(labels_list)
         labels_list_numeric     =   np.array(labels_list_numeric)
         features_list   =   np.array(features_list)
         logging.info('Splitting data into training and testing portions')
@@ -356,10 +310,11 @@ class GenerateModel():
 
         accuracy = (sum(correctness)/float(len(correctness)))*100
         logging.info('\t\tAccuracy: %f%%' % (round(accuracy, 2)))
-        self._write_importances(rf, attribute_list, output_directory)
-
-        self._write_attribute_list(attribute_list, output_directory)
-
+        
+        logging.info("Generating attribute importances")
+        output_attribute_importances = self.get_importances(rf, attribute_list)
+        Writer.write(output_attribute_importances, open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES))
+                     
         logging.info("Preserving model")
         pickle.dump(rf, open(os.path.join(output_directory, self.MODEL_PICKLE) , 'wb'))
 

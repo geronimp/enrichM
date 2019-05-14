@@ -151,34 +151,6 @@ class Enrichment:
         self.PROPORTIONS             = 'proportions.tsv'
         self.MODULE_COMPLETENESS     = 'modules.tsv'
 
-    # TODO: This has to go
-    def _parse_annotation_matrix(self, annotation_matrix, allow_negative_values):
-        '''        
-        Parameters
-        ----------
-        matrix_path : String. Path to file containing a matrix of genome rownames.
-        '''
-
-        matrix_file_io  = open(annotation_matrix)
-        colnames        = matrix_file_io.readline().strip().split('\t')[1:]
-        cols_to_rows    = {genome_name:dict() for genome_name in colnames}
-        rownames        = set()
-
-        for genome_name, entry, rowname \
-                        in Parser.parse_matrix(matrix_file_io, colnames):
-            
-            rownames.add(rowname)
-
-            if allow_negative_values:
-                cols_to_rows[genome_name][rowname] = float(entry)
-            
-            else:
-            
-                if float(entry) > 0:
-                    cols_to_rows[genome_name][rowname] = float(entry)
-        
-        return cols_to_rows, rownames, colnames
-
     def check_annotation_type(self, annotations):
         '''
         Takes a random sample of the rownames from the input matrix
@@ -268,8 +240,6 @@ class Enrichment:
         genome_list         - List. List of strings, each one a genome name
         proportions_cutoff  - Float. Value with which to cutoff
         '''
-        ### ~ TODO: Add a portion of genome column too?
-        # TODO: test me
         raw_proportions_output_lines        = [['Module'] + list(combination_dict.keys())]
 
         for module in modules:
@@ -359,8 +329,8 @@ class Enrichment:
                 gtdb_annotation_matrix = None
 
         logging.info('Parsing annotations: %s' % annotation_matrix)
-        annotations_dict, annotations, _ \
-            = self._parse_annotation_matrix(annotation_matrix, allow_negative_values)
+        annotations_dict, _, annotations, \
+            = Parser.parse_simple_matrix(annotation_matrix)
         annotation_type = self.check_annotation_type(annotations)
         logging.info('Parsing metadata')
         metadata, metadata_value_lists, attribute_dict \
@@ -369,11 +339,10 @@ class Enrichment:
         if abundances_path:
             
             logging.info('Parsing sample abundance')
-            abundances_dict, _, _ = self._parse_annotation_matrix(abundances_path, allow_negative_values)
+            abundances_dict, _, _ = Parser.parse_simple_matrix(abundances_path)
 
             logging.info('Parsing sample metadata')
-            _, _, ab_attribute_dict \
-                = Parser.parse_metadata_matrix(abundance_metadata_path)
+            _, _, ab_attribute_dict = Parser.parse_metadata_matrix(abundance_metadata_path)
 
             t = Test(annotations_dict,
                      None,
@@ -451,6 +420,7 @@ class Enrichment:
 
             raw_portions_path \
                 = os.path.join(output_directory, self.PROPORTIONS)
+
             raw_proportions_output_lines \
                 = self.calculate_portions(annotations, combination_dict, annotations_dict, genome_list, proportions_cutoff)
 
@@ -485,7 +455,7 @@ class Enrichment:
                                     g1_sig_kos.add(sline[0])
                                 else:
                                     g2_sig_kos.add(sline[0])
-        
+                        # TODO: below in function
                         module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
                         for module, definition in database.m2def.items():
                             if module not in database.signature_modules:
@@ -599,14 +569,15 @@ class Test(Enrichment):
         group_false = 0
 
         for genome in self.groups[group]:
-
             if annotation in self.genome_annotations[genome]:
-        
                 if freq:
                     group_true.append(self.genome_annotations[genome][annotation])
                 else:
-                    group_true+=1
-        
+                    if self.genome_annotations[genome][annotation]>0.0:                    
+                        group_true+=1
+                    else:
+                        group_false+=1
+                
             else:
         
                 if freq:

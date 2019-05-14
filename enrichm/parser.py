@@ -84,22 +84,23 @@ class Parser:
 		return output_taxonomy_dictionary
 	
 	@staticmethod
-	def parse_simple_matrix(matrix, numeric = False):
+	def parse_simple_matrix(matrix):
 		matrix_io = open(matrix)
-		header_values = matrix_io.readline().strip().split('\t')[1:]
-		output_dict = {header:{} for header in header_values}
-		
+		colnames = matrix_io.readline().strip().split('\t')[1:]
+		rownames = list()
+		output_dict = {colname:dict() for colname in colnames}
+
 		for line in matrix_io:
 			sline = line.strip().split('\t')
-			annot, content = sline[0], sline[1:]
+			rowname, content = sline[0], sline[1:]
+			
+			if rowname not in rownames:
+				rownames.append(rowname)
+			
+			for key, value in zip(colnames, content):
+				output_dict[key][rowname] = float(value)
 
-			for key, value in zip(header_values, content):
-
-				if numeric == True:
-					value = float(value)
-				output_dict[key][annot] = value
-
-		return output_dict
+		return output_dict, colnames, rownames
 
 	@staticmethod
 	def parse_matrix(matrix_file_io, colnames):
@@ -150,6 +151,7 @@ class Parser:
 
 		return entries
 
+	@staticmethod
 	def filter_large_matrix(columns, matrix):
 		'''
 		description
@@ -161,8 +163,6 @@ class Parser:
 		-------
 
 		'''
-		logging.info('Parsing GTDB matrix')
-
 		columns = list(columns)
 		matrix_io = open(matrix)
 		header = matrix_io.readline().strip().split('\t')
@@ -233,3 +233,23 @@ class Parser:
 					output_dict[sample][genome][reaction] += tpm
 												
 		return output_dict, annotation_types, genome_types
+
+class RFModel:
+	def __init__(self, forester_model_directory):
+		self.LABELS_DICT = "labels_dict.pickle"
+		self.RF_MODEL = "rf_model.pickle"
+		self.ATTRIBUTE_IMPORTANCES = "attribute_importances.tsv"
+		self.forester_model_directory = forester_model_directory
+	
+		for content in os.listdir(forester_model_directory):
+			content_path = os.path.join(forester_model_directory, content)
+			
+			if content==self.LABELS_DICT:
+				self.labels = pickle.load(open(content_path, 'rb'))
+			elif content==self.RF_MODEL:
+				self.model = pickle.load(open(content_path, 'rb'))
+			elif content==self.ATTRIBUTE_IMPORTANCES:
+				self.attributes = [x.strip().split('\t')[0] for x in open(content_path)]
+
+		if None in [self.labels, self.model, self.attributes]:
+			raise Exception("Malformatted forester model directory: %s" % (forester_model_directory))

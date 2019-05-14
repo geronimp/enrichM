@@ -44,7 +44,7 @@ class Tests(unittest.TestCase):
                         --output %s \
                         --force' % (path_to_script, bin, tmp)
         subprocess.call(cmd, shell=True)
-
+    #TODO: 
     def test_hello_world_protein(self):
         tmp = tempfile.mkdtemp()
         bin = os.path.join(path_to_data, 'test_protein_bin')

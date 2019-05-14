@@ -23,19 +23,16 @@ import pickle
 import os
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from enrichm.parser import RFModel
 
-class Predict():
+class Predict:
 
 	def __init__(self):
 		self.PREDICTIONS_OUTPUT_PATH = 'predictions.tsv'
-
-		self.LABELS_DICT = "labels_dict.pickle"
-		self.RF_MODEL = "rf_model.pickle"
-		self.ATTRIBUTE_LIST = "attribute_list.txt"
 		self.PREDICTIONS_HEADER = ["Sample", "Prediction", "Probability"]
 
-	def _make_predictions(self, model, sample_list, content_list, attribute_dictionary):
-		'''		
+	def make_predictions(self, model, sample_list, content_list, attribute_dictionary):
+		'''
 		Inputs
 		------
 		
@@ -58,32 +55,6 @@ class Predict():
 		
 		return output_list
 
-	def parse_input_model_directory(self, forester_model_directory):
-
-		output_dictionary = {
-			self.LABELS_DICT: None,
-			self.RF_MODEL: None,
-			self.ATTRIBUTE_LIST:None
-		}
-
-		contents = os.listdir(forester_model_directory)
-
-		for content in contents:
-			content_path = os.path.join(forester_model_directory, content)
-
-			if content in output_dictionary:
-
-				if content.endswith("pickle"):
-					output_dictionary[content] = pickle.load(open(content_path, 'rb'))
-				else:
-					output_dictionary[content] = [x.strip() for x in open(content_path)]
-
-		if None in list(output_dictionary.values()):
-			raise Exception("Malformatted forester model directory: %s" % (forester_model_directory))
-
-		return output_dictionary
-
-
 	def do(self, forester_model_directory, input_matrix_path, output_directory):
 		'''		
 		Inputs
@@ -93,7 +64,9 @@ class Predict():
 		-------
 		
 		'''
-		forester_model = self.parse_input_model_directory(forester_model_directory)		
+		# FIXME: Parsed model is now a class. this changes the way this value is used from here on 
+		# Ive fixed what i can but this is still untested
+		forester_model = RFModel(forester_model_directory)
 
 		logging.info('Parsing input')
 		gm = GenerateModel()
@@ -110,7 +83,7 @@ class Predict():
 			sample_list.append(sample)
 			sample_content = list()
 
-			for attribute in forester_model['attribute_list.txt']:
+			for attribute in forester_model.attributes:
 
 				if attribute in content:
 					sample_content.append(content[attribute])
@@ -120,8 +93,8 @@ class Predict():
 			content_list.append(sample_content)
 
 		logging.info('Making predictions')
-		output_lines = self._make_predictions(forester_model[self.RF_MODEL],
+		output_lines = self.make_predictions(forester_model.model,
 											  sample_list,
 										  	  content_list,
-										  	  forester_model[self.LABELS_DICT])
+										  	  forester_model.labels)
 		Writer.write(output_lines, output_directory)
