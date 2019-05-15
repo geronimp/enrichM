@@ -265,7 +265,7 @@ class NetworkAnalyser:
         output_directory
         '''
         metadata = Parser.parse_metadata_matrix(metadata)[2]
-        network_builder = NetworkBuilder(metadata.keys())
+        network_builder = NetworkBuilder(metadata)
         orthology_matrix, _, _ = Parser.parse_simple_matrix(matrix)
         reaction_matrix = self.aggregate_dictionary(self.databases.r2k,orthology_matrix)
 
@@ -316,7 +316,7 @@ class NetworkAnalyser:
 
         if subparser_name == self.EXPLORE:
             network_lines, node_metadata = \
-                network_builder.query_matrix(normalised_abundances,
+                network_builder.query_matrix(normalised_abundances['a'],
                                 tpm_values,
                                 queries,
                                 depth)
