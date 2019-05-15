@@ -34,7 +34,7 @@ from enrichm.predict import Predict
 ###############################################################################
 
 class Tests(unittest.TestCase):
-    def __init__(self):
+    def test_parser(self):
         pass
 
 if __name__ == "__main__":

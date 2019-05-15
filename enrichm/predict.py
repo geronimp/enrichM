@@ -66,8 +66,6 @@ class Predict:
 		-------
 		
 		'''
-		# FIXME: Parsed model is now a class. this changes the way this value is used from here on 
-		# Ive fixed what i can but this is still untested
 		forester_model = RFModel(forester_model_directory)
 
 		logging.info('Parsing input')
@@ -87,7 +85,7 @@ class Predict:
 
 				if attribute in content:
 					sample_content.append(content[attribute])
-				else:	
+				else:
 					sample_content.append('0')
 					
 			content_list.append(sample_content)

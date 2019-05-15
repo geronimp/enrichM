@@ -89,7 +89,7 @@ class GenerateModel:
 
         output_dictionary = {item:key for key, item in output_dictionary.items()}
 
-        return output_dictionary, output_list
+        return output_dictionary, np.array(output_list)
 
     def get_importances(self, model, attribute_list):
         '''
@@ -144,7 +144,7 @@ class GenerateModel:
             
             features_list.append(col_values)
 
-        return labels_list, features_list
+        return labels_list, np.array(features_list)
 
     def grid_search_cv(self, random_search_cv, threads, rf):
         '''
@@ -257,6 +257,20 @@ class GenerateModel:
 
         return best_model, test_features, test_labels, best_params_list
 
+    def estimate_correctness(self, predictions, test_labels):
+        correctness = list()
+ 
+        for prediction, label in zip(np.round(predictions), test_labels):
+ 
+            if prediction==label:
+                correctness.append(1)
+            else:
+                correctness.append(0)
+                
+        accuracy = round( (sum(correctness)/float(len(correctness)))*100, 2)
+        
+        return accuracy
+            
     def do(self, input_matrix_path, groups_path, model_type,
            testing_portion, grid_search, threads, output_directory):
         '''
@@ -277,45 +291,23 @@ class GenerateModel:
             raise Exception("Model type not recognised: %s" % (model_type))
 
         logging.info('Parsing inputs:')
-        # FIXME: Below are replaced with parser class generic function, this is untested
-        labels,_, _ \
-            = Parser.parse_metadata_matrix(groups_path)
-        features, _, attribute_list \
-            = Parser.parse_simple_matrix(input_matrix_path)
-        
+        labels, _, _ = Parser.parse_metadata_matrix(groups_path)
+        features, _, attribute_list = Parser.parse_simple_matrix(input_matrix_path)
         labels_list, features_list = self.transpose(labels, features, attribute_list)
-
         labels_dict, labels_list_numeric = self.numerify(labels_list)
-        labels_list_numeric     =   np.array(labels_list_numeric)
-        features_list   =   np.array(features_list)
-        logging.info('Splitting data into training and testing portions')
 
         logging.info("Tuning hyperparameters")
-        rf, test_features, test_labels, best_params_list = \
-            self.tune(features_list,
-                      labels_list_numeric,
-                      testing_portion,
-                      grid_search,
-                      threads,
-                      model)
+        rf, test_features, test_labels, best_params_list = self.tune(features_list, labels_list_numeric, testing_portion, grid_search, threads, model)
 
         logging.info('Making predictions on test data:')
         predictions = rf.predict(test_features)
         errors = abs(predictions - test_labels)
-        logging.info('\t\tMean Absolute Error: %f degrees' % (round(np.mean(errors), 2)))
         
-        correctness = list()
- 
-        for prediction, label in zip(np.round(predictions), test_labels):
- 
-            if prediction==label:
-                correctness.append(1)
-            else:
-                correctness.append(0)
-
-        accuracy = (sum(correctness)/float(len(correctness)))*100
-        logging.info('\t\tAccuracy: %f%%' % (round(accuracy, 2)))
-        best_params_list.append( ["Accuracy", str(round(accuracy, 2))] )
+        logging.info('\t\tMean Absolute Error: %f degrees' % (round(np.mean(errors), 2)))
+        accuracy = self.estimate_correctness(predictions, test_labels)
+        
+        logging.info('\t\tAccuracy: %f%%' % (accuracy))
+        best_params_list.append( ["Accuracy", str(accuracy)] )
         
         logging.info("Generating attribute importances")
         output_attribute_importances = self.get_importances(rf, attribute_list)

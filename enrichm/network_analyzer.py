@@ -279,7 +279,7 @@ class NetworkAnalyser:
         if abundance:
             # FIXME: Not sure if below works:
             sample_abundance, _, _ = Parser.parse_simple_matrix(abundance)
-            sample_metadata = list(Parser.parse_simple_matrix(abundance_metadata).values())[0]
+            sample_metadata, _, _ = Parser.parse_simple_matrix(abundance_metadata)
             new_dictionary = dict()
             
             for key, item in sample_metadata.items():

@@ -255,7 +255,6 @@ class NetworkBuilder:
         return network_lines, node_metadata_lines
 
     def get_reaction_compounds(self, compounds_list):
-        reaction_compounds = list()
         for compound in compounds_list:
             if compound not in NetworkTraverser.to_omit:
                 yield compound
@@ -307,7 +306,7 @@ class NetworkBuilder:
                                 else:
                                     reaction_line.append(self.ZERO)
 
-                            if(abundances_transcriptome and abundances_expression):
+                            if abundances_transcriptome:
 
                                 for key in self.metadata_keys:
 
@@ -316,12 +315,6 @@ class NetworkBuilder:
                                     else:
                                         reaction_line.append(self.ZERO)
 
-                                for key in self.metadata_keys:
-
-                                    if reaction in abundances_expression[key]:
-                                        reaction_line.append(str(abundances_expression[key][reaction]))
-                                    else:
-                                        reaction_line.append(self.ZERO)
 
                             reaction_line.append(str(steps))
                             network_lines.append(reaction_line)

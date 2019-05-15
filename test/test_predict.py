@@ -23,37 +23,20 @@ import subprocess
 import tempfile
 import filecmp
 
-path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
-path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
-path_to_annotate = os.path.join(path_to_data, 'enrichm_annotate')
+path_to_script 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
+path_to_data 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
+path_to_annotate	= os.path.join(path_to_data, 'enrichm_annotate')
 
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
 
-from enrichm.generate import GenerateModel
+from enrichm.predict import Predict
 
 ###############################################################################
 
 class Tests(unittest.TestCase):
-    
-    def __init__(self):
-        self.ML_DATA = 'ml_data'
-        self.sample_matrix = 'matrix.tsv'
-        self.sample_metadata = 'metadata.tsv'
-    
-        self.sample_matrix_path = os.path.join(path_to_data, self.ML_DATA, 'matrix.tsv')
-        self.sample_metadata_path = os.path.join(path_to_data, self.ML_DATA, 'metadata.tsv')
-
-    def test_generate(self):
-        tmp = tempfile.mkdtemp()
-        generateModel = GenerateModel()
-        generateModel.do(self.sample_matrix_path,
-                         self.sample_metadata,
-                         generateModel.CLASSIFIER,
-                         0.2, # Default testing portion
-                         False, # Dont do a grid search for fine tuning
-                         2, # Threads
-                         tmp # Output directory
-                         )
+    def test_predict(self):
+        predict = Predict()
+        predict.do()
     
 if __name__ == "__main__":
     unittest.main()
