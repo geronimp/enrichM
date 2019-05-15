@@ -48,8 +48,7 @@ class Data:
 		DATABASE_DIR	= os.path.join(DATA_PATH, 'databases')
 	VERSION 		= 'VERSION'
 	ARCHIVE_SUFFIX 	= '.tar.gz'
-	CURRENT_VERSION = open(os.path.join(DATABASE_DIR, VERSION)
-                             ).readline().strip().replace(ARCHIVE_SUFFIX, "")
+
 	def __init__(self):
 		self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
 
@@ -103,7 +102,7 @@ class Data:
 		logging.info('Cleaning up')
 		os.remove(new_db_path_archive)
 	
-	def do(self, uninstall):
+	def do(self, uninstall, dry):
 		'''
 		Check database versions, if they're out of date, archive the old and download the new.
 		'''

@@ -117,7 +117,8 @@ if __name__ == "__main__":
     data_input_options = data.add_argument_group('Uninstall')
     data_input_options.add_argument('--uninstall', action='store_true',
                 help = 'Remove enrichm database')
-
+    data_input_options.add_argument('--dry', action='store_true',
+                help = 'Download an empty database (debug)')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])

@@ -142,10 +142,6 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        if args.cut_ko:
-            if int(Data.CURRENT_VERSION.split('_')[-1].replace('v', '')) < 10:
-                raise Exception("EnrichM database needs to be version 10 or higher to use KO HMM cutoffs. Please run enrichm data.")
-
         # ensure either a list of genomes or a directory of genomes have been specified
         if not(args.genome_files or args.genome_directory or args.protein_directory or args.protein_files):
             raise Exception("Input error: Either a list of genomes or a directory of genomes need to be specified.")
@@ -322,7 +318,7 @@ args.annotation_matrix,        ----------
 
         if args.subparser_name == self.DATA:
             d = Data()
-            d.do(args.uninstall)
+            d.do(args.uninstall, args.dry)
         
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)

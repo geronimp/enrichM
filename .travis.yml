@@ -6,6 +6,8 @@ install:
   - pip install -r requirements.txt
 before_script: true
 script:
+  - bin/enrichm data
   - bin/enrichm
+
 after_success: true
 after_script: true
