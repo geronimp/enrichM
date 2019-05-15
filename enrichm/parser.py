@@ -105,16 +105,6 @@ class Parser:
 		return output_dict, colnames, rownames
 
 	@staticmethod
-	def parse_matrix(matrix_file_io, colnames):
-		
-		for line in matrix_file_io:
-			sline = line.strip().split('\t')
-			rowname, entries = sline[0], sline[1:]
-		
-			for colname, entry in zip(colnames, entries):
-				yield colname, entry, rowname
-
-	@staticmethod
 	def parse_metadata_matrix(matrix_path):
 		'''        
 		Parameters
@@ -251,7 +241,13 @@ class RFModel:
 			elif content==self.RF_MODEL:
 				self.model = pickle.load(open(content_path, 'rb'))
 			elif content==self.ATTRIBUTE_IMPORTANCES:
-				self.attributes = [x.strip().split('\t')[0] for x in open(content_path)]
+				self.attributes = list()			
+				content_path_io = open(content_path)
+				header =  content_path_io.readline() # Junk
+
+				for line in content_path_io:
+					attribute, _ = line.strip().split('\t')
+					self.attributes.append(attribute)
 
 		if None in [self.labels, self.model, self.attributes]:
 			raise Exception("Malformatted forester model directory: %s" % (forester_model_directory))

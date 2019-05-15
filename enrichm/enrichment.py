@@ -283,7 +283,7 @@ class Enrichment:
     def do(# Input options
            self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path,
            # Runtime options
-           genomes_to_compare_with_group_file, pval_cutoff, proportions_cutoff, 
+           pval_cutoff, proportions_cutoff, 
            threshold, multi_test_correction, batchfile, processes, allow_negative_values,
            ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm,
            # Output options
@@ -292,10 +292,7 @@ class Enrichment:
         plot  = Plot()
         database  = Databases()
         
-        if genomes_to_compare_with_group_file:
-            self.genomes_to_compare_with_group = Parser.parse_single_column_text_file(genomes_to_compare_with_group_file)
-        else:
-            self.genomes_to_compare_with_group = None
+
         
         if annotate_output:
             logging.info('Parsing annotate output: %s' % (annotate_output))

@@ -379,7 +379,6 @@ args.annotation_matrix,        ----------
                  args.abundance,
                  args.abundance_metadata,
                  # Runtime options
-                 args.genomes_to_compare_with_group,
                  args.pval_cutoff,
                  args.proportions_cutoff,
                  args.threshold,

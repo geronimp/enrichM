@@ -228,8 +228,6 @@ if __name__ == "__main__":
                 help='metadata file to compare with.')
 
     enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
-    enrichment_runtime_options.add_argument('--genomes_to_compare_with_group', 
-                help='File containing genome ids to compare with the average of the group.')
     enrichment_runtime_options.add_argument('--abundance',
                 help='Genome abundance matrix.')
     enrichment_runtime_options.add_argument('--abundance_metadata',

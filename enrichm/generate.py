@@ -59,8 +59,8 @@ class GenerateModel:
         # Output file names
         self.ATTRIBUTE_IMPORTANCES = 'attribute_importances.tsv'
         self.MODEL_PICKLE = "rf_model.pickle"
-        self.LABELS_DICT = "labels_dict.pickle"
-        
+        self.LABELS_DICT = "labels_dict.pickle"        
+        self.MODEL_ACCURACY = "accuracy.tsv"
         # Headers
         self.ATTRIBUTE_IMPORTANCES_HEADER = ['Variable', 'Importance']
 
@@ -79,11 +79,14 @@ class GenerateModel:
         output_list = list()
         
         for group in input_list:
+            group = group.pop()
 
             if group not in output_dictionary:
                 output_dictionary[group] = counter
                 counter += 1
+
             output_list.append(output_dictionary[group])
+
         output_dictionary = {item:key for key, item in output_dictionary.items()}
 
         return output_dictionary, output_list
@@ -225,7 +228,7 @@ class GenerateModel:
                                labels_list_numeric,
                                test_size = testing_portion,
                                random_state = 7)
-
+        best_params_list = list()
 
         rf_random_model = self.random_search_cv(threads, rf)
         logging.info('Fitting model')
@@ -245,13 +248,14 @@ class GenerateModel:
         
             for x,y in rf_grid_trained_model.best_params_.items():
                 logging.info("\t\t%s: %s" % (x, str(y)))
+                best_params_list.append( [x, y] )
 
             best_model = rf_grid_trained_model.best_estimator_
         
         else:
             best_model = rf_random_trained_model.best_estimator_
 
-        return best_model, test_features, test_labels
+        return best_model, test_features, test_labels, best_params_list
 
     def do(self, input_matrix_path, groups_path, model_type,
            testing_portion, grid_search, threads, output_directory):
@@ -274,11 +278,11 @@ class GenerateModel:
 
         logging.info('Parsing inputs:')
         # FIXME: Below are replaced with parser class generic function, this is untested
-        labels \
-            = Parser.parse_genome_and_annotation_file_matrix(groups_path)
+        labels,_, _ \
+            = Parser.parse_metadata_matrix(groups_path)
         features, _, attribute_list \
-            = Parser.parse_matrix(input_matrix_path)
-
+            = Parser.parse_simple_matrix(input_matrix_path)
+        
         labels_list, features_list = self.transpose(labels, features, attribute_list)
 
         labels_dict, labels_list_numeric = self.numerify(labels_list)
@@ -287,19 +291,20 @@ class GenerateModel:
         logging.info('Splitting data into training and testing portions')
 
         logging.info("Tuning hyperparameters")
-        rf, test_features, test_labels = self.tune(features_list,
-                                                   labels_list_numeric,
-                                                   testing_portion,
-                                                   grid_search,
-                                                   threads,
-                                                   model)
+        rf, test_features, test_labels, best_params_list = \
+            self.tune(features_list,
+                      labels_list_numeric,
+                      testing_portion,
+                      grid_search,
+                      threads,
+                      model)
 
         logging.info('Making predictions on test data:')
         predictions = rf.predict(test_features)
         errors = abs(predictions - test_labels)
         logging.info('\t\tMean Absolute Error: %f degrees' % (round(np.mean(errors), 2)))
         
-        correctness = []
+        correctness = list()
  
         for prediction, label in zip(np.round(predictions), test_labels):
  
@@ -310,11 +315,15 @@ class GenerateModel:
 
         accuracy = (sum(correctness)/float(len(correctness)))*100
         logging.info('\t\tAccuracy: %f%%' % (round(accuracy, 2)))
+        best_params_list.append( ["Accuracy", str(round(accuracy, 2))] )
         
         logging.info("Generating attribute importances")
         output_attribute_importances = self.get_importances(rf, attribute_list)
-        Writer.write(output_attribute_importances, open(os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES)))
-                     
+        Writer.write(output_attribute_importances, os.path.join(output_directory, self.MODEL_ACCURACY))
+
+        logging.info("Generating model accuracy summary file")
+        Writer.write(output_attribute_importances, os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES))
+
         logging.info("Preserving model")
         pickle.dump(rf, open(os.path.join(output_directory, self.MODEL_PICKLE) , 'wb'))
 

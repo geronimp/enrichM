@@ -24,6 +24,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from enrichm.parser import RFModel
 from enrichm.writer import Writer
+from enrichm.parser import Parser
 from enrichm.generate import GenerateModel
 
 class Predict:
@@ -70,12 +71,10 @@ class Predict:
 		forester_model = RFModel(forester_model_directory)
 
 		logging.info('Parsing input')
-		gm = GenerateModel()
 		logging.info('Loading model: %s' % (forester_model.RF_MODEL))
 
 		logging.info('Parsing data')
-		features, _ \
-			= gm.parse_input_matrix(input_matrix_path)
+		features, _, _ = Parser.parse_simple_matrix(input_matrix_path)
 		
 		sample_list = list()
 		content_list = list()
@@ -98,4 +97,4 @@ class Predict:
 											  sample_list,
 										  	  content_list,
 										  	  forester_model.labels)
-		Writer.write(output_lines, output_directory)
+		Writer.write(output_lines, os.path.join(output_directory, self.PREDICTIONS_OUTPUT_PATH))

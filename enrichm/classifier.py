@@ -44,13 +44,12 @@ class Classify:
     AGGREGATE_OUTPUT = "aggregate_output.tsv"
 
     def __init__(self):
-        d=Databases()
-        self.ko_re              = re.compile('^K\d+$')
-        self.signature_modules  = d.signature_modules
-        self.m2def              = d.m2def
-        self.m                  = d.m
+        databases=Databases()
+        self.signature_modules  = databases.signature_modules
+        self.m2def              = databases.m2def
+        self.m                  = databases.m
 
-    def _update_with_custom_modules(self, custom_modules):
+    def update_with_custom_modules(self, custom_modules):
         custom_modules_dict = dict()
 
         for line in open(custom_modules):
@@ -85,8 +84,9 @@ class Classify:
 
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
-            self._update_with_custom_modules(custom_modules)
+            self.update_with_custom_modules(custom_modules)
         
+        # TODO: remove me there is a duplicated parser below
         if genome_and_annotation_file:
             genome_to_annotation_sets = Parser.parse_genome_and_annotation_file_lf(genome_and_annotation_file)
         
@@ -98,7 +98,6 @@ class Classify:
                          (genome_and_annotation_matrix))
             abundances, _, _ = Parser.parse_simple_matrix(genome_and_annotation_matrix)
             abundance_result = dict()
-
             
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
         
@@ -113,7 +112,7 @@ class Classify:
                 path = ModuleDescription(pathway_string)
                 pathway[name] = path
 
-                for genome, annotations in genome_to_annotation_sets.items():    
+                for genome, annotations in genome_to_annotation_sets.items():
 
                     num_covered, _, _, ko_path = path.num_covered_steps(annotations)
                     num_all         = path.num_steps()
