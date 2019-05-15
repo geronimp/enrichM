@@ -243,7 +243,7 @@ class RFModel:
 			elif content==self.ATTRIBUTE_IMPORTANCES:
 				self.attributes = list()			
 				content_path_io = open(content_path)
-				header =  content_path_io.readline() # Junk
+				_ =  content_path_io.readline() # Junk
 
 				for line in content_path_io:
 					attribute, _ = line.strip().split('\t')

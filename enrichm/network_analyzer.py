@@ -22,7 +22,6 @@ import itertools
 from enrichm.network_builder import NetworkBuilder
 from enrichm.parser import Parser
 from enrichm.databases import Databases
-from enrichm.kegg_matrix import KeggMatrix
 from enrichm.writer import Writer
 
 
@@ -53,25 +52,8 @@ class NetworkAnalyser:
     METADATA_OUTPUT_FILE = 'metadata.tsv'    
     TRAVERSE_OUTPUT_FILE = 'traverse.tsv'    
 
-    def __init__(self, metadata):
-        self.metadata = dict()
-        
-        for line in open(metadata):
-            
-            if line.startswith('#'): 
-                continue
-            
-            split_line = line.strip().split('\t')
-            
-            if len(split_line) == 1:
-                raise Exception("Only one column detected in metadata file, please check that your file is tab separated")
-            else:
-                sample_id, group = split_line 
-
-            if group in self.metadata:
-                self.metadata[group].append(sample_id)
-            else:
-                self.metadata[group] = [sample_id]
+    def __init__(self):
+        self.databases = Databases()
     
     def average(self, input_dictionary):
             
@@ -110,9 +92,9 @@ class NetworkAnalyser:
             for genome, genome_abundance in genome_abundances.items():
 
                 if genome in reversed_metadata:
-
+                    
                     if genome in reaction_abundance_dict[sample_group]:
-
+                        
                         for reaction in list(reaction_abundance_dict[sample_group][genome].keys()):
                             
                             if reaction in reaction_abundance_dict[sample_group][genome]:
@@ -212,7 +194,7 @@ class NetworkAnalyser:
                     output_dict[group][genome][annotation] = sum(output_dict[group][genome][annotation])/len(output_dict[group][genome][annotation])
         
         new_output_dict = dict()
-        reactions = list(Databases().r.keys())
+        reactions = list(self.databases.r.keys())
         for key, item in output_dict.items():
             new_output_dict[key] = dict()
 
@@ -232,8 +214,37 @@ class NetworkAnalyser:
 
         return new_output_dict
 
+    def aggregate_dictionary(self, reference_dict, matrix_dict):
+        
+        output_dict_mean   = dict()
+
+        for sample, ko_abundances in matrix_dict.items():
+            output_dict_mean[sample]   = dict()
+        
+            for reaction, ko_list in reference_dict.items():
+                abundances = list()
+        
+                for ko in ko_list:
+        
+                    if ko in ko_abundances:
+                        if ko_abundances[ko]>0:
+                            abundances.append(ko_abundances[ko])
+
+                    else:
+                        logging.debug("ID not found in input matrix: %s" % ko)
+        
+                if any(abundances):
+                    abundance_mean = sum(abundances)/len(abundances) # average of the abundances...
+        
+                else:
+                    abundance_mean = 0
+                
+                output_dict_mean[sample][reaction] = abundance_mean
+        
+        return output_dict_mean
+
     def do(self,
-           subparser_name, matrix, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output,
+           subparser_name, matrix, metadata, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output,
            depth, filter, limit, queries, starting_compounds, steps, number_of_queries, output_directory):
         '''
         Parameters
@@ -253,70 +264,73 @@ class NetworkAnalyser:
         number_of_queries
         output_directory
         '''
-
-        km = KeggMatrix(matrix)
-        nb = NetworkBuilder(self.metadata.keys())
+        metadata = Parser.parse_metadata_matrix(metadata)[2]
+        network_builder = NetworkBuilder(metadata.keys())
+        orthology_matrix, _, _ = Parser.parse_simple_matrix(matrix)
+        reaction_matrix = self.aggregate_dictionary(self.databases.r2k,orthology_matrix)
 
         # Read in fisher results
         if enrichment_output:
             fisher_results = self.parse_enrichment_output(enrichment_output)
         else:
-            fisher_results = None    
+            fisher_results = None
 
         # Read in genome abundance
         if abundance:
-            sample_abundance = km._parse_matrix(abundance)
-            sample_metadata = list(km._parse_matrix(abundance_metadata).values())[0]
-            d = dict()
+            # FIXME: Not sure if below works:
+            sample_abundance, _, _ = Parser.parse_simple_matrix(abundance)
+            sample_metadata = list(Parser.parse_simple_matrix(abundance_metadata).values())[0]
+            new_dictionary = dict()
             
             for key, item in sample_metadata.items():
                 
-                if item not in d:
-                    d[item] = list()
+                if item not in new_dictionary:
+                    new_dictionary[item] = list()
                 
-                d[item].append(key)
+                new_dictionary[item].append(key)
             
-            sample_metadata = d
+            sample_metadata = new_dictionary
         
         else:
-            sample_abundance = {'MOCK': {x:1 for x in list(km.reaction_matrix.keys())} }
+            sample_abundance = {'MOCK': {x:1 for x in list(reaction_matrix.keys())} }
             sample_metadata = {"a": ['MOCK']}
-            km.reaction_matrix = {"a": km.reaction_matrix}
-        
+            reaction_matrix = {"a": reaction_matrix}
+
         # Read in expression (TPM) values
         if tpm_values:
             logging.info("Parsing detectM TPM values")
             normalised_abundances \
-                    = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata, self.metadata)
+                    = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata, metadata)
 
         else:
             normalised_abundances \
                 = self.normalise_by_abundance(sample_abundance,
                                               sample_metadata,
-                                              km.reaction_matrix,
-                                              self.metadata)
+                                              reaction_matrix,
+                                              metadata)
         if metabolome:
-            abundances_metabolome = km._parse_matrix(metabolome)
+            abundances_metabolome = Parser.parse_simple_matrix(metabolome)
         
         else:
             abundances_metabolome = None
 
         if subparser_name == self.EXPLORE:
-            nb.query_matrix(normalised_abundances,
-                            tpm_values,
-                            queries,
-                            depth)
+            network_lines, node_metadata = \
+                network_builder.query_matrix(normalised_abundances,
+                                tpm_values,
+                                queries,
+                                depth)
         
         elif subparser_name == self.PATHWAY:
             logging.info('Generating pathway network')        
             network_lines, node_metadata = \
-                            nb.pathway_matrix(normalised_abundances, 
+                            network_builder.pathway_matrix(normalised_abundances, 
                                             abundances_metabolome,
                                             fisher_results,
                                             limit,
                                             filter)
 
-            Writer.write(network_lines, os.path.join(
-                output_directory, self.NETWORK_OUTPUT_FILE))
-            Writer.write(node_metadata, os.path.join(
-                output_directory, self.METADATA_OUTPUT_FILE))
+        Writer.write(network_lines, os.path.join(
+            output_directory, self.NETWORK_OUTPUT_FILE))
+        Writer.write(node_metadata, os.path.join(
+            output_directory, self.METADATA_OUTPUT_FILE))

@@ -292,8 +292,6 @@ class Enrichment:
         plot  = Plot()
         database  = Databases()
         
-
-        
         if annotate_output:
             logging.info('Parsing annotate output: %s' % (annotate_output))
             pa = ParseAnnotate(annotate_output, processes)

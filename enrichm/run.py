@@ -240,6 +240,8 @@ args.annotation_matrix,        ----------
         ----------
         args    - object. Argparse object
         '''
+        if not hasattr(args, 'enrichment_output'):
+            args.enrichment_output = None
 
         if any([args.abundance, args.abundance_metadata]):
             if not (args.abundance and args.abundance_metadata):
@@ -406,11 +408,13 @@ args.annotation_matrix,        ----------
                  args.cutoff,
                  args.output)
 
-        elif args.subparser_name == NetworkAnalyser.PATHWAY:
+        elif(args.subparser_name == NetworkAnalyser.PATHWAY or 
+             args.subparser_name == NetworkAnalyser.EXPLORE):
             self._check_network(args)
-            na=NetworkAnalyser(args.metadata)
+            na=NetworkAnalyser()
             na.do(args.subparser_name,
                   args.matrix,
+                  args.metadata,
                   args.tpm_values,
                   args.abundance,
                   args.abundance_metadata,

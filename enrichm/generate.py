@@ -248,7 +248,7 @@ class GenerateModel:
         
             for x,y in rf_grid_trained_model.best_params_.items():
                 logging.info("\t\t%s: %s" % (x, str(y)))
-                best_params_list.append( [x, y] )
+                best_params_list.append([x, str(y)])
 
             best_model = rf_grid_trained_model.best_estimator_
         
@@ -319,7 +319,7 @@ class GenerateModel:
         
         logging.info("Generating attribute importances")
         output_attribute_importances = self.get_importances(rf, attribute_list)
-        Writer.write(output_attribute_importances, os.path.join(output_directory, self.MODEL_ACCURACY))
+        Writer.write(best_params_list, os.path.join(output_directory, self.MODEL_ACCURACY))
 
         logging.info("Generating model accuracy summary file")
         Writer.write(output_attribute_importances, os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES))

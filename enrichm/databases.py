@@ -98,7 +98,7 @@ class Databases:
 		'M00696', 'M00697', 'M00698', 'M00700', 'M00702', 'M00714', 'M00705',
 		'M00746'])
 
-		logging.info("Loading databases")
+		logging.debug("Loading databases")
 		logging.debug("Loading module definitions")
 		self.m2def = self.load_pickle(self.M2DEF)
 		logging.debug("Loading module descriptions")
@@ -143,7 +143,7 @@ class Databases:
 		self.clan2pfam = self.load_pickle(self.CLAN2PFAM)
 		logging.debug("Loading tigrfam descriptions")
 		self.tigrfamdescription = self.load_pickle(self.TIGRFAM2DESCRIPTION)
-		logging.info("Loading reference db paths")		
+		logging.debug("Loading reference db paths")		
 
 		self.k2r = dict()
 
