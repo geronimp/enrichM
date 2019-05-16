@@ -316,8 +316,9 @@ class NetworkAnalyser:
 
         if subparser_name == self.EXPLORE:
             network_lines, node_metadata = \
-                network_builder.query_matrix(normalised_abundances['a'],
+                network_builder.query_matrix(normalised_abundances,
                                 tpm_values,
+                                abundances_metabolome,
                                 queries,
                                 depth)
         

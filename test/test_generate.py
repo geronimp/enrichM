@@ -35,25 +35,24 @@ from enrichm.generate import GenerateModel
 
 class Tests(unittest.TestCase):
     
-    def __init__(self):
-        self.ML_DATA = 'ml_data'
-        self.sample_matrix = 'matrix.tsv'
-        self.sample_metadata = 'metadata.tsv'
+    ML_DATA = 'ml_data'
+    sample_matrix = 'matrix.tsv'
+    sample_metadata = 'metadata.tsv'
     
-        self.sample_matrix_path = os.path.join(path_to_data, self.ML_DATA, 'matrix.tsv')
-        self.sample_metadata_path = os.path.join(path_to_data, self.ML_DATA, 'metadata.tsv')
+    sample_matrix_path = os.path.join(path_to_data, ML_DATA, 'matrix.tsv')
+    sample_metadata_path = os.path.join(path_to_data, ML_DATA, 'metadata.tsv')
 
-    def test_generate(self):
+    def test_hello_generate(self):
         tmp = tempfile.mkdtemp()
         generateModel = GenerateModel()
         generateModel.do(self.sample_matrix_path,
-                         self.sample_metadata,
+                         self.sample_metadata_path,
                          generateModel.CLASSIFIER,
                          0.2, # Default testing portion
                          False, # Dont do a grid search for fine tuning
                          2, # Threads
                          tmp # Output directory
                          )
-    
+        
 if __name__ == "__main__":
     unittest.main()

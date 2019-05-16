@@ -34,7 +34,7 @@ from enrichm.predict import Predict
 ###############################################################################
 
 class Tests(unittest.TestCase):
-    def test_predict(self):
+    def test_hello_predict(self):
         predict = Predict()
         predict.do()
     
