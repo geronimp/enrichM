@@ -317,19 +317,21 @@ class NetworkAnalyser:
         if subparser_name == self.EXPLORE:
             network_lines, node_metadata = \
                 network_builder.query_matrix(normalised_abundances,
-                                tpm_values,
-                                abundances_metabolome,
-                                queries,
-                                depth)
+                                             tpm_values,
+                                             abundances_metabolome,
+                                             fisher_results,
+                                             queries,
+                                             depth)
         
         elif subparser_name == self.PATHWAY:
             logging.info('Generating pathway network')        
             network_lines, node_metadata = \
-                            network_builder.pathway_matrix(normalised_abundances, 
-                                            abundances_metabolome,
-                                            fisher_results,
-                                            limit,
-                                            filter)
+                            network_builder.pathway_matrix(normalised_abundances,
+                                                           tpm_values,
+                                                           abundances_metabolome,
+                                                           fisher_results,
+                                                           limit,
+                                                           filter)
 
         Writer.write(network_lines, os.path.join(
             output_directory, self.NETWORK_OUTPUT_FILE))
