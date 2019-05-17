@@ -36,26 +36,6 @@ from enrichm.databases import Databases
 from enrichm.parser import Parser
 ###############################################################################
 
-def nested_dict_vals(d):
-    reaction_regex = '(R\d{5})$'
-
-    for key, item in d.items():
-
-        if isinstance(item, dict):
-            yield from nested_dict_vals(item)
-        
-        else:
-            if type(reaction_regex) == str:
-                if re.match(reaction_regex, key):
-                    yield key
-            elif type(reaction_regex) == bytes:
-                key = key.decode()
-                if re.match(reaction_regex, key):
-                    yield key
-
-            else:
-                raise Exception("Invalid key in in nested dict!")
-
 class NetworkBuilder:
        
     MODULE_PREFIX   = 'M'
@@ -64,10 +44,27 @@ class NetworkBuilder:
     REACTION_PREFIX = 'R'
     ZERO            = '0.0'
 
-    def __init__(self, metadata):
-        
-        self.databases=Databases()
+    def __init__(self, metadata, abundances_metagenome, abundances_transcriptome, abundances_metabolome, fisher_results):
+        self.abundances_metagenome = abundances_metagenome
+        self.abundances_transcriptome = abundances_transcriptome
+        self.abundances_metabolome = abundances_metabolome
+        self.fisher_results = fisher_results
         self.metadata_keys = list(metadata.keys())
+        
+        databases = Databases()
+        
+        self.reaction_to_module = databases.r2m()
+        self.module_to_reaction = databases.m2r()
+        self.module_descriptions = databases.m()
+        self.reaction_to_pathway = databases.r2p()
+        self.pathway_to_reaction = databases.p2r()
+        self.pathway_descriptions = databases.p()
+        self.compound_desc_dict = databases.compound_desc_dict()
+        self.compound_descriptions = databases.c()
+        self.reaction_descriptions = databases.r()
+        self.reactions_to_compounds = databases.r2c()
+        self.reactions_to_kos = databases.r2k()
+
         self.matrix_header = ["compound", "reaction", 'type'] 
         self.transcriptome_header = [key + '_reaction_transcriptome' for key in self.metadata_keys] 
         self.compound_header = [key + '_compound' for key in self.metadata_keys]
@@ -75,161 +72,125 @@ class NetworkBuilder:
         self.query_header =  ['query', 'step']
         self.step_header = ['step']
         self.to_omit = set(["C00828",  # Menaquinone
-                    "C00534",  # Pyridoxamine
-                    "C00006",  # NADP+
-                    "C00003",  # NAD+
-                    "C00002",  # ATP
-                    "C00314",  # Pyridoxine
-                    "C00864",  # Pantothenate
-                    "C00504",  # Folate
-                    "C00032",  # Heme
-                    "C05443",  # Vitamin D3
-                    "C00253",  # Nicotinate
-                    "C00250",  # Pyridoxal
-                    "C11378",  # Ubiquinone-10
-                    "C05777",  # Coenzyme F430
-                    "C00072",  # Ascorbate
-                    "C00378",  # Thiamine
-                    "C00101",  # Tetrahydrofolate
-                    "C00029",  # UDP-glucose
-                    "C00068",  # Thiamin diphosphate
-                    "C00061",  # FMN
-                    "C00063",  # CTP
-                    "C05776",  # Vitamin B12
-                    "C00113",  # PQQ
-                    "C18237",  # Molybdoenzyme molybdenum cofactor
-                    "C00051",  # Glutathione
-                    "C00010",  # CoA
-                    "C00016",  # FAD
-                    "C00018",  # Pyridoxal phosphate
-                    "C00019",  # S-Adenosyl-L-methionine
-                    "C00153",  # Nicotinamide
-                    "C04628",  # Coenzyme B
-                    "C00862",  # Methanofuran
-                    "C15672",  # Heme O
-                    "C15670",  # Heme A
-                    "C02059",  # Phylloquinone
-                    "C03576",  # Coenzyme M
-                    "C05441",  # Vitamin D2
-                    "C00272",  # Tetrahydrobiopterin
-                    "C02477",  # alpha-Tocopherol
-                    "C00473",  # Retinol
-                    "C00120",  # Biotin
-                    "C00725",  # Lipoate
-                    "C00053",  # 3'-Phosphoadenylyl sulfate
-                    "C00194",  # Cobamide coenzyme
-                    "C00255",  # Riboflavin
-                    'C00001',  # H2O
-                    'C00008',  # ADP
-                    'C00013',  # Diphosphate
-                    'C00004',  # NADH
-                    'C00005',  # NADPH
-                    'C00080',  # H+
-                    'C00009',  # Orthophosphate
-                    'C00008',  # ADP
-                    'C00004',  # NADH
-                    'C00020',  # AMP
-                    'C00007',  # Oxygen
-                    'C00015']) # UDP
+                            "C00534",  # Pyridoxamine
+                            "C00006",  # NADP+
+                            "C00003",  # NAD+
+                            "C00002",  # ATP
+                            "C00314",  # Pyridoxine
+                            "C00864",  # Pantothenate
+                            "C00504",  # Folate
+                            "C00032",  # Heme
+                            "C05443",  # Vitamin D3
+                            "C00253",  # Nicotinate
+                            "C00250",  # Pyridoxal
+                            "C11378",  # Ubiquinone-10
+                            "C05777",  # Coenzyme F430
+                            "C00072",  # Ascorbate
+                            "C00378",  # Thiamine
+                            "C00101",  # Tetrahydrofolate
+                            "C00029",  # UDP-glucose
+                            "C00068",  # Thiamin diphosphate
+                            "C00061",  # FMN
+                            "C00063",  # CTP
+                            "C05776",  # Vitamin B12
+                            "C00113",  # PQQ
+                            "C18237",  # Molybdoenzyme molybdenum cofactor
+                            "C00051",  # Glutathione
+                            "C00010",  # CoA
+                            "C00016",  # FAD
+                            "C00018",  # Pyridoxal phosphate
+                            "C00019",  # S-Adenosyl-L-methionine
+                            "C00153",  # Nicotinamide
+                            "C04628",  # Coenzyme B
+                            "C00862",  # Methanofuran
+                            "C15672",  # Heme O
+                            "C15670",  # Heme A
+                            "C02059",  # Phylloquinone
+                            "C03576",  # Coenzyme M
+                            "C05441",  # Vitamin D2
+                            "C00272",  # Tetrahydrobiopterin
+                            "C02477",  # alpha-Tocopherol
+                            "C00473",  # Retinol
+                            "C00120",  # Biotin
+                            "C00725",  # Lipoate
+                            "C00053",  # 3'-Phosphoadenylyl sulfate
+                            "C00194",  # Cobamide coenzyme
+                            "C00255",  # Riboflavin
+                            'C00001',  # H2O
+                            'C00008',  # ADP
+                            'C00013',  # Diphosphate
+                            'C00004',  # NADH
+                            'C00005',  # NADPH
+                            'C00080',  # H+
+                            'C00009',  # Orthophosphate
+                            'C00008',  # ADP
+                            'C00004',  # NADH
+                            'C00020',  # AMP
+                            'C00007',  # Oxygen
+                            'C00015']) # UDP
 
-    def _gather_module(self, key):
+    def nested_dict_vals(self, input_dictionary):
+        reaction_regex = '(R\d{5})$'
+
+        for key, item in input_dictionary.items():
+
+            if isinstance(item, dict):
+                yield from self.nested_dict_vals(item)
+            else:
+                
+                if type(reaction_regex) == str:
+                
+                    if re.match(reaction_regex, key):
+                        yield key
+                
+                elif type(reaction_regex) == bytes:
+                    key = key.decode()
+                
+                    if re.match(reaction_regex, key):
+                        yield key
+
+                else:
+                    raise Exception("Invalid key in in nested dict!")
+    
+    def gather_module(self, key):
         
-        r2m = self.databases.r2m()
-        m2r = self.databases.m2r()
-        m = self.databases.m()
-        
-        if key in r2m:
-            len_list =  [len(m2r[x]) for x in r2m[key]]
-            module = r2m[key][len_list.index(max(len_list))]
-            module_description = m[module]
+        if key in self.reaction_to_module:
+            len_list =  [len(self.module_to_reaction[x]) for x in self.reaction_to_module[key]]
+            module = self.reaction_to_module[key][len_list.index(max(len_list))]
+            module_description = self.module_descriptions[module]
         else:
             module = 'NA'
             module_description='NA'
         
         return module, module_description
     
-    def _gather_pathway(self, key):
+    def gather_pathway(self, key):
         
-        r2p = self.databases.r2p()
-        p2r = self.databases.p2r()
-        p = self.databases.p()
-        
-        if key in r2p:
-            len_list =  [len(p2r[x]) for x in r2p[key]]
-            pathway = r2p[key][len_list.index(max(len_list))]
-            pathway_description = p[pathway]
+        if key in self.reaction_to_pathway:
+            len_list =  [len(self.pathway_to_reaction[x]) for x in self.reaction_to_pathway[key]]
+            pathway = self.reaction_to_pathway[key][len_list.index(max(len_list))]
+            pathway_description = self.pathway_descriptions[pathway]
         else:
             pathway = 'NA'
             pathway_description='NA'
         
         return pathway, pathway_description
     
-    def traverse_matrix(self,
-                        abundances_metagenome,
-                        abundances_transcriptome,
-                        possible_reactions,
-                        query_list,
-                        number_of_queries,
-                        steps): 
-
-        network_visitations={key:dict() for key in self.metadata_keys}
-
-        for _ in range(number_of_queries):
-            previous_reaction=None
-            
-            for _ in range(steps):
-
-                for key in self.metadata_keys:
-                    reactions = list()
-                    possible_reaction_abundance = list()
-                    possible_reaction_name = list()
-                    
-                    for reaction in reactions:  
-                    
-                        if(reaction in abundances_metagenome[key] and
-                           reaction in abundances_transcriptome[key]):
-                    
-                            if reaction!=previous_reaction:
-                    
-                                if abundances_metagenome[key][reaction]>0:
-                                    possible_reaction_name.append(reaction)
-                                    possible_reaction_abundance.append(abundances_transcriptome[key][reaction])
-
-                    
-        output_lines = ['\t'.join(['C'] + self.metadata_keys)]
+    def gather_compound_metadata(self, compound):
         
-        for possible_reaction in set(chain(*possible_reactions.values())):
-            output_line = [possible_reaction]
-            
-            for key in self.metadata_keys:
-            
-                if possible_reaction in network_visitations[key]:
-                    output_line.append(str(network_visitations[key][possible_reaction]))
-                else:
-                    output_line.append('0')    
-            
-            output_lines.append('\t'.join(output_line))
-        
-        return output_lines
-
-
-    def gather_compound_metadata(self, compound, abundances_metabolome):
-        compound_desc_dict = self.databases.compound_desc_dict()
-        compounds = self.databases.c()
-        
-        if compound in compound_desc_dict:
-            compound_type = ','.join(compound_desc_dict[compound]['A'])
+        if compound in self.compound_desc_dict:
+            compound_type = ','.join(self.compound_desc_dict[compound]['A'])
         else:
             compound_type = 'NA'
         
-        compound_metadata_list = [compound, compounds[compound], compound_type, 'NA', 'NA', 'NA', 'NA', 'compound']
+        compound_metadata_list = [compound, self.compound_descriptions[compound], compound_type, 'NA', 'NA', 'NA', 'NA', 'compound']
         
-        if abundances_metabolome:   
+        if self.abundances_metabolome:   
 
             for sample in self.metadata_keys:
                 
-                if compound in abundances_metabolome[sample]:
-                    compound_abundance = abundances_metabolome[sample][compound]
+                if compound in self.abundances_metabolome[sample]:
+                    compound_abundance = self.abundances_metabolome[sample][compound]
                 else:
                     compound_abundance = 0    
                 
@@ -237,24 +198,22 @@ class NetworkBuilder:
         
         return compound_metadata_list
     
-    def gather_reaction_metadata(self, reaction, abundances_metabolome):
-        reactions = self.databases.r()
-        module, module_description = self._gather_module(reaction)
-        pathway, pathway_description = self._gather_pathway(reaction)
-        reaction_metadata_list = [reaction, reactions[reaction], 'NA', module, module_description, pathway, pathway_description, 'reaction']
+    def gather_reaction_metadata(self, reaction):
+        module, module_description = self.gather_module(reaction)
+        pathway, pathway_description = self.gather_pathway(reaction)
+        reaction_metadata_list = [reaction, self.reaction_descriptions[reaction], 'NA', module, module_description, pathway, pathway_description, 'reaction']
         
-        if abundances_metabolome:   
+        if self.abundances_metabolome:   
             reaction_metadata_list += ['-5' for sample in self.metadata_keys]
         
         return reaction_metadata_list
     
     def gather_enriched_term(self, reaction, fisher_results):
         enriched_term = list()
-        r2k = self.databases.r2k()
         
         for compared_group in list(fisher_results.keys()):
 
-            if any(set(r2k[reaction]).intersection(fisher_results[compared_group])):
+            if any(set(self.reactions_to_kos[reaction]).intersection(fisher_results[compared_group])):
                 enriched_term.append(compared_group)
         
         if len(enriched_term) > 0:
@@ -272,54 +231,48 @@ class NetworkBuilder:
             if compound not in self.to_omit:
                 yield compound
     
-    def gather_reaction_edge_data(self, compound, reaction, fisher_results, abundances_metagenome, abundances_transcriptome):
+    def gather_reaction_edge_data(self, compound, reaction):
         
-        if fisher_results:
-            enriched_term = self.gather_enriched_term(reaction, fisher_results)
+        if self.fisher_results:
+            enriched_term = self.gather_enriched_term(reaction, self.fisher_results)
         else:
             enriched_term = 'NA'
 
         reaction_line = [compound, reaction, enriched_term]
         
         for key in self.metadata_keys:
-            # FIXME: What am abundances_metagenome
-            for _, group_abundances in abundances_metagenome.items():
+            for _, group_abundances in self.abundances_metagenome.items():
                 
                 if reaction in group_abundances[key]:
                     reaction_line.append(str(group_abundances[key][reaction]))
                 else:
                     reaction_line.append(self.ZERO)
         
-        if abundances_transcriptome:
+        if self.abundances_transcriptome:
 
             for key in self.metadata_keys:
 
-                if reaction in abundances_transcriptome[key]:
-                    reaction_line.append(str(abundances_transcriptome[key][reaction]))
+                if reaction in self.abundances_transcriptome[key]:
+                    reaction_line.append(str(self.abundances_transcriptome[key][reaction]))
                 else:
                     reaction_line.append(self.ZERO)
         
         if sum([float(x) for x in reaction_line[3:]])>0:
             return reaction_line
 
-    def all_matrix(self,
-                   abundances_metagenome,
-                   abundances_transcriptome,
-                   abundances_metabolome,
-                   fisher_results,
-                   reference_dict):
+    def all_matrix(self, reference_dict):
         '''
         Parameters
         ----------
         '''
         seen_nodes = set()
         # Construct headers to network matrices
-        seen_reactions = set(nested_dict_vals(abundances_metagenome))
+        seen_reactions = set(self.nested_dict_vals(self.abundances_metagenome))
         
-        groups = list(abundances_metagenome.keys())
+        groups = list(self.abundances_metagenome.keys())
         network_lines = [self.matrix_header + list(['_'.join([a,b]) for a,b in product(self.metadata_keys, groups)])]
         
-        if abundances_metabolome:
+        if self.abundances_metabolome:
             node_metadata_lines = [self.metadata_header + self.compound_header]
         else:     
             node_metadata_lines = [self.metadata_header]
@@ -331,49 +284,43 @@ class NetworkBuilder:
                 if reaction in seen_reactions:
                     
                     #~#~#~#~#~#~#~#~ Fill in abundances_metagenome ~#~#~#~#~#~#~#~
-                    reaction_line = self.gather_reaction_edge_data(compound, reaction, fisher_results, abundances_metagenome, abundances_transcriptome)
+                    reaction_line = self.gather_reaction_edge_data(compound, reaction)
                     
                     if reaction_line:
                         network_lines.append(reaction_line)
                             
                     #~#~#~#~#~#~#~#~#~ Fill in node metadata ~#~#~#~#~#~#~#~#~#
                     if compound not in seen_nodes:
-                        compound_metadata_list = self.gather_compound_metadata(compound, abundances_metabolome)
+                        compound_metadata_list = self.gather_compound_metadata(compound)
 
                         node_metadata_lines.append(compound_metadata_list)
                         seen_nodes.add(compound)
 
                     if reaction not in seen_nodes:
-                        reaction_metadata_list = self.gather_reaction_metadata(reaction, abundances_metabolome)
+                        reaction_metadata_list = self.gather_reaction_metadata(reaction)
                         
                         node_metadata_lines.append(reaction_metadata_list)
                         seen_nodes.add(reaction)
 
         return network_lines, node_metadata_lines
     
-    def query_matrix(self, 
-                     abundances_metagenome, 
-                     abundances_transcriptome,
-                     abundances_metabolome,
-                     fisher_results,
-                     queries, 
-                     depth):
+    def query_matrix(self, queries, depth):
         '''
         Parameters
         ----------
         '''
         steps         = 0
         queries_list  = Parser.parse_single_column_text_file(queries)
-        seen_reactions = set(nested_dict_vals(abundances_metagenome))
+        seen_reactions = set(self.nested_dict_vals(self.abundances_metagenome))
         seen_nodes    = set()
         level_queries = set()
         
         node_metadata_lines = [self.metadata_header + self.query_header]
         
-        if abundances_metabolome:
+        if self.abundances_metabolome:
             node_metadata_lines[0] += self.compound_header
         
-        if abundances_transcriptome:
+        if self.abundances_transcriptome:
             network_lines = [self.matrix_header + self.transcriptome_header + self.step_header]
         else:
             network_lines = [self.matrix_header + self.step_header] 
@@ -384,7 +331,7 @@ class NetworkBuilder:
                 queries_list = set(level_queries)
                 level_queries = set()
             
-            for reaction, entry in self.databases.r2c().items():
+            for reaction, entry in self.reactions_to_compounds.items():
                 
                 if reaction in seen_reactions:
 
@@ -394,7 +341,7 @@ class NetworkBuilder:
                             
                             #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
                             #~#~#~#~#~#~#~#~ Fill in abundances ~#~#~#~#~#~#~#~
-                            reaction_line = self.gather_reaction_edge_data(compound, reaction, fisher_results, abundances_metagenome, abundances_transcriptome)
+                            reaction_line = self.gather_reaction_edge_data(compound, reaction)
                             
                             if reaction_line:
                                 reaction_line.append(str(steps))
@@ -406,7 +353,7 @@ class NetworkBuilder:
                             
                             if compound not in seen_nodes:
                                 
-                                metadata_list = self.gather_compound_metadata(compound, abundances_metabolome)
+                                metadata_list = self.gather_compound_metadata(compound)
                                     
                                 if compound in queries_list:
                                     is_query = 'True'
@@ -420,7 +367,7 @@ class NetworkBuilder:
                                     level_queries.add(compound)
                             
                             if reaction not in seen_nodes:
-                                metadata_list = self.gather_reaction_metadata(reaction, abundances_metabolome)
+                                metadata_list = self.gather_reaction_metadata(reaction)
                                 
                                 node_metadata_lines.append(metadata_list + ['False', index])
                                 seen_nodes.add(reaction)
@@ -432,10 +379,8 @@ class NetworkBuilder:
         
         return network_lines, node_metadata_lines
     
-    def pathway_matrix(self, abundances_metagenome, abundances_transcriptome, abundances_metabolome, fisher_results, limit, filter):
-        p2r = self.databases.p2r()
-        m2r = self.databases.m2r()
-        r2c = self.databases.r2c()
+    def pathway_matrix(self, limit, filter):
+
         possible_reactions = set()
 
         if any(limit):
@@ -445,22 +390,22 @@ class NetworkBuilder:
                 if(entry.startswith(self.MAP_PREFIX) or 
                    entry.startswith(self.PATHWAY_PREFIX)): 
             
-                    for reaction in p2r[entry]:
+                    for reaction in self.pathway_to_reaction[entry]:
                         possible_reactions.add(reaction)
             
                 elif(entry.startswith(self.MODULE_PREFIX)):
             
-                    for reaction in m2r[entry]:
+                    for reaction in self.module_to_reaction[entry]:
                         possible_reactions.add(reaction)
             
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
-            possible_reactions = {reaction:r2c[reaction] 
+            possible_reactions = {reaction:self.reactions_to_compounds[reaction] 
                                   for reaction in
                                   possible_reactions
-                                  if reaction in r2c}
+                                  if reaction in self.reactions_to_compounds}
         else:
-            possible_reactions = r2c
+            possible_reactions = self.reactions_to_compounds
         
         for entry in filter:
 
@@ -468,64 +413,7 @@ class NetworkBuilder:
             
                 del possible_reactions[entry]
 
-        network_lines, node_metadata_lines = \
-            self.all_matrix(abundances_metagenome,
-                            abundances_transcriptome,
-                            abundances_metabolome,
-                            fisher_results,
-                            possible_reactions)
+        network_lines, node_metadata_lines = self.all_matrix(possible_reactions)
 
         return network_lines, node_metadata_lines
   
-    def traverse(self, abundances_metagenome, abundances_transcriptome, limit, filter, 
-                 starting_compounds, steps, number_of_queries):
-        
-        p2r = self.databases.p2r()
-        m2r = self.databases.m2r()
-        r2c = self.databases.r2c()
-        c = self.databases.c()
-        
-        if any(limit):
-
-            for entry in limit:
-            
-                if(entry.startswith(self.MAP_PREFIX) or 
-                   entry.startswith(self.PATHWAY_PREFIX)): 
-            
-                    for reaction in p2r[entry]:
-                        possible_reactions.add(reaction)
-            
-                elif(entry.startswith(self.MODULE_PREFIX)):
-            
-                    for reaction in m2r[entry]:
-                        possible_reactions.add(reaction)
-            
-                elif(entry.startswith(self.REACTION_PREFIX)):
-                    possible_reactions.add(entry)
-
-            possible_reactions = {reaction:r2c[reaction] for reaction in possible_reactions}
-        
-        else:
-            possible_reactions = r2c
-        
-        for entry in filter:
-        
-            if entry in possible_reactions:
-                del possible_reactions[entry]
-        
-        possible_compounds = set(chain(*possible_reactions.values()))
-
-        if len(starting_compounds)==0:
-            query_list=[x for x in c.keys()
-                        if x in possible_compounds]
-        else:
-            query_list=[x for x in starting_compounds 
-                        if x in possible_compounds]
-
-        output_lines = self.traverse_matrix(abundances_metagenome, 
-                                            abundances_transcriptome, 
-                                            possible_reactions, 
-                                            query_list,
-                                            number_of_queries, 
-                                            steps)
-        return output_lines
