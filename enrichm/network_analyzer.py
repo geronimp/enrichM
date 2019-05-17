@@ -75,7 +75,6 @@ class NetworkAnalyser:
                 reversed_metadata[item] = key
         
         averaged_sample_abundance = dict()
-        
         for group, samples in sample_metadata.items():
             averaged_sample_abundance[group] = dict()
             dicts = [sample_abundance_dict[x] for x in samples]
@@ -85,6 +84,7 @@ class NetworkAnalyser:
                 abundances = [d[genome] for d in dicts]
                 average = sum(abundances) / len(abundances)
                 averaged_sample_abundance[group][genome] = average # Median might be better?
+        
         new_dict = {x:dict() for x in list(averaged_sample_abundance.keys())}
 
         for sample_group, genome_abundances in averaged_sample_abundance.items():
@@ -92,7 +92,7 @@ class NetworkAnalyser:
             for genome, genome_abundance in genome_abundances.items():
 
                 if genome in reversed_metadata:
-                    
+
                     if genome in reaction_abundance_dict[sample_group]:
                         
                         for reaction in list(reaction_abundance_dict[sample_group][genome].keys()):
@@ -102,6 +102,7 @@ class NetworkAnalyser:
 
                             else:
                                 normalised_value = 0.0
+
                             group = reversed_metadata[genome]
 
                             if group not in new_dict[sample_group]:
@@ -112,7 +113,7 @@ class NetworkAnalyser:
 
                             new_dict[sample_group][group][reaction].append( normalised_value )
         
-        new_dict = self.average(new_dict) # taking averages here again, might be better accumulated?
+        new_dict = self.average(new_dict) # taking averages here again, might be better accumulated!
 
         return new_dict
 
@@ -194,7 +195,7 @@ class NetworkAnalyser:
                     output_dict[group][genome][annotation] = sum(output_dict[group][genome][annotation])/len(output_dict[group][genome][annotation])
         
         new_output_dict = dict()
-        reactions = list(self.databases.r.keys())
+        reactions = list(self.databases.r().keys())
         for key, item in output_dict.items():
             new_output_dict[key] = dict()
 
@@ -244,13 +245,13 @@ class NetworkAnalyser:
         return output_dict_mean
 
     def do(self,
-           subparser_name, matrix, metadata, tpm_values, abundance, abundance_metadata, metabolome, enrichment_output,
+           subparser_name, matrix, metadata, abundances_transcriptome, abundance, abundance_metadata, metabolome, enrichment_output,
            depth, filter, limit, queries, starting_compounds, steps, number_of_queries, output_directory):
         '''
         Parameters
         ----------
         matrix
-        tpm_values
+        abundances_transcriptome
         abundance
         abundance_metadata
         metabolome
@@ -265,59 +266,50 @@ class NetworkAnalyser:
         output_directory
         '''
         metadata = Parser.parse_metadata_matrix(metadata)[2]
-        network_builder = NetworkBuilder(metadata)
         orthology_matrix, _, _ = Parser.parse_simple_matrix(matrix)
-        reaction_matrix = self.aggregate_dictionary(self.databases.r2k,orthology_matrix)
+        reaction_matrix = self.aggregate_dictionary(self.databases.r2k(), orthology_matrix)
 
         # Read in fisher results
         if enrichment_output:
+            logging.info('Parsing input enrichment results')
             fisher_results = self.parse_enrichment_output(enrichment_output)
         else:
+            logging.info('No enrichment results found')
             fisher_results = None
+        
+        # Read in metabolome abundances
+        if metabolome:
+            logging.info('Parsing metabolome abundances')
+            abundances_metabolome = Parser.parse_simple_matrix(metabolome)
+        else:
+            logging.info('No metabolome abundances found')
+            abundances_metabolome = None
 
         # Read in genome abundance
         if abundance:
-            # FIXME: Not sure if below works:
+            logging.info('Parsing input genome abundances')
             sample_abundance, _, _ = Parser.parse_simple_matrix(abundance)
-            sample_metadata, _, _ = Parser.parse_simple_matrix(abundance_metadata)
-            new_dictionary = dict()
-            
-            for key, item in sample_metadata.items():
-                
-                if item not in new_dictionary:
-                    new_dictionary[item] = list()
-                
-                new_dictionary[item].append(key)
-            
-            sample_metadata = new_dictionary
-        
+            _, _, sample_metadata = Parser.parse_metadata_matrix(abundance_metadata)
         else:
+            logging.info('No genome abundances found')
             sample_abundance = {'MOCK': {x:1 for x in list(reaction_matrix.keys())} }
             sample_metadata = {"a": ['MOCK']}
             reaction_matrix = {"a": reaction_matrix}
 
         # Read in expression (TPM) values
-        if tpm_values:
-            logging.info("Parsing detectM TPM values")
-            normalised_abundances \
-                    = self.average_tpm_by_sample(Parser.parse_tpm_values(tpm_values), sample_metadata, metadata)
-
+        if abundances_transcriptome:
+            logging.info("Parsing detectM TPM abundances")
+            normalised_abundances = self.average_tpm_by_sample(Parser.parse_tpm_values(abundances_transcriptome), sample_metadata, metadata)
         else:
-            normalised_abundances \
-                = self.normalise_by_abundance(sample_abundance,
-                                              sample_metadata,
-                                              reaction_matrix,
-                                              metadata)
-        if metabolome:
-            abundances_metabolome = Parser.parse_simple_matrix(metabolome)
+            logging.info('No TPM abundances found')
+            normalised_abundances = self.normalise_by_abundance(sample_abundance, sample_metadata, reaction_matrix, metadata)
         
-        else:
-            abundances_metabolome = None
+        network_builder = NetworkBuilder(metadata)
 
         if subparser_name == self.EXPLORE:
             network_lines, node_metadata = \
                 network_builder.query_matrix(normalised_abundances,
-                                             tpm_values,
+                                             abundances_transcriptome,
                                              abundances_metabolome,
                                              fisher_results,
                                              queries,
@@ -327,7 +319,7 @@ class NetworkAnalyser:
             logging.info('Generating pathway network')        
             network_lines, node_metadata = \
                             network_builder.pathway_matrix(normalised_abundances,
-                                                           tpm_values,
+                                                           abundances_transcriptome,
                                                            abundances_metabolome,
                                                            fisher_results,
                                                            limit,

@@ -29,8 +29,7 @@ from enrichm.comparer import Compare
 from enrichm.draw_plots import Plot
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
-from enrichm.parse_annotate import ParseAnnotate
-from enrichm.parser import Parser
+from enrichm.parser import Parser, ParseAnnotate
 from enrichm.writer import Writer
 from enrichm.matrix_generator import MatrixGenerator
 from collections import Counter
@@ -280,6 +279,23 @@ class Enrichment:
 
         return raw_proportions_output_lines
 
+    
+    def get_gtdb_database_path(self, annotation_type, database):
+        
+        if annotation_type == self.KEGG:
+            gtdb_annotation_matrix = database.GTDB_KO
+        elif annotation_type == self.TIGRFAM:
+            gtdb_annotation_matrix = database.GTDB_PFAM
+        elif annotation_type == self.PFAM:
+            gtdb_annotation_matrix = database.GTDB_TIGRFAM
+        elif annotation_type == self.CAZY:
+            gtdb_annotation_matrix = database.GTDB_CAZY
+        elif annotation_type == self.EC:
+            gtdb_annotation_matrix = database.GTDB_EC
+        else:
+            gtdb_annotation_matrix = None
+        return gtdb_annotation_matrix
+
     def do(# Input options
            self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path,
            # Runtime options
@@ -292,44 +308,35 @@ class Enrichment:
         plot  = Plot()
         database  = Databases()
         
-        if annotate_output:
+        if annotation_matrix:
+            logging.info('Parsing annotations: %s' % annotation_matrix)
+            annotations_dict, _, annotations, = Parser.parse_simple_matrix(annotation_matrix)
+            annotation_type = self.check_annotation_type(annotations)
+        elif annotate_output:
             logging.info('Parsing annotate output: %s' % (annotate_output))
             pa = ParseAnnotate(annotate_output, processes)
 
             if ko:
                 annotation_matrix = pa.ko
-                gtdb_annotation_matrix = database.GTDB_KO
             elif ko_hmm:
                 annotation_matrix = pa.ko_hmm
-                gtdb_annotation_matrix = database.GTDB_KO
             elif pfam:
                 annotation_matrix = pa.pfam
-                gtdb_annotation_matrix = database.GTDB_PFAM
             elif tigrfam:
                 annotation_matrix = pa.tigrfam
-                gtdb_annotation_matrix = database.GTDB_TIGRFAM
             elif cluster:
                 annotation_matrix = pa.cluster
-                gtdb_annotation_matrix = None
             elif ortholog:
                 annotation_matrix = pa.ortholog
-                gtdb_annotation_matrix = None
             elif cazy:
                 annotation_matrix = pa.cazy
-                gtdb_annotation_matrix = database.GTDB_CAZY
             elif ec:
                 annotation_matrix = pa.ec
-                gtdb_annotation_matrix = database.GTDB_EC
-        else:
-                gtdb_annotation_matrix = None
+            
+        gtdb_annotation_matrix = self.get_gtdb_database_path(annotation_type, database)
 
-        logging.info('Parsing annotations: %s' % annotation_matrix)
-        annotations_dict, _, annotations, \
-            = Parser.parse_simple_matrix(annotation_matrix)
-        annotation_type = self.check_annotation_type(annotations)
-        logging.info('Parsing metadata')
-        metadata, metadata_value_lists, attribute_dict \
-                    = Parser.parse_metadata_matrix(metadata_path)
+        logging.info('Parsing metadata: %s' % metadata_path)
+        metadata, metadata_value_lists, attribute_dict = Parser.parse_metadata_matrix(metadata_path)
 
         if abundances_path:
             
@@ -452,7 +459,8 @@ class Enrichment:
                                     g2_sig_kos.add(sline[0])
                         # TODO: below in function
                         module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
-                        for module, definition in database.m2def.items():
+                        module_descriptions = database.m()
+                        for module, definition in database.m2def().items():
                             if module not in database.signature_modules:
                                 pathway = ModuleDescription(definition)
                                 num_all         = pathway.num_steps()
@@ -462,10 +470,10 @@ class Enrichment:
                                 g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_kos)
                                 g2_perc_covered    = g2_num_covered / float(num_all)
                                 if g1_perc_covered>0:
-                                    output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, database.m[module]]
+                                    output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, module_descriptions[module]]
                                     module_output.append(output_line)
                                 if g2_perc_covered>0:
-                                    output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, database.m[module]]
+                                    output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, module_descriptions[module]]
                                     module_output.append(output_line)
                         prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
                         Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
@@ -512,14 +520,14 @@ class Test(Enrichment):
         self.annotation_type        = annotation_type
         self.groups                 = groups
         self.pool                   = mp.Pool(processes = processes)
-        self.m2def                  = database.m2def
-        self.m                      = database.m
-        self.clan2pfam              = database.clan2pfam
-        self.clan_to_description    = database.clan2name
-        self.k                      = database.k
-        self.tigrfamdescription     = database.tigrfamdescription
-        self.pfam2description       = database.pfam2description
-        self.ec2description         = database.ec2description
+        self.m2def                  = database.m2def()
+        self.m                      = database.m()
+        self.clan2pfam              = database.clan2pfam()
+        self.clan_to_description    = database.clan2name()
+        self.k                      = database.k()
+        self.tigrfamdescription     = database.tigrfamdescription()
+        self.pfam2description       = database.pfam2description()
+        self.ec2description         = database.ec2description()
         
         if annotation_type==self.PFAM:
             self.genome_annotations = dict()

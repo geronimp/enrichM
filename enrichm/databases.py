@@ -98,63 +98,6 @@ class Databases:
 		'M00696', 'M00697', 'M00698', 'M00700', 'M00702', 'M00714', 'M00705',
 		'M00746'])
 
-		logging.debug("Loading databases")
-		logging.debug("Loading module definitions")
-		self.m2def = self.load_pickle(self.M2DEF)
-		logging.debug("Loading module descriptions")
-		self.m = self.load_pickle(self.M)
-		logging.debug("Loading reaction to pathway information")
-		self.r2p = self.load_pickle(self.R2P)
-		logging.debug("Loading pathway to reaction information")
-		self.p2r = self.load_pickle(self.P2R)
-		logging.debug("Loading reaction to orthology information")
-		self.r2k = self.load_pickle(self.R2K)
-		logging.debug("Loading reaction to module information")
-		self.r2m = self.load_pickle(self.R2M)
-		logging.debug("Loading module to reaction information")
-		self.m2r = self.load_pickle(self.M2R)
-		logging.debug("Loading module to compound information")
-		self.m2c = self.load_pickle(self.M2C)
-		logging.debug("Loading reaction to compound information")
-		self.r2c = self.load_pickle(self.R2C)
-		logging.debug("Loading compound to reaction information")
-		self.c2r = self.load_pickle(self.C2R)
-		logging.debug("Loading compound descriptions")
-		self.c = self.load_pickle(self.C)
-		logging.debug("Loading pathway descriptions")
-		self.p = self.load_pickle(self.P)
-		logging.debug("Loading reaction descriptions")
-		self.r = self.load_pickle(self.R)
-		logging.debug("Loading ko descriptions")
-		self.k = self.load_pickle(self.K)
-		logging.debug("Loading compound classifications")
-		self.compound_desc_dict = self.load_pickle(self.COMPOUND_DESC)
-		logging.debug("Loading pfam to clan information")
-		self.pfam2clan = self.load_pickle(self.PFAM2CLAN)
-		logging.debug("Loading clan descriptions")
-		self.clan2name = self.load_pickle(self.CLAN2NAME)
-		logging.debug("Loading pfam names")
-		self.pfam2name = self.load_pickle(self.PFAM2NAME)
-		logging.debug("Loading pfam descriptions")
-		self.pfam2description = self.load_pickle(self.PFAM2DESCRIPTION)
-		logging.debug("Loading ec descriptions")
-		self.ec2description = self.load_pickle(self.EC2DESCRIPTION)
-		logging.debug("Loading pfam hierarchy")
-		self.clan2pfam = self.load_pickle(self.CLAN2PFAM)
-		logging.debug("Loading tigrfam descriptions")
-		self.tigrfamdescription = self.load_pickle(self.TIGRFAM2DESCRIPTION)
-		logging.debug("Loading reference db paths")		
-
-		self.k2r = dict()
-
-		for reaction, kos in self.r2k.items():
-			for ko in kos:
-				if ko not in self.k2r:
-					self.k2r[ko] = list()
-				self.k2r[ko].append(reaction)
-
-		self.taxonomy 		= self.parse_taxonomy(self.TAXONOMY)
-
 		self.KO_DB 			= os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
 		self.EC_DB 			= os.path.join(self.REF_DIR, self.EC_DB_NAME + self.DMND_SUFFIX)
 		self.GTDB_DB		= os.path.join(self.REF_DIR, self.GTDB_DB_NAME)
@@ -165,6 +108,117 @@ class Databases:
 		self.CAZY_DB 		= os.path.join(self.REF_DIR, self.CAZY_DB_NAME + self.HMM_SUFFIX)
 		self.PFAM_CLAN_DB 	= os.path.join(self.IDS_DIR, 'PFAM_CLANS.txt')
 
+	def m2def(self):
+		logging.debug("Loading module descriptions")
+		return self.load_pickle(self.M2DEF)
+
+	def m(self):
+		logging.debug("Loading reaction to pathway information")
+		return self.load_pickle(self.M)
+
+	def r2p(self):
+		logging.debug("Loading pathway to reaction information")
+		return self.load_pickle(self.R2P)
+
+	def p2r(self):
+		logging.debug("Loading reaction to orthology information")
+		return self.load_pickle(self.P2R)
+
+	def r2k(self):
+		logging.debug("Loading reaction to module information")
+		return self.load_pickle(self.R2K)
+
+	def r2m(self): 
+		logging.debug("Loading module to reaction information")
+		return self.load_pickle(self.R2M)
+
+	def m2r(self): 
+		logging.debug("Loading module to compound information")
+		return self.load_pickle(self.M2R)
+
+	def m2c(self): 
+		logging.debug("Loading reaction to compound information")
+		return self.load_pickle(self.M2C)
+
+	def r2c(self): 
+		logging.debug("Loading compound to reaction information")
+		return self.load_pickle(self.R2C)
+
+	def c2r(self): 
+		logging.debug("Loading compound descriptions")
+		return self.load_pickle(self.C2R)
+
+	def c(self): 
+		logging.debug("Loading pathway descriptions")
+		return self.load_pickle(self.C)
+
+	def p(self): 
+		logging.debug("Loading reaction descriptions")
+		return self.load_pickle(self.P)
+
+	def r(self): 
+		logging.debug("Loading ko descriptions")
+		return self.load_pickle(self.R)
+
+	def k(self): 
+		logging.debug("Loading compound classifications")
+		return self.load_pickle(self.K)
+
+	def compound_desc_dict(self): 
+		logging.debug("Loading pfam to clan information")
+		return self.load_pickle(self.COMPOUND_DESC)
+
+	def pfam2clan(self): 
+		logging.debug("Loading clan descriptions")
+		return self.load_pickle(self.PFAM2CLAN)
+
+	def clan2name(self): 
+		logging.debug("Loading pfam names")
+		return self.load_pickle(self.CLAN2NAME)
+
+	def pfam2name(self): 
+		logging.debug("Loading pfam descriptions")
+		return self.load_pickle(self.PFAM2NAME)
+
+	def pfam2description(self): 
+		logging.debug("Loading ec descriptions")
+		return self.load_pickle(self.PFAM2DESCRIPTION)
+
+	def ec2description(self): 
+		logging.debug("Loading pfam hierarchy")
+		return self.load_pickle(self.EC2DESCRIPTION)
+
+	def clan2pfam(self): 
+		logging.debug("Loading tigrfam descriptions")
+		return self.load_pickle(self.CLAN2PFAM)
+
+	def tigrfamdescription(self): 
+		logging.debug("Loading reference db paths")
+		return self.load_pickle(self.TIGRFAM2DESCRIPTION)
+
+	def taxonomy(self):
+		return self.parse_taxonomy(self.TAXONOMY)
+
+	def k2r(self):
+		k2r = dict()
+		for reaction, kos in self.r2k.items():
+			for ko in kos:
+				if ko not in self.k2r:
+					self.k2r[ko] = list()
+				self.k2r[ko].append(reaction)
+		return k2r
+	
+	def c2m(self):
+		c2m = dict()
+
+		for module, compounds in self.m2c().items():	
+			substrates = compounds[0]
+			for substrate in substrates:
+				if substrate in c2m:
+					c2m[substrate].append(module)
+				else:
+					c2m[substrate] = [module]
+		return c2m
 
 	def load_pickle(self, file):
 

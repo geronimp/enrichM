@@ -16,10 +16,10 @@
 #                                                                             #
 ###############################################################################
 
-from enrichm.databases import Databases
 from enrichm.sequence_io import SequenceIO
 import logging
 import os
+
 __author__ = "Joel Boyd"
 __copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]

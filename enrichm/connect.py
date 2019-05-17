@@ -31,7 +31,7 @@ import logging
 import os
 from collections import Counter
 # Local imports
-from enrichm.parse_annotate import ParseAnnotate
+from enrichm.parser import ParseAnnotate
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 
@@ -42,20 +42,13 @@ class Connect(object):
 	def __init__(self):
 		d = Databases()
 		
-		self.m2def = d.m2def
-		self.m2c = d.m2c
-		self.c2m = dict()
+		self.m2def = d.m2def()
+		self.m2c = d.m2c()
+		self.c = d.c()
+		self.m = d.m()
+		self.c2m = d.c2m()
 
-		for module, compounds in self.m2c.items():	
-			substrates = compounds[0]
-			for substrate in substrates:
-				if substrate in self.c2m:
-					self.c2m[substrate].append(module)
-				else:
-					self.c2m[substrate] = [module]
 
-		self.c = d.c
-		self.m = d.m
 		self.signature_modules = d.signature_modules
 		self.output_file = 'linkages.tsv'
 	

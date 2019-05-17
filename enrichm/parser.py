@@ -26,11 +26,18 @@ __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
 
 ################################################################################
-# Imports
 
 from enrichm.databases import Databases
+from enrichm.annotate import Annotate
 import os
 import pickle
+import multiprocessing as mp
+
+################################################################################
+
+def parse_genomes(path):
+	genome = pickle.load(open(path, 'rb'))
+	return genome
 
 ################################################################################
 
@@ -226,7 +233,90 @@ class Parser:
 												
 		return output_dict, annotation_types, genome_types
 
-class RFModel:
+class ParseAnnotate:
+	
+	def __init__(self, enrichm_annotate_output, processes):
+		self.path = enrichm_annotate_output
+		# Parse genome objects
+		self.genome_pickle_file_path \
+			= os.path.join(enrichm_annotate_output, Annotate.GENOME_OBJ)
+		self.processes \
+			= processes
+
+		ko = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_KO)
+		if os.path.isfile(ko):
+			self.ko = ko
+		else:
+			self.ko = None
+		ko_hmm = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_KO_HMM)
+		if os.path.isfile(ko_hmm):
+			self.ko_hmm = ko_hmm
+		else:
+			self.ko_hmm = None
+		pfam = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_PFAM)
+		if os.path.isfile(pfam):
+			self.pfam = pfam
+		else:
+			self.pfam = None
+		tigrfam = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_TIGRFAM)
+		if os.path.isfile(tigrfam):
+			self.tigrfam = tigrfam
+		else:
+			self.tigrfam = None
+		cazy = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_CAZY)
+		if os.path.isfile(cazy):
+			self.cazy = cazy
+		else:
+			self.cazy = None
+		ec = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_EC)
+		if os.path.isfile(ec):
+			self.ec = ec
+		else:
+			self.ec = None
+		cluster = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_CLUSTER)
+		if os.path.isfile(cluster):
+			self.cluster = cluster
+		else:
+			self.cluster = None
+		ortholog = os.path.join(enrichm_annotate_output, Annotate.OUTPUT_ORTHOLOG)
+		if os.path.isfile(ortholog):
+			self.ortholog = ortholog
+		else:
+			self.ortholog = None
+
+	def parse_pickles(self, path, genome_list):
+		'''
+		Opens the pickled genome objects from a previous run of enrichm 
+		annotate
+
+		Parameters
+		----------
+		enrichm_annotate_output - String. Output directory of a previous run 
+								  of enrichm annotate (At lease version 0.0.7)
+								  or above
+		Outputs
+		-------
+		List of Genome objects
+		'''	
+		
+		output_genome_list 	= list()
+		paths 				= list()
+
+		for pickled_genome in genome_list:
+			pickled_genome_path = os.path.join(path, pickled_genome + '.pickle')
+			if os.path.isfile(pickled_genome_path):
+				paths.append(pickled_genome_path)
+		
+		self.pool = mp.Pool(processes = self.processes)
+		output_genome_list = self.pool.map_async(parse_genomes, paths)
+		output_genome_list.wait()
+		genome_objects = output_genome_list.get()
+		self.pool.close()
+
+		return genome_objects
+
+class ParseGenerate:
+    
 	def __init__(self, forester_model_directory):
 		self.LABELS_DICT = "labels_dict.pickle"
 		self.RF_MODEL = "rf_model.pickle"

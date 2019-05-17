@@ -134,10 +134,14 @@ class NetworkBuilder:
 
     def _gather_module(self, key):
         
-        if key in self.databases.r2m:
-            len_list =  [len(self.databases.m2r[x]) for x in self.databases.r2m[key]]
-            module = self.databases.r2m[key][len_list.index(max(len_list))]
-            module_description = self.databases.m[module]
+        r2m = self.databases.r2m()
+        m2r = self.databases.m2r()
+        m = self.databases.m()
+        
+        if key in r2m:
+            len_list =  [len(m2r[x]) for x in r2m[key]]
+            module = r2m[key][len_list.index(max(len_list))]
+            module_description = m[module]
         else:
             module = 'NA'
             module_description='NA'
@@ -146,10 +150,14 @@ class NetworkBuilder:
     
     def _gather_pathway(self, key):
         
-        if key in self.databases.r2p:
-            len_list =  [len(self.databases.p2r[x]) for x in self.databases.r2p[key]]
-            pathway = self.databases.r2p[key][len_list.index(max(len_list))]
-            pathway_description = self.databases.p[pathway]
+        r2p = self.databases.r2p()
+        p2r = self.databases.p2r()
+        p = self.databases.p()
+        
+        if key in r2p:
+            len_list =  [len(p2r[x]) for x in r2p[key]]
+            pathway = r2p[key][len_list.index(max(len_list))]
+            pathway_description = p[pathway]
         else:
             pathway = 'NA'
             pathway_description='NA'
@@ -206,44 +214,50 @@ class NetworkBuilder:
 
 
     def gather_compound_metadata(self, compound, abundances_metabolome):
-        if compound in self.databases.compound_desc_dict:
-            compound_type = ','.join(self.databases.compound_desc_dict[compound]['A'])
+        compound_desc_dict = self.databases.compound_desc_dict()
+        compounds = self.databases.c()
+        
+        if compound in compound_desc_dict:
+            compound_type = ','.join(compound_desc_dict[compound]['A'])
         else:
             compound_type = 'NA'
+        
+        compound_metadata_list = [compound, compounds[compound], compound_type, 'NA', 'NA', 'NA', 'NA', 'compound']
         
         if abundances_metabolome:   
 
             for sample in self.metadata_keys:
                 
                 if compound in abundances_metabolome[sample]:
-                    c_ab = abundances_metabolome[sample][compound]
+                    compound_abundance = abundances_metabolome[sample][compound]
                 else:
-                    c_ab = 0    
-                        
-        compound_metadata_list = [compound, self.databases.c[compound], compound_type, 'NA',
-                                  'NA', 'NA', 'NA', 'compound', str(c_ab)]
+                    compound_abundance = 0    
+                
+                compound_metadata_list.append(compound_abundance)
         
         return compound_metadata_list
     
     def gather_reaction_metadata(self, reaction, abundances_metabolome):
-        
+        reactions = self.databases.r()
         module, module_description = self._gather_module(reaction)
         pathway, pathway_description = self._gather_pathway(reaction)
-        reaction_metadata_list = [reaction, self.databases.r[reaction], 'NA', module, 
-                         module_description, pathway, pathway_description, 'reaction']
+        reaction_metadata_list = [reaction, reactions[reaction], 'NA', module, module_description, pathway, pathway_description, 'reaction']
+        
         if abundances_metabolome:   
             reaction_metadata_list += ['-5' for sample in self.metadata_keys]
+        
         return reaction_metadata_list
     
     def gather_enriched_term(self, reaction, fisher_results):
         enriched_term = list()
+        r2k = self.databases.r2k()
         
         for compared_group in list(fisher_results.keys()):
 
-            if any(set(self.databases.r2k[reaction]).intersection(fisher_results[compared_group])):
+            if any(set(r2k[reaction]).intersection(fisher_results[compared_group])):
                 enriched_term.append(compared_group)
         
-        if len(enriched_term)>0:
+        if len(enriched_term) > 0:
             enriched_term = '_'.join(enriched_term)
         
         else:
@@ -270,11 +284,12 @@ class NetworkBuilder:
         for key in self.metadata_keys:
             # FIXME: What am abundances_metagenome
             for _, group_abundances in abundances_metagenome.items():
-                if reaction in abundances_metagenome[key]:
-                    reaction_line.append(str(abundances_metagenome[key][reaction]))
+                
+                if reaction in group_abundances[key]:
+                    reaction_line.append(str(group_abundances[key][reaction]))
                 else:
                     reaction_line.append(self.ZERO)
-
+        
         if abundances_transcriptome:
 
             for key in self.metadata_keys:
@@ -283,6 +298,7 @@ class NetworkBuilder:
                     reaction_line.append(str(abundances_transcriptome[key][reaction]))
                 else:
                     reaction_line.append(self.ZERO)
+        
         if sum([float(x) for x in reaction_line[3:]])>0:
             return reaction_line
 
@@ -300,7 +316,7 @@ class NetworkBuilder:
         # Construct headers to network matrices
         seen_reactions = set(nested_dict_vals(abundances_metagenome))
         
-        groups = list(abundances.keys())
+        groups = list(abundances_metagenome.keys())
         network_lines = [self.matrix_header + list(['_'.join([a,b]) for a,b in product(self.metadata_keys, groups)])]
         
         if abundances_metabolome:
@@ -368,7 +384,7 @@ class NetworkBuilder:
                 queries_list = set(level_queries)
                 level_queries = set()
             
-            for reaction, entry in self.databases.r2c.items():
+            for reaction, entry in self.databases.r2c().items():
                 
                 if reaction in seen_reactions:
 
@@ -417,7 +433,9 @@ class NetworkBuilder:
         return network_lines, node_metadata_lines
     
     def pathway_matrix(self, abundances_metagenome, abundances_transcriptome, abundances_metabolome, fisher_results, limit, filter):
-
+        p2r = self.databases.p2r()
+        m2r = self.databases.m2r()
+        r2c = self.databases.r2c()
         possible_reactions = set()
 
         if any(limit):
@@ -427,22 +445,22 @@ class NetworkBuilder:
                 if(entry.startswith(self.MAP_PREFIX) or 
                    entry.startswith(self.PATHWAY_PREFIX)): 
             
-                    for reaction in self.databases.p2r[entry]:
+                    for reaction in p2r[entry]:
                         possible_reactions.add(reaction)
             
                 elif(entry.startswith(self.MODULE_PREFIX)):
             
-                    for reaction in self.databases.m2r[entry]:
+                    for reaction in m2r[entry]:
                         possible_reactions.add(reaction)
             
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
-            possible_reactions = {reaction:self.databases.r2c[reaction] 
+            possible_reactions = {reaction:r2c[reaction] 
                                   for reaction in
                                   possible_reactions
-                                  if reaction in self.databases.r2c}
+                                  if reaction in r2c}
         else:
-            possible_reactions = self.databases.r2c
+            possible_reactions = r2c
         
         for entry in filter:
 
@@ -461,7 +479,12 @@ class NetworkBuilder:
   
     def traverse(self, abundances_metagenome, abundances_transcriptome, limit, filter, 
                  starting_compounds, steps, number_of_queries):
-
+        
+        p2r = self.databases.p2r()
+        m2r = self.databases.m2r()
+        r2c = self.databases.r2c()
+        c = self.databases.c()
+        
         if any(limit):
 
             for entry in limit:
@@ -469,21 +492,21 @@ class NetworkBuilder:
                 if(entry.startswith(self.MAP_PREFIX) or 
                    entry.startswith(self.PATHWAY_PREFIX)): 
             
-                    for reaction in self.databases.p2r[entry]:
+                    for reaction in p2r[entry]:
                         possible_reactions.add(reaction)
             
                 elif(entry.startswith(self.MODULE_PREFIX)):
             
-                    for reaction in self.databases.m2r[entry]:
+                    for reaction in m2r[entry]:
                         possible_reactions.add(reaction)
             
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
 
-            possible_reactions = {reaction:self.databases.r2c[reaction] for reaction in possible_reactions}
+            possible_reactions = {reaction:r2c[reaction] for reaction in possible_reactions}
         
         else:
-            possible_reactions = self.databases.r2c
+            possible_reactions = r2c
         
         for entry in filter:
         
@@ -493,7 +516,7 @@ class NetworkBuilder:
         possible_compounds = set(chain(*possible_reactions.values()))
 
         if len(starting_compounds)==0:
-            query_list=[x for x in self.databases.c.keys()
+            query_list=[x for x in c.keys()
                         if x in possible_compounds]
         else:
             query_list=[x for x in starting_compounds 

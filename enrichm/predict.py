@@ -22,7 +22,7 @@ import pickle
 import os
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from enrichm.parser import RFModel
+from enrichm.parser import ParseGenerate
 from enrichm.writer import Writer
 from enrichm.parser import Parser
 from enrichm.generate import GenerateModel
@@ -66,7 +66,7 @@ class Predict:
 		-------
 		
 		'''
-		forester_model = RFModel(forester_model_directory)
+		forester_model = ParseGenerate(forester_model_directory)
 
 		logging.info('Parsing input')
 		logging.info('Loading model: %s' % (forester_model.RF_MODEL))

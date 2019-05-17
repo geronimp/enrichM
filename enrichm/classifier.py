@@ -46,8 +46,8 @@ class Classify:
     def __init__(self):
         databases=Databases()
         self.signature_modules  = databases.signature_modules
-        self.m2def              = databases.m2def
-        self.m                  = databases.m
+        self.m2def              = databases.m2def()
+        self.m                  = databases.m()
 
     def update_with_custom_modules(self, custom_modules):
         custom_modules_dict = dict()
