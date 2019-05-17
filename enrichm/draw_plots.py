@@ -46,9 +46,8 @@ class Plot:
 	def draw_pca_plot(self, annotation_matrix, metadata, output_directory):
 		logging.info('	- Generating PCA plot')
 		output_path = os.path.join(output_directory, self.output_pca_plot)
-		
-		cmd = "Rscript %s -i %s -m %s -o %s > /dev/null 2>&1" \
-			% (self.draw_pca_script_path, annotation_matrix, metadata, output_path)
+		import IPython ; IPython.embed()
+		cmd = "Rscript %s -i %s -m %s -o %s > /dev/null 2>&1" % (self.draw_pca_script_path, annotation_matrix, metadata, output_path)
 		subprocess.call(cmd, shell=True)
 
 	def draw_barplots(self, annotation_matrix, pvalue, output_directory):

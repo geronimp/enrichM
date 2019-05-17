@@ -239,7 +239,8 @@ if __name__ == "__main__":
     enrichment_runtime_options.add_argument('--threshold', type=float, default=0.1,
                 help='The threshold to control for in false discovery rate of familywise error rate.')
     enrichment_runtime_options.add_argument('--multi_test_correction',
-                help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options. (Default = Benjamini-Hochberg FDR)', default='fdr_bh')
+                help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.\nDefault: Benjamini-Hochberg FDR (fdr_bh) \nOptions: Bonferroni (b) \n\t Sidak (s) \n\t Holm (h) \n\t Holm-Sidak (hs) \n\t Simes-Hochberg (sh) \n\t Hommel (ho) \n\t FDR Benjamini-Yekutieli (fdr_by) \n\t FDR 2-stage Benjamini-Hochberg (fdr_tsbh) \n\t FDR 2-stage Benjamini-Krieger-Yekutieli (fdr_tsbky) \n\t FDR adaptive Gavrilov-Benjamini-Sarkar (fdr_gbs))', default='fdr_bh')
+                
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
     enrichment_runtime_options.add_argument('--allow_negative_values', 

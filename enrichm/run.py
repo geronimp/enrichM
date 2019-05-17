@@ -194,8 +194,9 @@ args.annotation_matrix,        ----------
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
         
-        if not args.annotation_matrix or args.annotate_output:
-            raise Exception("Either --annotate_output or --annotation_matrix must be specified!")
+        if not args.annotation_matrix:
+            if not args.annotate_output:
+                raise Exception("Either --annotate_output or --annotation_matrix must be specified!")
         
         if args.annotate_output:
 

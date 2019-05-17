@@ -31,7 +31,6 @@ from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser, ParseAnnotate
 from enrichm.writer import Writer
-from enrichm.matrix_generator import MatrixGenerator
 from collections import Counter
 from itertools import product, combinations, chain
 from scipy import stats
@@ -296,6 +295,53 @@ class Enrichment:
             gtdb_annotation_matrix = None
         return gtdb_annotation_matrix
 
+    def module_completeness(self, database, result_file_path, pval_cutoff):
+        module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
+        module_descriptions = database.m()
+
+        g1_sig_kos = set()
+        g2_sig_kos = set()
+
+        result_file_io = open(result_file_path)
+        result_file_io.readline()
+        
+        for line in result_file_io:
+            sline = line.strip().split('\t')
+            if float(sline[-2])<pval_cutoff:
+                if result_file_path.endswith("fisher.tsv"):
+                    g1 = float(sline[3]) / (int(sline[3]) + int(sline[4]))
+                    g2 = float(sline[5]) / (int(sline[5]) + int(sline[6]))
+                elif result_file_path.endswith("cdf.tsv"):
+                    g1 = float(sline[3])
+                    g2 = float(sline[5])
+                if g1>g2:
+                    g1_sig_kos.add(sline[0])
+                else:
+                    g2_sig_kos.add(sline[0])
+        
+        for module, definition in database.m2def().items():
+        
+            if module not in database.signature_modules:
+                pathway = ModuleDescription(definition)
+                num_all         = pathway.num_steps()
+                g1_num_covered, _, _, _ = pathway.num_covered_steps(g1_sig_kos)
+                g1_perc_covered    = g1_num_covered / float(num_all)
+
+                g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_kos)
+                g2_perc_covered    = g2_num_covered / float(num_all)
+        
+                if g1_perc_covered>0:
+                    output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, module_descriptions[module]]
+                    module_output.append(output_line)
+        
+                if g2_perc_covered>0:
+                    output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, module_descriptions[module]]
+                    module_output.append(output_line)
+        
+        prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
+        
+        return module_output, prefix
+
     def do(# Input options
            self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path,
            # Runtime options
@@ -308,11 +354,7 @@ class Enrichment:
         plot  = Plot()
         database  = Databases()
         
-        if annotation_matrix:
-            logging.info('Parsing annotations: %s' % annotation_matrix)
-            annotations_dict, _, annotations, = Parser.parse_simple_matrix(annotation_matrix)
-            annotation_type = self.check_annotation_type(annotations)
-        elif annotate_output:
+        if annotate_output:
             logging.info('Parsing annotate output: %s' % (annotate_output))
             pa = ParseAnnotate(annotate_output, processes)
 
@@ -332,64 +374,55 @@ class Enrichment:
                 annotation_matrix = pa.cazy
             elif ec:
                 annotation_matrix = pa.ec
-            
-        gtdb_annotation_matrix = self.get_gtdb_database_path(annotation_type, database)
-
+        
+        annotations_dict, _, annotations, = Parser.parse_simple_matrix(annotation_matrix)
+        annotation_type = self.check_annotation_type(annotations)
+        
         logging.info('Parsing metadata: %s' % metadata_path)
         metadata, metadata_value_lists, attribute_dict = Parser.parse_metadata_matrix(metadata_path)
 
         if abundances_path:
-            
+            logging.info('Running abundances pipeline')
             logging.info('Parsing sample abundance')
             abundances_dict, _, _ = Parser.parse_simple_matrix(abundances_path)
 
             logging.info('Parsing sample metadata')
             _, _, ab_attribute_dict = Parser.parse_metadata_matrix(abundance_metadata_path)
 
-            t = Test(annotations_dict,
-                     None,
-                     annotation_type,
-                     threshold,
-                     multi_test_correction,
-                     processes,
-                     database)
-            
-            weighted_abundance = self.weight_annotation_matrix(abundances_dict,
-                                                 annotations_dict,
-                                                 ab_attribute_dict,
-                                                 annotations)
-
-            results = t.test_weighted_abundances(weighted_abundance,
-                                                 annotations)
+            test = Test(annotations_dict, None, annotation_type, threshold, multi_test_correction, processes, database)
+            weighted_abundance = self.weight_annotation_matrix(abundances_dict, annotations_dict, ab_attribute_dict, annotations)
+            results = test.test_weighted_abundances(weighted_abundance, annotations)
 
             for result in results:
                 test_result_lines, test_result_output_file = result
-
-                test_result_output_path = os.path.join(output_directory,
-                                                       test_result_output_file)
+                test_result_output_path = os.path.join(output_directory, test_result_output_file)
                 Writer.write(test_result_lines, test_result_output_path)
-                                                        
+            
         else:
+            
             if batchfile:
-                genomes_set = set()
-                batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict \
-                            = Parser.parse_metadata_matrix(batchfile)
-                genomes_set = genomes_set.union(set(batchfile_metadata.keys()))
+                gtdb_annotation_matrix = self.get_gtdb_database_path(annotation_type, database)
+
+                batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict = Parser.parse_metadata_matrix(batchfile)
+                genomes_set = set(batchfile_metadata.keys())
                 reference_genome_annotations, genomes_set = Parser.filter_large_matrix(genomes_set, gtdb_annotation_matrix)
 
                 annotations_dict.update(reference_genome_annotations)
                 new_batchfile_attribute_dict = dict()
-                for x,y in batchfile_attribute_dict.items():
-                    s = [z for z in y if z in genomes_set]
-                    if len(s)>0:
-                        new_batchfile_attribute_dict[x] = s
+                
+                for group_name, accession_id_list in batchfile_attribute_dict.items():
+                    filtered_accession_id_list = [accession_id for accession_id in accession_id_list if accession_id in genomes_set]
+
+                    if len(filtered_accession_id_list)>0:
+                        new_batchfile_attribute_dict[group_name] = filtered_accession_id_list
+
                 attribute_dict.update(new_batchfile_attribute_dict)
-                batchfile_metadata={x:batchfile_metadata[x] for x in genomes_set}
+                batchfile_metadata={group_name:batchfile_metadata[group_name] for group_name in genomes_set}
                 metadata.update(batchfile_metadata)
                 batchfile_metadata_value_lists = set(new_batchfile_attribute_dict.keys())
                 metadata_value_lists = metadata_value_lists.union(batchfile_metadata_value_lists)
             
-            logging.info("Comparing sets of genomes")        
+            logging.info("Comparing sets of genomes")
             combination_dict = dict()
 
             for combination in product(*list([metadata_value_lists])):
@@ -404,81 +437,30 @@ class Enrichment:
             
                 combination_dict['_'.join(combination)] = genome_list
 
-            t = Test(annotations_dict,
-                    combination_dict,
-                    annotation_type,
-                    threshold,
-                    multi_test_correction,
-                    processes,
-                    database)
-            results = t.do(attribute_dict)
+            test = Test(annotations_dict, combination_dict, annotation_type, threshold, multi_test_correction, processes, database)
+            results = test.do(attribute_dict)
 
             for result in results:
                 test_result_lines, test_result_output_file = result
-
-                test_result_output_path = os.path.join(output_directory,
-                                                    test_result_output_file)
+                test_result_output_path = os.path.join(output_directory, test_result_output_file)
                 Writer.write(test_result_lines, test_result_output_path)
 
-            raw_portions_path \
-                = os.path.join(output_directory, self.PROPORTIONS)
+        raw_proportions_output_lines = self.calculate_portions(annotations, combination_dict, annotations_dict, genome_list, proportions_cutoff)
+        Writer.write(raw_proportions_output_lines, os.path.join(output_directory, self.PROPORTIONS))
 
-            raw_proportions_output_lines \
-                = self.calculate_portions(annotations, combination_dict, annotations_dict, genome_list, proportions_cutoff)
-
-            Writer.write(raw_proportions_output_lines, raw_portions_path)
-
-            logging.info('Generating summary plots')
-
-            if annotation_type==self.KEGG:
-                logging.info('Finding module completeness in differentially abundant KOs')
-                
-                for result_file in os.listdir(output_directory):
-                
-                    if(result_file.endswith("fisher.tsv") or result_file.endswith("cdf.tsv")):
-                        plot.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
-                        
-                        g1_sig_kos = set()
-                        g2_sig_kos = set()
+        logging.info('Generating summary plots')
         
-                        result_file_io = open(os.path.join(output_directory, result_file))
-                        result_file_io.readline()
-                        
-                        for line in result_file_io:
-                            sline = line.strip().split('\t')
-                            if float(sline[-2])<pval_cutoff:
-                                if result_file.endswith("fisher.tsv"):
-                                    g1 = float(sline[3]) / (int(sline[3]) + int(sline[4]))
-                                    g2 = float(sline[5]) / (int(sline[5]) + int(sline[6]))
-                                elif result_file.endswith("cdf.tsv"):
-                                    g1 = float(sline[3])
-                                    g2 = float(sline[5])
-                                if g1>g2:
-                                    g1_sig_kos.add(sline[0])
-                                else:
-                                    g2_sig_kos.add(sline[0])
-                        # TODO: below in function
-                        module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
-                        module_descriptions = database.m()
-                        for module, definition in database.m2def().items():
-                            if module not in database.signature_modules:
-                                pathway = ModuleDescription(definition)
-                                num_all         = pathway.num_steps()
-                                g1_num_covered, _, _, _ = pathway.num_covered_steps(g1_sig_kos)
-                                g1_perc_covered    = g1_num_covered / float(num_all)
+        if annotation_type==self.KEGG:
+            logging.info('Finding module completeness in differentially abundant KOs')
             
-                                g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_kos)
-                                g2_perc_covered    = g2_num_covered / float(num_all)
-                                if g1_perc_covered>0:
-                                    output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, module_descriptions[module]]
-                                    module_output.append(output_line)
-                                if g2_perc_covered>0:
-                                    output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, module_descriptions[module]]
-                                    module_output.append(output_line)
-                        prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
-                        Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
+            for result_file in os.listdir(output_directory):
+            
+                if(result_file.endswith("fisher.tsv") or result_file.endswith("cdf.tsv")):
+                    plot.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
+                    module_output, prefix = self.module_completeness(database, os.path.join(output_directory, result_file), pval_cutoff)
+                    Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
 
-            plot.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
+        plot.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
 class Test(Enrichment):
     
