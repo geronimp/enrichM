@@ -242,7 +242,7 @@ class NetworkBuilder:
         
         for key in self.metadata_keys:
             for _, group_abundances in self.abundances_metagenome.items():
-                
+
                 if reaction in group_abundances[key]:
                     reaction_line.append(str(group_abundances[key][reaction]))
                 else:

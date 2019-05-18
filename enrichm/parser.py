@@ -193,7 +193,7 @@ class Parser:
 
 	@staticmethod
 	def parse_tpm_values(tpm_values):
-		k2r = Databases().k2r
+		k2r = Databases().k2r()
 
 		output_dict = dict()
 		annotation_types = set()
@@ -230,7 +230,7 @@ class Parser:
 							annotation_types.add(reaction)
 					
 					output_dict[sample][genome][reaction] += tpm
-												
+
 		return output_dict, annotation_types, genome_types
 
 class ParseAnnotate:

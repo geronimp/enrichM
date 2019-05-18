@@ -101,16 +101,19 @@ if __name__ == "__main__":
     base_input_options = base_network.add_argument_group('Input options')
     base_input_options.add_argument('--matrix', required=True,
                 help='KO matrix. REQUIRED.')
+    base_input_options.add_argument('--genome_metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--abundance',
                 help='Abundance matrix.')
+    base_input_options.add_argument('--abundance_metadata',
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--tpm_values',
                 help='TPM values produced by DetectM.')
-    base_input_options.add_argument('--abundance_metadata',
+    base_input_options.add_argument('--tpm_metadata',
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--metabolome',
                 help='Metabolome CID matrix.')
-    base_input_options.add_argument('--metadata', required=True,
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
     
     data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])

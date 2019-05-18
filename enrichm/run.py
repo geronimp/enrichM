@@ -250,7 +250,11 @@ args.annotation_matrix,        ----------
         if any([args.abundance, args.abundance_metadata]):
             if not (args.abundance and args.abundance_metadata):
                 raise Exception("Both abundance and abundance metadata need to be specified")
-
+        
+        if any([args.tpm_values, args.tpm_metadata]):
+            if not (args.tpm_values and args.tpm_metadata):
+                raise Exception("Both --tpm_values and --tpm_metadata need to be specified")
+        
         if args.subparser_name==NetworkAnalyser.PATHWAY:
             args.depth              = None
             args.queries            = None
@@ -418,8 +422,9 @@ args.annotation_matrix,        ----------
             na=NetworkAnalyser()
             na.do(args.subparser_name,
                   args.matrix,
-                  args.metadata,
+                  args.genome_metadata,
                   args.tpm_values,
+                  args.tpm_metadata,
                   args.abundance,
                   args.abundance_metadata,
                   args.metabolome,

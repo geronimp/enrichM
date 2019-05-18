@@ -201,11 +201,11 @@ class Databases:
 
 	def k2r(self):
 		k2r = dict()
-		for reaction, kos in self.r2k.items():
+		for reaction, kos in self.r2k().items():
 			for ko in kos:
-				if ko not in self.k2r:
-					self.k2r[ko] = list()
-				self.k2r[ko].append(reaction)
+				if ko not in k2r:
+					k2r[ko] = list()
+				k2r[ko].append(reaction)
 		return k2r
 	
 	def c2m(self):
