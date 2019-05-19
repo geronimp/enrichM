@@ -218,7 +218,6 @@ class NetworkBuilder:
         
         if len(enriched_term) > 0:
             enriched_term = '_'.join(enriched_term)
-        
         else:
             enriched_term = 'NA'
         
@@ -251,12 +250,12 @@ class NetworkBuilder:
         if self.abundances_transcriptome:
 
             for key in self.metadata_keys:
+                for _, group_abundances in self.abundances_transcriptome.items():
+                    if reaction in group_abundances[key]:
+                        reaction_line.append(str(group_abundances[key][reaction]))
+                    else:
+                        reaction_line.append(self.ZERO)
 
-                if reaction in self.abundances_transcriptome[key]:
-                    reaction_line.append(str(self.abundances_transcriptome[key][reaction]))
-                else:
-                    reaction_line.append(self.ZERO)
-        
         if sum([float(x) for x in reaction_line[3:]])>0:
             return reaction_line
 

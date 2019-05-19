@@ -55,6 +55,8 @@ class NetworkAnalyser:
 
     def __init__(self):
         self.databases = Databases()
+        self.reactions = self.databases.r()
+        self.reaction_to_ko = self.databases.r2k()
     
     def average(self, input_dictionary):
         for sample_group, group_dict in input_dictionary.items():
@@ -150,10 +152,10 @@ class NetworkAnalyser:
         else:
             raise Exception("Malformatted enrichment output: %s" % enrichment_output)
     
-    def average_tpm_by_sample(self, tpm_results, sample_metadata, group_metadata):
+    def average_tpm_by_sample(self, tpm_results, sample_metadata):
         output_dict = dict()
         tpm_dict, annotations, genomes = tpm_results
-        import IPython ; IPython.embed()
+        
         for group, samples in sample_metadata.items():
             output_dict[group] = dict()
 
@@ -185,28 +187,36 @@ class NetworkAnalyser:
 
                 for annotation in values:
                     output_dict[group][genome][annotation] = sum(output_dict[group][genome][annotation])/len(output_dict[group][genome][annotation])
+
+        return output_dict
+
+    def average_tpm_values(self, transriptome_abundance_dict, group_metadata):
+        output_dict = dict()
+        reactions = list(self.reactions.keys())
         
-        new_output_dict = dict()
-        reactions = list(self.databases.r().keys())
-        for key, item in output_dict.items():
-            new_output_dict[key] = dict()
+        for genome_group_name, group_reaction_abundance_dict in transriptome_abundance_dict.items():
+            output_dict[genome_group_name] = dict()
 
             for group, members in group_metadata.items():
-                new_output_dict[key][group] = dict()
+                output_dict[genome_group_name][group] = dict()
 
                 for reaction in reactions:
                     to_average = list()
+                    
                     for member in members:
-                        if member in item:
-                            if str.encode(reaction) in item[member]:
-                                to_average.append(item[member][str.encode(reaction)])
+                    
+                        if member in group_reaction_abundance_dict:
+                    
+                            if str.encode(reaction) in group_reaction_abundance_dict[member]:
+                                to_average.append(group_reaction_abundance_dict[member][str.encode(reaction)])
                             else:
                                 to_average.append(0.0)
+
                     average_value = sum(to_average) / len(to_average)
-                    new_output_dict[key][group][reaction] = average_value
+                    output_dict[genome_group_name][group][reaction] = average_value
 
-        return new_output_dict
-
+        return output_dict
+    
     def aggregate_dictionary(self, reference_dict, matrix_dict):
         
         output_dict_mean   = dict()
@@ -239,7 +249,7 @@ class NetworkAnalyser:
     def do(self,
            subparser_name,
            matrix, genome_metadata_path,
-           transcriptome_abundances, transcriptome_metadata_path,
+           transcriptome_abundances_path, transcriptome_metadata_path,
            metagenome_abundances, metagenome_metadata_path,
            metabolome,
            enrichment_output,
@@ -248,7 +258,7 @@ class NetworkAnalyser:
         Parameters
         ----------
         matrix
-        transcriptome_abundances
+        transcriptome_abundances_path
         metagenome_abundances
         metagenome_metadata_path
         metabolome
@@ -264,7 +274,7 @@ class NetworkAnalyser:
         '''
         genome_to_group, genome_groups, group_to_genome = Parser.parse_metadata_matrix(genome_metadata_path)
         orthology_matrix, _, _ = Parser.parse_simple_matrix(matrix)
-        reaction_matrix = self.aggregate_dictionary(self.databases.r2k(), orthology_matrix)
+        reaction_matrix = self.aggregate_dictionary(self.reaction_to_ko, orthology_matrix)
 
         # Read in fisher results
         if enrichment_output:
@@ -297,11 +307,12 @@ class NetworkAnalyser:
         abundances_metagenome = self.average(normalised_abundance_dict)
 
         # Read in expression (TPM) values
-        if transcriptome_abundances:
+        if transcriptome_abundances_path:
             logging.info("Parsing detectM TPM abundances")
             transcriptome_metadata = Parser.parse_metadata_matrix(transcriptome_metadata_path)[2]
-            transcriptome_abundances = self.average_tpm_by_sample(Parser.parse_tpm_values(transcriptome_abundances), sample_metadata, group_to_genome)
-            
+            transcriptome_abundance_dict = self.average_tpm_by_sample(Parser.parse_tpm_values(transcriptome_abundances_path), transcriptome_metadata)
+            transcriptome_abundances = self.average_tpm_values(transcriptome_abundance_dict, group_to_genome)
+        
         network_builder = NetworkBuilder(group_to_genome, abundances_metagenome, transcriptome_abundances, abundances_metabolome, fisher_results)
 
         if subparser_name == self.EXPLORE:
