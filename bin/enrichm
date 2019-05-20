@@ -122,6 +122,7 @@ if __name__ == "__main__":
                 help = 'Remove enrichm database')
     data_input_options.add_argument('--dry', action='store_true',
                 help = 'Download an empty database (debug)')
+    
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
@@ -221,20 +222,24 @@ if __name__ == "__main__":
     enrichment_input_options = enrichment.add_argument_group('Input options')
     enrichment_input_options.add_argument('--annotate_output',
                 help='Output directory provided by enrichm annotate')
-    enrichment_input_options.add_argument('--metadata', required=True,
+    enrichment_input_options.add_argument('--metadata',
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     enrichment_input_options.add_argument('--annotation_matrix',
-                                          help='Annotation matrix to compare.')
-
+                help='Annotation matrix to compare.')
+    enrichment_input_options.add_argument('--abundance',
+                help='Genome abundance matrix.')
+    enrichment_input_options.add_argument('--abundance_metadata',
+                help='Metadata grouping abundance samples.')
+    enrichment_input_options.add_argument('--transcriptome',
+                help='Genome abundance matrix.')
+    enrichment_input_options.add_argument('--transcriptome_metadata',
+                help='Metadata grouping abundance samples.')
+    
     enrichment_gtdb_options = enrichment.add_argument_group('Genome Taxonomy DataBase (GTDB) options')
     enrichment_gtdb_options.add_argument('--batchfile',
                 help='metadata file to compare with.')
 
     enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
-    enrichment_runtime_options.add_argument('--abundance',
-                help='Genome abundance matrix.')
-    enrichment_runtime_options.add_argument('--abundance_metadata',
-                help='Metadata grouping abundance samples.')
     enrichment_runtime_options.add_argument('--pval_cutoff', type=float, default=0.05,
                 help='Only output results with a p-value below a this cutoff (default=0.05).')
     enrichment_runtime_options.add_argument('--proportions_cutoff', type=float, default=1,
@@ -243,7 +248,6 @@ if __name__ == "__main__":
                 help='The threshold to control for in false discovery rate of familywise error rate.')
     enrichment_runtime_options.add_argument('--multi_test_correction',
                 help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.\nDefault: Benjamini-Hochberg FDR (fdr_bh) \nOptions: Bonferroni (b) \n\t Sidak (s) \n\t Holm (h) \n\t Holm-Sidak (hs) \n\t Simes-Hochberg (sh) \n\t Hommel (ho) \n\t FDR Benjamini-Yekutieli (fdr_by) \n\t FDR 2-stage Benjamini-Hochberg (fdr_tsbh) \n\t FDR 2-stage Benjamini-Krieger-Yekutieli (fdr_tsbky) \n\t FDR adaptive Gavrilov-Benjamini-Sarkar (fdr_gbs))', default='fdr_bh')
-                
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
     enrichment_runtime_options.add_argument('--allow_negative_values', 

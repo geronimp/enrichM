@@ -210,10 +210,8 @@ class Enrichment:
 
                         if annotation in genome_annotation_dict:
                             value = genome_annotation_dict[annotation]
-                            
                             if genome in sample_abundance[sample]:
                                 sample_annotation_abundance += sample_abundance[sample][genome]*value
-
                     output_dict[group][annotation].append(sample_annotation_abundance)
         
         return output_dict
@@ -343,7 +341,7 @@ class Enrichment:
         return module_output, prefix
 
     def do(# Input options
-           self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path,
+           self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path, transcriptome_path, transcriptome_metadata_path,
            # Runtime options
            pval_cutoff, proportions_cutoff, 
            threshold, multi_test_correction, batchfile, processes, allow_negative_values,

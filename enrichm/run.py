@@ -179,7 +179,6 @@ class Run:
 
         Parameters
 
-args.annotation_matrix,        ----------
         args    - object. Argparse object
 
         Output
@@ -190,13 +189,20 @@ args.annotation_matrix,        ----------
         
         if not args.abundance and args.abundance_metadata:
            raise Exception("Values for both --abundance and --abundance_metadata are required") 
-        
+        if not args.transcriptome and args.transcriptome_metadata:
+           raise Exception("Values for both --abundance and --abundance_metadata are required") 
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
         
         if not args.annotation_matrix:
             if not args.annotate_output:
                 raise Exception("Either --annotate_output or --annotation_matrix must be specified!")
+        
+        if args.annotation_matrix or args.annotate_output:
+            if not args.abundance:
+                if not args.metadata:
+                    raise Exception("Genome groups need to be specified using the --metadata flag")
+
         
         if args.annotate_output:
 
@@ -388,6 +394,8 @@ args.annotation_matrix,        ----------
                  args.metadata,
                  args.abundance,
                  args.abundance_metadata,
+                 args.transcriptome,
+                 agrs.transcriptome_metadata,
                  # Runtime options
                  args.pval_cutoff,
                  args.proportions_cutoff,
