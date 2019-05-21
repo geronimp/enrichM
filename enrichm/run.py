@@ -42,6 +42,8 @@ from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
 from enrichm.connect import Connect
+from enrichm.uses import Uses
+
 ###############################################################################
 
 debug={1:logging.CRITICAL,
@@ -68,6 +70,7 @@ class Run:
         self.GENERATE        = 'generate'
         self.CONNECT         = 'connect'
         self.AGGREGATE       = 'aggregate'
+        self.USES            = 'uses'
 
     def _logging_setup(self, args):
         if args.verbosity not in range(1, 6):
@@ -293,7 +296,17 @@ class Run:
         -------
         '''
         pass
-
+    
+    def _check_uses(self, args):
+        '''
+        Parameters
+        ----------
+        
+        Output
+        ------
+        '''
+        pass
+    
     def _check_generate(self, args):
         '''
         Parameters
@@ -395,7 +408,7 @@ class Run:
                  args.abundance,
                  args.abundance_metadata,
                  args.transcriptome,
-                 agrs.transcriptome_metadata,
+                 args.transcriptome_metadata,
                  # Runtime options
                  args.pval_cutoff,
                  args.proportions_cutoff,
@@ -464,4 +477,12 @@ class Run:
                   args.threads,
                   args.output)
         
+        elif args.subparser_name == self.USES:
+            self._check_uses(args)
+            uses = Uses()
+            uses.do(args.compounds_list,
+                    args.annotation_matrix,
+                    args.metadata,
+                    args.output)
+            
         logging.info('Finished running EnrichM')

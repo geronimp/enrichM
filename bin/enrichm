@@ -290,6 +290,18 @@ if __name__ == "__main__":
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
+    uses = subparsers.add_parser('uses', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    uses_input_options = uses.add_argument_group('Input options')
+    uses_input_options.add_argument('--annotation_matrix', required=True,
+                help='Input annotate output')
+    uses_input_options.add_argument('--metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+    uses_input_options.add_argument('--compounds_list', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+
+    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
     pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
     pathway_pathway_options = pathway.add_argument_group('Pathway options')
