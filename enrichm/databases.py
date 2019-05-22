@@ -22,6 +22,7 @@ import logging
 import pickle
 # Local
 from enrichm.data import Data
+from enrichm.parser import Parser
 ###############################################################################
 
 class Databases:
@@ -187,7 +188,7 @@ class Databases:
 		return self.load_pickle(self.TIGRFAM2DESCRIPTION)
 
 	def taxonomy(self):
-		return self.parse_taxonomy(self.TAXONOMY)
+		return Parser.parse_taxonomy(self.TAXONOMY)
 
 	def k2r(self):
 		k2r = dict()
@@ -216,16 +217,6 @@ class Databases:
 			loaded_pickle = pickle.load(file_io)
 
 		return loaded_pickle
-
-	def parse_taxonomy(self, taxonomy_path):
-		
-		output_taxonomy_dictionary = dict()
-
-		for line in open(taxonomy_path):
-			genome, taxonomy_string = line.strip().split('\t')
-			output_taxonomy_dictionary[genome] = taxonomy_string.split(';')
-			
-		return output_taxonomy_dictionary
 
 	def parse_ko_cutoffs(self):
 		cut_ko = dict()
