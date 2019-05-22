@@ -26,7 +26,7 @@ from enrichm.databases import Databases
 ###############################################################################
 
 class MatrixGenerator:
-        
+
     KO      = 'KO_IDS.txt'
     EC      = 'EC_IDS.txt'
     PFAM    = 'PFAM_IDS.txt'
@@ -47,28 +47,28 @@ class MatrixGenerator:
 
         if self.annotation_type == self.KO:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.KO))]
-        
+
         elif self.annotation_type == self.EC:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.EC))]
-        
+
         elif self.annotation_type == self.PFAM:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.PFAM))]
-        
+
         elif self.annotation_type == self.TIGRFAM:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.TIGRFAM))]
-        
+
         elif self.annotation_type == self.CAZY:
             self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.CAZY))]
-        
+
         elif self.annotation_type == self.HYPOTHETICAL:
             self.annotation_list = clusters
-            
+
         elif self.annotation_type == self.ORTHOLOG:
             self.annotation_list = clusters
-        
+
         else:
             raise Exception("Annotation type not found: %s" % (self.annotation_type))
-    
+
     def write_matrix(self, genomes_list, count_domains, output_path):
         '''
         Writes a frequency matrix with of each annotation (rows) per sample (columns)
@@ -78,13 +78,13 @@ class MatrixGenerator:
         genomes_list        - list. List of Genome objects
         output_path         - string. Path to file to which the results are written.
         '''
-        
+
         logging.info("    - Writing results to file: %s" % output_path)
-        
+
         with open(output_path, 'w') as out_io:
             colnames = ['ID'] + [genome.name for genome in genomes_list]
             out_io.write('\t'.join(colnames) + '\n')
-            
+
             if count_domains:
                 genome_annotations = {genome.name:Counter(chain(*[sequence.all_annotations() for sequence in genome.sequences.values()]))
                                       for genome in genomes_list}
@@ -96,11 +96,11 @@ class MatrixGenerator:
                 output_line = [annotation]
 
                 for genome in genomes_list:
-                
+
                     if annotation in genome_annotations[genome.name]:
                         output_line.append(str(genome_annotations[genome.name][annotation]))
-                
+
                     else:
                         output_line.append('0')
-                
+
                 out_io.write( '\t'.join(output_line) + '\n' )

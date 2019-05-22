@@ -45,9 +45,9 @@ debug={1:logging.CRITICAL,
 ###############################################################################
 
 class Run:
-    
+
     def __init__(self):
-        
+
         self.ANNOTATE        = 'annotate'
         self.COMPARE         = 'compare'
 
@@ -95,14 +95,14 @@ class Run:
                         'parallel': "https://www.gnu.org/software/parallel",
                         'prodigal': "https://github.com/hyattpd/Prodigal/wiki/installation",
                         'mmseqs': "https://github.com/soedinglab/MMseqs2"}
-        
+
         missing_dependencies = list()
-        
+
         for dependency in dependencies.keys():
 
             if shutil.which(dependency) == None:
                 missing_dependencies.append(dependency)
-        
+
         if len(missing_dependencies)>0:
             dependency_string = '\n'.join(['\t%s\t%s' % (d, dependencies[d]) for d in missing_dependencies])
             raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
@@ -125,7 +125,7 @@ class Run:
                 else:
                     raise Exception("File '%s' exists." % args.output)
 
-            os.mkdir(args.output)   
+            os.mkdir(args.output)
 
     def _check_annotate(self, args):
         '''
@@ -141,31 +141,31 @@ class Run:
 
         if len([x for x in [args.genome_files, args.genome_directory, args.protein_directory, args.protein_files] if x]) != 1:
             raise Exception("Input error: Only one type of input can be specified (--genome_files, --genome_directory, --protein_directory, or --protein_files).")
-        
+
         if not args.suffix:
-            
+
             if(args.genome_directory or args.genome_files):
                 args.suffix = '.fna'
-            
+
             elif(args.protein_directory or args.protein_files):
                 args.suffix = '.faa'
-        
+
         if(args.id>1 or args.id<0):
             raise Exception("Identity (--id) must be between 0 and 1.")
-        
+
         if(args.aln_query>1 or args.aln_query<0):
             raise Exception("Alignment to query cutoff (--aln_query) must be between 0 and 1")
-        
+
         if(args.aln_reference>1 or args.aln_reference<0):
             raise Exception("Alignment to reference cutoff (--aln_reference) must be between 0 and 1")
-        
+
         if any([args.cut_ga, args.cut_nc, args.cut_tc]):
             if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
                 raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
-            
+
             if args.evalue:
                 logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
-            
+
     def _check_enrichment(self, args):
         '''
         Check enrichment input and output options are valid.
@@ -179,24 +179,24 @@ class Run:
         '''
         ### ~ TODO: Check Multi test correction inputs...
         types = [args.ko, args.pfam, args.tigrfam, args.cluster, args.ortholog, args.cazy, args.ec, args.ko_hmm]
-        
+
         if not args.abundance and args.abundance_metadata:
-           raise Exception("Values for both --abundance and --abundance_metadata are required") 
+           raise Exception("Values for both --abundance and --abundance_metadata are required")
         if not args.transcriptome and args.transcriptome_metadata:
-           raise Exception("Values for both --abundance and --abundance_metadata are required") 
+           raise Exception("Values for both --abundance and --abundance_metadata are required")
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
-        
+
         if not args.annotation_matrix:
             if not args.annotate_output:
                 raise Exception("Either --annotate_output or --annotation_matrix must be specified!")
-        
+
         if args.annotation_matrix or args.annotate_output:
             if not args.abundance:
                 if not args.metadata:
                     raise Exception("Genome groups need to be specified using the --metadata flag")
 
-        
+
         if args.annotate_output:
 
             if not any(types):
@@ -207,10 +207,10 @@ class Run:
                 raise Exception(
                     "Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
 
-    def _check_classify(self, args):  
+    def _check_classify(self, args):
         '''
         Check classify input and output options are valid.
-        
+
         Parameters
         ----------
         args    - object. Argparse object
@@ -226,19 +226,19 @@ class Run:
     def _check_build(self, args):
         '''
         Check build input and output options are valid.
-        
+
         Parameters
         ----------
         args    - object. Argparse object
         '''
         if not(args.metadata or args.abundances):
-            
+
             raise Exception("No metadata or abundance information provided to build.")
 
     def _check_network(self, args):
         '''
         Check network (explore, pathway) input and output options are valid.
-        
+
         Parameters
         ----------
         args    - object. Argparse object
@@ -249,25 +249,25 @@ class Run:
         if any([args.abundance, args.abundance_metadata]):
             if not (args.abundance and args.abundance_metadata):
                 raise Exception("Both abundance and abundance metadata need to be specified")
-        
+
         if any([args.tpm_values, args.tpm_metadata]):
             if not (args.tpm_values and args.tpm_metadata):
                 raise Exception("Both --tpm_values and --tpm_metadata need to be specified")
-        
+
         if args.subparser_name==NetworkAnalyser.PATHWAY:
             args.depth              = None
             args.queries            = None
             args.starting_compounds = None
             args.steps              = None
             args.number_of_queries  = None
-        
+
         if args.subparser_name==NetworkAnalyser.TRAVERSE:
             args.depth              = None
             args.queries            = None
-    
+
         if args.subparser_name==NetworkAnalyser.EXPLORE:
-            args.filter             = None  
-            args.limit              = None 
+            args.filter             = None
+            args.limit              = None
             args.starting_compounds = None
             args.steps              = None
             args.number_of_queries  = None
@@ -281,27 +281,27 @@ class Run:
         '''
         Inputs
         ------
-        
+
         Outputs
         -------
         '''
         pass
-    
+
     def _check_uses(self, args):
         '''
         Parameters
         ----------
-        
+
         Output
         ------
         '''
         pass
-    
+
     def _check_generate(self, args):
         '''
         Parameters
         ----------
-        
+
         Output
         ------
         '''
@@ -310,23 +310,23 @@ class Run:
     def _check_connect(self, args):
         '''
         Check connect
-        
+
         Inputs
         ------
-        
+
         Outputs
         -------
-        
+
         '''
         if(args.cutoff > 1.0 and args.cutoff < 0.0):
-           
-           raise Exception("Cutoff needs to be between 0 - 1") 
-    
+
+           raise Exception("Cutoff needs to be between 0 - 1")
+
     def main(self, args, command):
         '''
         Parameters
         ----------
-        
+
         Output
         ------
         '''
@@ -338,7 +338,7 @@ class Run:
         if args.subparser_name == self.DATA:
             d = Data()
             d.do(args.uninstall, args.dry)
-        
+
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
             a = Annotate(# Define inputs and outputs
@@ -356,8 +356,8 @@ class Run:
                          args.evalue,
                          args.bit,
                          args.id,
-                         args.aln_query, 
-                         args.aln_reference, 
+                         args.aln_query,
+                         args.aln_reference,
                          args.c,
                          args.cut_ga,
                          args.cut_nc,
@@ -373,22 +373,22 @@ class Run:
                          args.suffix,
                          args.light)
             a.do(args.genome_directory,
-                 args.protein_directory, 
+                 args.protein_directory,
                  args.genome_files,
                  args.protein_files)
 
-        
+
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
             c = Classify()
-            c.do(args.custom_modules, 
+            c.do(args.custom_modules,
                  args.cutoff,
                  args.aggregate,
                  args.genome_and_annotation_file,
                  args.genome_and_annotation_matrix,
                  args.output)
 
-        elif args.subparser_name == self.ENRICHMENT: 
+        elif args.subparser_name == self.ENRICHMENT:
             self._check_enrichment(args)
             e = Enrichment()
             e.do(# Input options
@@ -427,7 +427,7 @@ class Run:
                  args.cutoff,
                  args.output)
 
-        elif(args.subparser_name == NetworkAnalyser.PATHWAY or 
+        elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE):
             self._check_network(args)
             na=NetworkAnalyser()
@@ -444,11 +444,11 @@ class Run:
                   args.filter,
                   args.limit,
                   args.queries,
-                  args.starting_compounds, 
+                  args.starting_compounds,
                   args.steps,
                   args.number_of_queries,
                   args.output)
-        
+
         if args.subparser_name == self.PREDICT:
             self._check_predict(args)
             p = Predict()
@@ -466,7 +466,7 @@ class Run:
                   args.grid_search,
                   args.threads,
                   args.output)
-        
+
         elif args.subparser_name == self.USES:
             self._check_uses(args)
             uses = Uses()
@@ -475,5 +475,5 @@ class Run:
                     args.metadata,
                     args.output,
                     args.count)
-            
+
         logging.info('Finished running EnrichM')

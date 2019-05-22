@@ -30,7 +30,7 @@ for line in open(sys.argv[1]):
                     if to_assess.startswith('('):
                         chunk=chunk.replace('-' + to_assess[0:to_assess.index(')')+1], "")
         chunks.append(chunk)
-    description = ' '.join(chunks) 
+    description = ' '.join(chunks)
     if '(' in description:
         inside = False
         for i in description:

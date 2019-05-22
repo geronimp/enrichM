@@ -36,14 +36,14 @@ import logging
 ################################################################################
 
 def gene_fisher_calc(x):
-    
+
     annotation, group_1, group_2 = x[0], x[1], x[2]
-    
+
     dat = x[3:]
-    
+
     if (dat[0][0]>0 or dat[1][0]>0) and (dat[0][1]>0 or dat[1][1]>0):
         score, pval = stats.fisher_exact(dat)
- 
+
     else:
         score, pval = 'nan', 1.0
 
@@ -63,11 +63,11 @@ def mannwhitneyu_calc(x):
             mw_t_stat, mw_p_value = 'NA', 1
 
         else:
-            group_1_module_annotations = np.array(group_1_module_annotations)       
-            group_2_module_annotations = np.array(group_2_module_annotations)           
+            group_1_module_annotations = np.array(group_1_module_annotations)
+            group_2_module_annotations = np.array(group_2_module_annotations)
             mw_t_stat, mw_p_value = \
                 stats.mannwhitneyu(group_1_module_annotations,
-                                         group_2_module_annotations)            
+                                         group_2_module_annotations)
     else:
         mw_t_stat, mw_p_value = 'NA', 1
 
@@ -75,7 +75,7 @@ def mannwhitneyu_calc(x):
             str(np.mean(group_2_module_annotations)), mw_t_stat, mw_p_value]
 
 def zscore_calc(x):
-    
+
     annotation, group_1, group_2, group_1_module_annotations, group_2_module_annotations = x
     group_1_module_annotations = group_1_module_annotations[0]
     group_2_module_annotations = group_2_module_annotations[0]
@@ -85,7 +85,7 @@ def zscore_calc(x):
         reference_name = group_1
         genome = group_2_module_annotations[0]
         genome_name = group_2
- 
+
     else:
         reference_name = group_2
         reference = group_2_module_annotations
@@ -99,11 +99,11 @@ def zscore_calc(x):
             = np.mean(reference, axis=0)
 
         if (genome-reference_group_comp_mean)>0:
-   
+
             if reference_group_comp_sd==0:
                 z_score = np.inf
                 p_value = 0.0
-     
+
             else:
                 z_score = (genome-reference_group_comp_mean) / reference_group_comp_sd
                 p_value = 2-2*stats.norm.cdf(z_score)
@@ -114,13 +114,13 @@ def zscore_calc(x):
                     str(reference_group_comp_mean),
                     str(reference_group_comp_sd),
                     str(genome),
-                    str(z_score), 
+                    str(z_score),
                     p_value]
 
 ################################################################################
 
 class Enrichment:
-    
+
     TIGRFAM                 = "tigrfam"
     PFAM                    = "pfam"
     KEGG                    = "kegg"
@@ -143,12 +143,12 @@ class Enrichment:
     def check_annotation_type(self, annotations):
         '''
         Takes a random sample of the rownames from the input matrix
-        and based on the characters they start with, determines the 
+        and based on the characters they start with, determines the
         type of annotation being used.
-        
+
         Parameters
         ----------
-        annotaitons     - List. A list of strings, each a rowname 
+        annotaitons     - List. A list of strings, each a rowname
                           from the original input matrix
 
         Output
@@ -162,7 +162,7 @@ class Enrichment:
         for character in list(sample):
 
             if character.isdigit()!=True:
-            
+
                 if character!='_':
                     cazy_prefix+=character
 
@@ -178,7 +178,7 @@ class Enrichment:
             return self.EC
         else:
             return self.OTHER
-    
+
     def weight_annotation_matrix(self,
                                  sample_abundance,
                                  annotation_abundance,
@@ -204,7 +204,7 @@ class Enrichment:
                             if genome in sample_abundance[sample]:
                                 sample_annotation_abundance += sample_abundance[sample][genome]*value
                     output_dict[group][annotation].append(sample_annotation_abundance)
-        
+
         return output_dict
 
     def calculate_portions(self,
@@ -219,24 +219,24 @@ class Enrichment:
         Parameters
         ----------
         modules             - List. List of all possible annotations for the given annotation
-                              type (eg, all ko ids, or all pfam ids). 
+                              type (eg, all ko ids, or all pfam ids).
         combination_dict    - Dictionary. Metadata dictionary, with the groups as keys, and lists
                               of genomes as entries
         annotations_dict    - Dictionary. Annotation dictionary, with the the genome ids as keys,
-                              and a list of annotations as the entry for each.  
+                              and a list of annotations as the entry for each.
         genome_list         - List. List of strings, each one a genome name
         proportions_cutoff  - Float. Value with which to cutoff
         '''
         raw_proportions_output_lines        = [['Module'] + list(combination_dict.keys())]
 
         for module in modules:
-            
+
             module_values               = dict()
             raw_proportions_output_line = [module]
-            
+
             for group_name, genome_list in combination_dict.items():
                 if len(genome_list)>0:
-                    coverage = len([genome for genome in genome_list 
+                    coverage = len([genome for genome in genome_list
                                     if module in annotations_dict[genome]])
                     total    = float(len(genome_list))
                     entry    = coverage/total
@@ -244,7 +244,7 @@ class Enrichment:
                     raw_proportions_output_line.append(str(entry))
                 else:
                     raw_proportions_output_line.append('0.0')
-            
+
             if max(module_values.values())>0:
                 groups = combination_dict.keys()
                 for group in groups:
@@ -259,17 +259,17 @@ class Enrichment:
                                 else:
                                     compare_value = float("inf")
                                 compare_groups.append(compare_value)
-                    
-                    if all([x>proportions_cutoff for x in compare_groups]):                    
-                        pass 
+
+                    if all([x>proportions_cutoff for x in compare_groups]):
+                        pass
 
             raw_proportions_output_lines.append(raw_proportions_output_line)
 
         return raw_proportions_output_lines
 
-    
+
     def get_gtdb_database_path(self, annotation_type, database):
-        
+
         if annotation_type == self.KEGG:
             gtdb_annotation_matrix = database.GTDB_KO
         elif annotation_type == self.TIGRFAM:
@@ -293,7 +293,7 @@ class Enrichment:
 
         result_file_io = open(result_file_path)
         result_file_io.readline()
-        
+
         for line in result_file_io:
             sline = line.strip().split('\t')
             if float(sline[-2])<pval_cutoff:
@@ -307,9 +307,9 @@ class Enrichment:
                     g1_sig_kos.add(sline[0])
                 else:
                     g2_sig_kos.add(sline[0])
-        
+
         for module, definition in database.m2def().items():
-        
+
             if module not in database.signature_modules:
                 pathway = ModuleDescription(definition)
                 num_all         = pathway.num_steps()
@@ -318,23 +318,23 @@ class Enrichment:
 
                 g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_kos)
                 g2_perc_covered    = g2_num_covered / float(num_all)
-        
+
                 if g1_perc_covered>0:
                     output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, module_descriptions[module]]
                     module_output.append(output_line)
-        
+
                 if g2_perc_covered>0:
                     output_line = [module, sline[2], num_all, g2_num_covered, g2_perc_covered, module_descriptions[module]]
                     module_output.append(output_line)
-        
+
         prefix = '_vs_'.join([sline[1], sline[2]]).replace(' ', '_')
-        
+
         return module_output, prefix
 
     def do(# Input options
            self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path, transcriptome_path, transcriptome_metadata_path,
            # Runtime options
-           pval_cutoff, proportions_cutoff, 
+           pval_cutoff, proportions_cutoff,
            threshold, multi_test_correction, batchfile, processes, allow_negative_values,
            ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm,
            # Output options
@@ -342,7 +342,7 @@ class Enrichment:
 
         plot  = Plot()
         database  = Databases()
-        
+
         if annotate_output:
             logging.info('Parsing annotate output: %s' % (annotate_output))
             pa = ParseAnnotate(annotate_output, processes)
@@ -363,10 +363,10 @@ class Enrichment:
                 annotation_matrix = pa.cazy
             elif ec:
                 annotation_matrix = pa.ec
-        
+
         annotations_dict, _, annotations, = Parser.parse_simple_matrix(annotation_matrix)
         annotation_type = self.check_annotation_type(annotations)
-        
+
         logging.info('Parsing metadata: %s' % metadata_path)
         metadata, metadata_value_lists, attribute_dict = Parser.parse_metadata_matrix(metadata_path)
 
@@ -386,9 +386,9 @@ class Enrichment:
                 test_result_lines, test_result_output_file = result
                 test_result_output_path = os.path.join(output_directory, test_result_output_file)
                 Writer.write(test_result_lines, test_result_output_path)
-            
+
         else:
-            
+
             if batchfile:
                 gtdb_annotation_matrix = self.get_gtdb_database_path(annotation_type, database)
 
@@ -398,7 +398,7 @@ class Enrichment:
 
                 annotations_dict.update(reference_genome_annotations)
                 new_batchfile_attribute_dict = dict()
-                
+
                 for group_name, accession_id_list in batchfile_attribute_dict.items():
                     filtered_accession_id_list = [accession_id for accession_id in accession_id_list if accession_id in genomes_set]
 
@@ -410,20 +410,20 @@ class Enrichment:
                 metadata.update(batchfile_metadata)
                 batchfile_metadata_value_lists = set(new_batchfile_attribute_dict.keys())
                 metadata_value_lists = metadata_value_lists.union(batchfile_metadata_value_lists)
-            
+
             logging.info("Comparing sets of genomes")
             combination_dict = dict()
 
             for combination in product(*list([metadata_value_lists])):
                 genome_list = list()
-            
+
                 for genome, attributes in metadata.items():
-            
+
                     for feature in combination:
-            
+
                         if feature in attributes:
-                            genome_list.append(genome)  
-            
+                            genome_list.append(genome)
+
                 combination_dict['_'.join(combination)] = genome_list
 
             test = Test(annotations_dict, combination_dict, annotation_type, threshold, multi_test_correction, processes, database)
@@ -438,35 +438,35 @@ class Enrichment:
         Writer.write(raw_proportions_output_lines, os.path.join(output_directory, self.PROPORTIONS))
 
         logging.info('Generating summary plots')
-        
+
         if annotation_type==self.KEGG:
             logging.info('Finding module completeness in differentially abundant KOs')
-            
+
             for result_file in os.listdir(output_directory):
-            
+
                 if(result_file.endswith("fisher.tsv") or result_file.endswith("cdf.tsv")):
                     plot.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
                     module_output, prefix = self.module_completeness(database, os.path.join(output_directory, result_file), pval_cutoff)
-                    Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))   
+                    Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))
 
         plot.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
 class Test(Enrichment):
-    
+
     FISHER_HEADER = [['annotation', 'group_1', 'group_2', 'group_1_true', 'group_1_false',
                       'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue', 'description']]
 
     MANNWHITNEYU_HEADER =[['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean',
                            'score', 'pvalue', 'corrected_pvalue', 'description']]
-    
+
     ZSCORE_HEADER = [['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_1_sd',
                       'group_2_count', 'score', 'pvalue', 'corrected_pvalue', 'description']]
-    
+
     PA                     = 'presence_absence'
     IVG_OUTPUT             = 'ivg_results.cdf.tsv'
     GENE_FISHER_OUTPUT     = 'gvg_results.fisher.tsv'
     GVG_OUTPUT             = 'gvg_results.mannwhitneyu.tsv'
-    
+
     mtc_dict = {'b': 'Bonferroni',
                 's': 'Sidak',
                 'h': 'Holm',
@@ -478,9 +478,9 @@ class Test(Enrichment):
                 'fdr_tsbh': 'FDR 2-stage Benjamini-Hochberg',
                 'fdr_tsbky': 'FDR 2-stage Benjamini-Krieger-Yekutieli',
                 'fdr_gbs': 'FDR adaptive Gavrilov-Benjamini-Sarkar'}
-    
-    def __init__(self, genome_annotations, groups, 
-                 annotation_type, threshold, multi_test_correction, 
+
+    def __init__(self, genome_annotations, groups,
+                 annotation_type, threshold, multi_test_correction,
                  processes, database):
         '''
         Collects functions to count and test differential abundance among groups of genomes.
@@ -499,26 +499,26 @@ class Test(Enrichment):
         self.tigrfamdescription     = database.tigrfamdescription()
         self.pfam2description       = database.pfam2description()
         self.ec2description         = database.ec2description()
-        
+
         if annotation_type==self.PFAM:
             self.genome_annotations = dict()
-            for key, item in genome_annotations.items():                
+            for key, item in genome_annotations.items():
                 self.genome_annotations[key] = {key.split('.')[0]:entry for key,entry in item.items()}
         else:
             self.genome_annotations = genome_annotations
 
     def test_chooser(self, groups):
         groups = [len(x) for x in groups]
-        
+
         # Enrichment
         if any(group == 1 for group in groups):
             enrichment_test = self.PA
             overrepresentation_test = stats.norm.cdf
-            
+
         else:
             enrichment_test = stats.fisher_exact
             overrepresentation_test = stats.mannwhitneyu
-        
+
         return enrichment_test, overrepresentation_test
 
     def correct_multi_test(self, pvalues):
@@ -539,7 +539,7 @@ class Test(Enrichment):
 
         else:
             group_true = 0
-        
+
         group_false = 0
 
         for genome in self.groups[group]:
@@ -547,13 +547,13 @@ class Test(Enrichment):
                 if freq:
                     group_true.append(self.genome_annotations[genome][annotation])
                 else:
-                    if self.genome_annotations[genome][annotation]>0.0:                    
+                    if self.genome_annotations[genome][annotation]>0.0:
                         group_true+=1
                     else:
                         group_false+=1
-                
+
             else:
-        
+
                 if freq:
                     group_true.append(0)
 
@@ -561,7 +561,7 @@ class Test(Enrichment):
                     group_false+=1
 
         return group_true, group_false
-        
+
     def gene_frequencies(self, group_1, group_2, freq=False):
 
         res_list    = list()
@@ -585,7 +585,7 @@ class Test(Enrichment):
             else:
                 if(group_1_true==0 and group_2_true==0):
                     passed = False
-            
+
             if passed:
                 res_list.append([annotation, group_1, group_2, [group_1_true, group_1_false], [group_2_true, group_2_false]])
 
@@ -609,27 +609,27 @@ class Test(Enrichment):
 
         if self.annotation_type == self.PFAM:
             desc = self.pfam2description
-            
+
         if self.annotation_type == self.EC:
             desc = self.ec2description
 
         if self.annotation_type == self.OTHER:
             desc = None
-        
+
         for line in output_lines:
             annotation = line[0]
 
             if desc:
-            
+
                 if annotation in desc:
                     line.append(desc[annotation])
-            
+
                 else:
                     line.append("NA")
-            
+
             else:
                 line.append("NA")
-        
+
         return output_lines
 
     def test_weighted_abundances(self,
@@ -668,29 +668,29 @@ class Test(Enrichment):
         for combination in combinations(group_dict, 2):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
             prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
-            
+
             logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
-            
+
             if enrichment_test == stats.fisher_exact:
-                logging.info('Testing gene enrichment using Fisher\'s exact test')    
+                logging.info('Testing gene enrichment using Fisher\'s exact test')
                 gene_count = self.gene_frequencies(*combination)
                 output_lines = self.pool.map(gene_fisher_calc, gene_count)
-            
+
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
-                
+
                 header = self.FISHER_HEADER
                 output = self.GENE_FISHER_OUTPUT
                 output_lines = self.add_descriptions(output_lines)
                 output_lines = header + output_lines
                 results.append([output_lines, prefix +'_'+ output])
-            
+
             elif enrichment_test == self.PA:
                 logging.info('enrichment statistics not possible with only one genome to compare')
                 logging.info('See prevalence matrix for unique genes in groups')
 
             logging.info('Comparing gene over-representation among genomes')
-            
+
             if overrepresentation_test == stats.mannwhitneyu:
                 logging.info('Testing over-representation using Mann-Whitney U test')
                 gene_count = self.gene_frequencies(*combination, True)
@@ -698,7 +698,7 @@ class Test(Enrichment):
 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
-                
+
                 header = self.MANNWHITNEYU_HEADER
                 output = self.GVG_OUTPUT
 
@@ -707,13 +707,13 @@ class Test(Enrichment):
                 gene_count = self.gene_frequencies(*combination, True)
                 output_lines = self.pool.map(zscore_calc, gene_count)
                 output_lines = [x for x in output_lines if x]
-                
+
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
-                
+
                 header = self.ZSCORE_HEADER
                 output = self.IVG_OUTPUT
-            
+
             output_lines = self.add_descriptions(output_lines)
             output_lines = header + output_lines
             results.append([output_lines, prefix +'_'+ output])

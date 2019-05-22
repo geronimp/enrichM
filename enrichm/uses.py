@@ -26,38 +26,38 @@ import logging
 import os
 
 class Uses:
-    
+
     def __init__(self):
         databases = Databases()
         self.reaction_to_ko = databases.r2k()
         self.compound_to_reaction = databases.c2r()
         self.compounds = databases.c()
-        
+
         self.POSITIVE = 'positive'
         self.NEGATIVE = 'negative'
-        
+
         self.ABUNDACE = "frequency_matrix.tsv"
         self.ENRICHMENT = "enrichment_results.tsv"
         self.ABUNDACE_HEADER = ["Compound"]
         self.ENRICHMENT_HEADER = ["Compound", "Group_1", "Group_2",  "group_1_mean", "group_2_mean", "score", "pvalue", "description"]
-    
+
     def gather_present_annotations(self, column_annotations):
-        
+
         present_annotations = set()
-        
+
         for annotation, copy_number in column_annotations.items():
-        
+
             if copy_number>0:
                 present_annotations.add(annotation)
-        
+
         return present_annotations
-    
+
     def uses(self, compound_list, annotations, column_names, count):
         output_lines_abundance = [self.ABUNDACE_HEADER + column_names]
         enrichment_tallys = dict()
 
         for compound in compound_list:
-            
+
             if compound in self.compound_to_reaction:
 
                 enrichment_tallys[compound] = dict()
@@ -66,33 +66,33 @@ class Uses:
                 for column_header in column_names:
                     column_positive_tally = 0
                     column_negative_tally = 0
-                    
+
                     # Gather all annotations present for this column (genome)
                     present_annotations = self.gather_present_annotations(annotations[column_header])
                     for reaction in self.compound_to_reaction[compound]:
-                                    
+
                         # If there are more than 0 KOs that carry out the reaction present in the genome
                         if reaction in self.reaction_to_ko:
                             overlapping_annotations = present_annotations.intersection(self.reaction_to_ko[reaction])
 
                             if len(overlapping_annotations)>0:
-                                
+
                                 if count:
-                                    
+
                                     for annotation in overlapping_annotations:
                                         column_positive_tally+=annotations[column_header][annotation]
-                                
+
                                 else:
                                     column_positive_tally+=1
-                            
+
                             else:
                                 column_negative_tally+=1
 
                     abundance_line.append(column_positive_tally)
                     enrichment_tallys[compound][column_header] = {self.POSITIVE: column_positive_tally, self.NEGATIVE: column_negative_tally}
-            
+
             output_lines_abundance.append(abundance_line)
-    
+
         return output_lines_abundance, enrichment_tallys
 
     def enrichment(self, enrichment_tallys, metadata):
