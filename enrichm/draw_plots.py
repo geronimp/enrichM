@@ -16,16 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
-
-################################################################################
 import logging
 import os
 import subprocess
@@ -46,7 +36,6 @@ class Plot:
 	def draw_pca_plot(self, annotation_matrix, metadata, output_directory):
 		logging.info('	- Generating PCA plot')
 		output_path = os.path.join(output_directory, self.output_pca_plot)
-		import IPython ; IPython.embed()
 		cmd = "Rscript %s -i %s -m %s -o %s > /dev/null 2>&1" % (self.draw_pca_script_path, annotation_matrix, metadata, output_path)
 		subprocess.call(cmd, shell=True)
 

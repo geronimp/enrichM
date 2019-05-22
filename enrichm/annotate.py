@@ -16,16 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__version__ = "0.0.7"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
-
-###############################################################################
 # System imports
 from enrichm.genome import Genome, AnnotationParser
 from enrichm.matrix_generator import MatrixGenerator

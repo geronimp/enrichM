@@ -16,16 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-import logging
-import os
-import statistics
-import itertools
-from enrichm.network_builder import NetworkBuilder
-from enrichm.parser import Parser
-from enrichm.databases import Databases
-from enrichm.writer import Writer
-
-
 __author__ = "Joel Boyd"
 __copyright__ = "Copyright 2017"
 __credits__ = ["Joel Boyd"]

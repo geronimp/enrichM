@@ -299,7 +299,8 @@ if __name__ == "__main__":
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     uses_input_options.add_argument('--compounds_list', required=True,
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-
+    uses_input_options.add_argument('--count', required=True, action='store_true',
+                help='Count rather than tally.')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
@@ -349,7 +350,7 @@ if __name__ == "__main__":
     generate_input_options.add_argument('--testing_portion', type = float, help = 'portion of the input data to use for testing (default = 0.2)', default = 0.2)
     
     generate_tuning_options = generate.add_argument_group('Tuning options')
-    generate_tuning_options.add_argument('--grid_search', action='store_true',help = 'grid search')
+    generate_tuning_options.add_argument('--grid_search', action='store_true', help = 'grid search')
     generate_tuning_options.add_argument('--threads', type=int, default = -1, help = 'number of threads to use for hyperparameterization (default = all available)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#

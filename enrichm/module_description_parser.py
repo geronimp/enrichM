@@ -16,16 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-
-__author__ = "Ben Woodcroft, Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Ben Woodcroft"]
-__license__ = "GPL3+"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd3 near uq.edu.au"
-__status__ = "Development"
-
-###############################################################################
 # Imports
 import re
 ###############################################################################

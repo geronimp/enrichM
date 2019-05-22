@@ -16,16 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2018"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
-
-###############################################################################
 # Imports
 import logging
 import sys
@@ -483,6 +473,7 @@ class Run:
             uses.do(args.compounds_list,
                     args.annotation_matrix,
                     args.metadata,
-                    args.output)
+                    args.output,
+                    args.count)
             
         logging.info('Finished running EnrichM')

@@ -19,7 +19,6 @@
 import logging
 
 ###############################################################################
-
 class Writer:
     '''
 	A collection of functions to write files in various formats.

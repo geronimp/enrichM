@@ -16,15 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__version__ = "0.0.7"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
-
 from enrichm.writer import Writer
 from enrichm.parser import Parser
 from enrichm.databases import Databases
@@ -61,38 +52,48 @@ class Uses:
         
         return present_annotations
     
-    def uses(self, compound_list, annotations, column_names):
+    def uses(self, compound_list, annotations, column_names, count):
         output_lines_abundance = [self.ABUNDACE_HEADER + column_names]
         enrichment_tallys = dict()
 
         for compound in compound_list:
-            enrichment_tallys[compound] = dict()
-            abundance_line = [compound + '~' + self.compounds[compound]]
             
-            for column_header in column_names:
-                column_positive_tally = 0
-                column_negative_tally = 0
-                
-                # Gather all annotations present for this column (genome)
-                present_annotations = self.gather_present_annotations(annotations[column_header])
-                
-                for reaction in self.compound_to_reaction[compound]:
-                                
-                    # If there are more than 0 KOs that carry out the reaction present in the genome
-                    if reaction in self.reaction_to_ko:
-                        
-                        if len(present_annotations.intersection(self.reaction_to_ko[reaction]))>0:
-                            column_positive_tally+=1
-                        else:
-                            column_negative_tally+=1
+            if compound in self.compound_to_reaction:
 
-                abundance_line.append(column_positive_tally)
-                enrichment_tallys[compound][column_header] = {self.POSITIVE: column_positive_tally, self.NEGATIVE: column_negative_tally}
+                enrichment_tallys[compound] = dict()
+                abundance_line = [compound + '~' + self.compounds[compound]]
+
+                for column_header in column_names:
+                    column_positive_tally = 0
+                    column_negative_tally = 0
+                    
+                    # Gather all annotations present for this column (genome)
+                    present_annotations = self.gather_present_annotations(annotations[column_header])
+                    for reaction in self.compound_to_reaction[compound]:
+                                    
+                        # If there are more than 0 KOs that carry out the reaction present in the genome
+                        if reaction in self.reaction_to_ko:
+                            overlapping_annotations = present_annotations.intersection(self.reaction_to_ko[reaction])
+
+                            if len(overlapping_annotations)>0:
+                                
+                                if count:
+                                    
+                                    for annotation in overlapping_annotations:
+                                        column_positive_tally+=annotations[column_header][annotation]
+                                
+                                else:
+                                    column_positive_tally+=1
+                            
+                            else:
+                                column_negative_tally+=1
+
+                    abundance_line.append(column_positive_tally)
+                    enrichment_tallys[compound][column_header] = {self.POSITIVE: column_positive_tally, self.NEGATIVE: column_negative_tally}
             
             output_lines_abundance.append(abundance_line)
     
         return output_lines_abundance, enrichment_tallys
-
 
     def enrichment(self, enrichment_tallys, metadata):
         output_lines = [self.ENRICHMENT_HEADER]
@@ -110,16 +111,19 @@ class Uses:
 
         return output_lines
 
-    def do(self, compounds_list_path, annotation_matrix_path, metadata_path, output):
+    def do(self, compounds_list_path, annotation_matrix_path, metadata_path, output, count):
         logging.info('Parsing input compounds list')
         compound_list = Parser.parse_single_column_text_file(compounds_list_path)
         logging.info('Parsing input annotations')
         annotations_dict, column_names, annotations = Parser.parse_simple_matrix(annotation_matrix_path)
         logging.info('Parsing input metadata')
         metadata, metadata_value_lists, attribute_dict = Parser.parse_metadata_matrix(metadata_path)
-
-        output_lines_abundance, enrichment_tallys = self.uses(compound_list, annotations_dict, column_names)
-        output_lines_enrichment = self.enrichment(enrichment_tallys, attribute_dict)
-        
+        logging.info('Tallying genes that use specified compounds')
+        output_lines_abundance, enrichment_tallys = self.uses(compound_list, annotations_dict, column_names, count)
+        logging.info('Writing file: %s' % self.ABUNDACE)
         Writer.write(output_lines_abundance, os.path.join(output, self.ABUNDACE))
+        logging.info('Calculating enrichment between groups for each compound')
+        output_lines_enrichment = self.enrichment(enrichment_tallys, attribute_dict)
+        logging.info('Writing file: %s' % self.ENRICHMENT)
         Writer.write(output_lines_enrichment, os.path.join(output, self.ENRICHMENT))
+        logging.info('Finished use pipeline')
