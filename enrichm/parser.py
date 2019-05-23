@@ -183,6 +183,7 @@ class Parser:
     @staticmethod
     def parse_tpm_values(tpm_values):
         raise Exception("There are issues here") # TODO: FIXME
+        from enrichm.databases import Databases
         k2r = Databases().k2r()
 
         output_dict = dict()

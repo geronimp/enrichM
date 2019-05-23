@@ -18,10 +18,9 @@
 
 # System imports
 from enrichm.genome import Genome, AnnotationParser
-from enrichm.matrix_generator import MatrixGenerator
 from enrichm.databases import Databases
 from enrichm.sequence_io import SequenceIO
-from enrichm.writer import Writer
+from enrichm.writer import Writer, MatrixGenerator
 
 import numpy as np
 import statsmodels.sandbox.stats.multicomp as sm
