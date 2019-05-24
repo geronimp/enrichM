@@ -182,7 +182,6 @@ class Parser:
 
     @staticmethod
     def parse_tpm_values(tpm_values):
-        raise Exception("There are issues here") # TODO: FIXME
         from enrichm.databases import Databases
         k2r = Databases().k2r()
 
@@ -194,8 +193,7 @@ class Parser:
         tpm_values_io.readline()
 
         for line in tpm_values_io:
-            gene, _, _, _, _, _, _, \
-            _, _, _, tpm, \
+            gene, _, _, _, _, _, _, _, _, _, tpm, \
             _, _, annotation, sample = line.strip().split(b'\t')
             annotation_list = annotation.split(b',')
             tpm = float(tpm)
@@ -221,7 +219,6 @@ class Parser:
                             annotation_types.add(reaction)
 
                         output_dict[sample][genome][reaction] += tpm
-
         return output_dict, annotation_types, genome_types
 
 class ParseAnnotate:

@@ -249,23 +249,36 @@ class NetworkBuilder:
         if sum([float(x) for x in reaction_line[3:]])>0:
             return reaction_line
 
+    def add_to_header(self, groups):
+        output_list = list()
+        groups = list(groups.keys())
+
+        for genome_group, reference_group in product(self.metadata_keys, groups):
+            output_list.append(f"{genome_group}_{reference_group}")
+        
+        return output_list
+
     def all_matrix(self, reference_dict):
         '''
         Parameters
         ----------
         '''
         seen_nodes = set()
+        
         # Construct headers to network matrices
         seen_reactions = set(self.nested_dict_vals(self.abundances_metagenome))
 
-        groups = list(self.abundances_metagenome.keys())
-        network_lines = [self.matrix_header + list(['_'.join([a,b]) for a,b in product(self.metadata_keys, groups)])]
+        network_lines = [self.matrix_header]
 
+        if self.abundances_metagenome:
+            network_lines[0] += self.add_to_header(self.abundances_metagenome)
+        if self.abundances_transcriptome:
+            network_lines[0] += self.add_to_header(self.abundances_transcriptome)
         if self.abundances_metabolome:
             node_metadata_lines = [self.metadata_header + self.compound_header]
         else:
             node_metadata_lines = [self.metadata_header]
-
+        
         for reaction, entry in reference_dict.items():
 
             for compound in entry:
@@ -298,10 +311,10 @@ class NetworkBuilder:
         Parameters
         ----------
         '''
-        steps         = 0
-        queries_list  = Parser.parse_single_column_text_file(queries)
+        steps = 0
+        queries_list = Parser.parse_single_column_text_file(queries)
         seen_reactions = set(self.nested_dict_vals(self.abundances_metagenome))
-        seen_nodes    = set()
+        seen_nodes = set()
         level_queries = set()
 
         node_metadata_lines = [self.metadata_header + self.query_header]

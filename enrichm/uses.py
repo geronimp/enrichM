@@ -126,4 +126,4 @@ class Uses:
         output_lines_enrichment = self.enrichment(enrichment_tallys, attribute_dict)
         logging.info('Writing file: %s' % self.ENRICHMENT)
         Writer.write(output_lines_enrichment, os.path.join(output, self.ENRICHMENT))
-        logging.info('Finished use pipeline')
+        logging.info('Finished the use pipeline')

@@ -279,50 +279,47 @@ class Run:
 
     def _check_predict(self, args):
         '''
-        Inputs
-        ------
+        Check general input and output options are valid.
 
-        Outputs
-        -------
+        Parameters
+        ----------
+        args    - object. Argparse object
         '''
         pass
 
     def _check_uses(self, args):
         '''
+        Check general input and output options are valid.
+
         Parameters
         ----------
-
-        Output
-        ------
+        args    - object. Argparse object
         '''
         pass
 
     def _check_generate(self, args):
         '''
+        Check general input and output options are valid.
+
         Parameters
         ----------
-
-        Output
-        ------
+        args    - object. Argparse object
         '''
         pass
 
     def _check_connect(self, args):
         '''
-        Check connect
+        Check general input and output options are valid.
 
-        Inputs
-        ------
-
-        Outputs
-        -------
-
+        Parameters
+        ----------
+        args    - object. Argparse object
         '''
         if(args.cutoff > 1.0 and args.cutoff < 0.0):
 
            raise Exception("Cutoff needs to be between 0 - 1")
 
-    def main(self, args, command):
+    def run_enrichm(self, args, command):
         '''
         Parameters
         ----------
@@ -333,8 +330,8 @@ class Run:
         self._check_general(args)
         self._logging_setup(args)
 
-        logging.info("Running command: %s" % ' '.join(command))
-
+        logging.info("Command: %s" % ' '.join(command))
+        logging.info("Running the %s pipeline" % args.subparser_name)
         if args.subparser_name == self.DATA:
             d = Data()
             d.do(args.uninstall, args.dry)

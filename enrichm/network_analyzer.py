@@ -26,7 +26,10 @@ from enrichm.writer import Writer
 ###############################################################################
 
 class NetworkAnalyser:
-
+    """
+    Prepare metagenome, metatranscriptome, metabolomic data for constructing 
+    SIF network files.
+    """
     MATRIX          = 'matrix'
     NETWORK         = 'network'
     EXPLORE         = 'explore'
@@ -286,6 +289,7 @@ class NetworkAnalyser:
             sample_abundance = Parser.parse_simple_matrix(metagenome_abundances)[0]
             sample_metadata = Parser.parse_metadata_matrix(metagenome_metadata_path)[2]
         else:
+            # FIXME : There's always a better way than faking it.
             logging.info('No genome abundances provided')
             sample_abundance = {'MOCK': {x:1 for x in list(reaction_matrix.keys())} }
             sample_metadata = {"a": ['MOCK']}
@@ -302,12 +306,17 @@ class NetworkAnalyser:
             transcriptome_abundances = self.average_tpm_values(transcriptome_abundance_dict, group_to_genome)
         else:
             transcriptome_abundances = None
+
         network_builder = NetworkBuilder(group_to_genome, abundances_metagenome, transcriptome_abundances, abundances_metabolome, fisher_results)
 
+        # Run the subcommand specified
         if subparser_name == self.EXPLORE:
             network_lines, node_metadata = network_builder.query_matrix(queries, depth)
         elif subparser_name == self.PATHWAY:
             network_lines, node_metadata = network_builder.pathway_matrix(limit, filter)
 
+        # Write the outputs
         Writer.write(network_lines, os.path.join(output_directory, self.NETWORK_OUTPUT_FILE))
         Writer.write(node_metadata, os.path.join(output_directory, self.METADATA_OUTPUT_FILE))
+        
+        logging.info('Finished the %s pipeline' % subparser_name)
