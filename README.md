@@ -3,6 +3,8 @@
 </p>
 
 [![Build Status](https://travis-ci.com/geronimp/enrichM.svg?branch=master)](https://travis-ci.com/geronimp/enrichM)
+[![Downloads](https://pepy.tech/badge/enrichm/month)](https://pepy.tech/project/enrichm/month)
+
 
 EnrichM is a set of tools for comparative genomics of large sets of metagenome assembled genomes (MAGs). The current functionality includes:
 
