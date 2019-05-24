@@ -15,16 +15,14 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
-
-__author__ = "Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Joel Boyd"]
-__license__ = "GPL3"
-__version__ = "0.0.7"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd near uq.net.au"
-__status__ = "Development"
-
+import logging
+import os
+import statistics
+import itertools
+from enrichm.network_builder import NetworkBuilder
+from enrichm.databases import Databases
+from enrichm.parser import Parser
+from enrichm.writer import Writer
 ###############################################################################
 
 class NetworkAnalyser:
@@ -302,7 +300,8 @@ class NetworkAnalyser:
             transcriptome_metadata = Parser.parse_metadata_matrix(transcriptome_metadata_path)[2]
             transcriptome_abundance_dict = self.average_tpm_by_sample(Parser.parse_tpm_values(transcriptome_abundances_path), transcriptome_metadata)
             transcriptome_abundances = self.average_tpm_values(transcriptome_abundance_dict, group_to_genome)
-
+        else:
+            transcriptome_abundances = None
         network_builder = NetworkBuilder(group_to_genome, abundances_metagenome, transcriptome_abundances, abundances_metabolome, fisher_results)
 
         if subparser_name == self.EXPLORE:
