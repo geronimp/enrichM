@@ -332,6 +332,7 @@ class Run:
 
         logging.info("Command: %s" % ' '.join(command))
         logging.info("Running the %s pipeline" % args.subparser_name)
+
         if args.subparser_name == self.DATA:
             d = Data()
             d.do(args.uninstall, args.dry)
@@ -357,11 +358,10 @@ class Run:
                                        args.genome_files,
                                        args.protein_files)
 
-
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
-            c = Classify()
-            c.do(args.custom_modules,
+            classify = Classify()
+            classify.do(args.custom_modules,
                  args.cutoff,
                  args.aggregate,
                  args.genome_and_annotation_file,
@@ -370,8 +370,8 @@ class Run:
 
         elif args.subparser_name == self.ENRICHMENT:
             self._check_enrichment(args)
-            e = Enrichment()
-            e.do(# Input options
+            enrichment = Enrichment()
+            enrichment.do(# Input options
                  args.annotate_output,
                  args.annotation_matrix,
                  args.metadata,
@@ -400,8 +400,8 @@ class Run:
 
         elif args.subparser_name == self.CONNECT:
             self._check_connect(args)
-            c = Connect()
-            c.do(args.annotate_output,
+            connect = Connect()
+            connect.do(args.annotate_output,
                  args.metadata,
                  args.custom_modules,
                  args.cutoff,
@@ -410,8 +410,8 @@ class Run:
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE):
             self._check_network(args)
-            na=NetworkAnalyser()
-            na.do(args.subparser_name,
+            network_analyser=NetworkAnalyser()
+            network_analyser.do(args.subparser_name,
                   args.matrix,
                   args.genome_metadata,
                   args.tpm_values,
@@ -431,15 +431,15 @@ class Run:
 
         if args.subparser_name == self.PREDICT:
             self._check_predict(args)
-            p = Predict()
-            p.do(args.forester_model_directory,
+            predict = Predict()
+            predict.do(args.forester_model_directory,
                  args.input_matrix,
                  args.output)
 
         elif args.subparser_name == self.GENERATE:
             self._check_generate(args)
-            gm = GenerateModel()
-            gm.do(args.input_matrix,
+            generate_model = GenerateModel()
+            generate_model.do(args.input_matrix,
                   args.groups,
                   args.model_type,
                   args.testing_portion,
