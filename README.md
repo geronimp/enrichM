@@ -56,7 +56,7 @@ After this, you'll need to set up EnrichM to run by downloading its back end dat
 
 # Setup
 ## Loading EnrichM's database
-Before running Enrichm, you'll need to download the back-end database. This file is large (5.7G) and contains all the reference databases EnrichM needs to annotate and compare your genomes. This includes Pfam-A HMMs, TIGRfam HMMs, a DIAMOND database of the sequences in uniref100 with EC and KO annotations, and KoFamKOALA HMMs. By default the database will be installed in your home directory. This is done using a command in enrichm:
+Before running EnrichM, you'll need to download the back-end database. This file is large (5.7G) and contains all the reference databases EnrichM needs to annotate and compare your genomes. This includes Pfam-A HMMs, TIGRfam HMMs, a DIAMOND database of the sequences in uniref100 with EC and KO annotations, and KoFamKOALA HMMs. By default the database will be installed in your home directory. This is done using a command in EnrichM:
 ```
 enrichm data
 ```
