@@ -307,7 +307,9 @@ class GenerateModel:
         Writer.write(output_attribute_importances, os.path.join(output_directory, self.ATTRIBUTE_IMPORTANCES))
 
         logging.info("Preserving model")
-        pickle.dump(rf, open(os.path.join(output_directory, self.MODEL_PICKLE) , 'wb'))
+        with open(os.path.join(output_directory, self.MODEL_PICKLE) , 'wb') as model_io:
+            pickle.dump(rf, model_io)
 
         logging.info("Preserving group labels")
-        pickle.dump(labels_dict, open(os.path.join(output_directory, self.LABELS_DICT) , 'wb'))
+        with open(os.path.join(output_directory, self.LABELS_DICT) , 'wb') as labels_io:
+            pickle.dump(labels_dict, labels_io)

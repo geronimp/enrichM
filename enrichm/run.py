@@ -338,41 +338,24 @@ class Run:
 
         if args.subparser_name == self.ANNOTATE:
             self._check_annotate(args)
-            a = Annotate(# Define inputs and outputs
-                         args.output,
-                         # Define type of annotation to be carried out
-                         args.ko,
-                         args.ko_hmm,
-                         args.pfam,
-                         args.tigrfam,
-                         args.clusters,
-                         args.orthologs,
-                         args.cazy,
-                         args.ec,
-                         # Cutoffs
-                         args.evalue,
-                         args.bit,
-                         args.id,
-                         args.aln_query,
-                         args.aln_reference,
-                         args.c,
-                         args.cut_ga,
-                         args.cut_nc,
-                         args.cut_tc,
-                         args.cut_ko,
-                         args.inflation,
-                         args.chunk_number,
-                         args.chunk_max,
-                         args.count_domains,
-                         # Parameters
-                         args.threads,
-                         args.parallel,
-                         args.suffix,
-                         args.light)
-            a.do(args.genome_directory,
-                 args.protein_directory,
-                 args.genome_files,
-                 args.protein_files)
+            annotate = Annotate(# Define inputs and outputs
+                                args.output,
+                                # Define type of annotation to be carried out
+                                args.ko, args.ko_hmm, args.pfam, args.tigrfam,
+                                args.clusters, args.orthologs, args.cazy,
+                                args.ec,
+                                # Cutoffs
+                                args.evalue, args.bit, args.id, args.aln_query,
+                                args.aln_reference, args.c, args.cut_ga, 
+                                args.cut_nc, args.cut_tc, args.cut_ko,
+                                args.inflation, args.chunk_number, args.chunk_max,
+                                args.count_domains,
+                                # Parameters
+                                args.threads, args.parallel, args.suffix, args.light)
+            annotate.annotate_pipeline(args.genome_directory,
+                                       args.protein_directory,
+                                       args.genome_files,
+                                       args.protein_files)
 
 
         elif args.subparser_name == self.CLASSIFY:

@@ -402,6 +402,7 @@ class NetworkBuilder:
 
                 elif(entry.startswith(self.REACTION_PREFIX)):
                     possible_reactions.add(entry)
+
             possible_reactions = {reaction:self.reactions_to_compounds[reaction]
                                   for reaction in
                                   possible_reactions

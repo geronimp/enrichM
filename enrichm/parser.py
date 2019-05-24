@@ -83,20 +83,20 @@ class Parser:
 
     @staticmethod
     def parse_simple_matrix(matrix):
-        matrix_io = open(matrix)
-        colnames = matrix_io.readline().strip().split('\t')[1:]
-        rownames = list()
-        output_dict = {colname:dict() for colname in colnames}
+        with open(matrix) as matrix_io:
+            colnames = matrix_io.readline().strip().split('\t')[1:]
+            rownames = list()
+            output_dict = {colname:dict() for colname in colnames}
 
-        for line in matrix_io:
-            sline = line.strip().split('\t')
-            rowname, content = sline[0], sline[1:]
+            for line in matrix_io:
+                sline = line.strip().split('\t')
+                rowname, content = sline[0], sline[1:]
 
-            if rowname not in rownames:
-                rownames.append(rowname)
+                if rowname not in rownames:
+                    rownames.append(rowname)
 
-            for key, value in zip(colnames, content):
-                output_dict[key][rowname] = float(value)
+                for key, value in zip(colnames, content):
+                    output_dict[key][rowname] = float(value)
 
         return output_dict, colnames, rownames
 
@@ -107,25 +107,25 @@ class Parser:
         ----------
         matrix_path : String. Path to file containing a matrix of genome rownames.
         '''
-
-        matrix_file_io = open(matrix_path)
         cols_to_rows = dict()
         nr_values = set()
         attribute_dict = dict()
 
-        for line in matrix_file_io:
-            rowname, entry = line.strip().split('\t')
-            nr_values.add(entry)
+        with open(matrix_path) as matrix_file_io:
 
-            if entry in attribute_dict:
-                attribute_dict[entry].add(rowname)
-            else:
-                attribute_dict[entry] = set([rowname])
+            for line in matrix_file_io:
+                rowname, entry = line.strip().split('\t')
+                nr_values.add(entry)
 
-            if rowname not in cols_to_rows:
-                cols_to_rows[rowname] = set([entry])
-            else:
-                cols_to_rows[rowname].add(entry)
+                if entry in attribute_dict:
+                    attribute_dict[entry].add(rowname)
+                else:
+                    attribute_dict[entry] = set([rowname])
+
+                if rowname not in cols_to_rows:
+                    cols_to_rows[rowname] = set([entry])
+                else:
+                    cols_to_rows[rowname].add(entry)
 
         return cols_to_rows, nr_values, attribute_dict
 
@@ -220,6 +220,49 @@ class Parser:
 
                         output_dict[sample][genome][reaction] += tpm
         return output_dict, annotation_types, genome_types
+
+    @staticmethod
+    def parse_enrichment_output(enrichment_output):
+        fisher_results = dict()
+
+        for file in os.listdir(enrichment_output):
+
+            if file.endswith("fisher.tsv"):
+                file = os.path.join(enrichment_output, file)
+                file_io = open(file)
+                file_io.readline()
+
+                for line in file_io:
+                    split_line = line.strip().split('\t')
+
+                    if len(fisher_results) == 0:
+                        fisher_results[split_line[1]] = list()
+                        fisher_results[split_line[2]] = list()
+
+                    if float(split_line[-2])<0.05:
+                        g1_t = float(split_line[3])
+                        g1_f = float(split_line[4])
+                        g2_t = float(split_line[5])
+                        g2_f = float(split_line[6])
+
+                        if g1_t == 0:
+                            fisher_results[split_line[2]].append( split_line[0] )
+
+                        elif g2_t == 0:
+                            fisher_results[split_line[1]].append( split_line[0] )
+
+                        elif ( ((g1_t/(g1_t+g1_f))) / ((g2_t/(g2_t+g2_f))) )>1:
+                            fisher_results[split_line[1]].append( split_line[0] )
+
+                        else:
+                            fisher_results[split_line[2]].append( split_line[0] )
+
+        if len(fisher_results.keys())>0:
+            return fisher_results
+
+        else:
+            raise Exception("Malformatted enrichment output: %s" % enrichment_output)
+
 
 class ParseAnnotate:
 

@@ -50,6 +50,10 @@ class NetworkAnalyser:
         self.reaction_to_ko = self.databases.r2k()
 
     def average(self, input_dictionary):
+        '''
+        Take the average of the values of a dictionary of dictionaries
+        '''
+        
         for sample_group, group_dict in input_dictionary.items():
 
             for group, reaction_dict in group_dict.items():
@@ -60,7 +64,13 @@ class NetworkAnalyser:
         return input_dictionary
 
     def median_genome_abundance(self, sample_abundance_dict, sample_metadata):
+        """
+        Create a dictionary with the median abundance in sample_abundance_dict
+        using sample_metadata as a reference.
+        """
+        
         median_sample_abundance = dict()
+
         for group, samples in sample_metadata.items():
             median_sample_abundance[group] = dict()
             sample_dictionaries = [sample_abundance_dict[sample] for sample in samples]
@@ -71,7 +81,6 @@ class NetworkAnalyser:
                 median_sample_abundance[group][genome] = statistics.median(abundances)
 
         return median_sample_abundance
-
 
     def normalise_by_abundance(self, median_sample_abundances, reaction_abundance_dict, group_to_genome, genome_to_group, genome_groups):
 
@@ -101,47 +110,6 @@ class NetworkAnalyser:
                             normalised_abundance_dict[sample_group][genome_group][reaction] = [normalised_value]
 
         return normalised_abundance_dict
-
-    def parse_enrichment_output(self, enrichment_output):
-        fisher_results = dict()
-
-        for file in os.listdir(enrichment_output):
-
-            if file.endswith("fisher.tsv"):
-                file = os.path.join(enrichment_output, file)
-                file_io = open(file)
-                file_io.readline()
-
-                for line in file_io:
-                    split_line = line.strip().split('\t')
-
-                    if len(fisher_results) == 0:
-                        fisher_results[split_line[1]] = list()
-                        fisher_results[split_line[2]] = list()
-
-                    if float(split_line[-2])<0.05:
-                        g1_t = float(split_line[3])
-                        g1_f = float(split_line[4])
-                        g2_t = float(split_line[5])
-                        g2_f = float(split_line[6])
-
-                        if g1_t == 0:
-                            fisher_results[split_line[2]].append( split_line[0] )
-
-                        elif g2_t == 0:
-                            fisher_results[split_line[1]].append( split_line[0] )
-
-                        elif ( ((g1_t/(g1_t+g1_f))) / ((g2_t/(g2_t+g2_f))) )>1:
-                            fisher_results[split_line[1]].append( split_line[0] )
-
-                        else:
-                            fisher_results[split_line[2]].append( split_line[0] )
-
-        if len(fisher_results.keys())>0:
-            return fisher_results
-
-        else:
-            raise Exception("Malformatted enrichment output: %s" % enrichment_output)
 
     def average_tpm_by_sample(self, tpm_results, sample_metadata):
         output_dict = dict()
@@ -270,7 +238,7 @@ class NetworkAnalyser:
         # Read in fisher results
         if enrichment_output:
             logging.info('Parsing input enrichment results')
-            fisher_results = self.parse_enrichment_output(enrichment_output)
+            fisher_results = Parser.parse_enrichment_output(enrichment_output)
         else:
             logging.info('No enrichment results provided')
             fisher_results = None

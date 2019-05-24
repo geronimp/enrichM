@@ -18,11 +18,11 @@ class Tests(unittest.TestCase):
 
         Writer.write(output_lines, output_file)
 
-        for idx, line in enumerate(open(output_file)):
-            self.assertEqual(line, expected_list[idx])
-            
-        self.assertEqual(idx+1, len(expected_list))
-        os.remove(output_file)
+        with open(output_file) as output_file_io:
+            for idx, line in enumerate(output_file_io):
+                self.assertEqual(line, expected_list[idx])
+                
+            self.assertEqual(idx+1, len(expected_list))
 
 if __name__ == "__main__":
     unittest.main()
