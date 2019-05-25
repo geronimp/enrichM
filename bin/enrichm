@@ -17,14 +17,14 @@
 ###############################################################################
 
 __author__      = "Joel Boyd"
-__copyright__   = "Copyright 2017"
+__copyright__   = "Copyright 2018"
 __credits__     = ["Joel Boyd"]
 __license__     = "GPL3"
 __version__     = "0.0.7"
 __maintainer__  = "Joel Boyd"
 __email__       = "joel.boyd near uq.net.au"
 __status__      = "Development"
- 
+
 ###############################################################################
 # Imports
 import argparse
@@ -37,39 +37,38 @@ sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.
 import enrichm
 from enrichm.run import Run
 from enrichm.network_analyzer import NetworkAnalyser
-from enrichm.kegg_module_grabber import KeggModuleGrabber
+
 ###############################################################################
-      
+
 class CustomHelpFormatter(argparse.HelpFormatter):
     def _split_lines(self, text, width):
         return text.splitlines()
-    
+
 def phelp():
-    print("""                                           _      _     __  __ 
-                                          (_)    | |   |  \/  |
-                            ___ _ __  _ __ _  ___| |__ | \  / |
-                           / _ \ '_ \| '__| |/ __| '_ \| |\/| |
-                          |  __/ | | | |  | | (__| | | | |  | |
-                           \___|_| |_|_|  |_|\___|_| |_|_|  |_|   
+    print("""                         _____            _      _     __  __ 
+                        | ____|_ __  _ __(_) ___| |__ |  \/  |
+                        |  _| | '_ \| '__| |/ __| '_ \| |\/| |
+                        | |___| | | | |  | | (__| | | | |  | |
+                        |_____|_| |_|_|  |_|\___|_| |_|_|  |_|
   ------------------------------------------------------------------------------------
 
-  Annotation 
-    annotate        -> Basic annotation of genomes.
+  Annotation
+    annotate        -> Genome annotation pipeline.
 
   Enrichment analysis
-    classify        -> Determine what KEGG modules a genome encodes.
+    classify        -> Determine what pathways a genome encodes.
     enrichment      -> Calculate enrichment of functional genes between groups.
-    
+
   Network analysis
-    pathway         -> Generate a metabolic network from specific KEGG module or 
+    pathway         -> Generate a metabolic network from specific KEGG module or
                        compounds.
 
   Machine learning
-    generate        -> Generate a model.
-    predict         -> Run model on new data.
+    generate        -> Generate a random forest model.
+    predict         -> Run random forest model on new data.
 
   Authors: Joel Boyd, Ben Woodcroft, Alex Baker
-  Version: %s 
+  Version: %s
 """ % (enrichm.__version__))
 
 if __name__ == "__main__":
@@ -77,10 +76,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='version', version='enrichm v%s' % enrichm.__version__)
     subparsers = parser.add_subparsers(help="--", dest='subparser_name')
-    
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    
+
     base_all             = argparse.ArgumentParser(add_help=False)
     base_logging_options = base_all.add_argument_group('Logging options')
 
@@ -88,7 +86,7 @@ if __name__ == "__main__":
                 help='Output logging information to this file.')
     base_logging_options.add_argument('--verbosity', type = int, default = 4,
                 help='Level of verbosity (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
-    
+
     base_output_options = base_all.add_argument_group('Output options')
     base_output_options.add_argument('--output',
                 help='Output directory', default = None)
@@ -96,37 +94,38 @@ if __name__ == "__main__":
                 help='Overwrite previous run')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
     base_network = argparse.ArgumentParser(add_help=False)
-    
+
     base_input_options = base_network.add_argument_group('Input options')
     base_input_options.add_argument('--matrix', required=True,
                 help='KO matrix. REQUIRED.')
+    base_input_options.add_argument('--genome_metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--abundance',
                 help='Abundance matrix.')
+    base_input_options.add_argument('--abundance_metadata',
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--tpm_values',
                 help='TPM values produced by DetectM.')
-    base_input_options.add_argument('--abundance_metadata',
+    base_input_options.add_argument('--tpm_metadata',
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--metabolome',
                 help='Metabolome CID matrix.')
-    base_input_options.add_argument('--metadata', required=True,
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Data
-    
+
     data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
     data_input_options = data.add_argument_group('Uninstall')
     data_input_options.add_argument('--uninstall', action='store_true',
                 help = 'Remove enrichm database')
+    data_input_options.add_argument('--dry', action='store_true',
+                help = 'Download an empty database (debug)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Annotate
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
-    
+
     annotate_input_options = annotate.add_argument_group('Input options (Use one)')
     annotate_input_options.add_argument('--genome_files', default = None, nargs='+',
                 help = 'Space separated list of genomes to annotate')
@@ -196,8 +195,6 @@ if __name__ == "__main__":
                 help='Maximum number of genomes to load per chunk (default = 2500)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Classify  
 
     classify = subparsers.add_parser('classify', formatter_class=CustomHelpFormatter, parents=[base_all])
 
@@ -218,44 +215,44 @@ if __name__ == "__main__":
     classify_runtime_options.add_argument('--aggregate', action='store_true',
                                          help='Calculate the abundance of each pathway within each genome/sample (column)')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Enrichment  
 
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     enrichment_input_options = enrichment.add_argument_group('Input options')
     enrichment_input_options.add_argument('--annotate_output',
                 help='Output directory provided by enrichm annotate')
-    enrichment_input_options.add_argument('--metadata', required=True,
+    enrichment_input_options.add_argument('--metadata',
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     enrichment_input_options.add_argument('--annotation_matrix',
-                                          help='Annotation matrix to compare.')
+                help='Annotation matrix to compare.')
+    enrichment_input_options.add_argument('--abundance',
+                help='Genome abundance matrix.')
+    enrichment_input_options.add_argument('--abundance_metadata',
+                help='Metadata grouping abundance samples.')
+    enrichment_input_options.add_argument('--transcriptome',
+                help='Genome abundance matrix.')
+    enrichment_input_options.add_argument('--transcriptome_metadata',
+                help='Metadata grouping abundance samples.')
 
     enrichment_gtdb_options = enrichment.add_argument_group('Genome Taxonomy DataBase (GTDB) options')
     enrichment_gtdb_options.add_argument('--batchfile',
                 help='metadata file to compare with.')
 
     enrichment_runtime_options = enrichment.add_argument_group('Runtime options')
-    enrichment_runtime_options.add_argument('--genomes_to_compare_with_group', 
-                help='File containing genome ids to compare with the average of the group.')
-    enrichment_runtime_options.add_argument('--abundance',
-                help='Genome abundance matrix.')
-    enrichment_runtime_options.add_argument('--abundance_metadata',
-                help='Metadata grouping abundance samples.')
     enrichment_runtime_options.add_argument('--pval_cutoff', type=float, default=0.05,
                 help='Only output results with a p-value below a this cutoff (default=0.05).')
     enrichment_runtime_options.add_argument('--proportions_cutoff', type=float, default=1,
-                help='Proportion enrichment cutoff.') ### ~ TODO: Fill in better description
+                help='Proportion enrichment cutoff.')
     enrichment_runtime_options.add_argument('--threshold', type=float, default=0.1,
                 help='The threshold to control for in false discovery rate of familywise error rate.')
     enrichment_runtime_options.add_argument('--multi_test_correction',
-                help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options. (Default = Benjamini-Hochberg FDR)', default='fdr_bh')
+                help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.\nDefault: Benjamini-Hochberg FDR (fdr_bh) \nOptions: Bonferroni (b) \n\t Sidak (s) \n\t Holm (h) \n\t Holm-Sidak (hs) \n\t Simes-Hochberg (sh) \n\t Hommel (ho) \n\t FDR Benjamini-Yekutieli (fdr_by) \n\t FDR 2-stage Benjamini-Hochberg (fdr_tsbh) \n\t FDR 2-stage Benjamini-Krieger-Yekutieli (fdr_tsbky) \n\t FDR adaptive Gavrilov-Benjamini-Sarkar (fdr_gbs))', default='fdr_bh')
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
-    enrichment_runtime_options.add_argument('--allow_negative_values', 
+    enrichment_runtime_options.add_argument('--allow_negative_values',
                 help='Allow negative values in input matrix.', action='store_true',)
     enrichment_runtime_options.add_argument('--ko', action='store_true',
-                help='Compare KO ids (annotated with DIAMOND)')   
+                help='Compare KO ids (annotated with DIAMOND)')
     enrichment_runtime_options.add_argument('--ko_hmm', action='store_true',
                 help='Compare KO ids (annotated with HMMs)')
     enrichment_runtime_options.add_argument('--pfam', action='store_true',
@@ -272,8 +269,7 @@ if __name__ == "__main__":
                 help='Compare EC ids')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Connect
+
     connect = subparsers.add_parser('connect', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     connect_input_options = connect.add_argument_group('Input options')
@@ -290,23 +286,33 @@ if __name__ == "__main__":
                 help='This percent of the pathway must be complete to connect genomes (default = 1)',
                 type = float,
                 default=1.0)
-    
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
+
+    uses = subparsers.add_parser('uses', formatter_class=CustomHelpFormatter, parents=[base_all])
+
+    uses_input_options = uses.add_argument_group('Input options')
+    uses_input_options.add_argument('--annotation_matrix', required=True,
+                help='Input annotate output')
+    uses_input_options.add_argument('--metadata', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+    uses_input_options.add_argument('--compounds_list', required=True,
+                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
+    uses_input_options.add_argument('--count', required=True, action='store_true',
+                help='Count rather than tally.')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Pathway
+
     pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
     pathway_pathway_options = pathway.add_argument_group('Pathway options')
     pathway_pathway_options.add_argument('--limit', default=list(), nargs='+',
                 help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
     pathway_pathway_options.add_argument('--filter', default=list(), nargs='+',
-                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')    
+                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
     pathway_pathway_options.add_argument('--enrichment_output',
-                help='Supply an enrichment output to integrate the results into the output network.')    
+                help='Supply an enrichment output to integrate the results into the output network.')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Explore
 
     explore = subparsers.add_parser('explore', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
@@ -317,8 +323,6 @@ if __name__ == "__main__":
                 help='Number of steps to take into the metabolic network')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    # Traverse
 
     traverse = subparsers.add_parser('traverse', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
 
@@ -335,7 +339,6 @@ if __name__ == "__main__":
                 help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     generate = subparsers.add_parser('generate', formatter_class=CustomHelpFormatter, parents=[base_all])
 
@@ -344,23 +347,20 @@ if __name__ == "__main__":
     generate_input_options.add_argument('--groups', required = True, help = 'defined outcomes to train the data to')
     generate_input_options.add_argument('--model_type', required = True, help = 'regressor or classifier', choices=["regressor","classifier"])
     generate_input_options.add_argument('--testing_portion', type = float, help = 'portion of the input data to use for testing (default = 0.2)', default = 0.2)
-    
+
     generate_tuning_options = generate.add_argument_group('Tuning options')
-    generate_tuning_options.add_argument('--grid_search', action='store_true',help = 'grid search')
+    generate_tuning_options.add_argument('--grid_search', action='store_true', help = 'grid search')
     generate_tuning_options.add_argument('--threads', type=int, default = -1, help = 'number of threads to use for hyperparameterization (default = all available)')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     predict = subparsers.add_parser('predict', formatter_class=CustomHelpFormatter, parents=[base_all])
-    
+
     predict_input_options = predict.add_argument_group('Predict options')
     predict_input_options.add_argument('--forester_model_directory', required = True, help = 'Pickled model to use')
     predict_input_options.add_argument('--input_matrix', required = True, help = 'matrix of data to predict')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
 
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
@@ -371,5 +371,5 @@ if __name__ == "__main__":
             args.log = os.path.join(args.subparser_name + '.log')
 
         r = Run()
-        r.main(args, sys.argv)
+        r.run_enrichm(args, sys.argv)
 

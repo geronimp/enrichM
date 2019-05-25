@@ -27,7 +27,7 @@
   (let ((commit "8fbb39f7ce9c95aba9fbcff6ac157dd9e1a0c2f4"))
     (package
      (name "enrichm")
-     (version "0.4.6")
+     (version "0.5.0")
      (source (origin
               (method git-fetch)
               (uri (git-reference

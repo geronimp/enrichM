@@ -21,42 +21,38 @@ import os.path
 import sys
 import subprocess
 import tempfile
+import filecmp
 
-path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'bin', 'enrichm')
-path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')]+sys.path
+path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
+path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
+path_to_annotate = os.path.join(path_to_data, 'enrichm_annotate')
 
-from enrichm.annotate import Annotate
+sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
+
+from enrichm.generate import GenerateModel
 
 ###############################################################################
 
 class Tests(unittest.TestCase):
     
-    def test_hello_world_nucleic(self):
-        tmp = tempfile.mkdtemp()
-        bin = os.path.join(path_to_data, 'test_nucleic_bin')
-        cmd = '%s annotate \
-                        --threads 10 \
-                        --ko \
-                        --pfam \
-                        --tigrfam \
-                        --genome_directory %s \
-                        --output %s \
-                        --force' % (path_to_script, bin, tmp)
-        subprocess.call(cmd, shell=True)
+    ML_DATA = 'ml_data'
+    sample_matrix = 'matrix.tsv'
+    sample_metadata = 'metadata.tsv'
+    
+    sample_matrix_path = os.path.join(path_to_data, ML_DATA, 'matrix.tsv')
+    sample_metadata_path = os.path.join(path_to_data, ML_DATA, 'metadata.tsv')
 
-    def test_hello_world_protein(self):
+    def test_hello_generate(self):
         tmp = tempfile.mkdtemp()
-        bin = os.path.join(path_to_data, 'test_protein_bin')
-        cmd = '%s annotate \
-                        --threads 10 \
-                        --ko \
-                        --pfam \
-                        --tigrfam \
-                        --protein_directory %s \
-                        --output %s \
-                        --force' % (path_to_script, bin, tmp)
-        subprocess.call(cmd, shell=True)
-
+        generateModel = GenerateModel()
+        generateModel.do(self.sample_matrix_path,
+                         self.sample_metadata_path,
+                         generateModel.CLASSIFIER,
+                         0.2, # Default testing portion
+                         False, # Dont do a grid search for fine tuning
+                         2, # Threads
+                         tmp # Output directory
+                         )
+        
 if __name__ == "__main__":
     unittest.main()

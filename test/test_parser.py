@@ -21,42 +21,21 @@ import os.path
 import sys
 import subprocess
 import tempfile
+import filecmp
 
-path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'bin', 'enrichm')
-path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')]+sys.path
+path_to_script 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
+path_to_data 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
+path_to_annotate	= os.path.join(path_to_data, 'enrichm_annotate')
 
-from enrichm.annotate import Annotate
+sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
+
+from enrichm.predict import Predict
 
 ###############################################################################
 
 class Tests(unittest.TestCase):
-    
-    def test_hello_world_nucleic(self):
-        tmp = tempfile.mkdtemp()
-        bin = os.path.join(path_to_data, 'test_nucleic_bin')
-        cmd = '%s annotate \
-                        --threads 10 \
-                        --ko \
-                        --pfam \
-                        --tigrfam \
-                        --genome_directory %s \
-                        --output %s \
-                        --force' % (path_to_script, bin, tmp)
-        subprocess.call(cmd, shell=True)
-
-    def test_hello_world_protein(self):
-        tmp = tempfile.mkdtemp()
-        bin = os.path.join(path_to_data, 'test_protein_bin')
-        cmd = '%s annotate \
-                        --threads 10 \
-                        --ko \
-                        --pfam \
-                        --tigrfam \
-                        --protein_directory %s \
-                        --output %s \
-                        --force' % (path_to_script, bin, tmp)
-        subprocess.call(cmd, shell=True)
+    def test_parser(self):
+        pass
 
 if __name__ == "__main__":
     unittest.main()

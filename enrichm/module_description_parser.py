@@ -16,16 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-
-__author__ = "Ben Woodcroft, Joel Boyd"
-__copyright__ = "Copyright 2017"
-__credits__ = ["Ben Woodcroft"]
-__license__ = "GPL3+"
-__maintainer__ = "Joel Boyd"
-__email__ = "joel.boyd3 near uq.edu.au"
-__status__ = "Development"
-
-###############################################################################
 # Imports
 import re
 ###############################################################################
@@ -37,7 +27,6 @@ TIGRFAM = '^(TIGR\d{5})$'
 PFAM = '(PF\d+)'
 CE = '(CE\d+)'
 EC = '\\d{1,2}(\\.(\\-|\\d{1,2})){3}'
-
 
 class ModuleDescription:
 
@@ -107,7 +96,6 @@ class ModuleDescription:
         else:
             raise Exception("Cannot work with non-AND type modules")
 
-
 class GetLowestRelation:
 
     @staticmethod
@@ -123,7 +111,6 @@ class GetLowestRelation:
                 else:
                     GetLowestRelation.get_lowest_relation(relation, to_fill)
         return to_fill
-
 
 class ModuleDescriptionAndRelation:
 
@@ -152,10 +139,8 @@ class ModuleDescriptionAndRelation:
 
         return step_passed, counts, reaction_counts, kos
 
-
 class ModuleDescriptionPlusRelation(ModuleDescriptionAndRelation):
     pass
-
 
 class ModuleDescriptionOrRelation:
     def satisfied_with(self, set_of_kos, kos):
