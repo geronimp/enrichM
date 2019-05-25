@@ -18,7 +18,7 @@ EnrichM is under active development, so there is no guaratee that master is stab
 
 # Installation
 ## Dependencies
-EnrichM is written in python 3, and required >v3.6 to run. EnrichM requires the following non-python are also required:
+EnrichM is written in python 3, and required >v3.6 to run. EnrichM requires the following non-python dependencies:
 * [hmmer](http://hmmer.org/) >= 3.1b
 * [seqmagick](https://fhcrc.github.io/seqmagick/) >= 0.6.1
 * [diamond](https://github.com/bbuchfink/diamond) == 0.9.22
