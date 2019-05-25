@@ -8,7 +8,7 @@ class Sequence:
 class SequenceIO:
     # Stolen from https://github.com/lh3/readfq/blob/master/readfq.py
     def each(self, fp): # this is a generator function
-        
+
         last = None # this is a buffer keeping the last unprocessed line
         while True: # mimic closure; is it a bad idea?
             if not last: # the first record or a record following a fastq
@@ -33,7 +33,7 @@ class SequenceIO:
                     leng += len(l) - 1
                     if leng >= len(seq): # have read enough quality
                         last = None
-                        yield name, seq; # yield a fastq record
+                        yield name, seq # yield a fastq record
                         break
                 if last: # reach EOF before reading enough quality
                     yield name, seq  # yield a fasta record instead
@@ -49,7 +49,7 @@ class SequenceIO:
         for name, seq, _ in self.each(open(path_to_fasta_file)):
             seqs.append(Sequence(name, seq))
         return seqs
-    
+
     def write_fasta_file(self, sequence_objects, path_to_fasta_file):
         with open(path_to_fasta_file,'w') as f:
             self.write_fasta(sequence_objects, f)

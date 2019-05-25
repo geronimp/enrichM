@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
@@ -10,6 +10,7 @@ setup(name='enrichm',
       author='Joel Boyd, Ben Woodcroft, Alexander Baker',
       author_email='joel.boyd@uqconnect.edu.au',
       description='enrichm is a toolbox for comparing the functional composition of population genomes',
+      long_description_content_type='text/markdown',
       long_description=readme,
       license='GPL3+',
       keywords=["MAGs", "Population genomes", "metagenomics", "Annotation", "Comparison"],

@@ -16,127 +16,83 @@
 #                                                                             #
 ###############################################################################
 
-__author__      = "Joel Boyd"
-__copyright__   = "Copyright 2018"
-__credits__     = ["Joel Boyd"]
-__license__     = "GPL3"
-__version__     = "0.0.7"
-__maintainer__  = "Joel Boyd"
-__email__       = "joel.boyd near uq.net.au"
-__status__      = "Development"
 
-###############################################################################
-# Imports
 import logging
 import pickle
 import os
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-# Local
+from enrichm.parser import ParseGenerate
+from enrichm.writer import Writer
+from enrichm.parser import Parser
 from enrichm.generate import GenerateModel
-################################################################################
 
+class Predict:
 
-class Predict():
-	def __init__(self):
-		self.PREDICTIONS_OUTPUT_PATH = 'predictions.tsv'
+    def __init__(self):
+        self.PREDICTIONS_OUTPUT_PATH = 'predictions.tsv'
+        self.PREDICTIONS_HEADER = ["Sample", "Prediction", "Probability"]
 
-		self.LABELS_DICT = "labels_dict.pickle"
-		self.RF_MODEL = "rf_model.pickle"
+    def make_predictions(self, model, sample_list, content_list, attribute_dictionary):
+        '''
+        Inputs
+        ------
 
-	def _write_predictions(self, output_lines, output_directory):
-		'''		
-		Inputs
-		------
-		
-		Outputs
-		-------
-		
-		'''
-		output_path = os.path.join(output_directory, self.PREDICTIONS_OUTPUT_PATH)
-		logging.info('Writing predictions to output %s' % (output_path))
-		with open(output_path, 'w') as out_io:
-			out_io.write('\t'.join(["Sample", "Prediction", "Probability"]) + '\n')
-			for line in output_lines:
-				out_io.write(line + '\n')
+        Outputs
+        -------
 
-	def _make_predictions(self, model, sample_list, content_list, attribute_dictionary):
-		'''		
-		Inputs
-		------
-		
-		Outputs
-		-------
-		
-		'''
-		
-		sample_list 	= np.array(sample_list)
-		content_list 	= np.array(content_list)
-		predictions 	= model.predict(content_list)
-		probabilities 	= model.predict_proba(content_list)
+        '''
 
-		output_list = []
+        sample_list 	= np.array(sample_list)
+        content_list 	= np.array(content_list)
+        predictions 	= model.predict(content_list)
+        probabilities 	= model.predict_proba(content_list)
 
-		for sample, prediction, probability in zip(sample_list, predictions, probabilities):
-			max_prob = str(round(max(list(probability)), 2))
-			prediction = str(attribute_dictionary[prediction])
-			output_list.append('\t'.join([sample, prediction, max_prob]))
-		
-		return output_list
+        output_list = [self.PREDICTIONS_HEADER]
 
-	def parse_input_model_directory(self, forester_model_directory):
+        for sample, prediction, probability in zip(sample_list, predictions, probabilities):
+            max_prob = str(round(max(list(probability)), 2))
+            prediction = str(attribute_dictionary[prediction])
+            output_list.append([sample, prediction, max_prob])
 
-		output_dictionary = {
-			self.LABELS_DICT: None,
-			self.RF_MODEL: None
-		}
+        return output_list
 
-		contents = os.listdir(forester_model_directory)
+    def do(self, forester_model_directory, input_matrix_path, output_directory):
+        '''
+        Inputs
+        ------
 
-		for content in contents:
-			content_path = os.path.join(forester_model_directory, content)
-			if content in output_dictionary:
-				output_dictionary[content] = pickle.load(open(content_path))
+        Outputs
+        -------
 
-		if None in list(output_dictionary.values()):
-			raise Exception("Malformatted forester model directory: %s" % (forester_model_directory))
+        '''
+        forester_model = ParseGenerate(forester_model_directory)
 
-		return output_dictionary
+        logging.info('Parsing input')
+        logging.info('Loading model: %s' % (forester_model.RF_MODEL))
 
+        logging.info('Parsing data')
+        features, _, _ = Parser.parse_simple_matrix(input_matrix_path)
 
-	def do(self, forester_model_directory, input_matrix_path, output_directory):
-		'''		
-		Inputs
-		------
-		
-		Outputs
-		-------
-		
-		'''
-		forester_model = self.parse_input_model_directory(forester_model_directory)		
+        sample_list = list()
+        content_list = list()
 
-		logging.info('Parsing input')
-		gm = GenerateModel()
-		logging.info('Loading model: %s' % (self.RF_MODEL))
+        for sample, content in features.items():
+            sample_list.append(sample)
+            sample_content = list()
 
-		logging.info('Parsing data')
-		features, attribute_list \
-			= gm.parse_input_matrix(input_matrix_path)
-		
-		sample_list = list()
-		content_list = list()
+            for attribute in forester_model.attributes:
 
-		for sample, content in features.items():
-			sample_list.append(sample)
-			sample_content = []
-			for attribute in attribute_list:
-				sample_content.append(content[attribute])
+                if attribute in content:
+                    sample_content.append(content[attribute])
+                else:
+                    sample_content.append('0')
 
-			content_list.append(sample_content)
+            content_list.append(sample_content)
 
-		logging.info('Making predictions')
-		output_lines = self._make_predictions(forester_model[self.RF_MODEL],
-											  sample_list,
-										  	  content_list,
-										  	  forester_model[self.LABELS_DICT])
-		self._write_predictions(output_lines, output_directory)
+        logging.info('Making predictions')
+        output_lines = self.make_predictions(forester_model.model,
+                                              sample_list,
+                                                content_list,
+                                                forester_model.labels)
+        Writer.write(output_lines, os.path.join(output_directory, self.PREDICTIONS_OUTPUT_PATH))
