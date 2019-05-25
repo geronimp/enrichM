@@ -28,6 +28,9 @@ enrichm/run.py
 enrichm/sequence_io.py
 enrichm/traverse.py
 enrichm/version.py
+enrichm/PLOT_ko_breakdown.r
+enrichm/PLOT_ko_heatmap.r
+enrichm/PLOT_ko_pca.r
 enrichm.egg-info/PKG-INFO
 enrichm.egg-info/SOURCES.txt
 enrichm.egg-info/dependency_links.txt

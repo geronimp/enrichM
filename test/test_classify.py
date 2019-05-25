@@ -24,9 +24,9 @@ import tempfile
 
 ###############################################################################
 
-path_to_script 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
-path_to_data 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
-path_to_annotate	= os.path.join(path_to_data, 'enrichm_annotate')
+path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
+path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
+path_to_annotate = os.path.join(path_to_data, 'enrichm_annotate')
 
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
 
@@ -36,21 +36,18 @@ class Tests(unittest.TestCase):
 
     def test_classify_from_matrix(self):
         tmp = tempfile.mkdtemp()
-        bin = os.path.join(path_to_data, 'test_nucleic_bin')
         ko_matrix = os.path.join(path_to_annotate, 'ko_frequency_table.tsv')
         cmd = '%s classify --genome_and_annotation_matrix %s --output %s --force --verbosity 1' % (path_to_script, ko_matrix, tmp)
         subprocess.call(cmd, shell=True)
 
     def test_classify_from_lf(self):
         tmp = tempfile.mkdtemp()
-        bin = os.path.join(path_to_data, 'test_nucleic_bin')
         ko_matrix = os.path.join(path_to_annotate, 'ko_frequency_file.tsv')
         cmd = '%s classify --genome_and_annotation_file %s --output %s --force --verbosity 1' % (path_to_script, ko_matrix, tmp)
         subprocess.call(cmd, shell=True)
 
     def test_classify_with_custom_modules(self):
         tmp = tempfile.mkdtemp()
-        bin = os.path.join(path_to_data, 'test_nucleic_bin')
         ko_matrix = os.path.join(path_to_annotate, 'ko_frequency_file.tsv')
         cmd = '%s classify --genome_and_annotation_file %s --output %s --force --verbosity 1' % (path_to_script, ko_matrix, tmp)
         subprocess.call(cmd, shell=True)
