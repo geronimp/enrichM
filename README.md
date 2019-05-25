@@ -76,7 +76,7 @@ After which EnrichM should be able to find the database. It may be worthwhile pu
 
 # Subcommands
 ## annotate
-Annotate is a function that allows you to annotate your population genomes with [KO](http://www.kegg.jp/kegg/ko.html), [PFAM](http://pfam.xfam.org/), [TIGRFAM](http://www.jcvi.org/cgi-bin/tigrfams/index.cgi), and CAZY using [dbCAN](). The result will be a .gff file for each genome, and a frequency matrix for each annotation type where the rows are annotation IDs and the columns are genomes.
+Annotate is a function that allows you to annotate your population genomes with [KO](http://www.kegg.jp/kegg/ko.html), [PFAM](http://pfam.xfam.org/), [TIGRFAM](http://www.jcvi.org/cgi-bin/tigrfams/index.cgi), and CAZY using [dbCAN](cys.bios.niu.edu/dbCAN2). The result will be a .gff file for each genome, and a frequency matrix for each annotation type where the rows are annotation IDs and the columns are genomes.
 
 See the [annotate help page](https://github.com/geronimp/enrichM/wiki/annotate) for more
 
