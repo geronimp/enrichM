@@ -18,9 +18,8 @@
 
 # Imports
 import logging
-import random
 import re
-from itertools import chain, product
+from itertools import product
 # Local
 from enrichm.databases import Databases
 from enrichm.parser import Parser
@@ -230,8 +229,8 @@ class NetworkBuilder:
         reaction_line = [compound, reaction, enriched_term]
 
         for key in self.metadata_keys:
-            for _, group_abundances in self.abundances_metagenome.items():
 
+            for _, group_abundances in self.abundances_metagenome.items():
                 if reaction in group_abundances[key]:
                     reaction_line.append(str(group_abundances[key][reaction]))
                 else:
@@ -322,10 +321,12 @@ class NetworkBuilder:
         if self.abundances_metabolome:
             node_metadata_lines[0] += self.compound_header
 
+        network_lines = [self.matrix_header]
+        if self.abundances_metagenome:
+            network_lines[0] += self.add_to_header(self.abundances_metagenome)
         if self.abundances_transcriptome:
-            network_lines = [self.matrix_header + self.transcriptome_header + self.step_header]
-        else:
-            network_lines = [self.matrix_header + self.step_header]
+            network_lines[0] += self.add_to_header(self.abundances_transcriptome)
+        network_lines[0] += self.step_header
 
         while depth>0:
 

@@ -19,7 +19,6 @@
 import os
 import pickle
 import multiprocessing as mp
-from enrichm.databases import Databases
 from enrichm.annotate import Annotate
 
 ################################################################################
@@ -133,9 +132,9 @@ class Parser:
     def parse_single_column_text_file(text_file):
         entries = set()
 
-        for entry in open(text_file):
-            entry = entry.strip()
-            entries.add(entry)
+        with open(text_file) as text_file_io:
+            for entry in text_file_io:
+                entries.add(entry.strip())
 
         return entries
 
@@ -358,17 +357,19 @@ class ParseGenerate:
             content_path = os.path.join(forester_model_directory, content)
 
             if content == self.LABELS_DICT:
-                self.labels = pickle.load(open(content_path, 'rb'))
+                with open(content_path, 'rb') as content_path_io:
+                    self.labels = pickle.load(content_path_io)
             elif content == self.RF_MODEL:
-                self.model = pickle.load(open(content_path, 'rb'))
+                with open(content_path, 'rb') as content_path_io:
+                    self.model = pickle.load(content_path_io)
             elif content == self.ATTRIBUTE_IMPORTANCES:
                 self.attributes = list()
-                content_path_io = open(content_path)
-                _ = content_path_io.readline() # Junk
+                with open(content_path) as content_path_io:
+                    _ = content_path_io.readline() # Junk
 
-                for line in content_path_io:
-                    attribute, _ = line.strip().split('\t')
-                    self.attributes.append(attribute)
+                    for line in content_path_io:
+                        attribute, _ = line.strip().split('\t')
+                        self.attributes.append(attribute)
 
         if None in [self.labels, self.model, self.attributes]:
             raise Exception("Malformatted forester model directory: %s" \

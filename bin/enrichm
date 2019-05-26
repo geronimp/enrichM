@@ -36,7 +36,6 @@ sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.
 # Local
 import enrichm
 from enrichm.run import Run
-from enrichm.network_analyzer import NetworkAnalyser
 
 ###############################################################################
 
@@ -62,6 +61,9 @@ def phelp():
   Network analysis
     pathway         -> Generate a metabolic network from specific KEGG module or
                        compounds.
+    explore         -> Take steps into metabolism using a KEGG compound ID as a 
+                       starting point. Useful to see which pathways use a compound
+                       of interest.
 
   Machine learning
     generate        -> Generate a random forest model.
@@ -100,7 +102,7 @@ if __name__ == "__main__":
     base_input_options = base_network.add_argument_group('Input options')
     base_input_options.add_argument('--matrix', required=True,
                 help='KO matrix. REQUIRED.')
-    base_input_options.add_argument('--genome_metadata', required=True,
+    base_input_options.add_argument('--genome_metadata', 
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     base_input_options.add_argument('--abundance',
                 help='Abundance matrix.')
@@ -270,25 +272,6 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
-    connect = subparsers.add_parser('connect', formatter_class=CustomHelpFormatter, parents=[base_all])
-
-    connect_input_options = connect.add_argument_group('Input options')
-    connect_input_options.add_argument('--annotate_output', required=True,
-                help='Input annotate output')
-    connect_input_options.add_argument('--metadata', required=True,
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-
-    connect_runtime_options = connect.add_argument_group('Runtime options')
-    connect_runtime_options.add_argument('--custom_modules',
-                help='Tab separated file containing module name, definition as the columns',
-                default = None)
-    connect_runtime_options.add_argument('--cutoff',
-                help='This percent of the pathway must be complete to connect genomes (default = 1)',
-                type = float,
-                default=1.0)
-
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
     uses = subparsers.add_parser('uses', formatter_class=CustomHelpFormatter, parents=[base_all])
 
     uses_input_options = uses.add_argument_group('Input options')
@@ -300,6 +283,7 @@ if __name__ == "__main__":
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     uses_input_options.add_argument('--count', required=True, action='store_true',
                 help='Count rather than tally.')
+
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
@@ -321,22 +305,6 @@ if __name__ == "__main__":
                 help='A file containing the KEGG ids of the compounds from which to start in the metabolic network')
     explore_query_options.add_argument('--depth', type=int, default=2,
                 help='Number of steps to take into the metabolic network')
-
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
-    traverse = subparsers.add_parser('traverse', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
-
-    traverse_options = traverse.add_argument_group('Traverse options')
-    traverse_options.add_argument('--starting_compounds',  default=[],  nargs='+',
-                help='start from these compounds in the network only. DEFAULT = start from a ')
-    traverse_options.add_argument('--steps', type=int, default = 1000,
-                help='number of steps into the network taken by each query')
-    traverse_options.add_argument('--number_of_queries', type=int, default = 1000,
-                help='number of queries to drop into the network')
-    traverse_options.add_argument('--limit', default=[], nargs='+',
-                help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
-    traverse_options.add_argument('--filter', default=[], nargs='+',
-                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
@@ -370,6 +338,6 @@ if __name__ == "__main__":
         if not args.log:
             args.log = os.path.join(args.subparser_name + '.log')
 
-        r = Run()
-        r.run_enrichm(args, sys.argv)
+        run = Run()
+        run.run_enrichm(args, sys.argv)
 

@@ -1,0 +1,309 @@
+node	description	type	module	module_descr	pathway	pathway_descr	node_type
+C00019	S-Adenosyl-L-methionine	Vitamins and Cofactors	NA	NA	NA	NA	compound
+R11580	S-adenosyl-L-methionine:cobalt-factor III 17-methyltransferase (ring contracting)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00021	S-Adenosyl-L-homocysteine	NA	NA	NA	NA	NA	compound
+C00028	Acceptor	NA	NA	NA	NA	NA	compound
+C00030	Reduced acceptor	NA	NA	NA	NA	NA	compound
+C11540	Cobalt-precorrin 4	NA	NA	NA	NA	NA	compound
+C17401	Cobalt-factor III	NA	NA	NA	NA	NA	compound
+R09063	S-adenosyl-L-methionine:bacteriochlorophyllide-d C20-methyltransferase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18160	Bacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+C18161	Bacteriochlorophyllide c	NA	NA	NA	NA	NA	compound
+R11509	S-adenosyl-L-methionine:12-ethyl-8-propyl-3-vinylbacteriochlorophyllide d C-8(2)-methyltransferase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C21428	12-Ethyl-8-propyl-3-vinylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+C21429	12-Ethyl-8-isobutyl-3-vinylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+C00001	H2O	NA	NA	NA	NA	NA	compound
+R03220	Coproporphyrinogen:oxygen oxidoreductase(decarboxylating)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C00007	Oxygen	NA	NA	NA	NA	NA	compound
+C00011	CO2	NA	NA	NA	NA	NA	compound
+C01079	Protoporphyrinogen IX	NA	NA	NA	NA	NA	compound
+C03263	Coproporphyrinogen III	NA	NA	NA	NA	NA	compound
+C00010	CoA	Vitamins and Cofactors	NA	NA	NA	NA	compound
+R00830	succinyl-CoA:glycine C-succinyltransferase (decarboxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00037	Glycine	Peptides,Hormones and transmitters	NA	NA	NA	NA	compound
+C00091	Succinyl-CoA	NA	NA	NA	NA	NA	compound
+C00430	5-Aminolevulinate	NA	NA	NA	NA	NA	compound
+C00013	Diphosphate	NA	NA	NA	NA	NA	compound
+R09067	chlorophyllide-b:phytyl-diphosphate phytyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C05307	Chlorophyll b	NA	NA	NA	NA	NA	compound
+C05427	Phytyl diphosphate	NA	NA	NA	NA	NA	compound
+C16541	Chlorophyllide b	NA	NA	NA	NA	NA	compound
+R06530	L-threonine-O-3-phosphate carboxy-lyase	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+C04122	D-1-Aminopropan-2-ol O-phosphate	NA	NA	NA	NA	NA	compound
+C12147	L-Threonine O-3-phosphate	NA	NA	NA	NA	NA	compound
+R09054	3-hydroxyethylbacteriochlorophyllide-a hydro-lyase (3-vinylbacteriochlorophyllide-a-forming)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18152	3-Vinylbacteriochlorophyllide a	NA	NA	NA	NA	NA	compound
+C18153	3-Hydroxyethylbacteriochlorophyllide a	NA	NA	NA	NA	NA	compound
+C00003	NAD+	Vitamins and Cofactors	NA	NA	NA	NA	compound
+R09069	7(1)-hydroxychlorophyll-a:NAD+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00004	NADH	NA	NA	NA	NA	NA	compound
+C00080	H+	NA	NA	NA	NA	NA	compound
+C18151	7(1)-Hydroxychlorophyll a	NA	NA	NA	NA	NA	compound
+R09068	chlorophyll chlorophyllidohydrolase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C01389	Phytol	NA	NA	NA	NA	NA	compound
+C00005	NADPH	NA	NA	NA	NA	NA	compound
+R06272	chlorophyllide-a:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C00006	NADP+	Vitamins and Cofactors	NA	NA	NA	NA	compound
+C02139	Chlorophyllide	NA	NA	NA	NA	NA	compound
+C11832	Divinyl chlorophyllide a	NA	NA	NA	NA	NA	compound
+R07775	S-adenosyl-L-methionine:cobalt-precorrin-7 C5-methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C11545	Cobalt-precorrin 8	NA	NA	NA	NA	NA	compound
+C16244	Cobalt-precorrin 7	NA	NA	NA	NA	NA	compound
+R11579	protoheme,reduced ferredoxin:oxygen oxidoreductase (alpha-methene-oxidizing, hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00032	Heme	Vitamins and Cofactors	NA	NA	NA	NA	compound
+C00138	Reduced ferredoxin	NA	NA	NA	NA	NA	compound
+C00139	Oxidized ferredoxin	NA	NA	NA	NA	NA	compound
+C00237	CO	NA	NA	NA	NA	NA	compound
+C00500	Biliverdin	NA	NA	NA	NA	NA	compound
+C14818	Fe2+	NA	NA	NA	NA	NA	compound
+R05227	hydrogenobyrinic-acid-a,c-diamide:cobalt cobalt-ligase (ADP-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00002	ATP	Nucleic acids,Vitamins and Cofactors	NA	NA	NA	NA	compound
+C00008	ADP	Nucleic acids	NA	NA	NA	NA	compound
+C00009	Orthophosphate	NA	NA	NA	NA	NA	compound
+C00175	Cobalt ion	NA	NA	NA	NA	NA	compound
+C06503	Hydrogenobyrinate a,c diamide	NA	NA	NA	NA	NA	compound
+C06504	Cob(II)yrinate a,c diamide	NA	NA	NA	NA	NA	compound
+R05221	Adenosyl cobinamide + ATP <=> Adenosyl cobinamide phosphate + ADP	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+C06508	Adenosyl cobinamide	NA	NA	NA	NA	NA	compound
+C06509	Adenosyl cobinamide phosphate	NA	NA	NA	NA	NA	compound
+R06286	chlorophyllide-a:NADP+ 7,8-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C11831	Divinylprotochlorophyllide	NA	NA	NA	NA	NA	compound
+R05818	15,16-dihydrobiliverdin:ferredoxin oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C11630	15,16-Dihydrobiliverdin	NA	NA	NA	NA	NA	compound
+R08915	7(1)-hydroxychlorophyllide-a:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C16540	7(1)-Hydroxychlorophyllide a	NA	NA	NA	NA	NA	compound
+R09032	primary fluorescent chlorophyll catabolite:ferredoxin oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18022	Red chlorophyll catabolite	NA	NA	NA	NA	NA	compound
+C18098	Primary fluorescent chlorophyll catabolite	NA	NA	NA	NA	NA	compound
+R04148	Nicotinate-nucleotide:dimethylbenzimidazole phospho-D-ribosyltransferase	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+C00253	Nicotinate	Vitamins and Cofactors	NA	NA	NA	NA	compound
+C01185	Nicotinate D-ribonucleotide	NA	NA	NA	NA	NA	compound
+C03114	Dimethylbenzimidazole	NA	NA	NA	NA	NA	compound
+C04778	N1-(5-Phospho-alpha-D-ribosyl)-5,6-dimethylbenzimidazole	NA	NA	NA	NA	NA	compound
+R02393	Bilirubin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00486	Bilirubin	NA	NA	NA	NA	NA	compound
+C00144	GMP	Nucleic acids	NA	NA	NA	NA	compound
+R05223	Cobamide coenzyme + GMP <=> Adenosine-GDP-cobinamide + alpha-Ribazole	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+C00194	Cobamide coenzyme	Vitamins and Cofactors	NA	NA	NA	NA	compound
+C05775	alpha-Ribazole	NA	NA	NA	NA	NA	compound
+C06510	Adenosine-GDP-cobinamide	NA	NA	NA	NA	NA	compound
+R06895	coproporphyrinogen-III:S-adenosyl-L-methionine oxidoreductase(decarboxylating)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C00073	L-Methionine	Peptides	NA	NA	NA	NA	compound
+C05198	5'-Deoxyadenosine	NA	NA	NA	NA	NA	compound
+R11508	S-adenosyl-L-methionine:8,12-diethyl-3-vinylbacteriochlorophyllide-d C-8(2)-methyltransferase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C21427	8,12-Diethyl-3-vinylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+R03197	Uroporphyrinogen-III carboxy-lyase	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C01051	Uroporphyrinogen III	NA	NA	NA	NA	NA	compound
+R06282	ATP-dependent ferredoxin:protochlorophyllide-a 7,8-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C02880	Protochlorophyllide	NA	NA	NA	NA	NA	compound
+R09065	trans,trans-farnesyl-diphosphate:bacteriochlorophyllide-d farnesyltransferase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C00448	trans,trans-Farnesyl diphosphate	NA	NA	NA	NA	NA	compound
+C18162	Bacteriochlorophyll d	NA	NA	NA	NA	NA	compound
+R05180	S-adenosyl-L-methionine:precorrin-3B C17-methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C06406	Precorrin 3B	NA	NA	NA	NA	NA	compound
+C06407	Precorrin 4	NA	NA	NA	NA	NA	compound
+R09060	3-hydroxyethylbacteriochlorophyllide-a:ferredoxin oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18154	3-Hydroxyethylchlorophyllide a	NA	NA	NA	NA	NA	compound
+R05225	Adenosyl cobyrinate a,c diamide + 4 L-Glutamine + 4 ATP + 4 H2O <=> Adenosyl cobyrinate hexaamide + 4 L-Glutamate + 4 Orthophosphate + 4 ADP	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+C00025	L-Glutamate	Peptides,Hormones and transmitters	NA	NA	NA	NA	compound
+C00064	L-Glutamine	Peptides	NA	NA	NA	NA	compound
+C06506	Adenosyl cobyrinate a,c diamide	NA	NA	NA	NA	NA	compound
+C06507	Adenosyl cobyrinate hexaamide	NA	NA	NA	NA	NA	compound
+R05618	chlorophyll chlorophyllidohydrolase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C05306	Chlorophyll a	NA	NA	NA	NA	NA	compound
+C06399	Hydrogenobyrinate	NA	NA	NA	NA	NA	compound
+R05177	precorrin 8X 11,12-methylmutase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C06408	Precorrin 8X	NA	NA	NA	NA	NA	compound
+R11513	12-Ethyl-8-isobutyl-3-vinylbacteriochlorophyllide d + H2O <=> 12-Ethyl-8-isobutylbacteriochlorophyllide d	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C21434	12-Ethyl-8-isobutylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+R05578	L-glutamate:tRNA(Glu) ligase (AMP-forming)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C00020	AMP	Nucleic acids	NA	NA	NA	NA	compound
+C01641	tRNA(Glu)	NA	NA	NA	NA	NA	compound
+C02987	L-Glutamyl-tRNA(Glu)	NA	NA	NA	NA	NA	compound
+R11626	Ni-sirohydrochlorin nickel-lyase (sirohydrochlorin-forming)	NA	M00836	Coenzyme F430 biosynthesis, sirohydrochlorin => coenzyme F430	map01110	Biosynthesis of secondary metabolites	reaction
+C05778	Sirohydrochlorin	NA	NA	NA	NA	NA	compound
+C19609	Nickel(2+)	NA	NA	NA	NA	NA	compound
+C21510	Nickel-sirohydrochlorin	NA	NA	NA	NA	NA	compound
+R06269	magnesium-protoporphyrin-IX 13-monomethyl ester,S-adenosyl-L-methionine:H2O oxidoreductase (hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C11829	13(1)-Hydroxy-magnesium-protoporphyrin IX 13-monomethyl ester	NA	NA	NA	NA	NA	compound
+C11830	13(1)-Oxo-magnesium-protoporphyrin IX 13-monomethyl ester	NA	NA	NA	NA	NA	compound
+R08203	chlorophyllide-a,NADPH:oxygen 7(1)-oxidoreductase (hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C05773	Cobyrinate	NA	NA	NA	NA	NA	compound
+R05814	precorrin-8 11,12-methylmutase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R05819	(3Z)-phycoerythrobilin:ferredoxin oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C05912	(3Z)-Phycoerythrobilin	NA	NA	NA	NA	NA	compound
+R11517	geranylgeranyl-diphosphate:bacteriochlorophyllide-b geranylgeranytransferase	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+C00353	Geranylgeranyl diphosphate	NA	NA	NA	NA	NA	compound
+C18156	Bacteriochlorophyllide b	NA	NA	NA	NA	NA	compound
+C21435	Geranylgeranyl bacteriochlorophyllide b	NA	NA	NA	NA	NA	compound
+R08584	chlorophyll-a magnesium-lyase (pheophytin-a-forming)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C00305	Magnesium cation	NA	NA	NA	NA	NA	compound
+C05797	Pheophytin a	NA	NA	NA	NA	NA	compound
+R00084	porphobilinogen:(4-[2-carboxyethyl]-3-[carboxymethyl]pyrrol-2-yl)methyltransferase (hydrolysing)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C00014	Ammonia	NA	NA	NA	NA	NA	compound
+C00931	Porphobilinogen	NA	NA	NA	NA	NA	compound
+C01024	Hydroxymethylbilane	NA	NA	NA	NA	NA	compound
+R06265	magnesium-protoporphyrin-IX 13-monomethyl ester,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C04536	Magnesium protoporphyrin monomethyl ester	NA	NA	NA	NA	NA	compound
+R09071	7(1)-hydroxychlorophyll a:ferredoxin oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R04109	L-glutamate-semialdehyde: NADP+ oxidoreductase(L-glutamyl-tRNA(Glu)-forming)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C03741	(S)-4-Amino-5-oxopentanoate	NA	NA	NA	NA	NA	compound
+C00061	FMN	Vitamins and Cofactors	NA	NA	NA	NA	compound
+R05218	cob(II)yrinic acid-a,c-diamide:FMN oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C01847	Reduced FMN	NA	NA	NA	NA	NA	compound
+C06505	Cob(I)yrinate a,c diamide	NA	NA	NA	NA	NA	compound
+R05181	S-adenosyl-L-methionine:precorrin-4 C11 methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C06416	Precorrin 5	NA	NA	NA	NA	NA	compound
+R03678	(3Z)-phytochromobilin:ferredoxin oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C05913	(3Z)-Phytochromobilin	NA	NA	NA	NA	NA	compound
+R11522	Fe-coproporphyrin III + 2 Hydrogen peroxide <=> Heme + 2 CO2 + 4 H2O	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00027	Hydrogen peroxide	NA	NA	NA	NA	NA	compound
+C21284	Fe-coproporphyrin III	NA	NA	NA	NA	NA	compound
+R02394	Bilirubin:oxygen oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+R12001	12,18-Didecarboxysiroheme <=> Fe-coproporphyrin III	NA	M00847	Heme biosynthesis, archaea, siroheme => heme	map01110	Biosynthesis of secondary metabolites	reaction
+C21835	12,18-Didecarboxysiroheme	NA	NA	NA	NA	NA	compound
+R05222	GTP:adenosylcobinamide-phosphate guanylyltransferase	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+C00044	GTP	Nucleic acids	NA	NA	NA	NA	compound
+R00310	protoheme ferro-lyase (protoporphyrin-forming)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C02191	Protoporphyrin	NA	NA	NA	NA	NA	compound
+R11510	8-Ethyl-12-methyl-3-vinylbacteriochlorophyllide d + H2O <=> 8-Ethyl-12-methylbacteriochlorophyllide d	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18157	8-Ethyl-12-methyl-3-vinylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+C21431	8-Ethyl-12-methylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+R08921	pheophorbide-a,ferredoxin:oxygen oxidoreductase (biladiene-forming)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18021	Pheophorbide a	NA	NA	NA	NA	NA	compound
+R07302	adenosylcobyric acid:(R)-1-aminopropan-2-ol ligase (ADP-forming)	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+C03194	(R)-1-Aminopropan-2-ol	Peptides	NA	NA	NA	NA	compound
+R09053	3-vinylbacteriochlorophyllide a:ferredoxin 7,8-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+R11511	8,12-Diethyl-3-vinylbacteriochlorophyllide d + H2O <=> 8,12-Diethylbacteriochlorophyllide d	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C21432	8,12-Diethylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+R05220	ATP:cob(I)yrinic acid-a,c-diamide Cobeta-adenosyltransferase	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+C00536	Triphosphate	NA	NA	NA	NA	NA	compound
+R08914	7(1)-hydroxychlorophyllide-a:NAD+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R07268	ATP:cobinamide Cobeta-adenosyltransferase	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+C05774	Cobinamide	NA	NA	NA	NA	NA	compound
+R11507	S-adenosyl-L-methionine:8-ethyl-12-methyl-3-vinylbacteriochlorophyllide-d C-12(1)-methyltransferase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+R06267	magnesium-protoporphyrin-IX 13-monomethyl ester,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+R03948	S-adenosyl-L-methionine:precorrin-4 C20-methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C02463	Precorrin 2	NA	NA	NA	NA	NA	compound
+C05772	Precorrin 3A	NA	NA	NA	NA	NA	compound
+R07772	cobalt-precorrin 5A acylhydrolase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00084	Acetaldehyde	NA	NA	NA	NA	NA	compound
+C16242	Cobalt-precorrin 5A	NA	NA	NA	NA	NA	compound
+C16243	Cobalt-precorrin 5B	NA	NA	NA	NA	NA	compound
+R03845	Chlorophyllide-a:NADP+ 7,8-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C15670	Heme A	Vitamins and Cofactors	NA	NA	NA	NA	compound
+R07412	Heme O <=> Heme A	NA	NA	NA	map01100	Metabolic pathways	reaction
+C15672	Heme O	Vitamins and Cofactors	NA	NA	NA	NA	compound
+R11329	Fe-coproporphyrin-III ferro-lyase (coproporphyrin-III-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C05770	Coproporphyrin III	NA	NA	NA	NA	NA	compound
+R05807	sirohydrochlorin cobalt-lyase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C11538	Cobalt-sirohydrochlorin	NA	NA	NA	NA	NA	compound
+R00036	5-aminolevulinate hydro-lyase (adding 5-aminolevulinate and cyclizing	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+R02480	Cytochrome c apocytochrome-c-lyase	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+C00524	Cytochrome c	NA	NA	NA	NA	NA	compound
+C02248	Apocytochrome c	NA	NA	NA	NA	NA	compound
+R06271	Divinylprotochlorophyllide + 2 H+ <=> Protochlorophyllide	NA	NA	NA	map01100	Metabolic pathways	reaction
+R05809	Cobalt-precorrin 3 + S-Adenosyl-L-methionine <=> Cobalt-precorrin 4 + S-Adenosyl-L-homocysteine	NA	NA	NA	map01100	Metabolic pathways	reaction
+C11539	Cobalt-precorrin 3	NA	NA	NA	NA	NA	compound
+C00015	UDP	Nucleic acids	NA	NA	NA	NA	compound
+R02389	UDPglucuronate beta-D-glucuronosyltransferase(acceptor-unspecific)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00167	UDP-glucuronate	NA	NA	NA	NA	NA	compound
+C05787	Bilirubin beta-diglucuronide	NA	NA	NA	NA	NA	compound
+R02391	Bilirubin:NAD+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R05149	S-Adenosyl-L-methionine:1-precorrin-6Y C5,15-methyltransferase (C-12-decarboxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C06319	Precorrin 6Y	NA	NA	NA	NA	NA	compound
+R05226	adenosylcobinamide amidohydrolase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R00311	protoheme,NADPH---hemoprotein reductase:oxygen oxidoreductase (alpha-methene-oxidizing, hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+C03024	[Reduced NADPH---hemoprotein reductase]	NA	NA	NA	NA	NA	compound
+C03161	[Oxidized NADPH---hemoprotein reductase]	NA	NA	NA	NA	NA	compound
+R02864	S-Adenosyl-L-methionine:uroporphyrin-III C-methyltransferase	NA	M00846	Siroheme biosynthesis, glutamate => siroheme	map01100	Metabolic pathways	reaction
+C00748	Siroheme	NA	NA	NA	NA	NA	compound
+R05817	(3Z)-phycocyanobilin:ferredoxin oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C05786	(3Z)-Phycocyanobilin	NA	NA	NA	NA	NA	compound
+R04972	Uroporphyrinogen I carboxy-lyase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C05766	Uroporphyrinogen I	NA	NA	NA	NA	NA	compound
+C05768	Coproporphyrinogen I	NA	NA	NA	NA	NA	compound
+R05808	S-adenosyl-L-methionine:cobalt-factor-II C20-methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R12000	siroheme carboxy-lyase	NA	M00847	Heme biosynthesis, archaea, siroheme => heme	map01110	Biosynthesis of secondary metabolites	reaction
+R09033	chlorophyllide magnesium-lyase (pheophorbide-forming)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+R08974	pheophorbide-a hydrolase (decarboxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C00132	Methanol	NA	NA	NA	NA	NA	compound
+C18064	Pyropheophorbide a	NA	NA	NA	NA	NA	compound
+R05224	Hydrogenobyrinate + 2 L-Glutamine + 2 ATP + 2 H2O <=> Hydrogenobyrinate a,c diamide + 2 Orthophosphate + 2 L-Glutamate + 2 ADP	NA	NA	NA	map01100	Metabolic pathways	reaction
+R09061	chlorophyllide-a hydrolase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+R03947	S-Adenosyl-L-methionine:uroporphyrin-III C-methyltransferase	NA	M00846	Siroheme biosynthesis, glutamate => siroheme	map01100	Metabolic pathways	reaction
+R11518	bacteriochlorophyll-b:NADP+ oxidoreductase (geranylgeranyl-reducing)	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+C11243	Bacteriochlorophyll b	NA	NA	NA	NA	NA	compound
+R11710	bacteriochlorophyllide-c:S-adenosyl-L-methionine oxidoreductase (C-7(1)-hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C21582	Bacteriochlorophyllide e	NA	NA	NA	NA	NA	compound
+R03877	Magnesium-protoporphyrin IX chelatase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C03516	Magnesium protoporphyrin	NA	NA	NA	NA	NA	compound
+R07773	S-adenosyl-L-methionine:cobalt-precorrin-5B (C1)-methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C11542	Cobalt-precorrin 6	NA	NA	NA	NA	NA	compound
+R00078	Fe(II):oxygen oxidoreductase	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+C14819	Fe3+	NA	NA	NA	NA	NA	compound
+R06284	chlorophyllide-a:phytyl-diphosphate phytyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R04979	Bilirubin beta-diglucuronide glucuronosohydrolase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00191	D-Glucuronate	Carbohydrates	NA	NA	NA	NA	compound
+C05791	D-Urobilinogen	NA	NA	NA	NA	NA	compound
+R09055	3-deacetyl-3-(1-hydroxyethyl)bacteriochlorophyllide-a:NAD+ oxidoreductase (bacteriochlorophyllide a-forming)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18155	Bacteriochlorophyllide a	NA	NA	NA	NA	NA	compound
+R06896	chlorophyllide-a:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R01492	ATP:cob(I)alamin Co-beta-adenosyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00853	Cob(I)alamin	NA	NA	NA	NA	NA	compound
+R06270	magnesium-protoporphyrin-IX 13-monomethyl ester,S-adenosyl-L-methionine:H2O oxidoreductase (hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+R07411	(2E,6E)-farnesyl-diphosphate:protoheme IX farnesyltranstransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R03222	protoporphyrinogen-IX:oxygen oxidoreductase	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+R09491	(3Z)-phycoerythrobilin:ferredoxin oxidoreductase (from biliverdin IXalpha)	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+R04178	coproporphyrinogen-III:oxygen oxidoreductase (coproporphyrin-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction
+R05217	precorrin-3A,NADH:oxygen oxidoreductase (20-hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+R02272	(S)-4-Amino-5-oxopentanoate 4,5-aminomutase	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+R09070	7(1)-hydroxychlorophyll-a:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R05815	cobyrinate:L-glutamine amido-ligase (ADP-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction
+R04594	N1-(5-Phospho-alpha-D-ribosyl)-5,6-dimethylbenzimidazole + H2O <=> alpha-Ribazole + Orthophosphate	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+R09064	trans,trans-farnesyl-diphosphate:bacteriochlorophyllide-c farnesyltransferase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C18163	Bacteriochlorophyll c	NA	NA	NA	NA	NA	compound
+R10468	protoheme,hydrogen-donor:oxygen oxidoreductase (delta-methene-oxidizing, hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C00067	Formaldehyde	NA	NA	NA	NA	NA	compound
+C20666	5-Oxo-delta-bilirubin	NA	NA	NA	NA	NA	compound
+R05150	precorrin-6Y:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C06320	Precorrin 6X	NA	NA	NA	NA	NA	compound
+C00828	Menaquinone	Vitamins and Cofactors	NA	NA	NA	NA	compound
+R09489	protoporphyrinogen IX:menaquinone oxidoreductase	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+C05819	Menaquinol	NA	NA	NA	NA	NA	compound
+R00107	cob(II)alamin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00541	Cob(II)alamin	NA	NA	NA	NA	NA	compound
+C00992	Aquacob(III)alamin	NA	NA	NA	NA	NA	compound
+R06531	ATP:L-threonine O-phosphotransferase	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction
+C00188	L-Threonine	Peptides	NA	NA	NA	NA	compound
+R05810	cobalt-precorrin-4 methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R11514	geranylgeranyl-diphosphate:bacteriochlorophyllide-a geranylgeranytransferase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C21217	Geranylgeranyl bacteriochlorophyllide a	NA	NA	NA	NA	NA	compound
+R12002	Fe-coproporphyrin III <=> Heme	NA	M00847	Heme biosynthesis, archaea, siroheme => heme	map01110	Biosynthesis of secondary metabolites	reaction
+R11627	Ni-sirohydrochlorin:L-glutamine amido-ligase (ADP-forming)	NA	M00836	Coenzyme F430 biosynthesis, sirohydrochlorin => coenzyme F430	map01110	Biosynthesis of secondary metabolites	reaction
+C21511	Nickel-sirohydrochlorin a,c-diamide	NA	NA	NA	NA	NA	compound
+R00097	NADH:cob(III)alamine oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R05812	cobalt-precorrin-6B:NAD+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+C11543	Cobalt-dihydro-precorrin 6	NA	NA	NA	NA	NA	compound
+R09059	3-hydroxyethylchlorophyllide-a hydro-lyase (chlorophyllide-a-forming)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C00035	GDP	Nucleic acids	NA	NA	NA	NA	compound
+R06558	Adenosyl cobinamide + GTP <=> Adenosyl cobinamide phosphate + GDP	NA	M00122	Cobalamin biosynthesis, cobinamide => cobalamin	map01100	Metabolic pathways	reaction
+R11226	bacteriochlorophyll a:NADP+ oxidoreductase (geranylgeranyl-reducing)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C11242	Bacteriochlorophyll a	NA	NA	NA	NA	NA	compound
+R06268	magnesium-protoporphyrin-IX 13-monomethyl ester,S-adenosyl-L-methionine:H2O oxidoreductase (hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+R03165	Hydroxymethylbilane hydro-lyase(cyclizing)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction
+R07774	S-adenosyl-L-methionine:cobalt-precorrin-6B C15-methyltransferase (C12-decarboxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction
+R08204	7(1)-hydroxychlorophyllide-a,NADPH:oxygen 7(1)-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R05219	Precorrin 6X + Acetate + S-Adenosyl-L-homocysteine <=> Precorrin 5 + S-Adenosyl-L-methionine + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction
+C00033	Acetate	Organic acids	NA	NA	NA	NA	compound
+R06529	adenosylcobyric acid:(R)-1-aminopropan-2-yl phosphate ligase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R11628	Ni-sirohydrochlorin a,c-diamide reductive cyclo-ligase (ADP-forming)	NA	M00836	Coenzyme F430 biosynthesis, sirohydrochlorin => coenzyme F430	map01110	Biosynthesis of secondary metabolites	reaction
+C21512	15,17(3)-Seco-F430-17(3)-acid	NA	NA	NA	NA	NA	compound
+R06266	magnesium-protoporphyrin-IX 13-monomethyl ester,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+R11512	12-Ethyl-8-propyl-3-vinylbacteriochlorophyllide d + H2O <=> 12-Ethyl-8-propylbacteriochlorophyllide d	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction
+C21433	12-Ethyl-8-propylbacteriochlorophyllide d	NA	NA	NA	NA	NA	compound
+R11519	protochlorophyllide-a:ferredoxin C-8(1)-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R04237	S-adenosyl-L-methionine:magnesium-protoporphyrin-IX O-methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction
+R03194	S-adenosyl-L-methionine:uroporphyrin-III C-methyltransferase	NA	M00846	Siroheme biosynthesis, glutamate => siroheme	map01100	Metabolic pathways	reaction
+R11629	15,17(3)-seco-F430-17(3)-acid cyclo-ligase (ADP-forming)	NA	M00836	Coenzyme F430 biosynthesis, sirohydrochlorin => coenzyme F430	map01110	Biosynthesis of secondary metabolites	reaction
+C05777	Coenzyme F430	Vitamins and Cofactors	NA	NA	NA	NA	compound

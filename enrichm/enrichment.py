@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# pylint: disable=line-too-long
+# pylint: disable=line-too-long
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -15,24 +17,19 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
-
-from enrichm.comparer import Compare
+import random
+import os
+import logging
+import multiprocessing as mp
+from itertools import product, combinations, chain
+from scipy import stats
+import numpy as np
+import statsmodels.sandbox.stats.multicomp as sm
 from enrichm.draw_plots import Plot
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser, ParseAnnotate
 from enrichm.writer import Writer
-from collections import Counter
-from itertools import product, combinations, chain
-from scipy import stats
-import statsmodels.sandbox.stats.multicomp as sm
-import multiprocessing as mp
-import numpy as np
-import re
-import random
-import os
-import logging
-
 ################################################################################
 
 def gene_fisher_calc(x):
@@ -331,7 +328,7 @@ class Enrichment:
 
         return module_output, prefix
 
-    def do(# Input options
+    def enrichment_pipeline(# Input options
            self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path, transcriptome_path, transcriptome_metadata_path,
            # Runtime options
            pval_cutoff, proportions_cutoff,
@@ -427,7 +424,7 @@ class Enrichment:
                 combination_dict['_'.join(combination)] = genome_list
 
             test = Test(annotations_dict, combination_dict, annotation_type, threshold, multi_test_correction, processes, database)
-            results = test.do(attribute_dict)
+            results = test.test_pipeline(attribute_dict)
 
             for result in results:
                 test_result_lines, test_result_output_file = result
@@ -662,14 +659,14 @@ class Test(Enrichment):
 
         return results
 
-    def do(self, group_dict):
+    def test_pipeline(self, group_dict):
         results = list()
 
         for combination in combinations(group_dict, 2):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
             prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
 
-            logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
+            logging.info('Comparing gene frequency among groups: %s', ', '.join(combination))
 
             if enrichment_test == stats.fisher_exact:
                 logging.info('Testing gene enrichment using Fisher\'s exact test')
@@ -683,7 +680,7 @@ class Test(Enrichment):
                 output = self.GENE_FISHER_OUTPUT
                 output_lines = self.add_descriptions(output_lines)
                 output_lines = header + output_lines
-                results.append([output_lines, prefix +'_'+ output])
+                results.append([output_lines, prefix + '_' + output])
 
             elif enrichment_test == self.PA:
                 logging.info('enrichment statistics not possible with only one genome to compare')
@@ -691,7 +688,7 @@ class Test(Enrichment):
 
             logging.info('Comparing gene over-representation among genomes')
 
-            if overrepresentation_test == stats.mannwhitneyu:
+            if(overrepresentation_test == stats.mannwhitneyu):
                 logging.info('Testing over-representation using Mann-Whitney U test')
                 gene_count = self.gene_frequencies(*combination, True)
                 output_lines = self.pool.map(mannwhitneyu_calc, gene_count)

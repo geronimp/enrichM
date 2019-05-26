@@ -4,6 +4,7 @@
 
 [![Build Status](https://travis-ci.com/geronimp/enrichM.svg?branch=master)](https://travis-ci.com/geronimp/enrichM)
 [![Downloads](https://pepy.tech/badge/enrichm/month)](https://pepy.tech/project/enrichm/month)
+[![version status](https://img.shields.io/pypi/v/enrichm.svg)](https://pypi.python.org/pypi/enrichm)
 
 EnrichM is a set of comparative genomics tools for large sets of metagenome assembled genomes (MAGs). The current functionality includes:
 
@@ -14,7 +15,7 @@ EnrichM is a set of comparative genomics tools for large sets of metagenome asse
 5. Construct random forest machine learning models from the functional composition of either MAGs, metagenomes or transcriptomes.
 6. Apply these random forest machine learning models to classify new MAGs metagenomes.
 
-EnrichM is under active development, so there is no guaratee that master is stable. Its reccomended that EnrichM is downloaded either via pypi or conda (see below).
+EnrichM is under active development, so there is no guaratee that master is stable. It's reccomended that EnrichM is downloaded either via pypi or conda (see below).
 
 # Installation
 ## Dependencies
