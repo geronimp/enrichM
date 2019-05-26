@@ -15,15 +15,11 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
-
-# Imports
 import logging
 import sys
 import os
 import shutil
 import time
-
-# Local
 from enrichm.data import Data
 from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.enrichment import Enrichment
@@ -31,35 +27,24 @@ from enrichm.annotate import Annotate
 from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
-from enrichm.connect import Connect
 from enrichm.uses import Uses
 
-###############################################################################
+####################################################################################################
 
-debug={1:logging.CRITICAL,
-       2:logging.ERROR,
-       3:logging.WARNING,
-       4:logging.INFO,
-       5:logging.DEBUG}
+debug = {1:logging.CRITICAL, 2:logging.ERROR, 3:logging.WARNING, 4:logging.INFO, 5:logging.DEBUG}
 
-###############################################################################
+####################################################################################################
 
 class Run:
 
     def __init__(self):
 
-        self.ANNOTATE        = 'annotate'
-        self.COMPARE         = 'compare'
-
-        self.CLASSIFY        = 'classify'
-        self.BUILD           = 'build'
-        self.ENRICHMENT      = 'enrichment'
-        self.MODULE_AB       = 'module_ab'
         self.DATA            = 'data'
+        self.ANNOTATE        = 'annotate'
+        self.CLASSIFY        = 'classify'
+        self.ENRICHMENT      = 'enrichment'
         self.PREDICT         = 'predict'
         self.GENERATE        = 'generate'
-        self.CONNECT         = 'connect'
-        self.AGGREGATE       = 'aggregate'
         self.USES            = 'uses'
 
     def _logging_setup(self, args):
@@ -89,12 +74,12 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        dependencies = {'hmmsearch': "http://hmmer.org/download.html",
-                        'diamond': "https://github.com/bbuchfink/diamond",
-                        'R': "https://www.r-project.org",
-                        'parallel': "https://www.gnu.org/software/parallel",
-                        'prodigal': "https://github.com/hyattpd/Prodigal/wiki/installation",
-                        'mmseqs': "https://github.com/soedinglab/MMseqs2"}
+        dependencies = {'hmmsearch':"http://hmmer.org/download.html",
+                        'diamond':"https://github.com/bbuchfink/diamond",
+                        'R':"https://www.r-project.org",
+                        'parallel':"https://www.gnu.org/software/parallel",
+                        'prodigal':"https://github.com/hyattpd/Prodigal/wiki/installation",
+                        'mmseqs':"https://github.com/soedinglab/MMseqs2"}
 
         missing_dependencies = list()
 
@@ -196,7 +181,6 @@ class Run:
                 if not args.metadata:
                     raise Exception("Genome groups need to be specified using the --metadata flag")
 
-
         if args.annotate_output:
 
             if not any(types):
@@ -222,18 +206,6 @@ class Run:
 
         elif(args.aggregate and args.genome_and_annotation_file):
             raise Exception("--aggregate needs to be run with the genome and annotation matrix")
-
-    def _check_build(self, args):
-        '''
-        Check build input and output options are valid.
-
-        Parameters
-        ----------
-        args    - object. Argparse object
-        '''
-        if not(args.metadata or args.abundances):
-
-            raise Exception("No metadata or abundance information provided to build.")
 
     def _check_network(self, args):
         '''
@@ -296,18 +268,6 @@ class Run:
         args    - object. Argparse object
         '''
         pass
-
-    def _check_connect(self, args):
-        '''
-        Check general input and output options are valid.
-
-        Parameters
-        ----------
-        args    - object. Argparse object
-        '''
-        if(args.cutoff > 1.0 and args.cutoff < 0.0):
-
-           raise Exception("Cutoff needs to be between 0 - 1")
 
     def run_enrichm(self, args, command):
         '''

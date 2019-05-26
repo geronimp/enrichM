@@ -205,6 +205,12 @@ class NetworkAnalyser:
 
         return output_dict_mean
 
+    def mock_metadata(self, genomes):
+        genome_to_group = {genome:set([genome]) for genome in genomes}
+        genome_groups = set(genomes)
+        group_to_genome = dict(genome_to_group) # Make a copy here
+        return genome_to_group, genome_groups, group_to_genome
+
     def network_pipeline(self,
            subparser_name,
            matrix, genome_metadata_path,
@@ -228,8 +234,14 @@ class NetworkAnalyser:
         queries
         output_directory
         '''
-        genome_to_group, genome_groups, group_to_genome = Parser.parse_metadata_matrix(genome_metadata_path)
-        orthology_matrix, _, _ = Parser.parse_simple_matrix(matrix)
+        orthology_matrix, genome_names, _ = Parser.parse_simple_matrix(matrix)
+        if genome_metadata_path:
+            genome_to_group, genome_groups, group_to_genome = \
+                    Parser.parse_metadata_matrix(genome_metadata_path)
+        else:
+            genome_to_group, genome_groups, group_to_genome = \
+                    self.mock_metadata(genome_names)
+
         reaction_matrix = self.aggregate_dictionary(self.reaction_to_ko, orthology_matrix)
 
         # Read in fisher results
@@ -257,7 +269,7 @@ class NetworkAnalyser:
             # FIXME : There's always a better way than faking it.
             logging.info('No genome abundances provided')
             sample_abundance = {'MOCK': {x:1 for x in list(reaction_matrix.keys())} }
-            sample_metadata = {"a": ['MOCK']}
+            sample_metadata = {"abundance": ['MOCK']}
 
         median_sample_abundances = self.median_genome_abundance(sample_abundance, sample_metadata)
         normalised_abundance_dict = self.normalise_by_abundance(median_sample_abundances, reaction_matrix, group_to_genome, genome_to_group, genome_groups)

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# pylint: disable=line-too-long
+# pylint: disable=line-too-long
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -15,14 +17,14 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
-import multiprocessing as mp
-import numpy as np
 import random
 import os
 import logging
-import statsmodels.sandbox.stats.multicomp as sm
+import multiprocessing as mp
 from itertools import product, combinations, chain
 from scipy import stats
+import numpy as np
+import statsmodels.sandbox.stats.multicomp as sm
 from enrichm.draw_plots import Plot
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
@@ -664,7 +666,7 @@ class Test(Enrichment):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
             prefix = '_vs_'.join([sorted(combination)[0], sorted(combination)[1]]).replace(' ', '_')
 
-            logging.info('Comparing gene frequency among groups: %s' % ', '.join(combination))
+            logging.info('Comparing gene frequency among groups: %s', ', '.join(combination))
 
             if enrichment_test == stats.fisher_exact:
                 logging.info('Testing gene enrichment using Fisher\'s exact test')
@@ -686,7 +688,7 @@ class Test(Enrichment):
 
             logging.info('Comparing gene over-representation among genomes')
 
-            if overrepresentation_test == stats.mannwhitneyu:
+            if(overrepresentation_test == stats.mannwhitneyu):
                 logging.info('Testing over-representation using Mann-Whitney U test')
                 gene_count = self.gene_frequencies(*combination, True)
                 output_lines = self.pool.map(mannwhitneyu_calc, gene_count)

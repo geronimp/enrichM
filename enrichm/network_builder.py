@@ -321,10 +321,12 @@ class NetworkBuilder:
         if self.abundances_metabolome:
             node_metadata_lines[0] += self.compound_header
 
+        network_lines = [self.matrix_header]
+        if self.abundances_metagenome:
+            network_lines[0] += self.add_to_header(self.abundances_metagenome)
         if self.abundances_transcriptome:
-            network_lines = [self.matrix_header + self.transcriptome_header + self.step_header]
-        else:
-            network_lines = [self.matrix_header + self.step_header]
+            network_lines[0] += self.add_to_header(self.abundances_transcriptome)
+        network_lines[0] += self.step_header
 
         while depth>0:
 
