@@ -25,9 +25,9 @@ import filecmp
 from scipy import stats
 
 
-path_to_script 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
-path_to_data 		= os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
-path_to_annotate	= os.path.join(path_to_data, 'enrichm_annotate')
+path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
+path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
+path_to_annotate = os.path.join(path_to_data, 'enrichm_annotate')
 
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
 
@@ -80,6 +80,7 @@ class Tests(unittest.TestCase):
         '''
         test both frequency and presence absence counting in Test.
         '''
+        
         self.assertEqual(self.simple_test_object.count("K00001", "group_1", False), (1,0))
         self.assertEqual(self.simple_test_object.count("K00001", "group_1", True), ([1],0))
         self.assertEqual(self.simple_test_object.count("K00001", "group_2", False), (1,1))
@@ -97,12 +98,12 @@ class Tests(unittest.TestCase):
         for result in self.simple_test_object.gene_frequencies("group_1", "group_2", True):
             if result in expect_1:
                 expect_1.pop(expect_1.index(result))
-        self.assertEqual(expect_1, [])
+        self.assertEqual(expect_1, list())
         
         for result in self.simple_test_object.gene_frequencies("group_1", "group_2", False):
             if result in expect_2:
                 expect_2.pop(expect_2.index(result))
-        self.assertEqual(expect_2, [])
+        self.assertEqual(expect_2, list())
     
     def test_test_weighted_abundances(self):
         expect = [[[['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'score', 'pvalue', 'corrected_pvalue', 'description'],
@@ -111,7 +112,8 @@ class Tests(unittest.TestCase):
                     ['K00003', 'sample_group_1', 'sample_group_2', '24.26666666666667', '5.533333333333334', 0.0, 0.04042779918502612, '0.060591636418731595', 'hom; homoserine dehydrogenase [EC:1.1.1.3]']],
                    'sample_group_1_vs_sample_group_2_gvg_results.mannwhitneyu.tsv']]
         
-        result = self.simple_test_object.test_weighted_abundances(self.sample_to_annotation, self.annotations)
+        result = self.simple_test_object.test_weighted_abundances(self.sample_to_annotation,
+                                                                  self.annotations)
         self.assertEqual(expect, result)
 
 if __name__ == "__main__":

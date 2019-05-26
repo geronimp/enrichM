@@ -17,9 +17,7 @@
 ###############################################################################
 
 # System imports
-import logging
 import os
-from collections import Counter
 # Local imports
 from enrichm.parser import ParseAnnotate
 from enrichm.databases import Databases
@@ -72,7 +70,7 @@ class Connect(object):
             for l in lines:
                 out_io.write(('\t'.join(l) + '\n').encode())
 
-    def do(self, annotate_output, metadata, custom_modules, cutoff, output_directory):
+    def connect_pipeline(self, annotate_output, metadata, custom_modules, cutoff, output_directory):
         pa = ParseAnnotate(annotate_output, 1)
         annotations = self._parse_genome_and_annotation_file_matrix(pa.ko)
 

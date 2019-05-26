@@ -1,0 +1,1656 @@
+node	description	type	module	module_descr	pathway	pathway_descr	node_type	query	step
+C05812	2-Octaprenyl-6-methoxyphenol	NA	NA	NA	NA	NA	compound	False	1
+R04989	2-Octaprenyl-6-methoxyphenol + Oxygen + NADPH <=> 2-Octaprenyl-6-methoxy-1,4-benzoquinone + NADP+ + H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C05813	2-Octaprenyl-6-methoxy-1,4-benzoquinone	NA	NA	NA	NA	NA	compound	False	1
+C05810	2-Octaprenylphenol	NA	NA	NA	NA	NA	compound	False	1
+R04987	2-Octaprenylphenol + Oxygen + NADPH + H+ <=> 2-Octaprenyl-6-hydroxyphenol + NADP+ + H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C05811	2-Octaprenyl-6-hydroxyphenol	NA	NA	NA	NA	NA	compound	False	1
+C01617	Taxifolin	NA	NA	NA	NA	NA	compound	False	1
+R03636	leucocyanidin:NADP+ 4-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C05906	Leucocyanidin	NA	NA	NA	NA	NA	compound	False	1
+C12431	13-Dihydrocarminomycin	NA	NA	NA	NA	NA	compound	False	1
+R06692	13-dihydrocarminomycin,NADPH:oxygen oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12432	Carminomycin	NA	NA	NA	NA	NA	compound	False	1
+C12428	13-Deoxycarminomycin	NA	NA	NA	NA	NA	compound	False	1
+R06691	13-deoxycarminomycin,NADPH:oxygen oxidoreductase (13-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C01661	Doxorubicin	Antibiotics	NA	NA	NA	NA	compound	False	1
+R06690	daunorubicin,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C01907	Daunorubicin	NA	NA	NA	NA	NA	compound	False	1
+C00584	Prostaglandin E2	Lipids	NA	NA	NA	NA	compound	False	1
+R02581	(5Z,13E)-(15S)-9alpha,11alpha,15-trihydroxyprosta-5,13-dienoate:NADP+ 9-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00639	Prostaglandin F2alpha	Lipids	NA	NA	NA	NA	compound	False	1
+C02124	4-Chlorophenol	NA	NA	NA	NA	NA	compound	False	1
+R05441	4-chlorophenol,NADPH:oxygen oxidoreductase (6-hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C02375	4-Chlorocatechol	NA	NA	NA	NA	NA	compound	False	1
+C00232	Succinate semialdehyde	Organic acids	NA	NA	NA	NA	compound	False	1
+R09281	4-hydroxybutanoate:NADP+ oxidoreductase	NA	M00375	Hydroxypropionate-hydroxybutylate cycle	map01100	Metabolic pathways	reaction	False	1
+C00989	4-Hydroxybutanoic acid	Organic acids	NA	NA	NA	NA	compound	False	1
+C05284	11beta-Hydroxyandrost-4-ene-3,17-dione	NA	NA	NA	NA	NA	compound	False	1
+R04758	11beta-Hydroxyandrost-4-ene-3,17-dione:NADP+ 11-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05285	Adrenosterone	Steroids	NA	NA	NA	NA	compound	False	1
+C05274	Decanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R04753	trans-Dec-2-enoyl-CoA reductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05275	trans-Dec-2-enoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C04619	(3R)-3-Hydroxydecanoyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R04534	(3R)-3-Hydroxydecanoyl-[acyl-carrier-protein]:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05753	3-Oxodecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C04620	(3R)-3-Hydroxyoctanoyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R04536	(3R)-3-Hydroxyoctanoyl-[acyl-carrier-protein]:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05750	3-Oxooctanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C04618	(3R)-3-Hydroxybutanoyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R04533	(3R)-3-Hydroxybutanoyl-[acyl-carrier protein]:NADP+ oxidoreductase	NA	M00083	Fatty acid biosynthesis, elongation	map01100	Metabolic pathways	reaction	False	1
+C05744	Acetoacetyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C11829	13(1)-Hydroxy-magnesium-protoporphyrin IX 13-monomethyl ester	NA	NA	NA	NA	NA	compound	False	1
+R06266	magnesium-protoporphyrin-IX 13-monomethyl ester,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C11830	13(1)-Oxo-magnesium-protoporphyrin IX 13-monomethyl ester	NA	NA	NA	NA	NA	compound	False	1
+R06267	magnesium-protoporphyrin-IX 13-monomethyl ester,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C11831	Divinylprotochlorophyllide	NA	NA	NA	NA	NA	compound	False	1
+C04536	Magnesium protoporphyrin monomethyl ester	NA	NA	NA	NA	NA	compound	False	1
+R06265	magnesium-protoporphyrin-IX 13-monomethyl ester,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C00118	D-Glyceraldehyde 3-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R01063	D-glyceraldehyde-3-phosphate:NADP+ oxidoreductase (phosphorylating)	NA	M00001	Glycolysis (Embden-Meyerhof pathway), glucose => pyruvate	map01100	Metabolic pathways	reaction	False	1
+C00236	3-Phospho-D-glyceroyl phosphate	NA	NA	NA	NA	NA	compound	False	1
+C00011	CO2	NA	NA	NA	NA	NA	compound	False	1
+R06482	2-Methylpropanoyl-CoA + 5 Methylmalonyl-CoA + 7 Malonyl-CoA + 9 NADPH + 9 H+ <=> 6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''2b'' aglycone + 12 CO2 + 13 CoA + 5 H2O + 9 NADP+	NA	NA	NA	map00522	Biosynthesis of 12-, 14- and 16-membered macrolides	reaction	False	1
+C00083	Malonyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C00630	2-Methylpropanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C02557	Methylmalonyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C11953	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''2b'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06483	2-Methylpropanoyl-CoA + 5 Methylmalonyl-CoA + 7 Malonyl-CoA + 9 NADPH + 9 H+ <=> 6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''1b'' aglycone + 12 CO2 + 13 CoA + 6 H2O + 9 NADP+	NA	M00777	Avermectin biosynthesis, 2-methylbutanoyl-CoA/isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a/1b aglycone => avermectin A1a/B1a/A1b/B1b	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11961	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''1b'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06480	2-Methylbutanoyl-CoA + 5 Methylmalonyl-CoA + 7 Malonyl-CoA + 9 NADPH + 9 H+ <=> 6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''2a'' aglycone + 12 CO2 + 13 CoA + 5 H2O + 9 NADP+	NA	NA	NA	map00522	Biosynthesis of 12-, 14- and 16-membered macrolides	reaction	False	1
+C01033	2-Methylbutanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C11969	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''2a'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06481	2-Methylbutanoyl-CoA + 5 Methylmalonyl-CoA + 7 Malonyl-CoA + 9 NADPH + 9 H+ <=> 6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''1a'' aglycone + 12 CO2 + 13 CoA + 6 H2O + 9 NADP+	NA	M00777	Avermectin biosynthesis, 2-methylbutanoyl-CoA/isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a/1b aglycone => avermectin A1a/B1a/A1b/B1b	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11977	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''1a'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+C00486	Bilirubin	NA	NA	NA	NA	NA	compound	False	1
+R02393	Bilirubin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00500	Biliverdin	NA	NA	NA	NA	NA	compound	False	1
+C01595	Linoleate	Lipids	NA	NA	NA	NA	compound	False	1
+R07056	Linoleate + Oxygen + NADPH + H+ <=> 12(13)-EpOME + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C14826	12(13)-EpOME	NA	NA	NA	NA	NA	compound	False	1
+C00219	Arachidonate	Lipids	NA	NA	NA	NA	compound	False	1
+R07054	Arachidonate + Oxygen + NADPH + H+ <=> 16(R)-HETE + NADP+ + H2O	NA	NA	NA	map00590	Arachidonic acid metabolism	reaction	False	1
+C14778	16(R)-HETE	NA	NA	NA	NA	NA	compound	False	1
+R07055	Linoleate + Oxygen + NADPH + H+ <=> 9(10)-EpOME + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C14825	9(10)-EpOME	NA	NA	NA	NA	NA	compound	False	1
+R07052	Arachidonate + Oxygen + NADPH + H+ <=> 5,6-EET + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C14768	5,6-EET	NA	NA	NA	NA	NA	compound	False	1
+R07050	Arachidonate + Oxygen + NADPH + H+ <=> 11,12-EET + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C14770	11,12-EET	NA	NA	NA	NA	NA	compound	False	1
+R07051	Arachidonate + Oxygen + NADPH + H+ <=> 8,9-EET + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C14769	8,9-EET	NA	NA	NA	NA	NA	compound	False	1
+C00114	Choline	NA	NA	NA	NA	NA	compound	False	1
+R08558	Choline + NADP+ <=> Betaine aldehyde + NADPH + H+	NA	M00555	Betaine biosynthesis, choline => betaine	map01100	Metabolic pathways	reaction	False	1
+C00576	Betaine aldehyde	NA	NA	NA	NA	NA	compound	False	1
+C12417	Auraviketone	NA	NA	NA	NA	NA	compound	False	1
+R06677	auramycinone:NADP+ 7-oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12419	Auramycinone	NA	NA	NA	NA	NA	compound	False	1
+R02566	p-Cumic alcohol:NADP+ oxidoreductase	NA	M00555	Betaine biosynthesis, choline => betaine	map01100	Metabolic pathways	reaction	False	1
+C00719	Betaine	NA	NA	NA	NA	NA	compound	False	1
+C00025	L-Glutamate	Peptides,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R00708	(S)-1-pyrroline-5-carboxylate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03912	(S)-1-Pyrroline-5-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+C05577	3,4-Dihydroxymandelaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R04883	3,4-Dihydroxymandelaldehyde:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05580	3,4-Dihydroxymandelate	NA	NA	NA	NA	NA	compound	False	1
+C05581	3-Methoxy-4-hydroxyphenylacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R04889	3-Methoxy-4-hydroxyphenylacetaldehyde:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05582	Homovanillate	NA	NA	NA	NA	NA	compound	False	1
+C01454	Toluate	NA	NA	NA	NA	NA	compound	False	1
+R05289	p-Methylbenzaldehyde:NADP+ oxidoreductase	NA	M00537	Xylene degradation, xylene => methylbenzoate	map01100	Metabolic pathways	reaction	False	1
+C06758	p-Tolualdehyde	NA	NA	NA	NA	NA	compound	False	1
+C00178	Thymine	Nucleic acids	NA	NA	NA	NA	compound	False	1
+R01415	5,6-Dihydrothymine:NADP+ oxidoreductase	NA	M00046	Pyrimidine degradation, uracil => beta-alanine, thymine => 3-aminoisobutanoate	map01100	Metabolic pathways	reaction	False	1
+C21028	(R)-5,6-Dihydrothymine	NA	NA	NA	NA	NA	compound	False	1
+C08281	Docosanoic acid	Lipids	NA	NA	NA	NA	compound	False	1
+R09454	docosanoate,NADPH:oxygen oxidoreductase (22-hydroxylating)	NA	NA	NA	map00073	Cutin, suberine and wax biosynthesis	reaction	False	1
+C19623	22-Hydroxydocosanoate	NA	NA	NA	NA	NA	compound	False	1
+C14040	1-Nitronaphthalene	NA	NA	NA	NA	NA	compound	False	1
+R07021	1-nitronaphthalene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14802	1-Nitronaphthalene-7,8-oxide	NA	NA	NA	NA	NA	compound	False	1
+C20507	Versiconal	NA	NA	NA	NA	NA	compound	False	1
+R10400	versiconol:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C20508	Versiconol	NA	NA	NA	NA	NA	compound	False	1
+C00062	L-Arginine	Peptides	NA	NA	NA	NA	compound	False	1
+R00557	L-arginine,NADPH:oxygen oxidoreductase (nitric-oxide-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00327	L-Citrulline	Peptides	NA	NA	NA	NA	compound	False	1
+C00533	Nitric oxide	NA	NA	NA	NA	NA	compound	False	1
+R00558	L-arginine,NADPH:oxygen oxidoreductase (N-(omega)-hydroxyarginine-forming)	NA	NA	NA	map00330	Arginine and proline metabolism	reaction	False	1
+C05933	N(omega)-Hydroxyarginine	NA	NA	NA	NA	NA	compound	False	1
+C00257	D-Gluconic acid	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R01739	D-gluconate:NADP+ 2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06473	2-Keto-D-gluconic acid	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R01730	Prephenate:NADP+ oxidoreductase(decarboxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00254	Prephenate	NA	NA	NA	NA	NA	compound	False	1
+C01179	3-(4-Hydroxyphenyl)pyruvate	NA	NA	NA	NA	NA	compound	False	1
+C01222	GDP-4-dehydro-6-deoxy-D-mannose	NA	NA	NA	NA	NA	compound	False	1
+R03399	GDP-6-deoxy-D-mannose:NADP+ 4-oxidoreductase	NA	NA	NA	map00520	Amino sugar and nucleotide sugar metabolism	reaction	False	1
+C03117	GDP-6-deoxy-D-mannose	NA	NA	NA	NA	NA	compound	False	1
+R03398	GDP-6-deoxy-D-talose:NADP+ 4-oxidoreductase	NA	NA	NA	map00520	Amino sugar and nucleotide sugar metabolism	reaction	False	1
+C02977	GDP-6-deoxy-D-talose	NA	NA	NA	NA	NA	compound	False	1
+C01219	CDP-4-dehydro-6-deoxy-D-glucose	NA	NA	NA	NA	NA	compound	False	1
+R03392	CDP-4-dehydro-3,6-dideoxy-D-glucose:NADP+ 3-oxydoreductase	NA	NA	NA	map00520	Amino sugar and nucleotide sugar metabolism	reaction	False	1
+C04297	CDP-4-dehydro-3,6-dideoxy-D-glucose	NA	NA	NA	NA	NA	compound	False	1
+C05108	14-Demethyllanosterol	NA	NA	NA	NA	NA	compound	False	1
+R05639	4,4-dimethyl-5a-cholesta-8,24-dien-3b-ol:NADP+ D14-oxidoreductase	NA	M00101	Cholesterol biosynthesis, squalene 2,3-epoxide => cholesterol	map01100	Metabolic pathways	reaction	False	1
+C11455	4,4-Dimethyl-5alpha-cholesta-8,14,24-trien-3beta-ol	NA	NA	NA	NA	NA	compound	False	1
+C00136	Butanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R09738	butanoyl-CoA:NADP+ 2,3-oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00877	Crotonoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R11435	8 Malonyl-CoA + 7 NADPH + 7 H+ + Acyl-carrier protein <=> 3-Hydroxyhexadeca-4,6,8,10,12,14-hexaenoyl-[acp] + 8 CoA + 8 CO2 + 6 H2O + 7 NADP+	NA	M00824	9-membered enediyne core biosynthesis, malonyl-CoA => 3-hydroxyhexadeca-4,6,8,10,12,14-hexaenoyl-ACP => 9-membered enediyne core	map01130	Biosynthesis of antibiotics	reaction	False	1
+C00229	Acyl-carrier protein	NA	NA	NA	NA	NA	compound	False	1
+C21357	3-Hydroxyhexadeca-4,6,8,10,12,14-hexaenoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C03671	2-Pyrone-4,6-dicarboxylate	NA	NA	NA	NA	NA	compound	False	1
+R04279	4-carboxy-2-hydroxymuconate semialdehyde hemiacetal:NADP+ 2-oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C05375	2-Hydroxy-2-hydropyrone-4,6-dicarboxylate	NA	NA	NA	NA	NA	compound	False	1
+R11125	malonyl-CoA:acetyl-CoA malonyltransferase (2-hydroxy-5-methyl-1-naphthoic acid forming)	NA	M00830	Neocarzinostatin naphthoate moiety biosynthesis, malonyl-CoA => 2-hydroxy-5-methyl-1-naphthoate => 2-hydroxy-7-methoxy-5-methyl-1-naphthoyl-CoA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C00024	Acetyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C20856	2-Hydroxy-5-methyl-1-naphthoate	NA	NA	NA	NA	NA	compound	False	1
+C07535	Benzo[a]pyrene	NA	NA	NA	NA	NA	compound	False	1
+R07079	Benzpyrene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14849	Benzo[a]pyrene-9,10-oxide	NA	NA	NA	NA	NA	compound	False	1
+C17326	CDP-4-dehydro-3,6-dideoxy-D-glucose epimer	NA	NA	NA	NA	NA	compound	False	1
+R08710	CDP-ascarylose:NADP+ 4-oxidoreductase	NA	NA	NA	map00520	Amino sugar and nucleotide sugar metabolism	reaction	False	1
+C17327	CDP-ascarylose	NA	NA	NA	NA	NA	compound	False	1
+C00311	Isocitrate	Organic acids	NA	NA	NA	NA	compound	False	1
+R01899	Isocitrate:NADP+ oxidoreductase	NA	M00009	Citrate cycle (TCA cycle, Krebs cycle)	map01100	Metabolic pathways	reaction	False	1
+C05379	Oxalosuccinate	NA	NA	NA	NA	NA	compound	False	1
+C00593	Sulfoacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R02600	isethionate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05123	2-Hydroxyethanesulfonate	NA	NA	NA	NA	NA	compound	False	1
+C00662	Reduced adrenal ferredoxin	NA	NA	NA	NA	NA	compound	False	1
+R10159	adrenodoxin:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C00667	Oxidized adrenal ferredoxin	NA	NA	NA	NA	NA	compound	False	1
+C01096	Sorbitol 6-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R03234	Sorbitol 6-phosphate + NADP+ <=> Sorbose 1-phosphate + NADPH + H+	NA	NA	NA	map00051	Fructose and mannose metabolism	reaction	False	1
+C02888	Sorbose 1-phosphate	NA	NA	NA	NA	NA	compound	False	1
+C20400	1-Deoxy-11-oxopentalenate	NA	NA	NA	NA	NA	compound	False	1
+R10155	1-deoxy-11-oxopentalenate,NADH:oxygen oxidoreductase (neopentalenolactone-D forming)	NA	NA	NA	map00999	Biosynthesis of secondary metabolites - unclassified	reaction	False	1
+C20402	Neopentalenolactone D	NA	NA	NA	NA	NA	compound	False	1
+C04281	L-1-Pyrroline-3-hydroxy-5-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+R04445	L-1-pyrroline-3-hydroxy-5-carboxylate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05947	L-erythro-4-Hydroxyglutamate	NA	NA	NA	NA	NA	compound	False	1
+C04181	3-Hydroxy-3-methyl-2-oxobutanoic acid	NA	NA	NA	NA	NA	compound	False	1
+R04440	(R)-2,3-Dihydroxy-3-methylbutanoate:NADP+ oxidoreductase (isomerizing)	NA	M00019	Valine/isoleucine biosynthesis, pyruvate => valine / 2-oxobutanoate => isoleucine	map01100	Metabolic pathways	reaction	False	1
+C04272	(R)-2,3-Dihydroxy-3-methylbutanoate	NA	NA	NA	NA	NA	compound	False	1
+C06813	Nitrobenzene	NA	NA	NA	NA	NA	compound	False	1
+R05401	nitrosobenzene:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C06876	Nitrosobenzene	NA	NA	NA	NA	NA	compound	False	1
+C00735	Cortisol	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R02836	Cortisol:NADP+ 11-oxidoreductase	NA	M00109	C21-Steroid hormone biosynthesis, progesterone => cortisol/cortisone	map01100	Metabolic pathways	reaction	False	1
+C00762	Cortisone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+C00729	Tropine	NA	NA	NA	NA	NA	compound	False	1
+R02832	pseudotropine:NADP+ 3-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00783	Tropinone	NA	NA	NA	NA	NA	compound	False	1
+C00899	11-cis-Retinol	NA	NA	NA	NA	NA	compound	False	1
+R08380	11-cis-retinol: NADP+ oxidoreductase	NA	NA	NA	map00830	Retinol metabolism	reaction	False	1
+C02110	11-cis-Retinal	NA	NA	NA	NA	NA	compound	False	1
+C09762	Liquiritigenin	NA	NA	NA	NA	NA	compound	False	1
+R07711	Liquiritigenin + NADPH + H+ + Oxygen <=> 6,7,4'-Trihydroxyflavanone + NADP+ + H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C16232	6,7,4'-Trihydroxyflavanone	NA	NA	NA	NA	NA	compound	False	1
+C00628	2,5-Dihydroxybenzoate	NA	NA	NA	NA	NA	compound	False	1
+R07710	salicylate,NADPH:oxygen oxidoreductase (5-hydroxylating)	NA	M00638	Salicylate degradation, salicylate => gentisate	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00805	Salicylate	NA	NA	NA	NA	NA	compound	False	1
+C18041	5alpha-Pregnan-20alpha-ol-3-one	NA	NA	NA	NA	NA	compound	False	1
+R08960	5alpha-pregnane-3alpha,20alpha-diol:NADP+ oxidoreductase (A-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C18042	5alpha-Pregnane-3alpha,20alpha-diol	NA	NA	NA	NA	NA	compound	False	1
+C00353	Geranylgeranyl diphosphate	NA	NA	NA	NA	NA	compound	False	1
+R02063	geranylgeranyl reductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05427	Phytyl diphosphate	NA	NA	NA	NA	NA	compound	False	1
+C20877	Very-long-chain 3-oxoacyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R10826	very-long-chain-(3R)-3-hydroxyacyl-CoA:NADP+ oxidoreductase	NA	M00415	Fatty acid biosynthesis, elongation, endoplasmic reticulum	map01100	Metabolic pathways	reaction	False	1
+C20878	Very-long-chain (3R)-3-hydroxyacyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R11451	stearoyl-CoA:methylmalonyl-CoA C-acyltransferase (mycolipanoate-forming)	NA	NA	NA	NA	NA	reaction	False	1
+C00412	Stearoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C21394	C27-Mycolipanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R11450	eicosanoyl-CoA:methylmalonyl-CoA C-acyltransferase (mycocerosate-forming)	NA	NA	NA	NA	NA	reaction	False	1
+C02041	Eicosanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C21393	C32-Mycocerosyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C20876	Very-long-chain acyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R10828	very-long-chain acyl-CoA:NADP+ oxidoreductase	NA	M00415	Fatty acid biosynthesis, elongation, endoplasmic reticulum	map01100	Metabolic pathways	reaction	False	1
+C20879	Very-long-chain trans-2,3-dehydroacyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C05471	11beta,17alpha,21-Trihydroxy-5beta-pregnane-3,20-dione	NA	NA	NA	NA	NA	compound	False	1
+R04833	Urocortisol:NADP+ oxidoreductase (B-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05472	Urocortisol	NA	NA	NA	NA	NA	compound	False	1
+C09023	Agroclavine	NA	NA	NA	NA	NA	compound	False	1
+R10229	agroclavine:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C20457	6,8-Dimethyl-6,7,8,9-tetradehydroergoline	NA	NA	NA	NA	NA	compound	False	1
+C00546	Methylglyoxal	NA	NA	NA	NA	NA	compound	False	1
+R02528	Methylglyoxal + NADPH + H+ <=> Hydroxyacetone + NADP+	NA	NA	NA	map00640	Propanoate metabolism	reaction	False	1
+C05235	Hydroxyacetone	NA	NA	NA	NA	NA	compound	False	1
+R00740	3-oxopropanoate:NADP+ oxidoreductase (CoA-malonylating)	NA	M00376	3-Hydroxypropionate bi-cycle	map01100	Metabolic pathways	reaction	False	1
+C00222	3-Oxopropanoate	Organic acids	NA	NA	NA	NA	compound	False	1
+C00084	Acetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R00746	Ethanol:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00469	Ethanol	NA	NA	NA	NA	NA	compound	False	1
+C00441	L-Aspartate 4-semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+R02291	L-Aspartate-4-semialdehyde:NADP+ oxidoreductase (phosphorylating)	NA	M00016	Lysine biosynthesis, succinyl-DAP pathway, aspartate => lysine	map01100	Metabolic pathways	reaction	False	1
+C03082	4-Phospho-L-aspartate	NA	NA	NA	NA	NA	compound	False	1
+C05476	Tetrahydrocorticosterone	NA	NA	NA	NA	NA	compound	False	1
+R04840	Tetrahydrocorticosterone:NADP+ 11-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05478	3alpha,21-Dihydroxy-5beta-pregnane-11,20-dione	NA	NA	NA	NA	NA	compound	False	1
+C05477	21-Hydroxy-5beta-pregnane-3,11,20-trione	NA	NA	NA	NA	NA	compound	False	1
+R04843	3alpha,21-Dihydroxy-5beta-pregnane-11,20-dione:NADP+ oxidoreductase (B-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05479	5beta-Pregnane-3,20-dione	NA	NA	NA	NA	NA	compound	False	1
+R04846	3alpha-Hydroxy-5beta-pregnane-20-one:NADP+ oxidoreductase (B-specific)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05480	Pregnanolone	NA	NA	NA	NA	NA	compound	False	1
+C06628	4-Hydroxy-6-methylpretetramide	NA	NA	NA	NA	NA	compound	False	1
+R05463	6-methylpretetramide,NADPH:oxygen oxidoreductase (4-hydroxylating)	NA	M00780	Tetracycline/oxytetracycline biosynthesis, pretetramide => tetracycline/oxytetracycline	map01130	Biosynthesis of antibiotics	reaction	False	1
+C06629	6-Methylpretetramide	NA	NA	NA	NA	NA	compound	False	1
+C06627	4-Keto-anhydrotetracycline	NA	NA	NA	NA	NA	compound	False	1
+R05462	4-hydroxy-6-methylpretetramide,NADPH:oxygen oxidoreductase (12a-hydroxylating)	NA	M00780	Tetracycline/oxytetracycline biosynthesis, pretetramide => tetracycline/oxytetracycline	map01130	Biosynthesis of antibiotics	reaction	False	1
+C01268	5-Amino-6-(5'-phosphoribosylamino)uracil	NA	NA	NA	NA	NA	compound	False	1
+R03458	5-amino-6-(5-phosphoribitylamino)uracil:NADP+ 1'-oxidoreductase	NA	M00125	Riboflavin biosynthesis, GTP => riboflavin/FMN/FAD	map01100	Metabolic pathways	reaction	False	1
+C04454	5-Amino-6-(5'-phospho-D-ribitylamino)uracil	NA	NA	NA	NA	NA	compound	False	1
+C00786	(-)-Vestitone	NA	NA	NA	NA	NA	compound	False	1
+R07737	(3R,4R)-4'-methoxyisoflavan-2',4,7-triol:NADP+ 4-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C16187	7,2'-Dihydroxy-4'-methoxy-isoflavanol	NA	NA	NA	NA	NA	compound	False	1
+C10503	Medicarpin	NA	NA	NA	NA	NA	compound	False	1
+R07739	Medicarpin + NADPH + H+ <=> (-)-Vestitol + NADP+	NA	NA	NA	map00943	Isoflavonoid biosynthesis	reaction	False	1
+C16225	(-)-Vestitol	NA	NA	NA	NA	NA	compound	False	1
+C07447	Acetylhydrazine	NA	NA	NA	NA	NA	compound	False	1
+R11904	acetylhydrazine,NADPH:oxygen oxidoreductase	NA	NA	NA	map00983	Drug metabolism - other enzymes	reaction	False	1
+C21758	Hepatotoxins	NA	NA	NA	NA	NA	compound	False	1
+C00263	L-Homoserine	Peptides	NA	NA	NA	NA	compound	False	1
+R01775	L-homoserine:NADP+ oxidoreductase	NA	M00017	Methionine biosynthesis, apartate => homoserine => methionine	map01100	Metabolic pathways	reaction	False	1
+C00264	3-Oxoacyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R01779	(3R)-3-hydroxyacyl-CoA:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C01086	(3R)-3-Hydroxyacyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C00512	Benzoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R09555	benzoyl-CoA,NADPH:oxygen oxidoreductase (2,3-epoxydizing)	NA	NA	NA	map00362	Benzoate degradation	reaction	False	1
+C19684	2,3-Epoxy-2,3-dihydrobenzoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C19682	3,4-Didehydroadipyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R09554	3,4-didehydroadipyl-CoA semialdehyde:NADP+ oxidoreductase	NA	NA	NA	map00362	Benzoate degradation	reaction	False	1
+C19683	3,4-Didehydroadipyl-CoA semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+C00356	(S)-3-Hydroxy-3-methylglutaryl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R02082	(R)-Mevalonate:NADP+ oxidoreductase (CoA acylating)	NA	M00849	C5 isoprenoid biosynthesis, mevalonate pathway, archaea	map01100	Metabolic pathways	reaction	False	1
+C00418	(R)-Mevalonate	NA	NA	NA	NA	NA	compound	False	1
+C19887	LysW-gamma-L-alpha-aminoadipyl 6-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R09777	LysW-gamma-L-alpha-aminoadipate 6-semialdehyde:NADP+ 6-oxidoreductase (phosphorylating)	NA	M00031	Lysine biosynthesis, mediated by LysW, 2-aminoadipate => lysine	map01100	Metabolic pathways	reaction	False	1
+C19888	LysW-gamma-L-alpha-aminoadipate 6-semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+C01641	tRNA(Glu)	NA	NA	NA	NA	NA	compound	False	1
+R04109	L-glutamate-semialdehyde: NADP+ oxidoreductase(L-glutamyl-tRNA(Glu)-forming)	NA	M00121	Heme biosynthesis, glutamate => heme	map01100	Metabolic pathways	reaction	False	1
+C02987	L-Glutamyl-tRNA(Glu)	NA	NA	NA	NA	NA	compound	False	1
+C03741	(S)-4-Amino-5-oxopentanoate	NA	NA	NA	NA	NA	compound	False	1
+R09080	carboxynorspermidine:NADP+ oxidoreductase	NA	NA	NA	map00330	Arginine and proline metabolism	reaction	False	1
+C00986	1,3-Diaminopropane	NA	NA	NA	NA	NA	compound	False	1
+C18174	Carboxynorspermidine	NA	NA	NA	NA	NA	compound	False	1
+C01528	Hydrogen selenide	NA	NA	NA	NA	NA	compound	False	1
+R03596	hydrogen selenide:NADP+ oxidoreductase	NA	NA	NA	map00450	Selenocompound metabolism	reaction	False	1
+C05684	Selenite	NA	NA	NA	NA	NA	compound	False	1
+C01516	Morphine	NA	NA	NA	NA	NA	compound	False	1
+R03592	morphine:NAD(P)+ 6-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C01735	Morphinone	NA	NA	NA	NA	NA	compound	False	1
+C21352	dTDP-4-oxo-2-deoxy-alpha-D-pentos-2-ene	NA	NA	NA	NA	NA	compound	False	1
+R11474	dTDP-4-oxo-2-deoxy-beta-L-xylose:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21353	dTDP-4-oxo-2-deoxy-beta-L-xylose	NA	NA	NA	NA	NA	compound	False	1
+C02140	Corticosterone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R03848	Corticosterone:NADP+ 11-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05490	11-Dehydrocorticosterone	Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+C02139	Chlorophyllide	NA	NA	NA	NA	NA	compound	False	1
+R03845	Chlorophyllide-a:NADP+ 7,8-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C02880	Protochlorophyllide	NA	NA	NA	NA	NA	compound	False	1
+R06286	chlorophyllide-a:NADP+ 7,8-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C11832	Divinyl chlorophyllide a	NA	NA	NA	NA	NA	compound	False	1
+C00143	5,10-Methylenetetrahydrofolate	NA	NA	NA	NA	NA	compound	False	1
+R06613	5,10-methylenetetrahydrofolate,NADPH:dUMP C-methyltransferase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00364	dTMP	Nucleic acids	NA	NA	NA	NA	compound	False	1
+C00365	dUMP	Nucleic acids	NA	NA	NA	NA	compound	False	1
+C00509	Naringenin	NA	NA	NA	NA	NA	compound	False	1
+R06610	(2S)-flavan-4-ol:NADP+ 4-oxidoreductase	NA	NA	NA	map00941	Flavonoid biosynthesis	reaction	False	1
+C12124	Apiforol	NA	NA	NA	NA	NA	compound	False	1
+C03648	cis-3,4-Leucopelargonidin	NA	NA	NA	NA	NA	compound	False	1
+R06615	(2R,3S)-afzelechin:NADP+ 4-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C09320	Afzelechin	NA	NA	NA	NA	NA	compound	False	1
+C00540	Cinnamoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R02506	cinnamaldehyde:NADP+ oxidoreductase (CoA-cinnamoylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00903	Cinnamaldehyde	NA	NA	NA	NA	NA	compound	False	1
+C00067	Formaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R07968	3-methylxanthine:oxygen oxidoreductase (N3-demethylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00385	Xanthine	NA	NA	NA	NA	NA	compound	False	1
+C16357	3-Methylxanthine	NA	NA	NA	NA	NA	compound	False	1
+R07962	theobromine:oxygen oxidoreductase (N3-demethylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C07480	Theobromine	NA	NA	NA	NA	NA	compound	False	1
+C16353	7-Methylxanthine	NA	NA	NA	NA	NA	compound	False	1
+C00199	D-Ribulose 5-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R01525	D-Ribitol-5-phosphate:NADP+ 2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01068	D-Ribitol 5-phosphate	NA	NA	NA	NA	NA	compound	False	1
+C00198	D-Glucono-1,5-lactone	NA	NA	NA	NA	NA	compound	False	1
+R01521	beta-D-Glucose:NADP+ 1-oxoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00221	beta-D-Glucose	NA	NA	NA	NA	NA	compound	False	1
+R01528	6-phospho-D-gluconate:NADP+ 2-oxidoreductase (decarboxylating)	NA	M00004	Pentose phosphate pathway (Pentose phosphate cycle)	map01100	Metabolic pathways	reaction	False	1
+C00345	6-Phospho-D-gluconate	NA	NA	NA	NA	NA	compound	False	1
+C05307	Chlorophyll b	NA	NA	NA	NA	NA	compound	False	1
+R09070	7(1)-hydroxychlorophyll-a:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C18151	7(1)-Hydroxychlorophyll a	NA	NA	NA	NA	NA	compound	False	1
+C00173	Acyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R01404	acyl-[acyl-carrier protein]:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C00693	trans-2,3-Dehydroacyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+C05453	7alpha,12alpha-Dihydroxy-5beta-cholestan-3-one	NA	NA	NA	NA	NA	compound	False	1
+R04823	7alpha,12alpha-Dihydroxy-5beta-cholestan-3-one:NADP+ delta4-oxidoreductase	NA	M00104	Bile acid biosynthesis, cholesterol => cholate/chenodeoxycholate	map01100	Metabolic pathways	reaction	False	1
+C17339	4-Cholesten-7alpha,12alpha-diol-3-one	NA	NA	NA	NA	NA	compound	False	1
+R04825	3alpha,7alpha,12alpha-Trihydroxy-5beta-cholestane:NADP+ oxidoreductase (B-specific)	NA	M00104	Bile acid biosynthesis, cholesterol => cholate/chenodeoxycholate	map01100	Metabolic pathways	reaction	False	1
+C05454	3alpha,7alpha,12alpha-Trihydroxy-5beta-cholestane	NA	NA	NA	NA	NA	compound	False	1
+C00751	Squalene	NA	NA	NA	NA	NA	compound	False	1
+R02872	presqualene-diphosphate diphosphate-lyase (reducing, squalene-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03428	Presqualene diphosphate	NA	NA	NA	NA	NA	compound	False	1
+C03772	5beta-Androstane-3,17-dione	Steroids	NA	NA	NA	NA	compound	False	1
+R04310	3alpha-Hydroxy-5beta-androstan-17-one:NADP+ oxidoreductase (B-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C04373	Etiocholanolone	Steroids	NA	NA	NA	NA	compound	False	1
+C16216	3-Oxostearoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R07759	3-Oxostearoyl-CoA + NADPH + H+ <=> 3-Hydroxyoctadecanoyl-CoA + NADP+	NA	M00415	Fatty acid biosynthesis, elongation, endoplasmic reticulum	map01212	Fatty acid metabolism	reaction	False	1
+C16217	3-Hydroxyoctadecanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C00048	Glyoxylate	Organic acids	NA	NA	NA	NA	compound	False	1
+R00465	glycolate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00160	Glycolate	NA	NA	NA	NA	NA	compound	False	1
+R02315	N6-(L-1,3-Dicarboxypropyl)-L-lysine:NADP+ oxidoreductase	NA	M00032	Lysine degradation, lysine => saccharopine => acetoacetyl-CoA	map01100	Metabolic pathways	reaction	False	1
+C00449	N6-(L-1,3-Dicarboxypropyl)-L-lysine	NA	NA	NA	NA	NA	compound	False	1
+C04076	L-2-Aminoadipate 6-semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+C00259	L-Arabinose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R01759	L-Arabitol:NADP+ 1-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00532	L-Arabitol	NA	NA	NA	NA	NA	compound	False	1
+C20503	1'-Hydroxyversicolorone	NA	NA	NA	NA	NA	compound	False	1
+R09756	versicolorone:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C20504	Versicolorone	NA	NA	NA	NA	NA	compound	False	1
+C00014	Ammonia	NA	NA	NA	NA	NA	compound	False	1
+R00789	ammonia:NADP+ oxidoreductase	NA	M00530	Dissimilatory nitrate reduction, nitrate => ammonia	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00088	Nitrite	NA	NA	NA	NA	NA	compound	False	1
+C15700	gamma-Glutamyl-gamma-aminobutyraldehyde	NA	NA	NA	NA	NA	compound	False	1
+R07418	4-(gamma-L-glutamylamino)butanal:NADP+ oxidoreductase	NA	M00136	GABA biosynthesis, prokaryotes, putrescine => GABA	map01100	Metabolic pathways	reaction	False	1
+C15767	4-(L-gamma-Glutamylamino)butanoate	NA	NA	NA	NA	NA	compound	False	1
+C05631	Eriodictyol	NA	NA	NA	NA	NA	compound	False	1
+R04901	(2S)-flavan-4-ol:NADP+ 4-oxidoreductase	NA	NA	NA	map00941	Flavonoid biosynthesis	reaction	False	1
+C05907	Luteoforol	NA	NA	NA	NA	NA	compound	False	1
+C18630	Nogalaviketone	NA	NA	NA	NA	NA	compound	False	1
+R09329	nogalavinone:NADP+ 7-oxidoreductase	NA	M00781	Nogalavinone/aklavinone biosynthesis, deoxynogalonate/deoxyaklanonate => nogalavinone/aklavinone	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18631	Nogalavinone	NA	NA	NA	NA	NA	compound	False	1
+C16701	Norbelladine	NA	NA	NA	NA	NA	compound	False	1
+R11751	Norcraugsodine + NADPH + H+ <=> Norbelladine + NADP+	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C21634	Norcraugsodine	NA	NA	NA	NA	NA	compound	False	1
+C01326	Hydrogen cyanide	NA	NA	NA	NA	NA	compound	False	1
+R07779	bromoxynil,NADPH:oxygen oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C04178	Bromoxynil	NA	NA	NA	NA	NA	compound	False	1
+C16248	2,6-Dibromohydroquinone	NA	NA	NA	NA	NA	compound	False	1
+C07643	4-Hydroxycyclophosphamide	NA	NA	NA	NA	NA	compound	False	1
+R08275	Cyclophosphamide + NADPH + H+ + Oxygen <=> 4-Hydroxycyclophosphamide + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C07888	Cyclophosphamide	NA	NA	NA	NA	NA	compound	False	1
+C07108	Tamoxifen	NA	NA	NA	NA	NA	compound	False	1
+R08271	Tamoxifen + NADPH + Oxygen + H+ <=> alpha-Hydroxytamoxifen + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16544	alpha-Hydroxytamoxifen	NA	NA	NA	NA	NA	compound	False	1
+C16546	N-Desmethyltamoxifen	NA	NA	NA	NA	NA	compound	False	1
+R08270	N-Desmethyltamoxifen + NADPH + Oxygen + H+ <=> Endoxifen + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16547	Endoxifen	NA	NA	NA	NA	NA	compound	False	1
+C00047	L-Lysine	Peptides	NA	NA	NA	NA	compound	False	1
+R00448	L-lysine,NADPH:oxygen oxidoreductase (6-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C01028	N6-Hydroxy-L-lysine	NA	NA	NA	NA	NA	compound	False	1
+C09893	Pulegone	NA	NA	NA	NA	NA	compound	False	1
+R06420	(+)-Pulegone reductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C11952	(+)-Isomenthone	NA	NA	NA	NA	NA	compound	False	1
+C01953	Pregnenolone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R08943	pregnenolone,NADPH:oxygen oxidoreductase (7alpha-hydroxylating)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C18038	7alpha-Hydroxypregnenolone	NA	NA	NA	NA	NA	compound	False	1
+C00603	(S)-Ureidoglycolate	NA	NA	NA	NA	NA	compound	False	1
+R02936	(S)-Ureidoglycolate:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00802	Oxalureate	NA	NA	NA	NA	NA	compound	False	1
+C00090	Catechol	NA	NA	NA	NA	NA	compound	False	1
+R00815	phenol,NADPH:oxogen oxidoreductase (2-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00146	Phenol	NA	NA	NA	NA	NA	compound	False	1
+C00312	L-Xylulose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R01904	Xylitol:NADP+ 4-oxidoreductase (L-xylulose-forming)	NA	M00014	Glucuronate pathway (uronate pathway)	map01100	Metabolic pathways	reaction	False	1
+C00379	Xylitol	Carbohydrates	NA	NA	NA	NA	compound	False	1
+C15789	6-Oxocampestanol	NA	NA	NA	NA	NA	compound	False	1
+R07430	6-Oxocampestanol,NADPH:brassinosteroid C22alpha-hydroxylase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C15790	Cathasterone	NA	NA	NA	NA	NA	compound	False	1
+C06319	Precorrin 6Y	NA	NA	NA	NA	NA	compound	False	1
+R05150	precorrin-6Y:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06320	Precorrin 6X	NA	NA	NA	NA	NA	compound	False	1
+C16563	Bis(glutathionyl)spermine	NA	NA	NA	NA	NA	compound	False	1
+R08356	bis(glutathionyl)spermine:NADP+ oxidoreductase	NA	NA	NA	map00480	Glutathione metabolism	reaction	False	1
+C16564	Bis(glutathionyl)spermine disulfide	NA	NA	NA	NA	NA	compound	False	1
+C18353	Octaketide bicyclic intermediate	NA	NA	NA	NA	NA	compound	False	1
+R09309	Octaketide bicyclic intermediate + NADPH + H+ <=> (R)-Chiral alcohol + NADP+	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18355	(R)-Chiral alcohol	NA	NA	NA	NA	NA	compound	False	1
+C01455	Toluene	NA	NA	NA	NA	NA	compound	False	1
+R03562	Toluene,NADPH:oxogen oxidoreductase (3-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C01467	3-Cresol	NA	NA	NA	NA	NA	compound	False	1
+R04688	2,5-Diaminohexanoate:NADP+ oxidoreductase (deaminating)	NA	NA	NA	map00310	Lysine degradation	reaction	False	1
+C05161	(2R,5S)-2,5-Diaminohexanoate	NA	NA	NA	NA	NA	compound	False	1
+C05825	2-Amino-5-oxohexanoate	NA	NA	NA	NA	NA	compound	False	1
+C05141	Estriol	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R04682	Estriol:NADP+ 17-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05300	16alpha-Hydroxyestrone	Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R06448	5 Methylmalonyl-CoA + 2 Malonyl-CoA + (2S)-Ethylmalonyl-CoA + 7 NADPH + 7 H+ <=> 8 CoA + Tylactone + 8 CO2 + 3 H2O + 7 NADP+	NA	M00773	Tylosin biosynthesis, methylmalonyl-CoA + malonyl-CoA => tylactone => tylosin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12000	Tylactone	NA	NA	NA	NA	NA	compound	False	1
+C18026	(2S)-Ethylmalonyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C12001	5-O-beta-D-Mycaminosyltylactone	NA	NA	NA	NA	NA	compound	False	1
+R06449	5-O-beta-D-Mycaminosyltylactone + 2 NADPH + 2 Oxygen + 2 H+ <=> 20-Oxo-5-O-beta-mycaminosyltylactone + 2 NADP+ + 3 H2O	NA	M00773	Tylosin biosynthesis, methylmalonyl-CoA + malonyl-CoA => tylactone => tylosin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C20760	20-Oxo-5-O-beta-mycaminosyltylactone	NA	NA	NA	NA	NA	compound	False	1
+C00468	Estrone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R02353	Estradiol-17beta:NADP+ 17-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00951	Estradiol-17beta	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R02356	Estrone + H+ + Oxygen + NADPH <=> 16alpha-Hydroxyestrone + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R02355	Estrone + H+ + Oxygen + NADPH <=> 2-Hydroxyestrone + NADP+ + H2O	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05298	2-Hydroxyestrone	NA	NA	NA	NA	NA	compound	False	1
+C20531	13-Desoxypaxilline	NA	NA	NA	NA	NA	compound	False	1
+R10361	13-Desoxypaxilline + NADPH + Oxygen + H+ <=> Paspalicine + NADP+ + 2 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20553	Paspalicine	NA	NA	NA	NA	NA	compound	False	1
+R10362	Paspalicine + Oxygen + NADPH + H+ <=> Paspalinine + NADP+ + H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20554	Paspalinine	NA	NA	NA	NA	NA	compound	False	1
+C20542	13-Desoxyterpendole I	NA	NA	NA	NA	NA	compound	False	1
+R10366	13-desoxyterpendole I,NADPH:oxygen oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20543	Terpendole I	NA	NA	NA	NA	NA	compound	False	1
+C20532	20,21-Diprenylterpendole I	NA	NA	NA	NA	NA	compound	False	1
+R10367	20,21-Diprenylterpendole I + 3 Oxygen + 3 NADPH + 3 H+ <=> Lolitriol + 3 NADP+ + 4 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20548	Lolitriol	NA	NA	NA	NA	NA	compound	False	1
+C20550	Lolitrem E	NA	NA	NA	NA	NA	compound	False	1
+R10368	Lolitrem E + NADPH + Oxygen + H+ <=> Lolitrem B + NADP+ + 2 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20551	Lolitrem B	NA	NA	NA	NA	NA	compound	False	1
+R00216	(S)-Malate:NADP+ oxidoreductase(oxaloacetate-decarboxylating)	NA	M00172	C4-dicarboxylic acid cycle, NADP - malic enzyme type	map01100	Metabolic pathways	reaction	False	1
+C00022	Pyruvate	Organic acids	NA	NA	NA	NA	compound	False	1
+C00149	(S)-Malate	Organic acids	NA	NA	NA	NA	compound	False	1
+C00247	L-Sorbose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R07346	D-glucitol:NADP+ oxidoreductase	NA	NA	NA	map00051	Fructose and mannose metabolism	reaction	False	1
+C00794	D-Sorbitol	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R05293	cis-1,2-Dihydroxy-4-methylcyclohexa-3,5-diene-1-carboxylate:NADP+ oxidoreductase (decarboxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06729	cis-1,2-Dihydroxy-4-methylcyclohexa-3,5-diene-1-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+C06730	4-Methylcatechol	NA	NA	NA	NA	NA	compound	False	1
+R05291	Toluate + Oxygen + NADPH + H+ <=> cis-1,2-Dihydroxy-4-methylcyclohexa-3,5-diene-1-carboxylate + NADP+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C15785	Campest-4-en-3-one	NA	NA	NA	NA	NA	compound	False	1
+R07452	Campest-4-en-3-one,NADPH:brassinosteroid C22alpha-hydroxylase	NA	NA	NA	map00905	Brassinosteroid biosynthesis	reaction	False	1
+C15796	22alpha-Hydroxy-campest-4-en-3-one	NA	NA	NA	NA	NA	compound	False	1
+C15786	5alpha-Campestan-3-one	NA	NA	NA	NA	NA	compound	False	1
+R07453	5alpha-Campestan-3-one,NADPH:brassinosteroid C22alpha-hydroxylase	NA	NA	NA	map00905	Brassinosteroid biosynthesis	reaction	False	1
+C15797	22alpha-Hydroxy-5alpha-campestan-3-one	NA	NA	NA	NA	NA	compound	False	1
+C15787	Campestanol	Steroids	NA	NA	NA	NA	compound	False	1
+R07454	Campesterol,NADPH:brassinosteroid C22alpha-hydroxylase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C15798	6-Deoxocathasterone	NA	NA	NA	NA	NA	compound	False	1
+C01157	Hydroxyproline	Peptides	NA	NA	NA	NA	compound	False	1
+R03293	trans-4-Hydroxy-L-proline:NADP+ 5-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00698	Cl-	NA	NA	NA	NA	NA	compound	False	1
+R03982	Pentachlorophenol,NADPH:oxygen oxidoreductase (hydroxylating, dechloronating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C02575	Pentachlorophenol	NA	NA	NA	NA	NA	compound	False	1
+C18933	Chloranil	NA	NA	NA	NA	NA	compound	False	1
+C02593	Tetradecanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R03989	trans-Tetradec-2-enoyl-CoA reductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05273	trans-Tetradec-2-enoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C20372	3-Ketoglutaryl-[acp] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+R10116	3-hydroxyglutaryl-[acp]-methyl-ester:NADP+ oxidoreductase	NA	M00572	Pimeloyl-ACP biosynthesis, BioC-BioH pathway, malonyl-ACP => pimeloyl-ACP	map01100	Metabolic pathways	reaction	False	1
+C20373	3-Hydroxyglutaryl-[acp] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+C20374	Enoylglutaryl-[acp] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+R10118	glutaryl-[acp]-methyl-ester:NADP+ oxidoreductase	NA	M00572	Pimeloyl-ACP biosynthesis, BioC-BioH pathway, malonyl-ACP => pimeloyl-ACP	map01100	Metabolic pathways	reaction	False	1
+C20375	Glutaryl-[acp] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+R08274	N-Desmethyltamoxifen + NADPH + H+ + Oxygen <=> alpha-Hydroxy-N-desmethyltamoxifen + H2O + NADP+	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16549	alpha-Hydroxy-N-desmethyltamoxifen	NA	NA	NA	NA	NA	compound	False	1
+R06468	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''2b'' aglycone + NADPH + Oxygen <=> 5-Oxoavermectin ''2b'' aglycone + NADP+ + H2O	NA	NA	NA	map00522	Biosynthesis of 12-, 14- and 16-membered macrolides	reaction	False	1
+C11954	5-Oxoavermectin ''2b'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06465	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''2a'' aglycone + NADPH + Oxygen <=> 5-Oxoavermectin ''2a'' aglycone + NADP+ + H2O	NA	NA	NA	map00522	Biosynthesis of 12-, 14- and 16-membered macrolides	reaction	False	1
+C11970	5-Oxoavermectin ''2a'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06467	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''1a'' aglycone + NADPH + Oxygen <=> 5-Oxoavermectin ''1a'' aglycone + NADP+ + H2O	NA	M00777	Avermectin biosynthesis, 2-methylbutanoyl-CoA/isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a/1b aglycone => avermectin A1a/B1a/A1b/B1b	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11978	5-Oxoavermectin ''1a'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+C00116	Glycerol	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R10563	glycerol:NADP+ oxidoreductase (D/L-glyceraldehyde-forming)	NA	M00630	D-Galacturonate degradation (fungi), D-galacturonate => glycerol	map01100	Metabolic pathways	reaction	False	1
+C02426	L-Glyceraldehyde	Carbohydrates	NA	NA	NA	NA	compound	False	1
+C01822	Kanamycin A	NA	NA	NA	NA	NA	compound	False	1
+R10417	kanamycin-A:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C20509	2'-Dehydrokanamycin A	NA	NA	NA	NA	NA	compound	False	1
+C00835	Sepiapterin	NA	NA	NA	NA	NA	compound	False	1
+R02975	7,8-Dihydrobiopterin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C02953	7,8-Dihydrobiopterin	NA	NA	NA	NA	NA	compound	False	1
+C00836	Sphinganine	NA	NA	NA	NA	NA	compound	False	1
+R02978	Sphinganine:NADP+ 3-oxidoreductase	NA	M00099	Sphingosine biosynthesis	map01100	Metabolic pathways	reaction	False	1
+C02934	3-Dehydrosphinganine	NA	NA	NA	NA	NA	compound	False	1
+R12048	Stearoyl-CoA + NADPH + H+ + Oxygen <=> Oleoyl-CoA + NADP+ + 2 H2O	NA	NA	NA	map01040	Biosynthesis of unsaturated fatty acids	reaction	False	1
+C00510	Oleoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C00049	L-Aspartate	Peptides,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R07407	L-aspartate:NADP+ oxidoreductase (deaminating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05840	Iminoaspartate	NA	NA	NA	NA	NA	compound	False	1
+C00323	Caffeoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R01941	Caffeic aldehyde:NADP+ oxidoreductase (CoA-caffeoylating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C10945	Caffeic aldehyde	NA	NA	NA	NA	NA	compound	False	1
+C15801	6-Deoxotyphasterol	NA	NA	NA	NA	NA	compound	False	1
+R07474	6-deoxotyphasterol,NADPH:oxygen oxidoreductase (2alpha-hydroxylating)	NA	M00371	Castasterone biosynthesis, campesterol => castasterone	map01100	Metabolic pathways	reaction	False	1
+C15802	6-Deoxocastasterone	NA	NA	NA	NA	NA	compound	False	1
+C15793	Typhasterol	NA	NA	NA	NA	NA	compound	False	1
+R07470	typhasterol,NADPH:oxygen oxidoreductase (2alpha-hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C15794	Castasterone	NA	NA	NA	NA	NA	compound	False	1
+C05440	Ergosta-5,7,22,24(28)-tetraen-3beta-ol	NA	NA	NA	NA	NA	compound	False	1
+R07506	ergosta-5,7,24(28)-trien-3beta-ol,NADPH:oxygen oxidoreductase (22,23-dehydrogenating)	NA	M00102	Ergocalciferol biosynthesis	map01100	Metabolic pathways	reaction	False	1
+C15778	5,7,24(28)-Ergostatrienol	NA	NA	NA	NA	NA	compound	False	1
+C01164	7-Dehydrocholesterol	Steroids	NA	NA	NA	NA	compound	False	1
+R07507	7-Dehydrodesmosterol + NADPH + H+ <=> 7-Dehydrocholesterol + NADP+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05107	7-Dehydrodesmosterol	NA	NA	NA	NA	NA	compound	False	1
+C00535	Testosterone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R02498	5beta-dihydrotestosterone:NADP+ 4,5-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05293	5beta-Dihydrotestosterone	NA	NA	NA	NA	NA	compound	False	1
+C00223	p-Coumaroyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R01615	4-Hydroxycinnamyl aldehyde:NADP+ oxidoreductase (CoA-hydroxycinnamoylating)	NA	M00039	Monolignol biosynthesis, phenylalanine/tyrosine => monolignol	map01100	Metabolic pathways	reaction	False	1
+C05608	4-Hydroxycinnamyl aldehyde	NA	NA	NA	NA	NA	compound	False	1
+R02497	dihydrotestosterone:NADP+ delta4-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C03917	Dihydrotestosterone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+C00226	Primary alcohol	NA	NA	NA	NA	NA	compound	False	1
+R09470	long-chain-primary-alcohol:NADP+ oxidoreductase (CoA-acylating)	NA	NA	NA	map00073	Cutin, suberine and wax biosynthesis	reaction	False	1
+C02843	Long-chain acyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C06801	Tetracenomycin C	NA	NA	NA	NA	NA	compound	False	1
+R06704	tetracenomycin-A2,NADPH:oxygen oxidoreductase (tetracenomycin-C-forming)	NA	M00783	Tetracenomycin C/8-demethyltetracenomycin C biosynthesis, tetracenomycin F2 => tetracenomycin C/8-demethyltetracenomycin C	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12371	Tetracenomycin A2	NA	NA	NA	NA	NA	compound	False	1
+R04390	L-2-aminoadipate-6-semialdehyde:NADP+ 6-oxidoreductase	NA	M00030	Lysine biosynthesis, AAA pathway, 2-oxoglutarate => 2-aminoadipate => lysine	map01100	Metabolic pathways	reaction	False	1
+C05535	alpha-Aminoadipoyl-S-acyl enzyme	NA	NA	NA	NA	NA	compound	False	1
+C11482	Holo-Lys2	NA	NA	NA	NA	NA	compound	False	1
+R01134	inosine-5'-phosphate:NADP+ oxidoreductase (aminating)	NA	NA	NA	map00230	Purine metabolism	reaction	False	1
+C00130	IMP	NA	NA	NA	NA	NA	compound	False	1
+C00144	GMP	Nucleic acids	NA	NA	NA	NA	compound	False	1
+C11898	Taxa-4(20),11(12)-dien-5alpha-acetoxy-10beta-ol	NA	NA	NA	NA	NA	compound	False	1
+R09867	10beta-hydroxytaxa-4(20),11-dien-5alpha-yl-acetate,NADPH:oxygen 14-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20151	10beta,14beta-Dihydroxytaxa-4(20),11-dien-5alpha-yl acetate	NA	NA	NA	NA	NA	compound	False	1
+C01494	Ferulate	NA	NA	NA	NA	NA	compound	False	1
+R05701	Coniferyl aldehyde:NADP oxidoreductase	NA	NA	NA	map00940	Phenylpropanoid biosynthesis	reaction	False	1
+C02666	Coniferyl aldehyde	NA	NA	NA	NA	NA	compound	False	1
+R05258	4-nitrophenol,NADPH:oxygen 4-oxidoreductase (4-hydroxylating, nitrite-forming)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00472	p-Benzoquinone	NA	NA	NA	NA	NA	compound	False	1
+C00870	4-Nitrophenol	NA	NA	NA	NA	NA	compound	False	1
+C04638	2,3-Bis-O-(geranylgeranyl)glycerol 1-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R10326	2,3-bis-(O-phytany)l-sn-glycerol 1-phosphate:NADP+ oxidoreductase	NA	NA	NA	map00564	Glycerophospholipid metabolism	reaction	False	1
+C20518	2,3-Bis-(O-phytanyl)-sn-glycerol 1-phosphate	NA	NA	NA	NA	NA	compound	False	1
+C01327	Hydrochloric acid	NA	NA	NA	NA	NA	compound	False	1
+R09138	2,4-dichloro-3-oxoadipate:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C18243	2,3,5-Trichloromaleylacetate	NA	NA	NA	NA	NA	compound	False	1
+C18244	2,4-Dichloro-3-oxoadipate	NA	NA	NA	NA	NA	compound	False	1
+C08060	Carbazole	NA	NA	NA	NA	NA	compound	False	1
+R09512	9H-carbazole,NADPH:oxygen oxidoreductase (2,3-hydroxylating)	NA	M00544	Carbazole degradation, carbazole => 2-oxopent-4-enoate + anthranilate	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C08061	2'-Aminobiphenyl-2,3-diol	NA	NA	NA	NA	NA	compound	False	1
+C13712	Allopregnanolone	NA	NA	NA	NA	NA	compound	False	1
+R08959	5alpha-pregnane-3alpha,20alpha-diol:NADP+ 20-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C06620	dTDP-3,4-dioxo-2,6-dideoxy-D-glucose	NA	NA	NA	NA	NA	compound	False	1
+R11051	dTDP-4-oxo-2,6-dideoxy-D-allose:NADP+ 3-oxidoreductase	NA	M00798	dTDP-L-mycarose biosynthesis	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11928	dTDP-4-oxo-2,6-dideoxy-D-allose	NA	NA	NA	NA	NA	compound	False	1
+C00333	D-Galacturonate	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R07676	L-galactonate:NADP+ oxidoreductase	NA	M00630	D-Galacturonate degradation (fungi), D-galacturonate => glycerol	map01100	Metabolic pathways	reaction	False	1
+C15930	L-Galactonate	NA	NA	NA	NA	NA	compound	False	1
+C00376	Retinal	NA	NA	NA	NA	NA	compound	False	1
+R08379	retinol: NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R00706	3-Oxopropanoate:NADP+ oxidoreductase (decarboxylating, CoA-acetylating)	NA	M00013	Malonate semialdehyde pathway, propanoyl-CoA => acetyl-CoA	map01100	Metabolic pathways	reaction	False	1
+C00328	L-Kynurenine	NA	NA	NA	NA	NA	compound	False	1
+R01960	L-Kynurenine,NADPH:oxygen oxidoreductase (3-hydroxylating)	NA	M00038	Tryptophan metabolism, tryptophan => kynurenine => 2-aminomuconate	map01100	Metabolic pathways	reaction	False	1
+C03227	3-Hydroxy-L-kynurenine	NA	NA	NA	NA	NA	compound	False	1
+C03845	5alpha-Cholest-8-en-3beta-ol	NA	NA	NA	NA	NA	compound	False	1
+R07498	Zymosterol + NADPH + H+ <=> 5alpha-Cholest-8-en-3beta-ol + NADP+	NA	M00101	Cholesterol biosynthesis, squalene 2,3-epoxide => cholesterol	map01100	Metabolic pathways	reaction	False	1
+C05437	Zymosterol	NA	NA	NA	NA	NA	compound	False	1
+R07499	14-Demethyllanosterol + NADPH + H+ <=> 4,4-Dimethyl-5alpha-cholesta-8-en-3beta-ol + NADP+	NA	NA	NA	map00100	Steroid biosynthesis	reaction	False	1
+C15915	4,4-Dimethyl-5alpha-cholesta-8-en-3beta-ol	NA	NA	NA	NA	NA	compound	False	1
+R07494	4alpha-Methylzymosterol-4-carboxylate + NADP+ <=> 3-Keto-4-methylzymosterol + NADPH + H+ + CO2	NA	M00101	Cholesterol biosynthesis, squalene 2,3-epoxide => cholesterol	map01100	Metabolic pathways	reaction	False	1
+C15808	4alpha-Methylzymosterol-4-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+C15816	3-Keto-4-methylzymosterol	NA	NA	NA	NA	NA	compound	False	1
+C05103	4alpha-Methylzymosterol	NA	NA	NA	NA	NA	compound	False	1
+R07495	4alpha-methylzymosterol:NADP+ 3-oxidoreductase	NA	M00101	Cholesterol biosynthesis, squalene 2,3-epoxide => cholesterol	map01100	Metabolic pathways	reaction	False	1
+C01789	Campesterol	Steroids	NA	NA	NA	NA	compound	False	1
+R07493	24-Methylenecholesterol + NADPH + H+ <=> Campesterol + NADP+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C15781	24-Methylenecholesterol	NA	NA	NA	NA	NA	compound	False	1
+C00097	L-Cysteine	Peptides	NA	NA	NA	NA	compound	False	1
+R08168	indole-3-acetaldehyde-oxime,NADPH:oxidoreductase	NA	M00370	Glucosinolate biosynthesis, tryptophan => glucobrassicin	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C02937	Indole-3-acetaldehyde oxime	NA	NA	NA	NA	NA	compound	False	1
+C16518	S-(Indolylmethylthiohydroximoyl)-L-cysteine	NA	NA	NA	NA	NA	compound	False	1
+C19418	cis-9,10-Epoxystearic acid	NA	NA	NA	NA	NA	compound	False	1
+R09453	cis-9,10-epoxystearate,NADPH:oxygen oxidoreductase (18-hydroxylating)	NA	NA	NA	map00073	Cutin, suberine and wax biosynthesis	reaction	False	1
+C19620	9,10-Epoxy-18-hydroxystearate	NA	NA	NA	NA	NA	compound	False	1
+R00941	10-formyltetrahydrofolate:NADP+ oxidoreductase	NA	NA	NA	map00670	One carbon pool by folate	reaction	False	1
+C00234	10-Formyltetrahydrofolate	NA	NA	NA	NA	NA	compound	False	1
+C05528	3-Sulfopyruvate	NA	NA	NA	NA	NA	compound	False	1
+R07137	(2R)-3-sulfolactate:NADP+ oxidoreductase	NA	M00358	Coenzyme M biosynthesis	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C11537	(2R)-3-Sulfolactate	NA	NA	NA	NA	NA	compound	False	1
+C00124	D-Galactose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R01095	galactitol:NADP+ 1-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01697	Galactitol	NA	NA	NA	NA	NA	compound	False	1
+R01096	D-galactose:NADP+ 1-oxidoreductase	NA	NA	NA	map00052	Galactose metabolism	reaction	False	1
+C02669	D-Galactono-1,5-lactone	NA	NA	NA	NA	NA	compound	False	1
+R01097	D-Galactose:NADP+ 1-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03383	D-Galactono-1,4-lactone	NA	NA	NA	NA	NA	compound	False	1
+C20399	Pentalenolactone D	NA	NA	NA	NA	NA	compound	False	1
+R10154	1-deoxy-11-oxopentalenate,NADH:oxygen oxidoreductase (pentalenolactone-D forming)	NA	M00819	Pentalenolactone biosynthesis, farnesyl-PP => pentalenolactone	map01130	Biosynthesis of antibiotics	reaction	False	1
+C06102	Adipate semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+R05099	6-oxohexanoate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06104	Adipate	Organic acids	NA	NA	NA	NA	compound	False	1
+C00424	(S)-Lactaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R02260	(S)-lactaldehyde:NADP+ oxidoreductase	NA	NA	NA	map00620	Pyruvate metabolism	reaction	False	1
+C00161	2-Oxo acid	NA	NA	NA	NA	NA	compound	False	1
+R10528	(R)-2-hydroxycarboxylate:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C02489	(R)-2-Hydroxyacid	NA	NA	NA	NA	NA	compound	False	1
+C16567	Homotrypanothione	NA	NA	NA	NA	NA	compound	False	1
+R08357	homotrypanothione:NADP+ oxidoreductase	NA	NA	NA	map00480	Glutathione metabolism	reaction	False	1
+C16568	Homotrypanothione disulfide	NA	NA	NA	NA	NA	compound	False	1
+R09275	5,5'-dehydrodivanillate,NADPH:oxygen oxidoreductase (demethylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C18347	5,5'-Dehydrodivanillate	NA	NA	NA	NA	NA	compound	False	1
+C18348	2,2',3-Trihydroxy-3'-methoxy-5,5'-dicarboxybiphenyl	NA	NA	NA	NA	NA	compound	False	1
+C00334	4-Aminobutanoate	Peptides,Peptides,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R01986	4-Aminobutyraldehyde:NAD+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00555	4-Aminobutyraldehyde	NA	NA	NA	NA	NA	compound	False	1
+R01212	L-valine:NADP+ oxidoreductase (deaminating)	NA	NA	NA	NA	NA	reaction	False	1
+C00141	3-Methyl-2-oxobutanoic acid	Organic acids	NA	NA	NA	NA	compound	False	1
+C00183	L-Valine	Peptides	NA	NA	NA	NA	compound	False	1
+C00521	(-)-Limonene	NA	NA	NA	NA	NA	compound	False	1
+R09389	(S)-limonene,NADPH:oxygen oxidoreductase	NA	NA	NA	map00903	Limonene and pinene degradation	reaction	False	1
+C19081	(4S)-Limonene-1,2-epoxide	NA	NA	NA	NA	NA	compound	False	1
+C00040	Acyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R07162	acyl-CoA:NADP+ trans-2-oxidoreductase	NA	M00085	Fatty acid biosynthesis, elongation, mitochondria	map00062	Fatty acid elongation	reaction	False	1
+C00658	trans-2,3-Dehydroacyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C17584	Xylostasin	NA	NA	NA	NA	NA	compound	False	1
+R11266	xylostasin:NADP+ 3''-oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21176	3''-Oxoribostamycin	NA	NA	NA	NA	NA	compound	False	1
+C07073	Lidocaine	NA	NA	NA	NA	NA	compound	False	1
+R08294	Lidocaine + NADPH + Oxygen + H+ <=> 3-Hydroxylidocaine + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16560	3-Hydroxylidocaine	NA	NA	NA	NA	NA	compound	False	1
+C00964	(-)-trans-Carveol	NA	NA	NA	NA	NA	compound	False	1
+R03114	(-)-trans-Carveol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C01767	(-)-Carvone	NA	NA	NA	NA	NA	compound	False	1
+C16453	4-(N-Nitrosomethylamino)-1-(3-pyridyl)-1-butanone	NA	NA	NA	NA	NA	compound	False	1
+R09420	carbonyl reductase	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19574	4-(Methylnitrosamino)-1-(3-pyridyl)-1-butanol	NA	NA	NA	NA	NA	compound	False	1
+R09423	4-(N-Nitrosomethylamino)-1-(3-pyridyl)-1-butanone + Oxygen + NADPH + H+ <=> 4-Hydroxy-4-(methylnitrosoamino)-1-(3-pyridinyl)-1-butanone + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19566	4-Hydroxy-4-(methylnitrosoamino)-1-(3-pyridinyl)-1-butanone	NA	NA	NA	NA	NA	compound	False	1
+R09424	4-(Methylnitrosamino)-1-(3-pyridyl)-1-butanol + Oxygen + NADPH + H+ <=> 1-(Methylnitrosoamino)-4-(3-pyridinyl)-1,4-butanediol + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19577	1-(Methylnitrosoamino)-4-(3-pyridinyl)-1,4-butanediol	NA	NA	NA	NA	NA	compound	False	1
+C01412	Butanal	NA	NA	NA	NA	NA	compound	False	1
+R03545	Butanal + NADPH + H+ <=> 1-Butanol + NADP+	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C06142	1-Butanol	NA	NA	NA	NA	NA	compound	False	1
+C12378	Tetracenomycin B2	NA	NA	NA	NA	NA	compound	False	1
+R10954	tetracenomycin-B2,NADPH:oxygen oxidoreductase (8-demethyltetracenomycin-C-forming)	NA	M00783	Tetracenomycin C/8-demethyltetracenomycin C biosynthesis, tetracenomycin F2 => tetracenomycin C/8-demethyltetracenomycin C	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12379	8-Demethyltetracenomycin C	NA	NA	NA	NA	NA	compound	False	1
+C00956	L-2-Aminoadipate	NA	NA	NA	NA	NA	compound	False	1
+R11679	(S)-2-amino-6-oxohexanoate:NADP+ oxidoreductase (ATP-forming)	NA	NA	NA	map01230	Biosynthesis of amino acids	reaction	False	1
+C21007	5,6,7,8-Tetrahydromonapterin	NA	NA	NA	NA	NA	compound	False	1
+R11019	5,6,7,8-tetrahydromonapterin:NADP+ oxidoreductase	NA	NA	NA	map00790	Folate biosynthesis	reaction	False	1
+C21008	7,8-Dihydromonapterin	NA	NA	NA	NA	NA	compound	False	1
+C07490	Trichloroethanol	NA	NA	NA	NA	NA	compound	False	1
+R07107	Trichloroethanol, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C11150	Trichloroacetate	NA	NA	NA	NA	NA	compound	False	1
+C02646	4-Coumaryl alcohol	NA	NA	NA	NA	NA	compound	False	1
+R07437	4-coumaryl alcohol:NADP+ oxidoreductase	NA	M00039	Monolignol biosynthesis, phenylalanine/tyrosine => monolignol	map01100	Metabolic pathways	reaction	False	1
+C00523	Androsterone	Steroids	NA	NA	NA	NA	compound	False	1
+R02477	Androsterone:NADP+ oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C00674	5alpha-Androstane-3,17-dione	NA	NA	NA	NA	NA	compound	False	1
+C19490	trans-3,4-Dihydro-3,4-dihydroxy-7,12-dimethylbenz[a]anthracene	NA	NA	NA	NA	NA	compound	False	1
+R09418	trans-3,4-Dihydro-3,4-dihydroxy-7,12-dimethylbenz[a]anthracene + Oxygen + NADPH + H+ <=> (1aalpha,2beta,3alpha,11calpha)-1a,2,3,11c-Tetrahydro-6,11-dimethylbenzo[6,7]phenanthro[3,4-b]oxirene-2,3-diol + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19559	(1aalpha,2beta,3alpha,11calpha)-1a,2,3,11c-Tetrahydro-6,11-dimethylbenzo[6,7]phenanthro[3,4-b]oxirene-2,3-diol	NA	NA	NA	NA	NA	compound	False	1
+C19488	7,12-Dimethylbenz[a]anthracene	NA	NA	NA	NA	NA	compound	False	1
+R09416	7,12-Dimethylbenz[a]anthracene + Oxygen + NADPH + H+ <=> 1a,11b-Dihydro-4,9-dimethylbenz[a]anthra[3,4-b]oxirene + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19489	1a,11b-Dihydro-4,9-dimethylbenz[a]anthra[3,4-b]oxirene	NA	NA	NA	NA	NA	compound	False	1
+C05751	trans-Oct-2-enoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04959	octanoyl-[acp]:NADP+ trans-2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05752	Octanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C05746	3-Oxohexanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04953	(3R)-3-Hydroxyhexanoyl-[acyl-carrier-protein]:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05747	(R)-3-Hydroxyhexanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C05748	trans-Hex-2-enoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04956	hexanoyl-[acp]:NADP+ trans-2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05749	Hexanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C00770	L-Idonate	NA	NA	NA	NA	NA	compound	False	1
+R05684	L-idonate:NADP oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C01062	5-Dehydro-D-gluconate	NA	NA	NA	NA	NA	compound	False	1
+C07277	dTDP-D-fucose	NA	NA	NA	NA	NA	compound	False	1
+R05687	dTDP-4-keto-6-Deoxyglucose reductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11907	dTDP-4-oxo-6-deoxy-D-glucose	NA	NA	NA	NA	NA	compound	False	1
+C00111	Glycerone phosphate	NA	NA	NA	NA	NA	compound	False	1
+R05680	sn-glycerol-1-phosphate:NADP 2-oxidoreductase	NA	NA	NA	map00564	Glycerophospholipid metabolism	reaction	False	1
+C00623	sn-Glycerol 1-phosphate	NA	NA	NA	NA	NA	compound	False	1
+C11434	2-C-Methyl-D-erythritol 4-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R05688	1-Deoxy-D-xylulose-5-phosphate isomeroreductase	NA	M00096	C5 isoprenoid biosynthesis, non-mevalonate pathway	map01100	Metabolic pathways	reaction	False	1
+C11437	1-Deoxy-D-xylulose 5-phosphate	NA	NA	NA	NA	NA	compound	False	1
+C01724	Lanosterol	NA	NA	NA	NA	NA	compound	False	1
+R03689	lanosterol delta24-reductase	NA	NA	NA	map00100	Steroid biosynthesis	reaction	False	1
+C05109	24,25-Dihydrolanosterol	NA	NA	NA	NA	NA	compound	False	1
+C06176	Senecionine	NA	NA	NA	NA	NA	compound	False	1
+R07373	senecionine,NADPH:oxygen oxidoreductase (N-oxide-forming)	NA	NA	NA	map00960	Tropane, piperidine and pyridine alkaloid biosynthesis	reaction	False	1
+C15612	Senecionine N-oxide	NA	NA	NA	NA	NA	compound	False	1
+C01912	Erythromycin	Antibiotics	NA	NA	NA	NA	compound	False	1
+R05521	erythromycin-B,NADPH:oxygen oxidoreductase (12-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C06653	Erythromycin B	NA	NA	NA	NA	NA	compound	False	1
+C06616	Erythromycin C	NA	NA	NA	NA	NA	compound	False	1
+R05522	erythromycin-D,NADPH:oxygen oxidoreductase (12-hydroxylating)	NA	M00774	Erythromycin biosynthesis, propanoyl-CoA + methylmalonyl-CoA => deoxyerythronolide B => erythromycin A/B	map01130	Biosynthesis of antibiotics	reaction	False	1
+C06633	Erythromycin D	NA	NA	NA	NA	NA	compound	False	1
+C00411	Sinapoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R02220	sinapoyl aldehyde:NADP+ oxidoreductase (CoA-sinapoylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05610	Sinapoyl aldehyde	NA	NA	NA	NA	NA	compound	False	1
+R05231	6-Hydroxyhexanoate:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C06103	6-Hydroxyhexanoic acid	NA	NA	NA	NA	NA	compound	False	1
+C16269	(+)-epi-Isozizaene	NA	NA	NA	NA	NA	compound	False	1
+R10072	(+)-epi-isozizaene,NADPH:oxygen oxidoreductase (5-hydroxylating)	NA	NA	NA	NA	NA	reaction	False	1
+C17954	Albaflavenone	NA	NA	NA	NA	NA	compound	False	1
+R00825	anthranilate,NADPH:oxygen oxidoreductase (1,2-hydroxylating, deaminating, decarboxylating)	NA	M00637	Anthranilate degradation, anthranilate => catechol	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00108	Anthranilate	NA	NA	NA	NA	NA	compound	False	1
+R09190	6-methylpretetramide,NADPH:oxygen oxidoreductase (4,12a-hydroxylating)	NA	M00780	Tetracycline/oxytetracycline biosynthesis, pretetramide => tetracycline/oxytetracycline	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18297	Anhydrochlortetracycline	NA	NA	NA	NA	NA	compound	False	1
+R09193	anhydrochlortetracycline,NADPH:oxygen oxidoreductase (6-hydroxylating)	NA	NA	NA	NA	NA	reaction	False	1
+C18298	5a,11a-Dehydrochlortetracycline	NA	NA	NA	NA	NA	compound	False	1
+C12441	18-Carbamoyl-3,5,7,9,11,13,15,17-octaoxooctadecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R06642	18-Carbamoyl-3,5,7,9,11,13,15,17-octaoxooctadecanoyl-[acp] + NADPH + H+ <=> C-9 Reduced nonaketamide + NADP+	NA	M00778	Type II polyketide backbone biosynthesis, acyl-CoA + malonyl-CoA => polyketide	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12442	C-9 Reduced nonaketamide	NA	NA	NA	NA	NA	compound	False	1
+C04633	(3R)-3-Hydroxypalmitoyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R04543	(3R)-3-Hydroxypalmitoyl-[acyl-carrier-protein]:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05762	3-Oxohexadecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C21141	4-Hydroxy-2-methyl-3-oxo-4-[(2E,6E)-farnesyl]-3,4-dihydroquinoline 1-oxide	NA	NA	NA	NA	NA	compound	False	1
+R11383	aurachin C:NADPH:oxygen oxidoreductase (4-hydroxy-2-methyl-3-oxo-4-farnesyl-3,4-dihydroquinoline-1-oxide-forming)	NA	M00848	Aurachin biosynthesis, anthranilate => aurachin A	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21330	Aurachin C	NA	NA	NA	NA	NA	compound	False	1
+C01352	FADH2	NA	NA	NA	NA	NA	compound	False	1
+R09520	FADH2:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C20545	Terpendole J	NA	NA	NA	NA	NA	compound	False	1
+R10381	Terpendole J + NADPH + Oxygen + H+ <=> Terpendole C + NADP+ + 2 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20546	Terpendole C	NA	NA	NA	NA	NA	compound	False	1
+R11032	L-arginine:NADP+ oxidoreductase (deaminating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03771	5-Guanidino-2-oxopentanoate	NA	NA	NA	NA	NA	compound	False	1
+R09306	Octaketide bicyclic intermediate + NADPH + H+ <=> (S)-Chiral alcohol + NADP+	NA	M00779	Dihydrokalafungin biosynthesis, octaketide => dihydrokalafungin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18354	(S)-Chiral alcohol	NA	NA	NA	NA	NA	compound	False	1
+C17580	2-Deoxy-scyllo-inosamine	NA	NA	NA	NA	NA	compound	False	1
+R10130	2-deoxy-scyllo-inosamine:NADP+ 1-oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C17581	3-Amino-2,3-dideoxy-scyllo-inosose	NA	NA	NA	NA	NA	compound	False	1
+C06868	Carbamazepine	NA	NA	NA	NA	NA	compound	False	1
+R08313	Carbamazepine + NADPH + H+ + Oxygen <=> 3-Hydroxycarbamazepine + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16602	3-Hydroxycarbamazepine	NA	NA	NA	NA	NA	compound	False	1
+R01041	glycerol:NADP+ oxidoreductase	NA	NA	NA	map00561	Glycerolipid metabolism	reaction	False	1
+C00577	D-Glyceraldehyde	Carbohydrates	NA	NA	NA	NA	compound	False	1
+C10419	Ferreirin	NA	NA	NA	NA	NA	compound	False	1
+R06563	ferreirin:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C12135	2'-Hydroxybiochanin A	NA	NA	NA	NA	NA	compound	False	1
+R06562	vestitone:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C02920	2'-Hydroxyformononetin	NA	NA	NA	NA	NA	compound	False	1
+C12203	5-Hydroxyferuloyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R06569	cinnamaldehyde:NADP+ oxidoreductase (CoA-cinnamoylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C12204	5-Hydroxyconiferaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R06568	malonyl-CoA:4-coumaroyl-CoA malonyltransferase (cyclizing, reducing)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C08650	Isoliquiritigenin	NA	NA	NA	NA	NA	compound	False	1
+C00493	Shikimate	NA	NA	NA	NA	NA	compound	False	1
+R02413	Shikimate:NADP+ 3-oxidoreductase	NA	M00022	Shikimate pathway, phosphoenolpyruvate + erythrose-4P => chorismate	map01100	Metabolic pathways	reaction	False	1
+C02637	3-Dehydroshikimate	NA	NA	NA	NA	NA	compound	False	1
+R03090	Estradiol-17beta + H+ + Oxygen + NADPH <=> 2-Hydroxyestradiol + NADP+ + H2O	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05301	2-Hydroxyestradiol	Steroids	NA	NA	NA	NA	compound	False	1
+C00267	alpha-D-Glucose	NA	NA	NA	NA	NA	compound	False	1
+R01787	D-Glucitol:NADP+ 1-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01176	17alpha-Hydroxyprogesterone	Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R03325	17alpha,20alpha-Dihydroxypregn-4-en-3-one:NADP+ 20-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C04518	17alpha,20alpha-Dihydroxypregn-4-en-3-one	NA	NA	NA	NA	NA	compound	False	1
+C20454	(-)-Lariciresinol	NA	NA	NA	NA	NA	compound	False	1
+R10228	(+)-secoisolariciresinol:NADPH+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20456	(+)-Secoisolariciresinol	NA	NA	NA	NA	NA	compound	False	1
+C00148	L-Proline	Peptides	NA	NA	NA	NA	compound	False	1
+R01251	L-Proline:NADP+ 5-oxidoreductase	NA	M00015	Proline biosynthesis, glutamate => proline	map01100	Metabolic pathways	reaction	False	1
+C00033	Acetate	Organic acids	NA	NA	NA	NA	compound	False	1
+R10249	chavicol:NADP+ oxidoreductase	NA	NA	NA	map00940	Phenylpropanoid biosynthesis	reaction	False	1
+C16930	Chavicol	NA	NA	NA	NA	NA	compound	False	1
+C20465	Coumaryl acetate	NA	NA	NA	NA	NA	compound	False	1
+R10248	eugenol:NADP+ oxidoreductase (coniferyl ester reducing)	NA	NA	NA	map00940	Phenylpropanoid biosynthesis	reaction	False	1
+C10453	Eugenol	NA	NA	NA	NA	NA	compound	False	1
+C20225	Coniferyl acetate	NA	NA	NA	NA	NA	compound	False	1
+C00280	Androstenedione	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R10242	5alpha-androstane-3,17-dione:NADP+ delta4-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05763	trans-Hexadec-2-enoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04970	hexadecanoyl-[acp]:NADP+ trans-2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05764	Hexadecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04201	D-threo-2,4-diaminopentanoate:NADP+ oxidoreductase(deaminating)	NA	NA	NA	map00472	D-Arginine and D-ornithine metabolism	reaction	False	1
+C03341	2-Amino-4-oxopentanoic acid	NA	NA	NA	NA	NA	compound	False	1
+C03943	(2R,4S)-2,4-Diaminopentanoate	NA	NA	NA	NA	NA	compound	False	1
+C16226	2',7-Dihydroxy-4',5'-methylenedioxyisoflavone	NA	NA	NA	NA	NA	compound	False	1
+R07751	(-)-sophorol:NADP+ oxidoreductase	NA	NA	NA	map00943	Isoflavonoid biosynthesis	reaction	False	1
+C16228	(-)-Sophorol	NA	NA	NA	NA	NA	compound	False	1
+C20534	12-Demethyl-11,12-dehydropaspaline	NA	NA	NA	NA	NA	compound	False	1
+R10357	12-Demethyl-11,12-dehydropaspaline + Oxygen + NADPH + H+ <=> beta-PC-M6 + NADP+ + H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20535	beta-PC-M6	NA	NA	NA	NA	NA	compound	False	1
+C20525	3-Geranylgeranylindole	NA	NA	NA	NA	NA	compound	False	1
+R10350	3-geranylgeranylindole,NADPH:oxygen oxidoreductase (10,11-epoxidizing)	NA	M00661	Paspaline biosynthesis, geranylgeranyl-PP + indoleglycerol phosphate => paspaline	map01100	Metabolic pathways	reaction	False	1
+C20526	10,11-Epoxy-3-geranylgeranylindole	NA	NA	NA	NA	NA	compound	False	1
+C02906	Dihydromyricetin	NA	NA	NA	NA	NA	compound	False	1
+R05038	leucodelphinidin:NADP+ 4-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C05909	Leucodelphinidin	NA	NA	NA	NA	NA	compound	False	1
+C00408	L-Pipecolate	NA	NA	NA	NA	NA	compound	False	1
+R02203	L-pipecolate:NADP+ 2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C04092	Delta1-Piperideine-2-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+C00410	Progesterone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R02208	5alpha-pregnane-3,20-dione:NADP+ delta4-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C03681	5alpha-Pregnane-3,20-dione	NA	NA	NA	NA	NA	compound	False	1
+R02209	20alpha-Hydroxy-4-pregnen-3-one:NADP+ 20-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C04042	20alpha-Hydroxy-4-pregnen-3-one	NA	NA	NA	NA	NA	compound	False	1
+C04688	(3R)-3-Hydroxytetradecanoyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R04566	(3R)-3-Hydroxytetradecanoyl-[acyl-carrier-protein]:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05759	3-Oxotetradecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C00522	(R)-Pantoate	NA	NA	NA	NA	NA	compound	False	1
+R02472	(R)-Pantoate:NADP+ 2-oxidoreductase	NA	M00119	Pantothenate biosynthesis, valine/L-aspartate => pantothenate	map01100	Metabolic pathways	reaction	False	1
+C00966	2-Dehydropantoate	NA	NA	NA	NA	NA	compound	False	1
+C05908	Delphinidin	NA	NA	NA	NA	NA	compound	False	1
+R06543	flavan-3-ol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C12136	(-)-Epigallocatechin	NA	NA	NA	NA	NA	compound	False	1
+C05905	Cyanidin	NA	NA	NA	NA	NA	compound	False	1
+R06542	flavan-3-ol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C09727	(-)-Epicatechin	NA	NA	NA	NA	NA	compound	False	1
+C05904	Pelargonidin	NA	NA	NA	NA	NA	compound	False	1
+R06541	flavan-3-ol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C12128	(-)-Epiafzelechin	NA	NA	NA	NA	NA	compound	False	1
+C00154	Palmitoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R01278	hexadecanoyl-CoA:NADP+ trans-2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05272	trans-Hexadec-2-enoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C00332	Acetoacetyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R05576	(S)-3-Hydroxybutanoyl-CoA:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C05116	3-Hydroxybutanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C05366	(+)-Pinoresinol	NA	NA	NA	NA	NA	compound	False	1
+R10225	(+)-lariciresinol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C10646	Lariciresinol	NA	NA	NA	NA	NA	compound	False	1
+R10227	(-)-lariciresinol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20455	(-)-Pinoresinol	NA	NA	NA	NA	NA	compound	False	1
+R10226	(-)-secoisolariciresinol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C18167	Secoisolariciresinol	NA	NA	NA	NA	NA	compound	False	1
+C00296	Quinate	NA	NA	NA	NA	NA	compound	False	1
+R06846	L-quinate:NADP+ 3-oxidoreductase	NA	NA	NA	map00400	Phenylalanine, tyrosine and tryptophan biosynthesis	reaction	False	1
+C00944	3-Dehydroquinate	NA	NA	NA	NA	NA	compound	False	1
+C03972	2,3,4,5-Tetrahydrodipicolinate	NA	NA	NA	NA	NA	compound	False	1
+R04199	2,3,4,5-tetrahydrodipicolinate:NADP+ 4-oxidoreductase	NA	M00016	Lysine biosynthesis, succinyl-DAP pathway, aspartate => lysine	map01100	Metabolic pathways	reaction	False	1
+C20258	(2S,4S)-4-Hydroxy-2,3,4,5-tetrahydrodipicolinate	NA	NA	NA	NA	NA	compound	False	1
+R07081	Benzpyrene,NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14851	Benzo[a]pyrene-4,5-oxide	NA	NA	NA	NA	NA	compound	False	1
+C14852	Benzo[a]pyrene-7,8-diol	NA	NA	NA	NA	NA	compound	False	1
+R07085	benzo[a]pyrene-7,8-diol, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14853	Benzo[a]pyrene-7,8-dihydrodiol-9,10-oxide	NA	NA	NA	NA	NA	compound	False	1
+C14556	9-Hydroxybenzo[a]pyrene	NA	NA	NA	NA	NA	compound	False	1
+R07087	9-hydroxybenzo[a]pyrene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14854	9-Hydroxybenzo[a]pyrene-4,5-oxide	NA	NA	NA	NA	NA	compound	False	1
+C17953	(5S)-Albaflavenol	NA	NA	NA	NA	NA	compound	False	1
+R08852	(5S)-albaflavenol,NADPH:oxygen 5-oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+R08851	(+)-epi-isozizaene,NADPH:oxygen oxidoreductase (5S-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+R08854	(5R)-albaflavenol,NADPH:oxygen 5-oxidoreductase	NA	NA	NA	map00909	Sesquiterpenoid and triterpenoid biosynthesis	reaction	False	1
+C17955	(5R)-Albaflavenol	NA	NA	NA	NA	NA	compound	False	1
+C12423	Aklaviketone	NA	NA	NA	NA	NA	compound	False	1
+R06682	aklavinone:NADP+ 7-oxidoreductase	NA	M00781	Nogalavinone/aklavinone biosynthesis, deoxynogalonate/deoxyaklanonate => nogalavinone/aklavinone	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12424	Aklavinone	NA	NA	NA	NA	NA	compound	False	1
+R06683	aklavinone,NADPH:oxygen oxidoreductase (12-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12425	epsilon-Rhodomycinone	NA	NA	NA	NA	NA	compound	False	1
+C12429	13-Deoxydaunorubicin	NA	NA	NA	NA	NA	compound	False	1
+R06688	13-deoxydaunorubicin,NADPH:oxygen oxidoreductase (13-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12430	13-Dihydrodaunorubicin	NA	NA	NA	NA	NA	compound	False	1
+R06689	13-dihydrodaunorubicin,NADPH:oxygen oxidoreductase (13-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C00590	Coniferyl alcohol	NA	NA	NA	NA	NA	compound	False	1
+R02593	coniferyl alcohol:NADP+ oxidoreductase	NA	M00039	Monolignol biosynthesis, phenylalanine/tyrosine => monolignol	map01100	Metabolic pathways	reaction	False	1
+R00733	L-arogenate:NADP+ oxidoreductase	NA	M00040	Tyrosine biosynthesis, prephanate => pretyrosine => tyrosine	map01100	Metabolic pathways	reaction	False	1
+C00082	L-Tyrosine	Peptides	NA	NA	NA	NA	compound	False	1
+C00826	L-Arogenate	NA	NA	NA	NA	NA	compound	False	1
+C01161	3,4-Dihydroxyphenylacetate	NA	NA	NA	NA	NA	compound	False	1
+R03302	3,4-Dihydroxyphenylacetaldehyde:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C04043	3,4-Dihydroxyphenylacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+C00191	D-Glucuronate	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R01481	L-gulonate:NADP+ 6-oxidoreductase	NA	M00014	Glucuronate pathway (uronate pathway)	map01100	Metabolic pathways	reaction	False	1
+C00800	L-Gulonate	NA	NA	NA	NA	NA	compound	False	1
+R11616	malonyl-CoA:4-hydroxybenzoyl-[4-hydroxyphenylalkanoate synthase] malonyltransferase (4-hydroxyphenylalkanoate-forming)	NA	NA	NA	NA	NA	reaction	False	1
+C21505	4-Hydroxybenzoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C21507	19-(4-Hydroxyphenyl)nonadecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R11615	malonyl-CoA:4-hydroxybenzoyl-[4-hydroxyphenylalkanoate synthase] malonyltransferase (4-hydroxyphenylalkanoate-forming)	NA	NA	NA	NA	NA	reaction	False	1
+C21506	17-(4-Hydroxyphenyl)heptadecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R09989	L-threo-7,8-dihydrobiopterin:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C20263	L-threo-7,8-Dihydrobiopterin	NA	NA	NA	NA	NA	compound	False	1
+R10692	20,21-Diprenylterpendole J + 3 Oxygen + 3 NADPH + 3 H+ <=> Lolitrem E + 3 NADP+ + 4 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20594	20,21-Diprenylterpendole J	NA	NA	NA	NA	NA	compound	False	1
+R10694	20,21-Diprenylterpendole C + 3 Oxygen + 3 NADPH + 3 H+ <=> Lolitrem B + 3 NADP+ + 4 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20595	20,21-Diprenylterpendole C	NA	NA	NA	NA	NA	compound	False	1
+C01304	2,5-Diamino-6-(5-phospho-D-ribosylamino)pyrimidin-4(3H)-one	NA	NA	NA	NA	NA	compound	False	1
+R09376	2,5-diamino-6-(5-phospho-D-ribitylamino)pyrimidin-4(3H)-one:NADP+ 1'-oxidoreductase	NA	NA	NA	map00740	Riboflavin metabolism	reaction	False	1
+C18910	2,5-Diamino-6-(5-phospho-D-ribitylamino)pyrimidin-4(3H)-one	NA	NA	NA	NA	NA	compound	False	1
+C01788	CDP-abequose	NA	NA	NA	NA	NA	compound	False	1
+R08711	CDP-abequose:NADP+ 4-oxidoreductase	NA	NA	NA	map00520	Amino sugar and nucleotide sugar metabolism	reaction	False	1
+C14453	4-Bromophenol	NA	NA	NA	NA	NA	compound	False	1
+R07075	4-bromophenol, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14845	4-Bromophenol-2,3-epoxide	NA	NA	NA	NA	NA	compound	False	1
+C05703	Methaneselenol	NA	NA	NA	NA	NA	compound	False	1
+R09372	methaneselenol:NADP+ oxidoreductase	NA	NA	NA	map00450	Selenocompound metabolism	reaction	False	1
+C18902	Methylselenic acid	NA	NA	NA	NA	NA	compound	False	1
+C00156	4-Hydroxybenzoate	NA	NA	NA	NA	NA	compound	False	1
+R01298	4-hydroxybenzoate,NADPH:oxygen oxidoreductase (3-hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00230	3,4-Dihydroxybenzoate	NA	NA	NA	NA	NA	compound	False	1
+R01294	4-hydroxybenzaldehyde:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00633	4-Hydroxybenzaldehyde	NA	NA	NA	NA	NA	compound	False	1
+C00342	Thioredoxin	NA	NA	NA	NA	NA	compound	False	1
+R02016	NADPH:oxidized-thioredoxin oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C00343	Thioredoxin disulfide	NA	NA	NA	NA	NA	compound	False	1
+C00134	Putrescine	Peptides	NA	NA	NA	NA	compound	False	1
+R09079	carboxyspermidine:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C18172	Carboxyspermidine	NA	NA	NA	NA	NA	compound	False	1
+R03560	Toluene,NADPH:oxogen oxidoreductase (2-hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01542	o-Cresol	NA	NA	NA	NA	NA	compound	False	1
+R03566	3-Cresol,NADPH:oxogen oxidoreductase (2-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C02923	2,3-Dihydroxytoluene	NA	NA	NA	NA	NA	compound	False	1
+C01050	UDP-N-acetylmuramate	NA	NA	NA	NA	NA	compound	False	1
+R03192	UDP-N-acetylmuramate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C04631	UDP-N-acetyl-3-(1-carboxyvinyl)-D-glucosamine	NA	NA	NA	NA	NA	compound	False	1
+C00583	Propane-1,2-diol	NA	NA	NA	NA	NA	compound	False	1
+R02577	Propane-1,2-diol:NADP+ 1-oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C05999	Lactaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R00711	Acetaldehyde:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00042	Succinate	Organic acids	NA	NA	NA	NA	compound	False	1
+R00714	succinate-semialdehyde:NADP+ oxidoreductase	NA	M00027	GABA (gamma-Aminobutyrate) shunt	map01100	Metabolic pathways	reaction	False	1
+C00026	2-Oxoglutarate	Organic acids	NA	NA	NA	NA	compound	False	1
+R00716	N6-(L-1,3-Dicarboxypropyl)-L-lysine:NADP+ oxidoreductase (L-lysine-forming)	NA	M00032	Lysine degradation, lysine => saccharopine => acetoacetyl-CoA	map01100	Metabolic pathways	reaction	False	1
+R07251	acyl-CoA:malonyl-CoA C-acyltransferase (dihydromonacolin L-[acp]-forming)	NA	NA	NA	map00999	Biosynthesis of secondary metabolites - unclassified	reaction	False	1
+C00021	S-Adenosyl-L-homocysteine	NA	NA	NA	NA	NA	compound	False	1
+C21108	Dihydromonacolin L-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+C00553	(+)-Neomenthol	NA	NA	NA	NA	NA	compound	False	1
+R02548	(+)-neomenthol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C00843	(-)-Menthone	NA	NA	NA	NA	NA	compound	False	1
+C00093	sn-Glycerol 3-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R00844	sn-Glycerol-3-phosphate:NADP+ 2-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C19945	3-Oxo-5,6-dehydrosuberyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R09820	3-oxo-5,6-dehydrosuberyl-CoA semialdehyde:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C19946	3-Oxo-5,6-dehydrosuberyl-CoA semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+C00829	Naphthalene	NA	NA	NA	NA	NA	compound	False	1
+R07000	naphthalene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14786	(1R,2S)-Naphthalene 1,2-oxide	NA	NA	NA	NA	NA	compound	False	1
+C19567	4-Oxo-1-(3-pyridyl)-1-butanone	NA	NA	NA	NA	NA	compound	False	1
+R10105	4-oxo-4-(pyridin-3-yl)butanal:NADP+ oxidoreductase	NA	M00811	Nicotine degradation, pyrrolidine pathway, nicotine => succinate semialdehyde	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C19569	3-Succinoylpyridine	NA	NA	NA	NA	NA	compound	False	1
+C08813	Brassicasterol	NA	NA	NA	NA	NA	compound	False	1
+R11097	24-epi-campesterol,NADPH:oxygen oxidoreductase (22,23-dehydrogenating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C21106	24-epi-Campesterol	NA	NA	NA	NA	NA	compound	False	1
+R11096	24-Methylenecholesterol + NADPH + H+ <=> 24-epi-Campesterol + NADP+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R08957	3alpha-hydroxy-5alpha-pregnan-20-one:NADP+ 3-oxidoreductase (A-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C03205	11-Deoxycorticosterone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R08954	5alpha-dihydrodeoxycorticosterone:NADP+ delta4-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C18040	5alpha-Dihydrodeoxycorticosterone	NA	NA	NA	NA	NA	compound	False	1
+C13713	Allotetrahydrodeoxycorticosterone	NA	NA	NA	NA	NA	compound	False	1
+R08955	3alpha,21-dihydroxy-5alpha-pregnan-20-one:NADP+ 3-oxidoreductase (A-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+R08958	5alpha-pregnan-20alpha-ol-3-one:NADP+ 20-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+R06272	chlorophyllide-a:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+R01058	D-glyceraldehyde 3-phosphate:NADP+ oxidoreductase	NA	M00633	Semi-phosphorylative Entner-Doudoroff pathway, gluconate/galactonate => glycerate-3P	map01100	Metabolic pathways	reaction	False	1
+C00197	3-Phospho-D-glycerate	NA	NA	NA	NA	NA	compound	False	1
+C01020	6-Hydroxynicotinate	NA	NA	NA	NA	NA	compound	False	1
+R01720	nicotinate:NADP+ 6-oxidoreductase (hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C01217	5,6,7,8-Tetrahydromethanopterin	Vitamins and Cofactors	NA	NA	NA	NA	compound	False	1
+R03388	5,6,7,8-tetrahydromethanopterin 5,6-oxidoreductase	NA	NA	NA	map00790	Folate biosynthesis	reaction	False	1
+C05927	7,8-Dihydromethanopterin	NA	NA	NA	NA	NA	compound	False	1
+C01215	2-(Acetamidomethylene)succinate	NA	NA	NA	NA	NA	compound	False	1
+R03386	3-hydroxy-2-methylpyridine-5-carboxylate,NADPH:oxygen oxidoreductase (ring-opening)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C01270	3-Hydroxy-2-methylpyridine-5-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+R02034	6-phospho-D-gluconate:NADP+ 2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01218	6-Phospho-2-dehydro-D-gluconate	NA	NA	NA	NA	NA	compound	False	1
+C03598	CDP-3,6-dideoxy-D-glucose	NA	NA	NA	NA	NA	compound	False	1
+R04265	CDP-alpha-D-paratose:NADP+ 4-oxidoreductase	NA	NA	NA	map00520	Amino sugar and nucleotide sugar metabolism	reaction	False	1
+C21131	Protodeoxyviolaceinic acid	NA	NA	NA	NA	NA	compound	False	1
+R11132	protodeoxyviolaceinate,NADPH:O2 oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21132	Deoxyviolaceinic acid	NA	NA	NA	NA	NA	compound	False	1
+C03206	5a,11a-Dehydrotetracycline	NA	NA	NA	NA	NA	compound	False	1
+R09198	5a,11a-dehydrotetracycline,NADPH:oxygen oxidoreductase (5-hydroxylating)	NA	M00780	Tetracycline/oxytetracycline biosynthesis, pretetramide => tetracycline/oxytetracycline	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18296	5a,11a-Dehydrooxytetracycline	NA	NA	NA	NA	NA	compound	False	1
+R11134	protodeoxyviolaceinate,NADPH:O2 oxidoreductase	NA	M00808	Violacein biosynthesis, tryptophan => violacein	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21134	Protoviolaceinic acid	NA	NA	NA	NA	NA	compound	False	1
+R11135	protoviolaceinate,NADPH:O2 oxidoreductase	NA	M00808	Violacein biosynthesis, tryptophan => violacein	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21135	Violaceinic acid	NA	NA	NA	NA	NA	compound	False	1
+R07048	Arachidonate + Oxygen + NADPH + H+ <=> 14,15-EET + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C14771	14,15-EET	NA	NA	NA	NA	NA	compound	False	1
+C17333	3beta-Hydroxy-5-cholestenoate	NA	NA	NA	NA	NA	compound	False	1
+R08727	3beta-hydroxy-5-cholestenoate,NADPH:oxygen oxidoreductase (7alpha-hydroxylating)	NA	NA	NA	map00120	Primary bile acid biosynthesis	reaction	False	1
+C17335	3beta,7alpha-Dihydroxy-5-cholestenoate	NA	NA	NA	NA	NA	compound	False	1
+R03608	o-Cresol,NADPH:oxogen oxidoreductase (2-hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00618	3-Dehydro-L-gulonate	NA	NA	NA	NA	NA	compound	False	1
+R02639	3-Dehydro-L-gulonate:NADP+ 2-oxidoreductase	NA	NA	NA	map00040	Pentose and glucuronate interconversions	reaction	False	1
+C04575	(4R,5S)-4,5,6-Trihydroxy-2,3-dioxohexanoate	NA	NA	NA	NA	NA	compound	False	1
+C05583	3-Methoxy-4-hydroxyphenylglycolaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R04892	3-Methoxy-4-hydroxyphenylglycolaldehyde:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05584	3-Methoxy-4-hydroxymandelate	NA	NA	NA	NA	NA	compound	False	1
+C05223	Dodecanoyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R04725	dodecanoyl-[acp]:NADP+ trans-2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05758	trans-Dodec-2-enoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C18330	7,9,12-Decaketide intermediate 1	NA	NA	NA	NA	NA	compound	False	1
+R09263	7,9,12-Decaketide intermediate 1 + NADPH + H+ <=> 7,9,12-Decaketide intermediate 2 + NADP+	NA	M00778	Type II polyketide backbone biosynthesis, acyl-CoA + malonyl-CoA => polyketide	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18331	7,9,12-Decaketide intermediate 2	NA	NA	NA	NA	NA	compound	False	1
+C18327	7,9,12-Octaketide intermediate 1	NA	NA	NA	NA	NA	compound	False	1
+R09262	7,9,12-Octaketide intermediate 1 + NADPH + H+ <=> 7,9,12-Octaketide intermediate 2 + NADP+	NA	M00778	Type II polyketide backbone biosynthesis, acyl-CoA + malonyl-CoA => polyketide	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18328	7,9,12-Octaketide intermediate 2	NA	NA	NA	NA	NA	compound	False	1
+C18333	7,9,12-Decaketide intermediate 4	NA	NA	NA	NA	NA	compound	False	1
+R09264	7,9,12-Decaketide intermediate 4 + NADPH + H+ <=> 7,9,12-Decaketide intermediate 5 + NADP+	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C18334	7,9,12-Decaketide intermediate 5	NA	NA	NA	NA	NA	compound	False	1
+C03684	6-Pyruvoyltetrahydropterin	NA	NA	NA	NA	NA	compound	False	1
+R11763	6-(1'-hydroxy-2'-oxopropyl)-tetrahydropterin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C21640	6-(1'-Hydroxy-2'-oxopropyl)-tetrahydropterin	NA	NA	NA	NA	NA	compound	False	1
+C00777	Retinoate	NA	NA	NA	NA	NA	compound	False	1
+R08391	Retinoate + NADPH + H+ + Oxygen <=> all-trans-5,6-Epoxyretinoic acid + NADP+ + H2O	NA	NA	NA	map00830	Retinol metabolism	reaction	False	1
+C16680	all-trans-5,6-Epoxyretinoic acid	NA	NA	NA	NA	NA	compound	False	1
+R08392	Retinoate + NADPH + H+ + Oxygen <=> all-trans-4-Hydroxyretinoic acid + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C16677	all-trans-4-Hydroxyretinoic acid	NA	NA	NA	NA	NA	compound	False	1
+C01825	L-Galactose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R12156	L-galactose:NADP+ oxidoreductase	NA	NA	NA	map00053	Ascorbate and aldarate metabolism	reaction	False	1
+C21955	L-Galactono-1,5-lactone	NA	NA	NA	NA	NA	compound	False	1
+R07253	acyl-CoA:malonyl-CoA C-acyltransferase (decarboxylating, oxoacyl-reducing, thioester-hydrolysing and cyclizing)	NA	M00829	3,6-Dimethylsalicylyl-CoA biosynthesis, malonyl-CoA => 6-methylsalicylate => 3,6-dimethylsalicylyl-CoA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C02657	6-Methylsalicylate	NA	NA	NA	NA	NA	compound	False	1
+R08659	(Z)-4-hydroxyphenylacetaldehyde-oxime,NADPH:oxygen oxidoreductase (adding cysteine)	NA	NA	NA	NA	NA	reaction	False	1
+C04353	(Z)-4-Hydroxyphenylacetaldehyde oxime	NA	NA	NA	NA	NA	compound	False	1
+C17238	S-(Hydroxyphenylacetothiohydroximoyl)-L-cysteine	NA	NA	NA	NA	NA	compound	False	1
+C00565	Trimethylamine	NA	NA	NA	NA	NA	compound	False	1
+R05623	N,N,N-trimethylamine,NADPH:oxygen oxidoreductase (N-oxide-forming)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C01104	Trimethylamine N-oxide	NA	NA	NA	NA	NA	compound	False	1
+C00180	Benzoate	NA	NA	NA	NA	NA	compound	False	1
+R05622	Benzoate + NADPH + H+ + Oxygen <=> (1R,6S)-1,6-Dihydroxycyclohexa-2,4-diene-1-carboxylate + NADP+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06321	(1R,6S)-1,6-Dihydroxycyclohexa-2,4-diene-1-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+C11243	Bacteriochlorophyll b	NA	NA	NA	NA	NA	compound	False	1
+R11518	bacteriochlorophyll-b:NADP+ oxidoreductase (geranylgeranyl-reducing)	NA	NA	NA	map00860	Porphyrin and chlorophyll metabolism	reaction	False	1
+C21435	Geranylgeranyl bacteriochlorophyllide b	NA	NA	NA	NA	NA	compound	False	1
+R11445	malonyl-CoA:malonyl-CoA C-acyltransferase (decarboxylating, methylating, 2-methylbutanoate-forming)	NA	NA	NA	map00999	Biosynthesis of secondary metabolites - unclassified	reaction	False	1
+C21129	(S)-2-Methylbutanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C06570	Tetracycline	Antibiotics	NA	NA	NA	NA	compound	False	1
+R11449	tetracycline,NADPH:oxygen oxidoreductase (11a-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21391	11a-Hydroxytetracycline	NA	NA	NA	NA	NA	compound	False	1
+R04285	6-Lactoyl-5,6,7,8-tetrahydropterin:NADP+ 2'-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C04244	6-Lactoyl-5,6,7,8-tetrahydropterin	NA	NA	NA	NA	NA	compound	False	1
+C16283	Thiobenzamide S-oxide	NA	NA	NA	NA	NA	compound	False	1
+R07837	Thiobenzamide S-oxide + NADPH + H+ + Oxygen <=> Thiobenzamide S,S-dioxide + NADP+ + H2O	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C16285	Thiobenzamide S,S-dioxide	NA	NA	NA	NA	NA	compound	False	1
+C02720	Hydroxylaminobenzene	NA	NA	NA	NA	NA	compound	False	1
+R05400	hydroxylaminobenzene:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C11036	Bromobenzene	NA	NA	NA	NA	NA	compound	False	1
+R07066	bromobenzene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14839	Bromobenzene-3,4-oxide	NA	NA	NA	NA	NA	compound	False	1
+C02199	UDP-L-rhamnose	NA	NA	NA	NA	NA	compound	False	1
+R08705	UDP-L-rhamnose:NADP+ 4-oxidoreductase	NA	NA	NA	map00520	Amino sugar and nucleotide sugar metabolism	reaction	False	1
+C17328	UDP-4-keto-rhamnose	NA	NA	NA	NA	NA	compound	False	1
+C00028	Acceptor	NA	NA	NA	NA	NA	compound	False	1
+R00282	NADPH:acceptor oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C00030	Reduced acceptor	NA	NA	NA	NA	NA	compound	False	1
+R07068	bromobenzene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14840	Bromobenzene-2,3-oxide	NA	NA	NA	NA	NA	compound	False	1
+C01147	2-Hydroxycyclohexan-1-one	NA	NA	NA	NA	NA	compound	False	1
+R06622	NADPH + 2-Hydroxycyclohexan-1-one + H+ + Oxygen <=> NADP+ + 1-Oxa-2-oxo-3-hydroxycycloheptane + H2O	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C12314	1-Oxa-2-oxo-3-hydroxycycloheptane	NA	NA	NA	NA	NA	compound	False	1
+C12320	dTDP-L-4-oxovancosamine	NA	NA	NA	NA	NA	compound	False	1
+R06629	dTDP-L-4-oxovancosamine + NADPH + H+ <=> dTDP-L-epivancosamine + NADP+	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12321	dTDP-L-epivancosamine	NA	NA	NA	NA	NA	compound	False	1
+C00601	Phenylacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R02537	Aldehyde:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C07086	Phenylacetic acid	NA	NA	NA	NA	NA	compound	False	1
+C00168	Hydroxypyruvate	NA	NA	NA	NA	NA	compound	False	1
+R01392	D-Glycerate:NADP+ 2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00258	D-Glycerate	NA	NA	NA	NA	NA	compound	False	1
+R07939	caffeine:oxygen oxidoreductase (N3-demethylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C07481	Caffeine	NA	NA	NA	NA	NA	compound	False	1
+C13747	1,7-Dimethylxanthine	NA	NA	NA	NA	NA	compound	False	1
+C06800	Aflatoxin B1	NA	NA	NA	NA	NA	compound	False	1
+R09405	Aflatoxin B1 + Oxygen + NADPH + H+ <=> Aflatoxin M1 + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C16756	Aflatoxin M1	NA	NA	NA	NA	NA	compound	False	1
+C02325	Sinapyl alcohol	NA	NA	NA	NA	NA	compound	False	1
+R03918	Sinapyl alcohol:NADP+ oxidoreductase	NA	M00039	Monolignol biosynthesis, phenylalanine/tyrosine => monolignol	map01100	Metabolic pathways	reaction	False	1
+R09990	L-threo-tetrahydrobiopterin:NADP+ oxidoreductase	NA	M00843	L-threo-Tetrahydrobiopterin biosynthesis, GTP => L-threo-BH4	map01100	Metabolic pathways	reaction	False	1
+C20264	L-threo-Tetrahydrobiopterin	NA	NA	NA	NA	NA	compound	False	1
+R09931	eugenol:NADP+ oxidoreductase (coniferyl acetate reducing)	NA	NA	NA	map00940	Phenylpropanoid biosynthesis	reaction	False	1
+C10469	Isoeugenol	NA	NA	NA	NA	NA	compound	False	1
+R06453	Malonyl-CoA + 6 Methylmalonyl-CoA + 6 NADPH + 6 H+ <=> 8,8a-Deoxyoleandolide + 7 CoA + 7 CO2 + H2O + 6 NADP+	NA	M00775	Oleandomycin biosynthesis, malonyl-CoA + methylmalonyl-CoA => 8,8a-deoxyoleandolide => oleandomycin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11989	8,8a-Deoxyoleandolide	NA	NA	NA	NA	NA	compound	False	1
+R10181	indole-3-pyruvate,NADPH:oxygen oxidoreductase (1-hydroxylating, decarboxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00331	Indolepyruvate	NA	NA	NA	NA	NA	compound	False	1
+C00954	Indole-3-acetate	NA	NA	NA	NA	NA	compound	False	1
+R06454	8,8a-Deoxyoleandolide + 2 NADPH + 2 H+ + 2 Oxygen <=> Oleandolide + 2 NADP+ + 3 H2O	NA	M00775	Oleandomycin biosynthesis, malonyl-CoA + methylmalonyl-CoA => 8,8a-deoxyoleandolide => oleandomycin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11990	Oleandolide	NA	NA	NA	NA	NA	compound	False	1
+R00111	N-(omega)-Hydroxyarginine,NADPH:oxygen oxidoreductase (nitric-oxide-forming)	NA	NA	NA	map00330	Arginine and proline metabolism	reaction	False	1
+R00114	L-glutamate:NADP+ oxidoreductase (transaminating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00064	L-Glutamine	Peptides	NA	NA	NA	NA	compound	False	1
+C00127	Glutathione disulfide	NA	NA	NA	NA	NA	compound	False	1
+R00115	glutathione:NADP+ oxidoreductase	NA	NA	NA	map00480	Glutathione metabolism	reaction	False	1
+R02841	11beta,17alpha,21-Trihydroxy-5beta-pregnane-3,20-dione:NADP+ delta4-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+R00563	N2-(D-1,3-dicarboxypropyl)-L-arginine:NADP+ oxidoreductase (L-arginine-forming)	NA	NA	NA	map00330	Arginine and proline metabolism	reaction	False	1
+C01682	Nopaline	NA	NA	NA	NA	NA	compound	False	1
+C09804	cis-trans-Nepetalactol	NA	NA	NA	NA	NA	compound	False	1
+R12175	8-oxogeranial:NAD(P)+ oxidoreductase (cyclizing, cis-trans-nepetalactol forming)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C17622	(6E)-8-Oxogeranial	NA	NA	NA	NA	NA	compound	False	1
+C16681	9-cis-Retinal	NA	NA	NA	NA	NA	compound	False	1
+R08383	9-cis-Retinol + NADP+ <=> 9-cis-Retinal + NADPH + H+	NA	NA	NA	map00830	Retinol metabolism	reaction	False	1
+C16682	9-cis-Retinol	NA	NA	NA	NA	NA	compound	False	1
+C01694	Ergosterol	Steroids	NA	NA	NA	NA	compound	False	1
+R05641	ergosterol:NADP+ Delta24(24(1))-oxidoreductase	NA	M00102	Ergocalciferol biosynthesis	map01100	Metabolic pathways	reaction	False	1
+C01832	Lauroyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R03856	trans-Dodec-2-enoyl-CoA reductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03221	2-trans-Dodecenoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C00846	3-Oxoadipate	NA	NA	NA	NA	NA	compound	False	1
+R02989	3-oxoadipate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C02222	2-Maleylacetate	NA	NA	NA	NA	NA	compound	False	1
+C05807	2-Polyprenylphenol	NA	NA	NA	NA	NA	compound	False	1
+R08768	2-(all-trans-polyprenyl)phenol,NADPH:oxygen oxidoreductase (6-hydroxylating)	NA	M00117	Ubiquinone biosynthesis, prokaryotes, chorismate => ubiquinone	map01100	Metabolic pathways	reaction	False	1
+C17551	2-Polyprenyl-6-hydroxyphenol	NA	NA	NA	NA	NA	compound	False	1
+C00544	Homogentisate	NA	NA	NA	NA	NA	compound	False	1
+R02517	3-hydroxyphenylacetate,NADPH:oxygen oxidoreductase (6-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C05593	3-Hydroxyphenylacetate	NA	NA	NA	NA	NA	compound	False	1
+C03852	Androstan-3alpha,17beta-diol	NA	NA	NA	NA	NA	compound	False	1
+R08963	Androstan-3alpha,17beta-diol:NADP+ oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C00696	Prostaglandin D2	Lipids	NA	NA	NA	NA	compound	False	1
+R02799	11-epi-Prostaglandin F2alpha:NADP+ 11-oxidoreductase	NA	NA	NA	map00590	Arachidonic acid metabolism	reaction	False	1
+C05959	11-epi-Prostaglandin F2alpha	NA	NA	NA	NA	NA	compound	False	1
+R05189	acyl-CoA:methylmalonyl-CoA C-acyltransferase (decarboxylating, oxoacyl- and enoyl-reducing)	NA	NA	NA	NA	NA	reaction	False	1
+C21392	Multi-methyl-branched acyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C05270	Hexanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R06985	trans-Hex-2-enoyl-CoA reductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05271	trans-Hex-2-enoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C01250	N-Acetyl-L-glutamate 5-semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+R03443	N-acetyl-L-glutamate-5-semialdehyde:NADP+ 5-oxidoreductase (phosphrylating)	NA	M00845	Arginine biosynthesis, glutamate => acetylcitrulline => arginine	map01100	Metabolic pathways	reaction	False	1
+C04133	N-Acetyl-L-glutamate 5-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R08853	(+)-epi-isozizaene,NADPH:oxygen oxidoreductase (5R-hydroxylating)	NA	NA	NA	map00909	Sesquiterpenoid and triterpenoid biosynthesis	reaction	False	1
+C00900	2-Acetolactate	NA	NA	NA	NA	NA	compound	False	1
+R03051	2,3-Dihydroxy-3-methylbutanoate:NADP+ oxidoreductase (isomerizing)	NA	NA	NA	map00770	Pantothenate and CoA biosynthesis	reaction	False	1
+C04039	2,3-Dihydroxy-3-methylbutanoate	NA	NA	NA	NA	NA	compound	False	1
+R01747	(R)-Glycerate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01146	2-Hydroxy-3-oxopropanoate	NA	NA	NA	NA	NA	compound	False	1
+C07214	2-Methylbenzaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R05663	2-Methylbenzaldehyde + NADP+ + H2O <=> o-Toluate + NADPH + H+	NA	M00537	Xylene degradation, xylene => methylbenzoate	map01100	Metabolic pathways	reaction	False	1
+C07215	o-Toluate	NA	NA	NA	NA	NA	compound	False	1
+R10289	isochavicol:NADP+ oxidoreductase	NA	NA	NA	map00940	Phenylpropanoid biosynthesis	reaction	False	1
+C20464	Isochavicol	NA	NA	NA	NA	NA	compound	False	1
+C16540	7(1)-Hydroxychlorophyllide a	NA	NA	NA	NA	NA	compound	False	1
+R08915	7(1)-hydroxychlorophyllide-a:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C16541	Chlorophyllide b	NA	NA	NA	NA	NA	compound	False	1
+R00248	L-glutamate:NADP+ oxidoreductase (deaminating)	NA	M00740	Methylaspartate cycle	map01100	Metabolic pathways	reaction	False	1
+R07022	1-nitronaphthalene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14800	1-Nitronaphthalene-5,6-oxide	NA	NA	NA	NA	NA	compound	False	1
+R00796	nitrite:NADP+ oxidoreductase	NA	M00531	Assimilatory nitrate reduction, nitrate => ammonia	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00244	Nitrate	NA	NA	NA	NA	NA	compound	False	1
+R07970	1-methylxanthine:oxygen oxidoreductase (N1-demethylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C16358	1-Methylxanthine	NA	NA	NA	NA	NA	compound	False	1
+R07974	theophylline:oxygen oxidoreductase (N1-demethylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C07130	Theophylline	NA	NA	NA	NA	NA	compound	False	1
+R07976	theophylline:oxygen oxidoreductase (N3-demethylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01126	(2E,6E)-Farnesol	NA	NA	NA	NA	NA	compound	False	1
+R03264	2-trans,6-trans-farnesol:NADP+ 1-oxidoreductase	NA	NA	NA	map00909	Sesquiterpenoid and triterpenoid biosynthesis	reaction	False	1
+C03461	2-trans,6-trans-Farnesal	NA	NA	NA	NA	NA	compound	False	1
+C05469	17alpha,21-Dihydroxy-5beta-pregnane-3,11,20-trione	NA	NA	NA	NA	NA	compound	False	1
+R04830	Urocortisone:NADP+ oxidoreductase (B-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05470	Tetrahydrocortisone	Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+C05473	11beta,21-Dihydroxy-3,20-oxo-5beta-pregnan-18-al	NA	NA	NA	NA	NA	compound	False	1
+R04836	3alpha,11beta,21-Trihydroxy-20-oxo-5beta-pregnan-18-al:NADP+ oxidoreductase (B-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05474	3alpha,11beta,21-Trihydroxy-20-oxo-5beta-pregnan-18-al	NA	NA	NA	NA	NA	compound	False	1
+C05475	11beta,21-Dihydroxy-5beta-pregnane-3,20-dione	NA	NA	NA	NA	NA	compound	False	1
+R04838	Tetrahydrocorticosterone:NADP+ oxidoreductase (B-specific)	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+R10672	4-hydroxyphenylacetaldehyde-oxime,NADPH:oxygen oxidoreductase (adding cysteine)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C04350	(E)-4-Hydroxyphenylacetaldehyde oxime	NA	NA	NA	NA	NA	compound	False	1
+R10670	phenylacetaldehyde-oxime,NADPH:oxygen oxidoreductase (adding cysteine)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C17237	S-(Phenylacetothiohydroximoyl)-L-cysteine	NA	NA	NA	NA	NA	compound	False	1
+C19714	(E)-Phenylacetaldoxime	NA	NA	NA	NA	NA	compound	False	1
+R09353	premithramycin-B,NADPH:oxygen oxidoreductase	NA	M00782	Mithramycin biosynthesis, 4-demethylpremithramycinone => mithramycin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C12388	Premithramycin B	NA	NA	NA	NA	NA	compound	False	1
+C18711	Mithramycin DK	NA	NA	NA	NA	NA	compound	False	1
+C03167	Phosphonoacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R08861	Phosphonoacetaldehyde + NADPH + H+ <=> 2-Hydroxyethylphosphonate + NADP+	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C06451	2-Hydroxyethylphosphonate	NA	NA	NA	NA	NA	compound	False	1
+R08266	tamoxifen,NADPH:oxygen oxidoreductase (N-oxide-forming)	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16545	Tamoxifen N-oxide	NA	NA	NA	NA	NA	compound	False	1
+C05011	Hydroxytamoxifen	NA	NA	NA	NA	NA	compound	False	1
+R08267	Tamoxifen + NADPH + Oxygen + H+ <=> Hydroxytamoxifen + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+R07761	octadecanoyl-CoA:NADP+ trans-2-oxidoreductase	NA	M00415	Fatty acid biosynthesis, elongation, endoplasmic reticulum	map01212	Fatty acid metabolism	reaction	False	1
+C16218	(2E)-Octadecenoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C16219	3-Oxostearoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R07763	3-Oxostearoyl-[acp] + NADPH + H+ <=> (R)-3-Hydroxyoctadecanoyl-[acp] + NADP+	NA	NA	NA	map01212	Fatty acid metabolism	reaction	False	1
+C16220	(R)-3-Hydroxyoctadecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R06419	(-)-menthone:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C02485	(-)-Isopiperitenone	NA	NA	NA	NA	NA	compound	False	1
+R06417	(+)-cis-isopulegone:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C11951	(+)-cis-Isopulegone	NA	NA	NA	NA	NA	compound	False	1
+C06661	Clavulanate-9-aldehyde	NA	NA	NA	NA	NA	compound	False	1
+R05471	clavulanate:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C06662	Clavulanic acid	Antibiotics	NA	NA	NA	NA	compound	False	1
+R01039	glycerol:NADP+ 2-oxidoreductase (glycerone-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00184	Glycerone	Carbohydrates	NA	NA	NA	NA	compound	False	1
+C16391	Trinitrotoluene	NA	NA	NA	NA	NA	compound	False	1
+R08014	Trinitrotoluene + 2 NADPH + 2 H+ <=> 4-Hydroxylamino-2,6-dinitrotoluene + 2 NADP+ + H2O	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C16392	4-Hydroxylamino-2,6-dinitrotoluene	NA	NA	NA	NA	NA	compound	False	1
+R00264	2,5-dioxopentanoate:NADP+ 5-oxidoreductase	NA	NA	NA	map00040	Pentose and glucuronate interconversions	reaction	False	1
+C00433	2,5-Dioxopentanoate	NA	NA	NA	NA	NA	compound	False	1
+R00267	Isocitrate:NADP+ oxidoreductase (decarboxylating)	NA	M00009	Citrate cycle (TCA cycle, Krebs cycle)	map01100	Metabolic pathways	reaction	False	1
+C20379	Chanoclavine-I aldehyde	NA	NA	NA	NA	NA	compound	False	1
+R12090	chanoclavine-I aldehyde:NAD+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21897	Dihydrochanoclavine-I aldehyde	NA	NA	NA	NA	NA	compound	False	1
+C12491	Pyrrolnitrin	NA	NA	NA	NA	NA	compound	False	1
+R11107	Aminopyrrolnitrin + 2 NADPH + 2 Oxygen + 2 H+ <=> Pyrrolnitrin + 2 NADP+ + 2 H2O	NA	M00790	Pyrrolnitrin biosynthesis, tryptophan => pyrrolnitrin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21109	Aminopyrrolnitrin	NA	NA	NA	NA	NA	compound	False	1
+R07956	caffeine:oxygen oxidoreductase (N1-demethylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R07958	paraxanthine:oxygen oxidoreductase (N1-demethylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+R08980	11beta,17beta-dihydroxy-4-androsten-3-one:NADP+ 17-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C18075	11beta,17beta-Dihydroxy-4-androsten-3-one	NA	NA	NA	NA	NA	compound	False	1
+C02090	Trypanothione	NA	NA	NA	NA	NA	compound	False	1
+R03821	trypanathione:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03170	Trypanothione disulfide	NA	NA	NA	NA	NA	compound	False	1
+C05451	7alpha-Hydroxy-5beta-cholestan-3-one	NA	NA	NA	NA	NA	compound	False	1
+R04819	3alpha,7alpha-Dihydroxy-5beta-cholestane:NADP+ oxidoreductase (B-specific)	NA	M00104	Bile acid biosynthesis, cholesterol => cholate/chenodeoxycholate	map01100	Metabolic pathways	reaction	False	1
+C05452	3alpha,7alpha-Dihydroxy-5beta-cholestane	NA	NA	NA	NA	NA	compound	False	1
+R04817	7alpha-Hydroxy-5beta-cholestan-3-one:NADP+ delta4-oxidoreductase	NA	M00104	Bile acid biosynthesis, cholesterol => cholate/chenodeoxycholate	map01100	Metabolic pathways	reaction	False	1
+C05455	7alpha-Hydroxycholest-4-en-3-one	NA	NA	NA	NA	NA	compound	False	1
+C20386	Biotin sulfoxide	NA	NA	NA	NA	NA	compound	False	1
+R10127	biotin:NADP+ S-oxidoreductase (biotin S-oxide-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C19846	Pimeloyl-[acyl-carrier protein] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+R10122	pimelyl-[acyl-carrier protein]-methyl-ester:NADP+ oxidoreductase	NA	M00572	Pimeloyl-ACP biosynthesis, BioC-BioH pathway, malonyl-ACP => pimeloyl-ACP	map01100	Metabolic pathways	reaction	False	1
+C20378	Enoylpimeloyl-[acp] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+C20376	3-Ketopimeloyl-[acp] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+R10120	3-hydroxypimeloyl-[acp]-methyl-ester:NADP+ oxidoreductase	NA	M00572	Pimeloyl-ACP biosynthesis, BioC-BioH pathway, malonyl-ACP => pimeloyl-ACP	map01100	Metabolic pathways	reaction	False	1
+C20377	3-Hydroxypimeloyl-[acp] methyl ester	NA	NA	NA	NA	NA	compound	False	1
+C06624	Oxytetracycline	NA	NA	NA	NA	NA	compound	False	1
+R11525	oxytetracycline,NADPH:oxygen oxidoreductase (11a-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21438	11a-Hydroxyoxytetracycline	NA	NA	NA	NA	NA	compound	False	1
+C06571	Chlortetracycline	Antibiotics	NA	NA	NA	NA	compound	False	1
+R11526	chlortetracycline,NADPH:oxygen oxidoreductase (11a-hydroxylating)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21439	11a-Hydroxy-7-chlortetracycline	NA	NA	NA	NA	NA	compound	False	1
+C01227	Dehydroepiandrosterone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R03408	Dehydroepiandrosterone + H+ + Oxygen + NADPH <=> 16alpha-Hydroxydehydroepiandrosterone + NADP+ + H2O	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C05139	16alpha-Hydroxydehydroepiandrosterone	NA	NA	NA	NA	NA	compound	False	1
+C01226	12-OPDA	NA	NA	NA	NA	NA	compound	False	1
+R03401	8-[(1R,2R)-3-oxo-2-{(Z)-pent-2-enyl}cyclopentyl]octanoate:NADP+ 4-oxidoreductase	NA	M00113	Jasmonic acid biosynthesis	map01100	Metabolic pathways	reaction	False	1
+C04780	8-[(1R,2R)-3-Oxo-2-{(Z)-pent-2-enyl}cyclopentyl]octanoate	NA	NA	NA	NA	NA	compound	False	1
+C03715	O-Alkylglycerone phosphate	NA	NA	NA	NA	NA	compound	False	1
+R04360	1-Alkyl-sn-glycero-3-phosphate + NADP+ <=> O-Alkylglycerone phosphate + NADPH + H+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03968	1-Alkyl-sn-glycero-3-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R03407	Androst-5-ene-3beta,17beta-diol:NADP+ oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C04295	Androstenediol	Steroids	NA	NA	NA	NA	compound	False	1
+R08208	tetrahydrobiopterin:NADP+ oxidoreductase (6-pyruvoyltetrahydropterin-forming)	NA	M00842	Tetrahydrobiopterin biosynthesis, GTP => BH4	map01100	Metabolic pathways	reaction	False	1
+R08203	chlorophyllide-a,NADPH:oxygen 7(1)-oxidoreductase (hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R08204	7(1)-hydroxychlorophyllide-a,NADPH:oxygen 7(1)-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00681	1-Acyl-sn-glycerol 3-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R02756	1-Acyl-sn-glycerol 3-phosphate + NADP+ <=> Acylglycerone phosphate + NADPH + H+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C03372	Acylglycerone phosphate	NA	NA	NA	NA	NA	compound	False	1
+R02755	meso-2,6-diaminoheptanedioate:NADP+ oxidoreductase (deaminating)	NA	M00526	Lysine biosynthesis, DAP dehydrogenase pathway, aspartate => lysine	map01100	Metabolic pathways	reaction	False	1
+C00680	meso-2,6-Diaminoheptanedioate	NA	NA	NA	NA	NA	compound	False	1
+C03871	L-2-Amino-6-oxoheptanedioate	NA	NA	NA	NA	NA	compound	False	1
+R10852	L-allo-threonine:NADP+ 3-oxidoreductase (decarboxylating)	NA	NA	NA	NA	NA	reaction	False	1
+C01888	Aminoacetone	NA	NA	NA	NA	NA	compound	False	1
+C05519	L-Allothreonine	NA	NA	NA	NA	NA	compound	False	1
+C03508	L-2-Amino-3-oxobutanoic acid	NA	NA	NA	NA	NA	compound	False	1
+R10851	L-allo-threonine:NADP+ 3-oxidoreductase	NA	NA	NA	map00260	Glycine, serine and threonine metabolism	reaction	False	1
+C11915	dTDP-3-methyl-4-oxo-2,6-dideoxy-L-allose	NA	NA	NA	NA	NA	compound	False	1
+R06436	dTDP-L-mycarose:NADP+ 4-oxidoreductase	NA	M00798	dTDP-L-mycarose biosynthesis	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11916	dTDP-L-mycarose	NA	NA	NA	NA	NA	compound	False	1
+C11920	dTDP-L-olivose	NA	NA	NA	NA	NA	compound	False	1
+R06434	dTDP-4-oxo-2,6-dideoxy-L-mannose + NADPH + H+ <=> dTDP-L-olivose + NADP+	NA	M00801	dTDP-L-olivose biosynthesis	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11927	dTDP-4-oxo-2,6-dideoxy-L-mannose	NA	NA	NA	NA	NA	compound	False	1
+C00582	Phenylacetyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R09838	phenylacetyl-CoA:oxygen oxidoreductase (1,2-epoxidizing)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C20062	2-(1,2-Epoxy-1,2-dihydrophenyl)acetyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C00058	Formate	Organic acids	NA	NA	NA	NA	compound	False	1
+R10356	paspaline-B,NADPH:oxygen oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20587	Paspaline B	NA	NA	NA	NA	NA	compound	False	1
+C20527	Emindole SB	NA	NA	NA	NA	NA	compound	False	1
+R10351	emindole-SB,NADPH:oxygen oxidoreductase (14,15-epoxidizing)	NA	M00661	Paspaline biosynthesis, geranylgeranyl-PP + indoleglycerol phosphate => paspaline	map01100	Metabolic pathways	reaction	False	1
+C20529	14,15-Epoxyemindole SB	NA	NA	NA	NA	NA	compound	False	1
+C13782	Paxilline	NA	NA	NA	NA	NA	compound	False	1
+R10359	13-desoxypaxilline,NADPH:oxygen oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+R10358	beta-PC-M6 + Oxygen + NADPH + H+ <=> 13-Desoxypaxilline + NADP+ + 2 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+R11198	4-Hydroxyisophthalate + Oxygen + NADPH + H+ <=> 3,4-Dihydroxybenzoate + H2O + NADP+ + CO2	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C21168	4-Hydroxyisophthalate	NA	NA	NA	NA	NA	compound	False	1
+C21166	4-Hydroxy-3-methylbenzaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R11195	4-hydroxy-3-methylbenzaldehyde:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C21167	4-Hydroxy-3-methylbenzoate	NA	NA	NA	NA	NA	compound	False	1
+C00642	4-Hydroxyphenylacetate	NA	NA	NA	NA	NA	compound	False	1
+R02697	4-Hydroxyphenylacetaldehyde:NADP+ oxidoreductase	NA	NA	NA	map00350	Tyrosine metabolism	reaction	False	1
+C03765	4-Hydroxyphenylacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+C03012	Naphthalene-1,2-diol	NA	NA	NA	NA	NA	compound	False	1
+R07015	1,2-Dihydronaphthalene-1,2-diol dehydrogenase	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C06205	1,2-Dihydronaphthalene-1,2-diol	NA	NA	NA	NA	NA	compound	False	1
+R07429	5alpha-campestan-3-one:NADP+ delta4-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C18015	Momilactone A	NA	NA	NA	NA	NA	compound	False	1
+R08917	3beta-hydroxy-9beta-pimara-7,15-diene-19,6beta-olide:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C18016	3beta-Hydroxy-9beta-pimara-7,15-diene-19,6beta-olide	NA	NA	NA	NA	NA	compound	False	1
+C16234	o-Nitrobenzoate	NA	NA	NA	NA	NA	compound	False	1
+R07727	o-Nitrobenzoate + 2 NADPH + 2 H+ <=> o-Hydroxylaminobenzoate + 2 NADP+ + H2O	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C16235	o-Hydroxylaminobenzoate	NA	NA	NA	NA	NA	compound	False	1
+C00400	(-)-Menthol	NA	NA	NA	NA	NA	compound	False	1
+R02177	(-)-menthol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C05178	(R)-Reticuline	NA	NA	NA	NA	NA	compound	False	1
+R04695	(R)-reticuline:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06167	1,2-Dehydroreticuline	NA	NA	NA	NA	NA	compound	False	1
+C05179	Salutaridine	NA	NA	NA	NA	NA	compound	False	1
+R04697	salutaridinol:NADP+ 7-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05220	Salutaridinol	NA	NA	NA	NA	NA	compound	False	1
+C04246	But-2-enoyl-[acyl-carrier protein]	NA	NA	NA	NA	NA	compound	False	1
+R04430	butyryl-[acp]:NADP+ trans-2-oxidoreductase	NA	M00083	Fatty acid biosynthesis, elongation	map01100	Metabolic pathways	reaction	False	1
+C05745	Butyryl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04439	(R)-2,3-dihydroxy-3-methylbutanoate:NADP+ oxidoreductase (isomerizing)	NA	NA	NA	NA	NA	reaction	False	1
+C06010	(S)-2-Acetolactate	NA	NA	NA	NA	NA	compound	False	1
+R11765	tetrahydrobiopterin:NADP+ oxidoreductase (7,8-dihydrobiopterin-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R11764	tetrahydrobiopterin:NADP+ oxidoreductase [6-(1'-Hydroxy-2'-oxopropyl)-tetrahydropterin-forming]	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00688	dTDP-4-dehydro-beta-L-rhamnose	NA	NA	NA	NA	NA	compound	False	1
+R02776	dTDP-6-deoxy-L-talose:NADP+ 4-oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C03187	dTDP-6-deoxy-beta-L-talose	NA	NA	NA	NA	NA	compound	False	1
+R02777	dTDP-beta-L-rhamnose:NADP+ 4-oxidoreductase	NA	M00793	dTDP-L-rhamnose biosynthesis	map01130	Biosynthesis of antibiotics	reaction	False	1
+C03319	dTDP-L-rhamnose	NA	NA	NA	NA	NA	compound	False	1
+C07649	5-FU	NA	NA	NA	NA	NA	compound	False	1
+R08226	5,6-dihydro-5-fluorouracil:NADP+ 5-oxidoreductase	NA	NA	NA	map00983	Drug metabolism - other enzymes	reaction	False	1
+C16630	5,6-Dihydro-5-fluorouracil	NA	NA	NA	NA	NA	compound	False	1
+R06459	(2S)-methylmalonyl-CoA:malonyl-CoA malonyltransferase (narbonolide forming)	NA	M00776	Pikromycin/methymycin biosynthesis, methylmalonyl-CoA + malonyl-CoA => narbonolide/10-deoxymethynolide => pikromycin/methymycin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C00683	(S)-Methylmalonyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C11997	Narbonolide	NA	NA	NA	NA	NA	compound	False	1
+R06458	(2S)-methylmalonyl-CoA:malonyl-CoA malonyltransferase (10-deoxymethynolide forming)	NA	M00776	Pikromycin/methymycin biosynthesis, methylmalonyl-CoA + malonyl-CoA => narbonolide/10-deoxymethynolide => pikromycin/methymycin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11993	10-Deoxymethynolide	NA	NA	NA	NA	NA	compound	False	1
+C00187	Cholesterol	Steroids	NA	NA	NA	NA	compound	False	1
+R01456	cholesterol:NADP+ delta7-oxidoreductase	NA	M00101	Cholesterol biosynthesis, squalene 2,3-epoxide => cholesterol	map01100	Metabolic pathways	reaction	False	1
+R01457	cholesterol:NADP+ Delta24-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01802	Desmosterol	Steroids	NA	NA	NA	NA	compound	False	1
+C00094	Sulfite	NA	NA	NA	NA	NA	compound	False	1
+R00858	hydrogen-sulfide:NADP+ oxidoreductase	NA	M00176	Assimilatory sulfate reduction, sulfate => H2S	map01100	Metabolic pathways	reaction	False	1
+C00283	Hydrogen sulfide	NA	NA	NA	NA	NA	compound	False	1
+C00779	Scytalone	NA	NA	NA	NA	NA	compound	False	1
+R02906	scytalone:NADP+ delta5-oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C04033	1,3,6,8-Naphthalenetetrol	NA	NA	NA	NA	NA	compound	False	1
+R10379	12-Demethyl-11,12-dehydropaspaline + 3 Oxygen + 3 NADPH + 3 H+ <=> Terpendole I + 3 NADP+ + 3 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+R10376	Terpendole E + 4 NADPH + 4 Oxygen + 4 H+ <=> 13-Desoxyterpendole I + Formate + 4 NADP+ + 5 H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20536	Terpendole E	NA	NA	NA	NA	NA	compound	False	1
+C20530	Paspaline	NA	NA	NA	NA	NA	compound	False	1
+R10373	paspaline,NADPH:oxygen oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+R10371	paspaline,NADPH:oxygen oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C04330	5,10-Methenyltetrahydromethanopterin	NA	NA	NA	NA	NA	compound	False	1
+R08059	5,10-Methylenetetrahydromethanopterin + NADP+ <=> 5,10-Methenyltetrahydromethanopterin + NADPH	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C04377	5,10-Methylenetetrahydromethanopterin	NA	NA	NA	NA	NA	compound	False	1
+C10641	Aurachin D	NA	NA	NA	NA	NA	compound	False	1
+R12051	Aurachin D + NADPH + H+ + Oxygen <=> Aurachin C + NADP+ + H2O	NA	M00848	Aurachin biosynthesis, anthranilate => aurachin A	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21140	Aurachin B	NA	NA	NA	NA	NA	compound	False	1
+R12052	Aurachin B + NADPH + H+ + Oxygen <=> Aurachin B epoxide + NADP+ + H2O	NA	M00848	Aurachin biosynthesis, anthranilate => aurachin A	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21874	Aurachin B epoxide	NA	NA	NA	NA	NA	compound	False	1
+C20452	Norsolorinic acid	NA	NA	NA	NA	NA	compound	False	1
+R10309	(1'S)-averantin:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C20499	(1'S)-Averantin	NA	NA	NA	NA	NA	compound	False	1
+C07501	Felbamate	NA	NA	NA	NA	NA	compound	False	1
+R08303	Felbamate + NADPH + H+ + Oxygen <=> p-Hydroxyfelbamate + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16584	p-Hydroxyfelbamate	NA	NA	NA	NA	NA	compound	False	1
+C01378	Fustin	NA	NA	NA	NA	NA	compound	False	1
+R07999	5-deoxyleucocyanidin:NADP+ 4-oxidoreductase	NA	NA	NA	map00941	Flavonoid biosynthesis	reaction	False	1
+C09736	Fisetinidol-4beta-ol	NA	NA	NA	NA	NA	compound	False	1
+C09751	Garbanzol	NA	NA	NA	NA	NA	compound	False	1
+R07998	5-deoxyleucopelargonidin:NADP+ 4-oxidoreductase	NA	NA	NA	map00941	Flavonoid biosynthesis	reaction	False	1
+C16415	5-Deoxyleucopelargonidin	NA	NA	NA	NA	NA	compound	False	1
+R07440	Ferulate + NADPH + H+ + Oxygen <=> 5-Hydroxyferulic acid methyl ester + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05619	5-Hydroxyferulic acid methyl ester	NA	NA	NA	NA	NA	compound	False	1
+C00482	Sinapate	NA	NA	NA	NA	NA	compound	False	1
+R07442	sinapoyl aldehyde:NADP oxidoreductase	NA	NA	NA	map00940	Phenylpropanoid biosynthesis	reaction	False	1
+R07445	Campesterol,NADPH:brassinosteroid C22alpha-hydroxylase	NA	M00371	Castasterone biosynthesis, campesterol => castasterone	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C15795	22alpha-Hydroxy-campesterol	NA	NA	NA	NA	NA	compound	False	1
+R07447	22alpha-hydroxy-5alpha-campestan-3-one:NADP+ delta4-oxidoreductase	NA	M00371	Castasterone biosynthesis, campesterol => castasterone	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C00448	trans,trans-Farnesyl diphosphate	NA	NA	NA	NA	NA	compound	False	1
+R06223	squalene synthase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C02780	2,5-Didehydro-D-gluconate	NA	NA	NA	NA	NA	compound	False	1
+R08878	2-dehydro-L-idonate:NADP+ 5-oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C15673	2-Dehydro-L-idonate	NA	NA	NA	NA	NA	compound	False	1
+C02625	2,4-Dichlorophenol	NA	NA	NA	NA	NA	compound	False	1
+R03997	2,4-dichlorophenol,NADPH:oxygen oxidoreductase(6-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C02933	3,5-Dichlorocatechol	NA	NA	NA	NA	NA	compound	False	1
+C02247	Anthraniloyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R03999	anthranilyl-CoA,NADH:oxygen oxidoreductase (de-aromatizing)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C05165	2-Amino-5-oxocyclohex-1-enecarbonyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C04186	5-Carboxymethyl-2-hydroxymuconate	NA	NA	NA	NA	NA	compound	False	1
+R04419	5-carboxymethyl-2-hydroxymuconic-semialdehyde:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C04642	2-Hydroxy-5-carboxymethylmuconate semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+R10787	L-arabinose:NADP+ 1-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01114	L-Arabinono-1,4-lactone	NA	NA	NA	NA	NA	compound	False	1
+C00507	L-Rhamnose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R10788	L-rhamnose:NADP+ 1-oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C02991	L-Rhamnono-1,4-lactone	NA	NA	NA	NA	NA	compound	False	1
+R06473	5-Oxoavermectin ''1a'' aglycone + NADPH + H+ <=> Avermectin B1a aglycone + NADP+	NA	M00777	Avermectin biosynthesis, 2-methylbutanoyl-CoA/isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a/1b aglycone => avermectin A1a/B1a/A1b/B1b	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11979	Avermectin B1a aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06472	5-Oxoavermectin ''2a'' aglycone + NADPH + H+ <=> Avermectin B2a aglycone + NADP+	NA	NA	NA	map00522	Biosynthesis of 12-, 14- and 16-membered macrolides	reaction	False	1
+C11971	Avermectin B2a aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06470	6,8a-Seco-6,8a-deoxy-5-oxoavermectin ''1b'' aglycone + NADPH + Oxygen <=> 5-Oxoavermectin ''1b'' aglycone + NADP+ + H2O	NA	M00777	Avermectin biosynthesis, 2-methylbutanoyl-CoA/isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a/1b aglycone => avermectin A1a/B1a/A1b/B1b	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11962	5-Oxoavermectin ''1b'' aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06475	5-Oxoavermectin ''1b'' aglycone + NADPH + H+ <=> Avermectin B1b aglycone + NADP+	NA	M00777	Avermectin biosynthesis, 2-methylbutanoyl-CoA/isobutyryl-CoA => 6,8a-Seco-6,8a-deoxy-5-oxoavermectin 1a/1b aglycone => avermectin A1a/B1a/A1b/B1b	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11963	Avermectin B1b aglycone	NA	NA	NA	NA	NA	compound	False	1
+R06474	5-Oxoavermectin ''2b'' aglycone + NADPH + H+ <=> Avermectin B2b aglycone + NADP+	NA	NA	NA	map00522	Biosynthesis of 12-, 14- and 16-membered macrolides	reaction	False	1
+C11955	Avermectin B2b aglycone	NA	NA	NA	NA	NA	compound	False	1
+C00181	D-Xylose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R01430	D-xylose:NADP+ 1-oxidoreductase	NA	NA	NA	map00040	Pentose and glucuronate interconversions	reaction	False	1
+C02266	D-Xylonolactone	NA	NA	NA	NA	NA	compound	False	1
+R01431	xylitol:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R09291	ethylmalonyl-CoA:NADP+ oxidoreductase (decarboxylating)	NA	M00373	Ethylmalonyl pathway	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C11912	dTDP-6-deoxy-D-allose	NA	NA	NA	NA	NA	compound	False	1
+R10573	dTDP-6-deoxy-alpha-D-allose:NADP+ oxidoreductase	NA	M00794	dTDP-6-deoxy-D-allose biosynthesis	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11926	dTDP-4-oxo-6-deoxy-D-allose	NA	NA	NA	NA	NA	compound	False	1
+C00541	Cob(II)alamin	NA	NA	NA	NA	NA	compound	False	1
+R00107	cob(II)alamin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00992	Aquacob(III)alamin	NA	NA	NA	NA	NA	compound	False	1
+C02811	Anhydrotetracycline	NA	NA	NA	NA	NA	compound	False	1
+R04060	anhydrotetracycline,NADPH:oxygen oxidoreductase (6-hydroxylating)	NA	M00780	Tetracycline/oxytetracycline biosynthesis, pretetramide => tetracycline/oxytetracycline	map01130	Biosynthesis of antibiotics	reaction	False	1
+C15996	7-Cyano-7-carbaguanine	NA	NA	NA	NA	NA	compound	False	1
+R07605	7-aminomethyl-7-carbaguanine:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C16675	7-Aminomethyl-7-carbaguanine	NA	NA	NA	NA	NA	compound	False	1
+C01944	Octanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R03776	trans-Oct-2-enoyl-CoA reductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05276	trans-Oct-2-enoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C08285	10,16-Dihydroxyhexadecanoic acid	NA	NA	NA	NA	NA	compound	False	1
+R09460	16-hydroxypalmitate,NADPH:oxygen oxidoreductase (10-hydroxylating)	NA	NA	NA	map00073	Cutin, suberine and wax biosynthesis	reaction	False	1
+C18218	16-Hydroxypalmitate	NA	NA	NA	NA	NA	compound	False	1
+R06734	pseudotropine:NADP+ 3-oxidoreductase	NA	NA	NA	map00960	Tropane, piperidine and pyridine alkaloid biosynthesis	reaction	False	1
+C02066	Pseudotropine	NA	NA	NA	NA	NA	compound	False	1
+C01172	beta-D-Glucose 6-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R02736	beta-D-glucose-6-phosphate:NADP+ 1-oxoreductase	NA	M00004	Pentose phosphate pathway (Pentose phosphate cycle)	map01100	Metabolic pathways	reaction	False	1
+C01236	D-Glucono-1,5-lactone 6-phosphate	NA	NA	NA	NA	NA	compound	False	1
+C00974	Dihydrokaempferol	NA	NA	NA	NA	NA	compound	False	1
+R03123	cis-3,4-leucopelargonidin:NADP+ 4-oxidoreductase	NA	M00138	Flavonoid biosynthesis, naringenin => pelargonidin	map01100	Metabolic pathways	reaction	False	1
+R10080	chlorophyllide-a oxygenase	NA	NA	NA	NA	NA	reaction	False	1
+C01751	Resorcinol	NA	NA	NA	NA	NA	compound	False	1
+R05249	Resorcinol,NADPH:oxogen oxidoreductase (2-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C02814	Benzene-1,2,4-triol	NA	NA	NA	NA	NA	compound	False	1
+C01941	Nocardicin A	Antibiotics	NA	NA	NA	NA	compound	False	1
+R10882	Nocardicin-C,NADPH:oxygen oxidoreductase	NA	M00736	Nocardicin A biosynthesis, L-pHPG + arginine + serine => nocardicin A	map01130	Biosynthesis of antibiotics	reaction	False	1
+C17351	Nocardicin C	NA	NA	NA	NA	NA	compound	False	1
+R07001	Naphthalene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14787	(1S,2R)-Naphthalene 1,2-oxide	NA	NA	NA	NA	NA	compound	False	1
+C01780	Aldosterone	Steroids,Hormones and transmitters	NA	NA	NA	NA	compound	False	1
+R03713	11beta,21-Dihydroxy-3,20-oxo-5beta-pregnan-18-al:NADP+ delta4-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+R01977	(R)-3-Hydroxybutanoyl-CoA:NADP+ oxidoreductase	NA	M00373	Ethylmalonyl pathway	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C03561	(R)-3-Hydroxybutanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R01976	(S)-3-Hydroxybutanoyl-CoA:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01144	(S)-3-Hydroxybutanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C01753	beta-Sitosterol	NA	NA	NA	NA	NA	compound	False	1
+R07489	beta-sitosterol,NADPH:oxygen oxidoreductase (22,23-dehydrogenating)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C05442	Stigmasterol	Steroids	NA	NA	NA	NA	compound	False	1
+R07488	Isofucosterol + NADPH + H+ <=> beta-Sitosterol + NADP+	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C08821	Isofucosterol	NA	NA	NA	NA	NA	compound	False	1
+C11508	4alpha-Methyl-5alpha-ergosta-8,14,24(28)-trien-3beta-ol	NA	NA	NA	NA	NA	compound	False	1
+R07483	4alpha-Methyl-5alpha-ergosta-8,14,24(28)-trien-3beta-ol + NADPH + H+ <=> 4alpha-Methylfecosterol + NADP+	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C15776	4alpha-Methylfecosterol	NA	NA	NA	NA	NA	compound	False	1
+R06532	(2R,3S)-catechin:NADP+ 4-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C06562	(+)-Catechin	NA	NA	NA	NA	NA	compound	False	1
+R06533	(2R,3S)-gallocatechin:NADP+ 4-oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C12127	(+)-Gallocatechin	NA	NA	NA	NA	NA	compound	False	1
+R01628	3-hydroxybenzoate,NADPH:oxygen oxidoreductase (4-hydroxylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00587	3-Hydroxybenzoate	NA	NA	NA	NA	NA	compound	False	1
+C00106	Uracil	Nucleic acids	NA	NA	NA	NA	compound	False	1
+R00978	5,6-Dihydrouracil:NADP+ oxidoreductase	NA	M00046	Pyrimidine degradation, uracil => beta-alanine, thymine => 3-aminoisobutanoate	map01100	Metabolic pathways	reaction	False	1
+C00429	5,6-Dihydrouracil	NA	NA	NA	NA	NA	compound	False	1
+C00406	Feruloyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R02193	Coniferyl aldehyde:NADP+ oxidoreductase (CoA-feruloylating)	NA	M00039	Monolignol biosynthesis, phenylalanine/tyrosine => monolignol	map01100	Metabolic pathways	reaction	False	1
+R09446	nitrous-oxide:NADP+ oxidoreductase	NA	M00529	Denitrification, nitrate => nitrogen	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C00887	Nitrous oxide	NA	NA	NA	NA	NA	compound	False	1
+R09442	7,12-Dimethylbenz[a]anthracene + Oxygen + NADPH + H+ <=> 7,12-Dimethylbenz[a]anthracene 5,6-oxide + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19604	7,12-Dimethylbenz[a]anthracene 5,6-oxide	NA	NA	NA	NA	NA	compound	False	1
+R09441	7,12-Dimethylbenz[a]anthracene + Oxygen + NADPH + H+ <=> 7-Hydroxymethyl-12-methylbenz[a]anthracene + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19561	7-Hydroxymethyl-12-methylbenz[a]anthracene	NA	NA	NA	NA	NA	compound	False	1
+R09449	very-long-chain acyl-CoA:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C07645	Aldophosphamide	NA	NA	NA	NA	NA	compound	False	1
+R08283	carboxyphosphamide:NADP+ oxidoreductase	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C07646	Carboxyphosphamide	NA	NA	NA	NA	NA	compound	False	1
+C07047	Ifosfamide	NA	NA	NA	NA	NA	compound	False	1
+R08285	Ifosfamide + NADPH + H+ + Oxygen <=> 4-Hydroxyifosfamide + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16553	4-Hydroxyifosfamide	NA	NA	NA	NA	NA	compound	False	1
+C16281	Thiobenzamide	NA	NA	NA	NA	NA	compound	False	1
+R07836	Thiobenzamide + Oxygen + NADPH + H+ <=> Thiobenzamide S-oxide + NADP+ + H2O	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+R03103	L-2-aminoadipate-6-semialdehyde:NADP+ 6-oxidoreductase	NA	M00032	Lysine degradation, lysine => saccharopine => acetoacetyl-CoA	map01100	Metabolic pathways	reaction	False	1
+C06588	Biphenyl	NA	NA	NA	NA	NA	compound	False	1
+R05264	biphenyl,NADH:oxygen oxidoreductase (2,3-hydroxylating)	NA	M00543	Biphenyl degradation, biphenyl => 2-oxopent-4-enoate + benzoate	map01100	Metabolic pathways	reaction	False	1
+C06589	cis-2,3-Dihydro-2,3-dihydroxybiphenyl	NA	NA	NA	NA	NA	compound	False	1
+C06584	4-Chlorobiphenyl	NA	NA	NA	NA	NA	compound	False	1
+R05262	4-Chlorobiphenyl + Oxygen + NADPH + H+ <=> cis-2,3-Dihydro-2,3-dihydroxy-4'-chlorobiphenyl + NADP+	NA	M00543	Biphenyl degradation, biphenyl => 2-oxopent-4-enoate + benzoate	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C06585	cis-2,3-Dihydro-2,3-dihydroxy-4'-chlorobiphenyl	NA	NA	NA	NA	NA	compound	False	1
+C16152	Blue pigment	NA	NA	NA	NA	NA	compound	False	1
+R10132	3,3'-bipyridine-2,2',5,5',6,6'-hexol:NADP+ 11-oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C20381	3,3'-Bipyridine-2,2',5,5',6,6'-hexol	NA	NA	NA	NA	NA	compound	False	1
+C21568	4-Hydroxy-2,2'-bipyrrole-5-methanol	NA	NA	NA	NA	NA	compound	False	1
+R11668	4-hydroxy-2,2'-bipyrrole-5-methanal:NADP+ oxidoreductase	NA	M00838	Undecylprodigiosin biosynthesis, L-proline => undecylprodigiosin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21569	4-Hydroxy-2,2'-bipyrrole-5-carbaldehyde	NA	NA	NA	NA	NA	compound	False	1
+C21573	4-Keto-2-undecylpyrroline	NA	NA	NA	NA	NA	compound	False	1
+R11663	4-keto-2-undecylpyrroline, NADPH: oxidoreductase	NA	M00838	Undecylprodigiosin biosynthesis, L-proline => undecylprodigiosin	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21574	2-Undecylpyrrole	NA	NA	NA	NA	NA	compound	False	1
+C11242	Bacteriochlorophyll a	NA	NA	NA	NA	NA	compound	False	1
+R11226	bacteriochlorophyll a:NADP+ oxidoreductase (geranylgeranyl-reducing)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C21217	Geranylgeranyl bacteriochlorophyllide a	NA	NA	NA	NA	NA	compound	False	1
+R11008	cholesterol,NADPH:oxygen oxidoreductase (7,8 dehydrogenating)	NA	NA	NA	map00981	Insect hormone biosynthesis	reaction	False	1
+C00309	D-Ribulose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R07144	D-arabinitol:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01904	D-Arabitol	NA	NA	NA	NA	NA	compound	False	1
+C00031	D-Glucose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R07147	D-glucose:NADP+ 1-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00310	D-Xylulose	Carbohydrates	NA	NA	NA	NA	compound	False	1
+R07143	D-arabinitol:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00691	2,4,6/3,5-Pentahydroxycyclohexanone	NA	NA	NA	NA	NA	compound	False	1
+R09954	scyllo-inositol:NADP+ oxidoreductase	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C06153	scyllo-Inositol	NA	NA	NA	NA	NA	compound	False	1
+R09421	4-(N-Nitrosomethylamino)-1-(3-pyridyl)-1-butanone + Oxygen + NADPH + H+ <=> 4-[(Hydroxymethyl)nitrosoamino]-1-(3-pyridinyl)-1-butanone + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19563	4-[(Hydroxymethyl)nitrosoamino]-1-(3-pyridinyl)-1-butanone	NA	NA	NA	NA	NA	compound	False	1
+R09425	4-(Methylnitrosamino)-1-(3-pyridyl)-1-butanol + Oxygen + NADPH + H+ <=> alpha-[3-[(Hydroxymethyl)nitrosoamino]propyl]-3-pyridinemethanol + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19580	alpha-[3-[(Hydroxymethyl)nitrosoamino]propyl]-3-pyridinemethanol	NA	NA	NA	NA	NA	compound	False	1
+R00918	propanoyl-CoA:(2S)-methylmalonyl-CoA malonyltransferase (cyclizing)	NA	M00774	Erythromycin biosynthesis, propanoyl-CoA + methylmalonyl-CoA => deoxyerythronolide B => erythromycin A/B	map01130	Biosynthesis of antibiotics	reaction	False	1
+C00100	Propanoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C03240	6-Deoxyerythronolide B	NA	NA	NA	NA	NA	compound	False	1
+R00919	propanoyl-CoA:NADP+ 2-oxidoreductase	NA	M00376	3-Hydroxypropionate bi-cycle	map01100	Metabolic pathways	reaction	False	1
+C00894	Propenoyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+C06099	d-Limonene	NA	NA	NA	NA	NA	compound	False	1
+R09393	limonene,NADPH:oxygen oxidoreductase	NA	NA	NA	map00903	Limonene and pinene degradation	reaction	False	1
+C07271	Limonene-1,2-epoxide	NA	NA	NA	NA	NA	compound	False	1
+C01189	Lathosterol	NA	NA	NA	NA	NA	compound	False	1
+R05703	lanosterol D24-reductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05439	5alpha-Cholesta-7,24-dien-3beta-ol	NA	NA	NA	NA	NA	compound	False	1
+C00325	GDP-L-fucose	NA	NA	NA	NA	NA	compound	False	1
+R05692	GDP-L-fucose:NADP+ 4-oxidoreductase (3,5-epimerizing)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R05526	dTDP-4-oxo-2,6-dideoxy-D-glucose:NADP+ 3-oxidoreductase	NA	M00802	dTDP-D-forosamine biosynthesis	map01130	Biosynthesis of antibiotics	reaction	False	1
+C11922	dTDP-4-oxo-2,6-dideoxy-D-glucose	NA	NA	NA	NA	NA	compound	False	1
+C21258	4'-Oxonebramine	NA	NA	NA	NA	NA	compound	False	1
+R11277	nebramine:NADP+ 4'-oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21259	Nebramine	NA	NA	NA	NA	NA	compound	False	1
+C21255	Lividamine	NA	NA	NA	NA	NA	compound	False	1
+R11276	lividamine:NADP+ 4'-oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C21257	4'-Oxolividamine	NA	NA	NA	NA	NA	compound	False	1
+C00036	Oxaloacetate	Organic acids	NA	NA	NA	NA	compound	False	1
+R00343	(S)-malate:NADP+ oxidoreductase	NA	M00172	C4-dicarboxylic acid cycle, NADP - malic enzyme type	map01100	Metabolic pathways	reaction	False	1
+R01835	5beta-androstane-3,17-dione:NADP+ 4,5-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+R01838	testosterone:NADP+ 17-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06007	(R)-2,3-Dihydroxy-3-methylpentanoate	NA	NA	NA	NA	NA	compound	False	1
+R05068	(R)-2,3-Dihydroxy-3-methylpentanoate:NADP+ oxidoreductase (isomerizing)	NA	M00019	Valine/isoleucine biosynthesis, pyruvate => valine / 2-oxobutanoate => isoleucine	map01100	Metabolic pathways	reaction	False	1
+C14463	(R)-3-Hydroxy-3-methyl-2-oxopentanoate	NA	NA	NA	NA	NA	compound	False	1
+R00134	formate:NADP+ oxidoreductase	NA	M00377	Reductive acetyl-CoA pathway (Wood-Ljungdahl pathway)	map01100	Metabolic pathways	reaction	False	1
+R10615	D-glyceraldehyde:NADP+ oxidoreductase	NA	M00309	Non-phosphorylative Entner-Doudoroff pathway, gluconate/galactonate => glycerate	map01100	Metabolic pathways	reaction	False	1
+C07185	Valproic acid	NA	NA	NA	NA	NA	compound	False	1
+R08325	Valproic acid + NADPH + H+ + Oxygen <=> 4-Hydroxyvalproic acid + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16649	4-Hydroxyvalproic acid	NA	NA	NA	NA	NA	compound	False	1
+R08327	Valproic acid + NADPH + H+ + Oxygen <=> 3-Hydroxyvalproic acid + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16651	3-Hydroxyvalproic acid	NA	NA	NA	NA	NA	compound	False	1
+R08326	Valproic acid + NADPH + H+ + Oxygen <=> 5-Hydroxyvalproic acid + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16650	5-Hydroxyvalproic acid	NA	NA	NA	NA	NA	compound	False	1
+R02893	17alpha,21-dihydroxy-5beta-pregnane-3,11,20-trione:NADP+ delta4-oxidoreductase	NA	NA	NA	map00140	Steroid hormone biosynthesis	reaction	False	1
+C11088	1,2-Dibromoethane	NA	NA	NA	NA	NA	compound	False	1
+R07112	1,2-dibromoethane,NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C13645	Hydrobromic acid	NA	NA	NA	NA	NA	compound	False	1
+C14870	2-Bromoacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R06572	Coniferyl aldehyde + NADPH + H+ + Oxygen <=> 5-Hydroxyconiferaldehyde + NADP+ + H2O	NA	M00039	Monolignol biosynthesis, phenylalanine/tyrosine => monolignol	map01100	Metabolic pathways	reaction	False	1
+R06573	Coniferyl alcohol + NADPH + H+ + Oxygen <=> 5-Hydroxyconiferyl alcohol + NADP+ + H2O	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C12205	5-Hydroxyconiferyl alcohol	NA	NA	NA	NA	NA	compound	False	1
+R06570	cinnamyl-alcohol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+R06571	cinnamyl-alcohol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C12206	Caffeyl alcohol	NA	NA	NA	NA	NA	compound	False	1
+R09408	Aflatoxin B1 + Oxygen + NADPH + H+ <=> Aflatoxin B1-exo-8,9-epoxide + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19586	Aflatoxin B1-exo-8,9-epoxide	NA	NA	NA	NA	NA	compound	False	1
+C00415	Dihydrofolate	NA	NA	NA	NA	NA	compound	False	1
+R00939	5,6,7,8-tetrahydrofolate:NADP+ oxidoreductase	NA	M00126	Tetrahydrofolate biosynthesis, GTP => THF	map01100	Metabolic pathways	reaction	False	1
+C01165	L-Glutamate 5-semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+R03313	L-glutamate-5-semialdehyde:NADP+ 5-oxidoreductase (phosphorylating)	NA	M00015	Proline biosynthesis, glutamate => proline	map01100	Metabolic pathways	reaction	False	1
+C03287	L-Glutamyl 5-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R09407	Aflatoxin B1 + Oxygen + NADPH + H+ <=> Aflatoxin B1-endo-8,9-epoxide + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19595	Aflatoxin B1-endo-8,9-epoxide	NA	NA	NA	NA	NA	compound	False	1
+R09406	Aflatoxin M1 + Oxygen + NADPH + H+ <=> Aflatoxin-M1-8,9-epoxide + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19594	Aflatoxin-M1-8,9-epoxide	NA	NA	NA	NA	NA	compound	False	1
+R09404	Aflatoxin B1 + Oxygen + NADPH + H+ <=> Aflatoxin Q1 + H2O + NADP+	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C19585	Aflatoxin Q1	NA	NA	NA	NA	NA	compound	False	1
+R01224	5-methyltetrahydrofolate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00440	5-Methyltetrahydrofolate	NA	NA	NA	NA	NA	compound	False	1
+R01220	5,10-methylenetetrahydrofolate:NADP+ oxidoreductase	NA	M00377	Reductive acetyl-CoA pathway (Wood-Ljungdahl pathway)	map01100	Metabolic pathways	reaction	False	1
+C00445	5,10-Methenyltetrahydrofolate	NA	NA	NA	NA	NA	compound	False	1
+C00207	Acetone	NA	NA	NA	NA	NA	compound	False	1
+R10704	acetone,NADPH:oxygen oxidoreductase (methyl acetate-forming)	NA	NA	NA	map00640	Propanoate metabolism	reaction	False	1
+C17530	Methyl acetate	NA	NA	NA	NA	NA	compound	False	1
+C10700	4'-Hydroxyacetophenone	NA	NA	NA	NA	NA	compound	False	1
+R06892	(4-hydroxyphenyl)ethan-1-one,NADPH:oxygen oxidoreductase (ester-forming)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C13636	4-Hydroxyphenyl acetate	NA	NA	NA	NA	NA	compound	False	1
+R06896	chlorophyllide-a:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R01813	tetrahydrobiopterin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00414	Cyclohexanone	NA	NA	NA	NA	NA	compound	False	1
+R02231	Cyclohexanone,NADPH:oxygen oxidoreductase (6-hydroxylating 1,2-lactonizing)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C01880	epsilon-Caprolactone	NA	NA	NA	NA	NA	compound	False	1
+R02236	dihydrofolate:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R08312	Carbamazepine + NADPH + H+ + Oxygen <=> Carbamazepine-10,11-epoxide + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C07496	Carbamazepine-10,11-epoxide	NA	NA	NA	NA	NA	compound	False	1
+R10068	magnesium-protoporphyrin-IX 13-monomethyl ester,NADPH:oxygen oxidoreductase (hydroxylating)	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06171	Codeinone	NA	NA	NA	NA	NA	compound	False	1
+R05124	codeine:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C06174	Codeine	NA	NA	NA	NA	NA	compound	False	1
+C20505	Versiconal hemiacetal acetate	NA	NA	NA	NA	NA	compound	False	1
+R10399	versiconol-acetate:NADP+ oxidoreductase	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+C20506	Versiconol acetate	NA	NA	NA	NA	NA	compound	False	1
+C19621	9,10,18-Trihydroxystearate	NA	NA	NA	NA	NA	compound	False	1
+R09461	9,10-dihydroxystearate,NADPH:oxygen oxidoreductase (18-hydroxylating)	NA	NA	NA	map00073	Cutin, suberine and wax biosynthesis	reaction	False	1
+C19622	9,10-Dihydroxystearate	NA	NA	NA	NA	NA	compound	False	1
+R08754	dihydrogeranylgeranyl-diphosphate:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C17439	Dihydrogeranylgeranyl diphosphate	NA	NA	NA	NA	NA	compound	False	1
+R08755	tetrahydrogeranylgeranyl-diphosphate:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C17440	Tetrahydrogeranylgeranyl diphosphate	NA	NA	NA	NA	NA	compound	False	1
+R08756	phytyl-diphosphate:NADP+ oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+R08935	dTDP-6-deoxy-L-mannose:NADP+ 4-oxidoreductase (3,5-epimerizing)	NA	NA	NA	map01130	Biosynthesis of antibiotics	reaction	False	1
+R07747	(+)-sophorol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C16227	(+)-Sophorol	NA	NA	NA	NA	NA	compound	False	1
+C20949	LysW-L-glutamyl 5-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R10931	LysW-L-glutamate-5-semialdehyde:NADP+ 5-oxidoreductase (phosphorylating)	NA	M00763	Ornithine biosynthesis, mediated by LysW, glutamate => ornithine	map01100	Metabolic pathways	reaction	False	1
+C20950	LysW-L-glutamate 5-semialdehyde	NA	NA	NA	NA	NA	compound	False	1
+R08653	(Z)-phenylacetaldehyde-oxime,NADPH:oxygen oxidoreductase (adding cysteine)	NA	NA	NA	NA	NA	reaction	False	1
+C16075	(Z)-Phenylacetaldehyde oxime	NA	NA	NA	NA	NA	compound	False	1
+R08304	Felbamate + NADPH + H+ + Oxygen <=> 2-Hydroxyfelbamate + NADP+ + H2O	NA	NA	NA	map00982	Drug metabolism - cytochrome P450	reaction	False	1
+C16582	2-Hydroxyfelbamate	NA	NA	NA	NA	NA	compound	False	1
+R03089	Estradiol-17beta + H+ + Oxygen + NADPH <=> Estriol + NADP+ + H2O	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00268	Dihydrobiopterin	NA	NA	NA	NA	NA	compound	False	1
+R01794	5,6,7,8-tetrahydrobiopterin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R01249	L-proline:NADP+ 2-oxidoreductase	NA	NA	NA	map00330	Arginine and proline metabolism	reaction	False	1
+C03564	1-Pyrroline-2-carboxylate	NA	NA	NA	NA	NA	compound	False	1
+C09092	Ferruginol	NA	NA	NA	NA	NA	compound	False	1
+R10727	miltiradiene,NADPH:oxygen oxidoreductase (ferruginol forming)	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20711	Miltiradiene	NA	NA	NA	NA	NA	compound	False	1
+C05754	trans-Dec-2-enoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04962	decanoyl-[acp]:NADP+ trans-2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05755	Decanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C05760	trans-Tetradec-2-enoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04967	tetradecanoyl-[acp]:NADP+ trans-2-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05761	Tetradecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C05756	3-Oxododecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+R04964	(3R)-3-Hydroxydodecanoyl-[acyl-carrier-protein]:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C05757	(R)-3-Hydroxydodecanoyl-[acp]	NA	NA	NA	NA	NA	compound	False	1
+C06790	Trichloroethene	NA	NA	NA	NA	NA	compound	False	1
+R07098	trichloroethene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C11148	TCE epoxide	NA	NA	NA	NA	NA	compound	False	1
+R07099	trichloroethene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14866	Chloral	NA	NA	NA	NA	NA	compound	False	1
+C14039	1,1-Dichloroethylene	NA	NA	NA	NA	NA	compound	False	1
+R07090	1,1-dichloroethylene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14859	Chloroacetyl chloride	NA	NA	NA	NA	NA	compound	False	1
+C00609	Long-chain aldehyde	NA	NA	NA	NA	NA	compound	False	1
+R10549	long-chain-aldehyde:NADP+ oxidoreductase (protein thioester-forming)	NA	NA	NA	NA	NA	reaction	False	1
+C02743	[Protein]-L-cysteine	NA	NA	NA	NA	NA	compound	False	1
+C03371	[Protein]-S-(long-chain-acyl)-L-cysteine	NA	NA	NA	NA	NA	compound	False	1
+C01847	Reduced FMN	NA	NA	NA	NA	NA	compound	False	1
+R05706	FMNH2:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C01007	Reduced riboflavin	NA	NA	NA	NA	NA	compound	False	1
+R05707	reduced-riboflavin:NADP+ oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+C00091	Succinyl-CoA	NA	NA	NA	NA	NA	compound	False	1
+R09280	succinate-semialdehyde:NADP+ oxidoreductase (CoA-acylating)	NA	M00375	Hydroxypropionate-hydroxybutylate cycle	map01100	Metabolic pathways	reaction	False	1
+R09289	3-hydroxypropionate:NADP+ oxidoreductase	NA	M00376	3-Hydroxypropionate bi-cycle	map01100	Metabolic pathways	reaction	False	1
+C01013	3-Hydroxypropanoate	Organic acids	NA	NA	NA	NA	compound	False	1
+R02219	3-Oxo-5beta-steroid:NADP+ delta4-oxidoreductase	NA	NA	NA	map01100	Metabolic pathways	reaction	False	1
+R09234	4-methyl-5-nitrocatechol,NADPH:oxygen 5-oxidoreductase (5-hydroxylating, nitrite-forming)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+C18315	4-Methyl-5-nitrocatechol	NA	NA	NA	NA	NA	compound	False	1
+C18316	2-Hydroxy-5-methylquinone	NA	NA	NA	NA	NA	compound	False	1
+R07089	1,1-dichloroethylene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14857	1,1-Dichloroethylene epoxide	NA	NA	NA	NA	NA	compound	False	1
+R07088	1,1-dichloroethylene, NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14858	2,2-Dichloroacetaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R07966	7-methylxanthine:oxygen oxidoreductase (demethylating)	NA	NA	NA	map01120	Microbial metabolism in diverse environments	reaction	False	1
+R07080	Benzpyrene,NADPH:oxygen oxidoreductase (RH-hydroxylating or -epoxidizing)	NA	NA	NA	map00980	Metabolism of xenobiotics by cytochrome P450	reaction	False	1
+C14850	Benzo[a]pyrene-7,8-oxide	NA	NA	NA	NA	NA	compound	False	1
+C20943	(R)-Ipsdienol	NA	NA	NA	NA	NA	compound	False	1
+R10919	(R)-ipsdienol:NADP+ oxidoreductase	NA	NA	NA	map01110	Biosynthesis of secondary metabolites	reaction	False	1
+C20944	Ipsdienone	NA	NA	NA	NA	NA	compound	False	1
+C00092	D-Glucose 6-phosphate	NA	NA	NA	NA	NA	compound	False	1
+R00835	D-glucose-6-phosphate:NADP+ 1-oxidoreductase	NA	NA	NA	NA	NA	reaction	False	1
+C07209	3-Methylbenzaldehyde	NA	NA	NA	NA	NA	compound	False	1
+R05664	3-Methylbenzaldehyde + NADP+ + H2O <=> m-Methylbenzoate + NADPH + H+	NA	M00537	Xylene degradation, xylene => methylbenzoate	map01100	Metabolic pathways	reaction	False	1
+C07211	m-Methylbenzoate	NA	NA	NA	NA	NA	compound	False	1

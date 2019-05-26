@@ -20,12 +20,10 @@
 import pickle
 import os
 import logging
-import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.model_selection import train_test_split, RandomizedSearchCV, GridSearchCV
 # Local
-import enrichm.generate
 from enrichm.writer import Writer
 from enrichm.parser import Parser
 
@@ -261,7 +259,7 @@ class GenerateModel:
 
         return accuracy
 
-    def do(self, input_matrix_path, groups_path, model_type,
+    def generate_pipeline(self, input_matrix_path, groups_path, model_type,
            testing_portion, grid_search, threads, output_directory):
         '''
         Inputs

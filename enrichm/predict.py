@@ -18,20 +18,17 @@
 
 
 import logging
-import pickle
 import os
 import numpy as np
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from enrichm.parser import ParseGenerate
 from enrichm.writer import Writer
 from enrichm.parser import Parser
-from enrichm.generate import GenerateModel
 
 class Predict:
 
     def __init__(self):
-        self.PREDICTIONS_OUTPUT_PATH = 'predictions.tsv'
-        self.PREDICTIONS_HEADER = ["Sample", "Prediction", "Probability"]
+        self.predictions_output_file = 'predictions.tsv'
+        self.predictions_header = ["Sample", "Prediction", "Probability"]
 
     def make_predictions(self, model, sample_list, content_list, attribute_dictionary):
         '''
@@ -43,12 +40,12 @@ class Predict:
 
         '''
 
-        sample_list 	= np.array(sample_list)
-        content_list 	= np.array(content_list)
-        predictions 	= model.predict(content_list)
-        probabilities 	= model.predict_proba(content_list)
+        sample_list = np.array(sample_list)
+        content_list = np.array(content_list)
+        predictions = model.predict(content_list)
+        probabilities = model.predict_proba(content_list)
 
-        output_list = [self.PREDICTIONS_HEADER]
+        output_list = [self.predictions_header]
 
         for sample, prediction, probability in zip(sample_list, predictions, probabilities):
             max_prob = str(round(max(list(probability)), 2))
@@ -57,7 +54,7 @@ class Predict:
 
         return output_list
 
-    def do(self, forester_model_directory, input_matrix_path, output_directory):
+    def predict_pipeline(self, forester_model_directory, input_matrix_path, output_directory):
         '''
         Inputs
         ------
@@ -92,7 +89,8 @@ class Predict:
 
         logging.info('Making predictions')
         output_lines = self.make_predictions(forester_model.model,
-                                              sample_list,
-                                                content_list,
-                                                forester_model.labels)
-        Writer.write(output_lines, os.path.join(output_directory, self.PREDICTIONS_OUTPUT_PATH))
+                                             sample_list,
+                                             content_list,
+                                             forester_model.labels)
+
+        Writer.write(output_lines, os.path.join(output_directory, self.predictions_output_file))

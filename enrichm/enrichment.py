@@ -15,24 +15,19 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
 #                                                                             #
 ###############################################################################
-
-from enrichm.comparer import Compare
+import multiprocessing as mp
+import numpy as np
+import random
+import os
+import logging
+import statsmodels.sandbox.stats.multicomp as sm
+from itertools import product, combinations, chain
+from scipy import stats
 from enrichm.draw_plots import Plot
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser, ParseAnnotate
 from enrichm.writer import Writer
-from collections import Counter
-from itertools import product, combinations, chain
-from scipy import stats
-import statsmodels.sandbox.stats.multicomp as sm
-import multiprocessing as mp
-import numpy as np
-import re
-import random
-import os
-import logging
-
 ################################################################################
 
 def gene_fisher_calc(x):
@@ -662,7 +657,7 @@ class Test(Enrichment):
 
         return results
 
-    def do(self, group_dict):
+    def enrichment_pipeline(self, group_dict):
         results = list()
 
         for combination in combinations(group_dict, 2):

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# pylint: disable=line-too-long
+"""
+Various functions that take genome annotations, and determine the metabolic pathways they encode.
+"""
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -18,7 +22,6 @@
 
 # Imports
 import os
-import re
 import logging
 from itertools import chain
 # Local
@@ -29,30 +32,33 @@ from enrichm.writer import Writer
 ###############################################################################
 
 class Classify:
+    '''
+    Determines which metabolic pathways are encoded by different MAGs
+    '''
 
-    KO_OUTPUT       = "module_completeness.tsv"
-    MODULE_PATHS    = "module_paths.tsv"
+    KO_OUTPUT = "module_completeness.tsv"
+    MODULE_PATHS = "module_paths.tsv"
     AGGREGATE_OUTPUT = "aggregate_output.tsv"
 
     def __init__(self):
-        databases=Databases()
-        self.signature_modules  = databases.signature_modules
-        self.m2def              = databases.m2def()
-        self.m                  = databases.m()
+        databases = Databases()
+        self.signature_modules = databases.signature_modules
+        self.m2def = databases.m2def()
+        self.modules = databases.m()
 
     def update_with_custom_modules(self, custom_modules):
         custom_modules_dict = dict()
 
         for line in open(custom_modules):
-                custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
+            custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
 
         self.m2def.update(custom_modules_dict)
 
         for key in custom_modules_dict.keys():
-            self.m[key] = 'Custom'
+            self.modules[key] = 'Custom'
 
-    def do(self, custom_modules, cutoff, aggregate, genome_and_annotation_file,
-           genome_and_annotation_matrix, output_directory):
+    def classify_pipeline(self, custom_modules, cutoff, aggregate, genome_and_annotation_file,
+                          genome_and_annotation_matrix, output_directory):
         '''
 
         Parameters
@@ -70,14 +76,13 @@ class Classify:
 
         '''
 
-        pathway             = dict()
+        pathway = dict()
         genome_output_lines = list()
 
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
             self.update_with_custom_modules(custom_modules)
 
-        # TODO: remove me there is a duplicated parser below
         if genome_and_annotation_file:
             genome_to_annotation_sets = Parser.parse_genome_and_annotation_file_lf(genome_and_annotation_file)
 
@@ -93,7 +98,8 @@ class Classify:
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
 
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found",
-                             "Steps_needed", "Percent_steps_found"]) + '\n'] # "KO_found", "KO_needed", "Percent_KO_found"
+                                   "Steps_needed", "Percent_steps_found"]) + '\n']
+        # "KO_found", "KO_needed", "Percent_KO_found"
 
         genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"]) + '\n']
 
@@ -106,15 +112,15 @@ class Classify:
                 for genome, annotations in genome_to_annotation_sets.items():
 
                     num_covered, _, _, ko_path = path.num_covered_steps(annotations)
-                    num_all         = path.num_steps()
-                    perc_covered    = num_covered / float(num_all)
-                    ko_path_list    = list(chain(*ko_path.values()))
+                    num_all = path.num_steps()
+                    perc_covered = num_covered / float(num_all)
+                    ko_path_list = list(chain(*ko_path.values()))
 
                     if perc_covered >= cutoff:
 
                         if path.is_single_step:
 
-                            if perc_covered!=1:
+                            if perc_covered != 1:
 
                                 if cutoff < 1:
                                     num_all = 1
@@ -137,15 +143,15 @@ class Classify:
                             pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
                             abundance_result[genome][name] = pathway_average_abundance
 
-                        genome_output_lines.append([genome, name, self.m[name], ','.join(ko_path_list)])
-                        output_line = [genome, name, self.m[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
+                        genome_output_lines.append([genome, name, self.modules[name], ','.join(ko_path_list)])
+                        output_line = [genome, name, self.modules[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
                         output_lines.append(output_line)
 
         Writer.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT))
         Writer.write(genome_output_lines, os.path.join(output_directory, self.MODULE_PATHS))
 
         if aggregate:
-            samples = list(abundance_result.keys() )
+            samples = list(abundance_result.keys())
             output_lines = ['\t'.join(["ID"] + samples) + '\n']
 
             for module in self.m2def.keys():

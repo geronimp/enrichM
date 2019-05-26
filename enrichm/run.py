@@ -254,23 +254,13 @@ class Run:
             if not (args.tpm_values and args.tpm_metadata):
                 raise Exception("Both --tpm_values and --tpm_metadata need to be specified")
 
-        if args.subparser_name==NetworkAnalyser.PATHWAY:
-            args.depth              = None
-            args.queries            = None
-            args.starting_compounds = None
-            args.steps              = None
-            args.number_of_queries  = None
+        if args.subparser_name == NetworkAnalyser.PATHWAY:
+            args.depth = None
+            args.queries = None
 
-        if args.subparser_name==NetworkAnalyser.TRAVERSE:
-            args.depth              = None
-            args.queries            = None
-
-        if args.subparser_name==NetworkAnalyser.EXPLORE:
-            args.filter             = None
-            args.limit              = None
-            args.starting_compounds = None
-            args.steps              = None
-            args.number_of_queries  = None
+        if args.subparser_name == NetworkAnalyser.EXPLORE:
+            args.filter = None
+            args.limit = None
 
             if not(args.queries):
 
@@ -353,6 +343,7 @@ class Run:
                                 args.count_domains,
                                 # Parameters
                                 args.threads, args.parallel, args.suffix, args.light)
+
             annotate.annotate_pipeline(args.genome_directory,
                                        args.protein_directory,
                                        args.genome_files,
@@ -361,85 +352,49 @@ class Run:
         elif args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
             classify = Classify()
-            classify.do(args.custom_modules,
-                 args.cutoff,
-                 args.aggregate,
-                 args.genome_and_annotation_file,
-                 args.genome_and_annotation_matrix,
-                 args.output)
+            classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
+                                       args.genome_and_annotation_file,
+                                       args.genome_and_annotation_matrix, args.output)
 
         elif args.subparser_name == self.ENRICHMENT:
             self._check_enrichment(args)
             enrichment = Enrichment()
-            enrichment.do(# Input options
-                 args.annotate_output,
-                 args.annotation_matrix,
-                 args.metadata,
-                 args.abundance,
-                 args.abundance_metadata,
-                 args.transcriptome,
-                 args.transcriptome_metadata,
-                 # Runtime options
-                 args.pval_cutoff,
-                 args.proportions_cutoff,
-                 args.threshold,
-                 args.multi_test_correction,
-                 args.batchfile,
-                 args.processes,
-                 args.allow_negative_values,
-                 args.ko,
-                 args.pfam,
-                 args.tigrfam,
-                 args.cluster,
-                 args.ortholog,
-                 args.cazy,
-                 args.ec,
-                 args.ko_hmm,
-                 # Outputs
-                 args.output)
-
-        elif args.subparser_name == self.CONNECT:
-            self._check_connect(args)
-            connect = Connect()
-            connect.do(args.annotate_output,
-                 args.metadata,
-                 args.custom_modules,
-                 args.cutoff,
-                 args.output)
+            enrichment.enrichment_pipeline(# Input options
+                                           args.annotate_output, args.annotation_matrix,
+                                           args.metadata, args.abundance, args.abundance_metadata,
+                                           args.transcriptome, args.transcriptome_metadata,
+                                           # Runtime options
+                                           args.pval_cutoff, args.proportions_cutoff, 
+                                           args.threshold, args.multi_test_correction, 
+                                           args.batchfile, args.processes, 
+                                           args.allow_negative_values, args.ko, args.pfam, 
+                                           args.tigrfam, args.cluster, args.ortholog, args.cazy,
+                                           args.ec, args.ko_hmm,
+                                           # Outputs
+                                           args.output)
 
         elif(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE):
             self._check_network(args)
             network_analyser=NetworkAnalyser()
-            network_analyser.do(args.subparser_name,
-                  args.matrix,
-                  args.genome_metadata,
-                  args.tpm_values,
-                  args.tpm_metadata,
-                  args.abundance,
-                  args.abundance_metadata,
-                  args.metabolome,
-                  args.enrichment_output,
-                  args.depth,
-                  args.filter,
-                  args.limit,
-                  args.queries,
-                  args.starting_compounds,
-                  args.steps,
-                  args.number_of_queries,
-                  args.output)
+            network_analyser.network_pipeline(args.subparser_name, args.matrix, 
+                                              args.genome_metadata, args.tpm_values,
+                                              args.tpm_metadata, args.abundance, 
+                                              args.abundance_metadata, args.metabolome,
+                                              args.enrichment_output, args.depth, args.filter,
+                                              args.limit, args.queries, args.output)
 
         if args.subparser_name == self.PREDICT:
             self._check_predict(args)
             predict = Predict()
-            predict.do(args.forester_model_directory,
+            predict.predict_pipeline(args.forester_model_directory,
                  args.input_matrix,
                  args.output)
 
         elif args.subparser_name == self.GENERATE:
             self._check_generate(args)
             generate_model = GenerateModel()
-            generate_model.do(args.input_matrix,
+            generate_model.generate_pipeline(args.input_matrix,
                   args.groups,
                   args.model_type,
                   args.testing_portion,
@@ -450,7 +405,7 @@ class Run:
         elif args.subparser_name == self.USES:
             self._check_uses(args)
             uses = Uses()
-            uses.do(args.compounds_list,
+            uses.uses_pipeline(args.compounds_list,
                     args.annotation_matrix,
                     args.metadata,
                     args.output,

@@ -205,14 +205,14 @@ class NetworkAnalyser:
 
         return output_dict_mean
 
-    def do(self,
+    def network_pipeline(self,
            subparser_name,
            matrix, genome_metadata_path,
            transcriptome_abundances_path, transcriptome_metadata_path,
            metagenome_abundances, metagenome_metadata_path,
            metabolome,
            enrichment_output,
-           depth, filter, limit, queries, starting_compounds, steps, number_of_queries, output_directory):
+           depth, filter, limit, queries, output_directory):
         '''
         Parameters
         ----------
@@ -226,9 +226,6 @@ class NetworkAnalyser:
         filter
         limit
         queries
-        starting_compounds
-        steps
-        number_of_queries
         output_directory
         '''
         genome_to_group, genome_groups, group_to_genome = Parser.parse_metadata_matrix(genome_metadata_path)
