@@ -326,7 +326,7 @@ class Enrichment:
 
         return module_output, prefix
 
-    def do(# Input options
+    def enrichment_pipeline(# Input options
            self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path, transcriptome_path, transcriptome_metadata_path,
            # Runtime options
            pval_cutoff, proportions_cutoff,
@@ -422,7 +422,7 @@ class Enrichment:
                 combination_dict['_'.join(combination)] = genome_list
 
             test = Test(annotations_dict, combination_dict, annotation_type, threshold, multi_test_correction, processes, database)
-            results = test.do(attribute_dict)
+            results = test.test_pipeline(attribute_dict)
 
             for result in results:
                 test_result_lines, test_result_output_file = result
@@ -657,7 +657,7 @@ class Test(Enrichment):
 
         return results
 
-    def enrichment_pipeline(self, group_dict):
+    def test_pipeline(self, group_dict):
         results = list()
 
         for combination in combinations(group_dict, 2):
@@ -678,7 +678,7 @@ class Test(Enrichment):
                 output = self.GENE_FISHER_OUTPUT
                 output_lines = self.add_descriptions(output_lines)
                 output_lines = header + output_lines
-                results.append([output_lines, prefix +'_'+ output])
+                results.append([output_lines, prefix + '_' + output])
 
             elif enrichment_test == self.PA:
                 logging.info('enrichment statistics not possible with only one genome to compare')

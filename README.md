@@ -15,7 +15,7 @@ EnrichM is a set of comparative genomics tools for large sets of metagenome asse
 5. Construct random forest machine learning models from the functional composition of either MAGs, metagenomes or transcriptomes.
 6. Apply these random forest machine learning models to classify new MAGs metagenomes.
 
-EnrichM is under active development, so there is no guaratee that master is stable. Its reccomended that EnrichM is downloaded either via pypi or conda (see below).
+EnrichM is under active development, so there is no guaratee that master is stable. It's reccomended that EnrichM is downloaded either via pypi or conda (see below).
 
 # Installation
 ## Dependencies
