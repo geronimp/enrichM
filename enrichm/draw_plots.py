@@ -25,11 +25,12 @@ from enrichm.data import Data
 class Plot:
 
     def __init__(self):
+        self.databases = Databases()
         path_to_scripts = os.path.split(os.path.realpath(__file__))[0]
-        self.draw_pca_script_path 		= os.path.join(path_to_scripts, "PLOT_ko_pca.r")
-        self.draw_heatmap_script_path 	= os.path.join(path_to_scripts, "PLOT_ko_heatmap.r")
-        self.draw_barplots_script_path 	= os.path.join(path_to_scripts, "PLOT_ko_breakdown.r")
-        self.ko00000 					= os.path.join(Data.DATABASE_DIR, Databases.DB_VERSION, 'ko00000.tsv')
+        self.draw_pca_script_path = os.path.join(path_to_scripts, "PLOT_ko_pca.r")
+        self.draw_heatmap_script_path = os.path.join(path_to_scripts, "PLOT_ko_heatmap.r")
+        self.draw_barplots_script_path = os.path.join(path_to_scripts, "PLOT_ko_breakdown.r")
+        self.ko00000 = os.path.join(Data.DATABASE_DIR, self.databases.DB_VERSION, 'ko00000.tsv')
         self.output_pca_plot = 'presence_absence_pca_plot.svg'
         self.output_heatmap_plot = 'presence_absence_pca_plot.svg'
 

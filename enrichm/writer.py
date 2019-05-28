@@ -110,21 +110,21 @@ class MatrixGenerator:
         annotation_type - String.
         '''
         self.annotation_type = annotation_type
-
+        self.databases = Databases
         if self.annotation_type == self.KO:
-            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.KO))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(self.databases.IDS_DIR, self.KO))]
 
         elif self.annotation_type == self.EC:
-            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.EC))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(self.databases.IDS_DIR, self.EC))]
 
         elif self.annotation_type == self.PFAM:
-            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.PFAM))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(self.databases.IDS_DIR, self.PFAM))]
 
         elif self.annotation_type == self.TIGRFAM:
-            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.TIGRFAM))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(self.databases.IDS_DIR, self.TIGRFAM))]
 
         elif self.annotation_type == self.CAZY:
-            self.annotation_list = [x.strip() for x in open(os.path.join(Databases.IDS_DIR, self.CAZY))]
+            self.annotation_list = [x.strip() for x in open(os.path.join(self.databases.IDS_DIR, self.CAZY))]
 
         elif self.annotation_type == self.HYPOTHETICAL:
             self.annotation_list = clusters

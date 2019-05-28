@@ -49,14 +49,14 @@ class Data:
         ----------
         old_db_file	- String. File name of old database file to archive
         '''
-        from enrichm.databases import Databases
 
-        if not os.path.isdir(Databases.OLD_DATABASE_PATH):
-            logging.info('Creating directory to store databases: %s' % (Databases.OLD_DATABASE_PATH))
-            os.makedirs(Databases.OLD_DATABASE_PATH)
+        old_database_path = os.path.join(self.DATABASE_DIR, "old")
+        if not os.path.isdir(old_database_path):
+            logging.info('Creating directory to store databases: %s' % (old_database_path))
+            os.makedirs(old_database_path)
 
         old_db_path_archive \
-            = os.path.join(Databases.OLD_DATABASE_PATH, old_db_file + self.ARCHIVE_SUFFIX)
+            = os.path.join(old_database_path, old_db_file + self.ARCHIVE_SUFFIX)
         old_db_path \
             = os.path.join(self.DATABASE_DIR, old_db_file)
 

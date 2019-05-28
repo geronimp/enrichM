@@ -418,6 +418,5 @@ class NetworkBuilder:
                 del possible_reactions[entry]
 
         network_lines, node_metadata_lines = self.all_matrix(possible_reactions)
-
         return network_lines, node_metadata_lines
 

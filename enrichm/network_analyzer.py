@@ -152,7 +152,7 @@ class NetworkAnalyser:
     def average_tpm_values(self, transriptome_abundance_dict, group_metadata):
         output_dict = dict()
         reactions = list(self.reactions.keys())
-
+        
         for genome_group_name, group_reaction_abundance_dict in transriptome_abundance_dict.items():
             output_dict[genome_group_name] = dict()
 
@@ -170,6 +170,8 @@ class NetworkAnalyser:
                                 to_average.append(group_reaction_abundance_dict[member][str.encode(reaction)])
                             else:
                                 to_average.append(0.0)
+                        else:
+                            to_average.append(0.0)
 
                     average_value = sum(to_average) / len(to_average)
                     output_dict[genome_group_name][group][reaction] = average_value
@@ -284,7 +286,9 @@ class NetworkAnalyser:
         else:
             transcriptome_abundances = None
 
-        network_builder = NetworkBuilder(group_to_genome, abundances_metagenome, transcriptome_abundances, abundances_metabolome, fisher_results)
+        network_builder = NetworkBuilder(group_to_genome, abundances_metagenome,
+                                         transcriptome_abundances, abundances_metabolome, 
+                                         fisher_results)
 
         # Run the subcommand specified
         if subparser_name == self.EXPLORE:

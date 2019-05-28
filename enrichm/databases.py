@@ -27,63 +27,68 @@ from enrichm.data import Data
 
 class Databases:
 
-    if os.path.isfile(os.path.join(Data.DATABASE_DIR, 'VERSION')):
-        DB_VERSION = open(os.path.join(Data.DATABASE_DIR, 'VERSION'))\
-                                .readline()\
-                                .strip()\
-                                .replace('.tar.gz', '')
-        CUR_DATABASE_DIR = os.path.join(Data.DATABASE_DIR, DB_VERSION)
-        PICKLE_VERSION = open(os.path.join(CUR_DATABASE_DIR, 'VERSION')).readline().strip()
-        OLD_DATABASE_PATH = os.path.join(Data.DATABASE_DIR, 'old')
-        IDS_DIR = os.path.join(CUR_DATABASE_DIR, 'ids')
-        REF_DIR = os.path.join(CUR_DATABASE_DIR, 'databases')
-        GTDB_DIR = os.path.join(CUR_DATABASE_DIR, 'gtdb')
-        KO_HMM_CUTOFFS = os.path.join(CUR_DATABASE_DIR, 'ko_cutoffs.tsv')
-
-        PICKLE = 'pickle'
-        HMM_SUFFIX = '.hmm'
-        DMND_SUFFIX = '.dmnd'
-        KO_DB_NAME = 'uniref100.KO'
-        EC_DB_NAME = 'uniref100.EC'
-        PFAM_DB_NAME = 'pfam'
-        KO_HMM_DB_NAME = 'ko'
-        TIGRFAM_DB_NAME = 'tigrfam'
-        CAZY_DB_NAME = 'cazy'
-        GTDB_DB_NAME = 'GTDB_R80_DB'
-
-        GTDB_CAZY = os.path.join(GTDB_DIR, "gtdb_cazy.tsv")
-        GTDB_KO = os.path.join(GTDB_DIR, "gtdb_ko.tsv")
-        GTDB_PFAM = os.path.join(GTDB_DIR, "gtdb_pfam.tsv")
-        GTDB_TIGRFAM = os.path.join(GTDB_DIR, "gtdb_tigrfam.tsv")
-        GTDB_EC = os.path.join(GTDB_DIR, "gtdb_ec.tsv")
-
-        TAXONOMY = os.path.join(CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
-        M2DEF = os.path.join(CUR_DATABASE_DIR, 'module_to_definition')
-        M = os.path.join(CUR_DATABASE_DIR, 'module_descriptions')
-        COMPOUND_DESC = os.path.join(CUR_DATABASE_DIR, 'br08001')
-        R2K = os.path.join(CUR_DATABASE_DIR, 'reaction_to_orthology')
-        R2C = os.path.join(CUR_DATABASE_DIR, 'reaction_to_compound')
-        R2M = os.path.join(CUR_DATABASE_DIR, 'reaction_to_module')
-        M2R = os.path.join(CUR_DATABASE_DIR, 'module_to_reaction')
-        M2C = os.path.join(CUR_DATABASE_DIR, 'module_to_cpd')
-        R2P = os.path.join(CUR_DATABASE_DIR, 'reaction_to_pathway')
-        P2R = os.path.join(CUR_DATABASE_DIR, 'pathway_to_reaction')
-        C2R = os.path.join(CUR_DATABASE_DIR, 'compound_to_reaction')
-        C = os.path.join(CUR_DATABASE_DIR, 'compound_descriptions')
-        R = os.path.join(CUR_DATABASE_DIR, 'reaction_descriptions')
-        P = os.path.join(CUR_DATABASE_DIR, 'pathway_descriptions')
-        K = os.path.join(CUR_DATABASE_DIR, 'ko_descriptions')
-
-        PFAM2CLAN = os.path.join(CUR_DATABASE_DIR, 'pfam_to_clan')
-        CLAN2NAME = os.path.join(CUR_DATABASE_DIR, 'clan_to_name')
-        PFAM2NAME = os.path.join(CUR_DATABASE_DIR, 'pfam_to_name')
-        PFAM2DESCRIPTION = os.path.join(CUR_DATABASE_DIR, 'pfam_to_description')
-        EC2DESCRIPTION = os.path.join(CUR_DATABASE_DIR, 'ec_to_description')
-        TIGRFAM2DESCRIPTION = os.path.join(CUR_DATABASE_DIR, 'tigrfam_descriptions')
-        CLAN2PFAM = os.path.join(CUR_DATABASE_DIR, 'clan_to_pfam')
-
     def __init__(self):
+        if os.path.isfile(os.path.join(Data.DATABASE_DIR, 'VERSION')):
 
+            with open(os.path.join(Data.DATABASE_DIR, 'VERSION')) as out_io:
+                self.DB_VERSION = out_io.readline().strip().replace('.tar.gz', '')
+
+            self.CUR_DATABASE_DIR = os.path.join(Data.DATABASE_DIR, self.DB_VERSION)
+
+            with open(os.path.join(self.CUR_DATABASE_DIR, 'VERSION')) as out_io:
+                self.PICKLE_VERSION = out_io.readline().strip()
+
+            self.IDS_DIR = os.path.join(self.CUR_DATABASE_DIR, 'ids')
+            self.REF_DIR = os.path.join(self.CUR_DATABASE_DIR, 'databases')
+            self.GTDB_DIR = os.path.join(self.CUR_DATABASE_DIR, 'gtdb')
+            self.KO_HMM_CUTOFFS = os.path.join(self.CUR_DATABASE_DIR, 'ko_cutoffs.tsv')
+
+            self.PICKLE = 'pickle'
+            self.HMM_SUFFIX = '.hmm'
+            self.DMND_SUFFIX = '.dmnd'
+            self.KO_DB_NAME = 'uniref100.KO'
+            self.EC_DB_NAME = 'uniref100.EC'
+            self.PFAM_DB_NAME = 'pfam'
+            self.KO_HMM_DB_NAME = 'ko'
+            self.TIGRFAM_DB_NAME = 'tigrfam'
+            self.CAZY_DB_NAME = 'cazy'
+            self.GTDB_DB_NAME = 'GTDB_R80_DB'
+
+            self.GTDB_CAZY = os.path.join(self.GTDB_DIR, "gtdb_cazy.tsv")
+            self.GTDB_KO = os.path.join(self.GTDB_DIR, "gtdb_ko.tsv")
+            self.GTDB_PFAM = os.path.join(self.GTDB_DIR, "gtdb_pfam.tsv")
+            self.GTDB_TIGRFAM = os.path.join(self.GTDB_DIR, "gtdb_tigrfam.tsv")
+            self.GTDB_EC = os.path.join(self.GTDB_DIR, "gtdb_ec.tsv")
+
+            self.TAXONOMY = os.path.join(self.CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
+            self.M2DEF = os.path.join(self.CUR_DATABASE_DIR, 'module_to_definition')
+            self.M = os.path.join(self.CUR_DATABASE_DIR, 'module_descriptions')
+            self.COMPOUND_DESC = os.path.join(self.CUR_DATABASE_DIR, 'br08001')
+            self.R2K = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_orthology')
+            self.R2C = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_compound')
+            self.R2M = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_module')
+            self.M2R = os.path.join(self.CUR_DATABASE_DIR, 'module_to_reaction')
+            self.M2C = os.path.join(self.CUR_DATABASE_DIR, 'module_to_cpd')
+            self.R2P = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_pathway')
+            self.P2R = os.path.join(self.CUR_DATABASE_DIR, 'pathway_to_reaction')
+            self.C2R = os.path.join(self.CUR_DATABASE_DIR, 'compound_to_reaction')
+            self.C = os.path.join(self.CUR_DATABASE_DIR, 'compound_descriptions')
+            self.R = os.path.join(self.CUR_DATABASE_DIR, 'reaction_descriptions')
+            self.P = os.path.join(self.CUR_DATABASE_DIR, 'pathway_descriptions')
+            self.K = os.path.join(self.CUR_DATABASE_DIR, 'ko_descriptions')
+
+            self.PFAM2CLAN = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_clan')
+            self.CLAN2NAME = os.path.join(self.CUR_DATABASE_DIR, 'clan_to_name')
+            self.PFAM2NAME = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_name')
+            self.PFAM2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_description')
+            self.EC2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'ec_to_description')
+            self.TIGRFAM2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'tigrfam_descriptions')
+            self.CLAN2PFAM = os.path.join(self.CUR_DATABASE_DIR, 'clan_to_pfam')
+        else:
+            raise Exception(f"\nNo database version file found. Have you: \n\
+- Installed the EnrichM database using the 'enrichm data' command?\n\
+- Specified the location of the EnrichM database by exporting a \
+bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR})")
         self.signature_modules = set(['M00611', 'M00612', 'M00613', 'M00614',
                                       'M00617', 'M00618', 'M00615', 'M00616',
                                       'M00363', 'M00542', 'M00574', 'M00575',
