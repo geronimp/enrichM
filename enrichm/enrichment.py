@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # pylint: disable=line-too-long
-# pylint: disable=line-too-long
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -33,7 +32,6 @@ from enrichm.writer import Writer
 ################################################################################
 
 def gene_fisher_calc(x):
-
     annotation, group_1, group_2 = x[0], x[1], x[2]
 
     dat = x[3:]
@@ -118,24 +116,24 @@ def zscore_calc(x):
 
 class Enrichment:
 
-    TIGRFAM                 = "tigrfam"
-    PFAM                    = "pfam"
-    KEGG                    = "kegg"
-    CAZY                    = "cazy"
-    EC                      = "ec"
-    CLUSTER                 = "cluster"
-    ORTHOLOG                = "ortholog"
-    OTHER                   = "other"
+    TIGRFAM = "tigrfam"
+    PFAM = "pfam"
+    KEGG = "kegg"
+    CAZY = "cazy"
+    EC = "ec"
+    CLUSTER = "cluster"
+    ORTHOLOG = "ortholog"
+    OTHER = "other"
 
     def __init__(self):
 
-        self.TIGRFAM_PREFIX          = 'TIGR'
-        self.PFAM_PREFIX             = 'PF'
-        self.KEGG_PREFIX             = 'K'
-        self.CAZY_PREFIX             = ["GH", "AA", "GT","PL","CE","CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
-        self.EC_PREFIX             = ["1", "2", "3","4","5","6", "7"]
-        self.PROPORTIONS             = 'proportions.tsv'
-        self.MODULE_COMPLETENESS     = 'modules.tsv'
+        self.TIGRFAM_PREFIX = 'TIGR'
+        self.PFAM_PREFIX = 'PF'
+        self.KEGG_PREFIX = 'K'
+        self.CAZY_PREFIX = ["GH", "AA", "GT", "PL", "CE", "CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
+        self.EC_PREFIX = ["1", "2", "3","4","5","6", "7"]
+        self.PROPORTIONS = 'proportions.tsv'
+        self.MODULE_COMPLETENESS = 'modules.tsv'
 
     def check_annotation_type(self, annotations):
         '''
@@ -361,11 +359,9 @@ class Enrichment:
             elif ec:
                 annotation_matrix = pa.ec
 
+        logging.info('Parsing annotation matrix')
         annotations_dict, _, annotations, = Parser.parse_simple_matrix(annotation_matrix)
         annotation_type = self.check_annotation_type(annotations)
-
-        logging.info('Parsing metadata: %s' % metadata_path)
-        metadata, metadata_value_lists, attribute_dict = Parser.parse_metadata_matrix(metadata_path)
 
         if abundances_path:
             logging.info('Running abundances pipeline')
@@ -375,8 +371,19 @@ class Enrichment:
             logging.info('Parsing sample metadata')
             _, _, ab_attribute_dict = Parser.parse_metadata_matrix(abundance_metadata_path)
 
-            test = Test(annotations_dict, None, annotation_type, threshold, multi_test_correction, processes, database)
-            weighted_abundance = self.weight_annotation_matrix(abundances_dict, annotations_dict, ab_attribute_dict, annotations)
+            test = Test(annotations_dict,
+                        None,
+                        annotation_type,
+                        threshold,
+                        multi_test_correction,
+                        processes,
+                        database)
+
+            weighted_abundance \
+                = self.weight_annotation_matrix(abundances_dict,
+                                                annotations_dict,
+                                                ab_attribute_dict,
+                                                annotations)
             results = test.test_weighted_abundances(weighted_abundance, annotations)
 
             for result in results:
@@ -385,7 +392,10 @@ class Enrichment:
                 Writer.write(test_result_lines, test_result_output_path)
 
         else:
-
+            logging.info('Parsing metadata: %s' % metadata_path)
+            metadata, metadata_value_lists, attribute_dict \
+                = Parser.parse_metadata_matrix(metadata_path)
+                
             if batchfile:
                 gtdb_annotation_matrix = self.get_gtdb_database_path(annotation_type, database)
 

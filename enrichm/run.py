@@ -199,13 +199,8 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        # Ensure either an annotation matrix or list file has been specified:
-        if not(args.genome_and_annotation_file or args.genome_and_annotation_matrix):
-            raise Exception("Input error: An input file must be specified to either \
---genome_and_annotation_file or --genome_and_annotation_matrix")
-
-        elif(args.aggregate and args.genome_and_annotation_file):
-            raise Exception("--aggregate needs to be run with the genome and annotation matrix")
+        if(args.cutoff>1 and args.cutoff<0):
+            raise Exception("--cutoff needs to be between 0 and 1")
 
     def _check_network(self, args):
         '''
@@ -313,7 +308,6 @@ class Run:
             self._check_classify(args)
             classify = Classify()
             classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
-                                       args.genome_and_annotation_file,
                                        args.genome_and_annotation_matrix, args.output)
 
         elif args.subparser_name == self.ENRICHMENT:

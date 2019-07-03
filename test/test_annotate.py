@@ -31,7 +31,7 @@ from enrichm.annotate import Annotate
 ###############################################################################
 
 class Tests(unittest.TestCase):
-    
+
     def test_hello_world_nucleic(self):
         tmp = tempfile.mkdtemp()
         bin = os.path.join(path_to_data, 'test_nucleic_bin')
@@ -57,6 +57,17 @@ class Tests(unittest.TestCase):
                         --output %s \
                         --force' % (path_to_script, bin, tmp)
         subprocess.call(cmd, shell=True)
+
+    def test(self):
+        tmp = tempfile.mkdtemp()
+        self.simple_annotate_instance \
+            = Annotate(tmp,
+                       True, True, True, True, True, True, True, True, # Annotate with all databases
+                       1e-05, 0, 0.3, 0.7, 0.7, 0.7, # Runtime options
+                       False, False, False, True, # Cutoffs
+                       5, # Inflation
+                       4, 2500, # chunks
+                       False, 1, 1, '.fna', False)
 
 if __name__ == "__main__":
     unittest.main()

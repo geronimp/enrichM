@@ -29,6 +29,7 @@ from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser
 from enrichm.writer import Writer
+from enrichm.toolbox import get_present_annotations
 ###############################################################################
 
 class Classify:
@@ -36,29 +37,38 @@ class Classify:
     Determines which metabolic pathways are encoded by different MAGs
     '''
 
-    KO_OUTPUT = "module_completeness.tsv"
-    MODULE_PATHS = "module_paths.tsv"
-    AGGREGATE_OUTPUT = "aggregate_output.tsv"
-
     def __init__(self):
         databases = Databases()
         self.signature_modules = databases.signature_modules
         self.m2def = databases.m2def()
         self.modules = databases.m()
+        self.ko_output = "module_completeness.tsv"
+        self.module_paths = "module_paths.tsv"
+        self.aggregate_output = "aggregate_output.tsv"
 
     def update_with_custom_modules(self, custom_modules):
+        '''
+        open a file
+        :param custom_modules: Path to a file containing custom modules to add to the list of 
+                               default modules to use.
+        :type custom_modules: str
+        '''
         custom_modules_dict = dict()
 
-        for line in open(custom_modules):
-            custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
+        with open(custom_modules) as custom_modules_io:
+            for line in custom_modules_io:
+                custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
 
         self.m2def.update(custom_modules_dict)
 
-        for key in custom_modules_dict.keys():
+        for key in custom_modules_dict:
             self.modules[key] = 'Custom'
 
-    def classify_pipeline(self, custom_modules, cutoff, aggregate, genome_and_annotation_file,
-                          genome_and_annotation_matrix, output_directory):
+    def aggregate(self):
+        pass
+
+    def classify_pipeline(self, custom_modules, cutoff, aggregate, genome_and_annotation_matrix,
+                          output_directory):
         '''
 
         Parameters
@@ -68,9 +78,6 @@ class Classify:
                                           (http://www.genome.jp/kegg/module.html)
         cutoff                          - float. Fraction of a module needed in order to be included
                                           in the output.
-        genome_and_annotation_file      - string. Path to file containing genome - annotation file. This file
-                                          contains two columns, the first with the genome name, the
-                                          second with a annotation annotation within that genome
         genome_and_annotation_matrix    - string. Path to file containing genome - annotation matrix
         output                          - string. Path to file to output results to.
 
@@ -83,11 +90,7 @@ class Classify:
             logging.info('Reading in custom modules: %s' % custom_modules)
             self.update_with_custom_modules(custom_modules)
 
-        if genome_and_annotation_file:
-            genome_to_annotation_sets = Parser.parse_genome_and_annotation_file_lf(genome_and_annotation_file)
-
-        elif genome_and_annotation_matrix:
-            genome_to_annotation_sets = Parser.parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix)
+        genome_to_annotation_sets, _, _ = Parser.parse_simple_matrix(genome_and_annotation_matrix)
 
         if aggregate:
             logging.info('Reading in abundances: %s' %
@@ -99,7 +102,6 @@ class Classify:
 
         output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found",
                                    "Steps_needed", "Percent_steps_found"]) + '\n']
-        # "KO_found", "KO_needed", "Percent_KO_found"
 
         genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"]) + '\n']
 
@@ -109,8 +111,8 @@ class Classify:
                 path = ModuleDescription(pathway_string)
                 pathway[name] = path
 
-                for genome, annotations in genome_to_annotation_sets.items():
-
+                for genome, annotation_frequency in genome_to_annotation_sets.items():
+                    annotations = get_present_annotations(annotation_frequency)
                     num_covered, _, _, ko_path = path.num_covered_steps(annotations)
                     num_all = path.num_steps()
                     perc_covered = num_covered / float(num_all)
@@ -147,10 +149,11 @@ class Classify:
                         output_line = [genome, name, self.modules[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
                         output_lines.append(output_line)
 
-        Writer.write(output_lines, os.path.join(output_directory, self.KO_OUTPUT))
-        Writer.write(genome_output_lines, os.path.join(output_directory, self.MODULE_PATHS))
+        Writer.write(output_lines, os.path.join(output_directory, self.ko_output))
+        Writer.write(genome_output_lines, os.path.join(output_directory, self.module_paths))
 
         if aggregate:
+            #self.aggregate()
             samples = list(abundance_result.keys())
             output_lines = ['\t'.join(["ID"] + samples) + '\n']
 
@@ -168,4 +171,4 @@ class Classify:
                             output_line.append('0.0')
                     output_lines.append(output_line)
 
-            Writer.write(output_lines, os.path.join(output_directory, self.AGGREGATE_OUTPUT))
+            Writer.write(output_lines, os.path.join(output_directory, self.aggregate_output))

@@ -19,9 +19,9 @@
 import os
 import urllib
 import shutil
-import subprocess
 import logging
 from pathlib import Path
+from enrichm.toolbox import run_command
 # Local
 ###############################################################################
 
@@ -62,7 +62,7 @@ class Data:
 
         logging.info('Compressing old database')
         cmd = "tar -cvzf %s %s > /dev/null" % (old_db_path_archive, old_db_path)
-        subprocess.call(cmd, shell=True)
+        run_command(cmd)
 
         logging.info('Cleaning up')
         shutil.rmtree(old_db_path)
@@ -78,15 +78,21 @@ class Data:
 
         new_db_path_archive \
             = os.path.join(self.DATABASE_DIR, new_db_file)
-        logging.info('Downloading new database: %s' % new_db_file)
-        cmd = 'wget -q %s -O %s' % (self.ftp + new_db_file, new_db_path_archive)
-        subprocess.call(cmd, shell = True)
-        cmd = 'wget -q %s -O %s' % (self.ftp + self.VERSION, os.path.join(self.DATABASE_DIR, self.VERSION))
-        subprocess.call(cmd, shell = True)
+        
+        logging.info('Downloading new database: %s', new_db_file)
+        cmd = f'wget \
+                    -q {self.ftp + new_db_file} \
+                    -O {new_db_path_archive}'
+        run_command(cmd)
+        
+        cmd = f'wget \
+                    -q {self.ftp + self.VERSION} \
+                    -O {os.path.join(self.DATABASE_DIR, self.VERSION)}'
+        run_command(cmd)
 
         logging.info('Decompressing new database')
         cmd = 'tar -xvzf %s -C %s > /dev/null' % (new_db_path_archive, self.DATABASE_DIR)
-        subprocess.call(cmd, shell = True)
+        run_command(cmd)
 
         logging.info('Cleaning up')
         os.remove(new_db_path_archive)
