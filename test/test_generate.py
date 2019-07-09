@@ -42,12 +42,14 @@ class Tests(unittest.TestCase):
     sample_generate_path = os.path.join(PATH_TO_DATA, ml_data, sample_generate)
 
     def test_hello_generate(self):
-        tmp = tempfile.mkdtemp()
-        generate_model = GenerateModel()
+        tmp = tempfile.mkif (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
 
+BiocManager::install("rBiopaxParser")dtemp()
+        generate_model = GenerateModel()
         generate_model.generate_pipeline(self.sample_matrix_path,
                                          self.sample_metadata_path,
-                                         generate_model.CLASSIFIER,
+                                         generate_model.classifier,
                                          0.2, # Default testing portion
                                          False, # Dont do a grid search for fine tuning
                                          2, # Threads
@@ -62,7 +64,7 @@ class Tests(unittest.TestCase):
             expected_file_path = os.path.join(tmp, expected_file)
             observed_file_path = os.path.join(self.sample_generate_path, observed_file)
             # Are all files present?
-            self.assertEqual(expected_file, observed_file)
+            self.assertEqual(expected_file_path, observed_file_path)
         shutil.rmtree(tmp)
         # Note I chose not to match files exactly here. They change because ml models are 
         # estimations and will be different every time you make them. More tests that ensure the
