@@ -147,7 +147,7 @@ class Classify:
                             else:
                                 pathway_average_abundance = 0
                             abundance_result[genome][name] = pathway_average_abundance
-
+                        import IPython; IPython.embed()
                         genome_output_lines.append([genome, name, self.modules[name], ','.join(ko_path_list)])
                         output_line = [genome, name, self.modules[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
                         output_lines.append(output_line)
