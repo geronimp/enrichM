@@ -147,7 +147,8 @@ class Annotate:
                 if genome_path.endswith(self.suffix):
                     genome_paths.append(genome_path)
 
-            cmd = f"xargs --arg-file=/dev/stdin cp --target-directory={genome_directory}"
+            cmd = f"xargs --arg-file=/dev/stdin ln -s --target-directory={genome_directory}"
+
             logging.debug(cmd)
             process = subprocess.Popen(["bash", "-c", cmd],
                                        stdin=subprocess.PIPE,
