@@ -16,7 +16,6 @@
 #                                                                             #
 ###############################################################################
 
-
 import logging
 import os
 import numpy as np
@@ -66,7 +65,7 @@ class Predict:
         forester_model = ParseGenerate(forester_model_directory)
 
         logging.info('Parsing input')
-        logging.info('Loading model: %s' % (forester_model.RF_MODEL))
+        logging.info('Loading model: %s' % (forester_model.rf_model))
 
         logging.info('Parsing data')
         features, _, _ = Parser.parse_simple_matrix(input_matrix_path)

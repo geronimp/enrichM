@@ -42,10 +42,7 @@ class Tests(unittest.TestCase):
     sample_generate_path = os.path.join(PATH_TO_DATA, ml_data, sample_generate)
 
     def test_hello_generate(self):
-        tmp = tempfile.mkif (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-
-BiocManager::install("rBiopaxParser")dtemp()
+        tmp = tempfile.mkdtemp()
         generate_model = GenerateModel()
         generate_model.generate_pipeline(self.sample_matrix_path,
                                          self.sample_metadata_path,
