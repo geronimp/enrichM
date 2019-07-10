@@ -142,7 +142,10 @@ class Classify:
                                 abundance_result[genome] = dict()
 
                             pathway_abundance = [abundances[genome][ko] for ko in ko_path_list]
-                            pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
+                            if len(pathway_abundance)>0:
+                                pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
+                            else:
+                                pathway_average_abundance = 0
                             abundance_result[genome][name] = pathway_average_abundance
 
                         genome_output_lines.append([genome, name, self.modules[name], ','.join(ko_path_list)])

@@ -54,14 +54,16 @@ class Tests(unittest.TestCase):
                                         )
         expected_files = sorted(os.listdir(tmp))
         observed_files = sorted(os.listdir(self.sample_generate_path))
-
-        self.assertEqual(len(expected_files), len(observed_files))
-
+        try:
+            self.assertEqual(len(expected_files), len(observed_files))
+        except:
+            import IPython; IPython.embed()
         for expected_file, observed_file in zip(expected_files, observed_files):
             expected_file_path = os.path.join(tmp, expected_file)
             observed_file_path = os.path.join(self.sample_generate_path, observed_file)
             # Are all files present?
             self.assertEqual(expected_file_path, observed_file_path)
+
         shutil.rmtree(tmp)
         # Note I chose not to match files exactly here. They change because ml models are 
         # estimations and will be different every time you make them. More tests that ensure the
