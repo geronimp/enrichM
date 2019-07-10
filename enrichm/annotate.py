@@ -629,7 +629,7 @@ class Annotate:
                         name = description.partition(' ')[0]
                         annotations = ' '.join(genome.sequences[name].all_annotations())
                         out_gene_io.write(">%s %s\n" % (name, annotations))
-                        out_gene_io.write(genome.sequences[name].gene + '\n')
+                        out_gene_io.write(sequence + '\n')
 
                 close(fd_gene)
                 logging.debug('Moving %s to %s', fname_gene, genome.gene)

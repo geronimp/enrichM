@@ -54,10 +54,7 @@ class Tests(unittest.TestCase):
                                         )
         expected_files = sorted(os.listdir(tmp))
         observed_files = sorted(os.listdir(self.sample_generate_path))
-        try:
-            self.assertEqual(len(expected_files), len(observed_files))
-        except:
-            import IPython; IPython.embed()
+        self.assertEqual(len(expected_files), len(observed_files))
         for expected_file, observed_file in zip(expected_files, observed_files):
             expected_file_path = os.path.join(tmp, expected_file)
             observed_file_path = os.path.join(self.sample_generate_path, observed_file)
