@@ -77,7 +77,7 @@ class Tests(unittest.TestCase):
             Enrichment().check_annotation_type(ec), Enrichment.EC)
 
     def test_calculate_portions(self):
-        expected = [['Module', 'group_1', 'group_2'],
+        expected = [['Annotation', 'group_1', 'group_2'],
                     ['K00001', '1.0', '0.5'],
                     ['K00002', '1.0', '0.5'],
                     ['K00003', '0.0', '1.0']]

@@ -203,7 +203,7 @@ class Enrichment:
         return output_dict
 
     def calculate_portions(self,
-                           modules,
+                           annotations,
                            combination_dict,
                            annotations_dict,
                            genome_list,
@@ -222,41 +222,23 @@ class Enrichment:
         genome_list         - List. List of strings, each one a genome name
         proportions_cutoff  - Float. Value with which to cutoff
         '''
-        raw_proportions_output_lines        = [['Module'] + list(combination_dict.keys())]
+        raw_proportions_output_lines        = [['Annotation'] + list(combination_dict.keys())]
 
-        for module in modules:
+        for annotation in annotations:
 
-            module_values               = dict()
-            raw_proportions_output_line = [module]
+            annotation_values               = dict()
+            raw_proportions_output_line = [annotation]
 
             for group_name, genome_list in combination_dict.items():
                 if len(genome_list)>0:
                     coverage = len([genome for genome in genome_list
-                                    if module in annotations_dict[genome]])
+                                    if annotation in annotations_dict[genome]])
                     total    = float(len(genome_list))
                     entry    = coverage/total
-                    module_values[group_name] = entry
+                    annotation_values[group_name] = entry
                     raw_proportions_output_line.append(str(entry))
                 else:
                     raw_proportions_output_line.append('0.0')
-
-            if max(module_values.values())>0:
-                groups = combination_dict.keys()
-                for group in groups:
-                    group_val = module_values[group]
-                    compare_groups = list()
-                    if group_val>0:
-                        for other_group in groups:
-                            if other_group!=group:
-                                other_group_val = module_values[other_group]
-                                if other_group_val > 0:
-                                    compare_value = group_val/other_group_val
-                                else:
-                                    compare_value = float("inf")
-                                compare_groups.append(compare_value)
-
-                    if all([x>proportions_cutoff for x in compare_groups]):
-                        pass
 
             raw_proportions_output_lines.append(raw_proportions_output_line)
 

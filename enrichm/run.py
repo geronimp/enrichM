@@ -185,11 +185,11 @@ class Run:
 
             if not any(types):
                 raise Exception(
-                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --hypothetical --cazy")
+                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --orthologs --clusters --ko_hmm --ec --cazy")
 
             if len([x for x in types if x]) > 1:
                 raise Exception(
-                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --hypothetical --cazy")
+                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --orthologs --clusters --ko_hmm --ec --cazy")
 
     def _check_classify(self, args):
         '''
