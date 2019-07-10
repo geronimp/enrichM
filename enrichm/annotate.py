@@ -33,6 +33,7 @@ from enrichm.genome import Genome, AnnotationParser
 from enrichm.databases import Databases
 from enrichm.sequence_io import SequenceIO
 from enrichm.writer import Writer, MatrixGenerator
+from enrichm.toolbox import list_splitter, run_command
 
 def parse_genomes(params):
     '''
@@ -74,10 +75,10 @@ class Annotate:
     ANNOTATION_SUFFIX = '.tsv'
     PICKLE_SUFFIX = '.pickle'
 
-    def __init__(self, output_directory, annotate_ko, annotate_ko_hmm, annotate_pfam, annotate_tigrfam,
-                 annoatate_cluster, annotate_ortholog, annotate_cazy, annotate_ec, evalue, bit, percent_id_cutoff,
-                 aln_query, aln_reference, fraction_aligned, cut_ga, cut_nc, cut_tc,
-                 cut_hmm, inflation, chunk_number, chunk_max, count_domains,
+    def __init__(self, output_directory, annotate_ko, annotate_ko_hmm, annotate_pfam,
+                 annotate_tigrfam, annoatate_cluster, annotate_ortholog, annotate_cazy, annotate_ec,
+                 evalue, bit, percent_id_cutoff, aln_query, aln_reference, fraction_aligned, cut_ga,
+                 cut_nc, cut_tc, cut_hmm, inflation, chunk_number, chunk_max, count_domains,
                  threads, parallel, suffix, light):
 
         # Define inputs and outputs
@@ -146,7 +147,8 @@ class Annotate:
                 if genome_path.endswith(self.suffix):
                     genome_paths.append(genome_path)
 
-            cmd = "xargs --arg-file=/dev/stdin ln -s --target-directory %s" % genome_directory
+            cmd = f"xargs --arg-file=/dev/stdin ln -s --target-directory={genome_directory}"
+
             logging.debug(cmd)
             process = subprocess.Popen(["bash", "-c", cmd],
                                        stdin=subprocess.PIPE,
@@ -198,13 +200,11 @@ class Annotate:
                    self.suffix, protein_directory_path, self.PROTEINS_SUFFIX, genome_directory,
                    self.suffix)
 
-        logging.debug(cmd)
-        subprocess.call(cmd, shell=True)
-        logging.debug('Finished')
+        run_command(cmd)
 
         protein_directory_files = listdir(protein_directory_path)
         genome_directory_files = listdir(genome_directory)
-        
+
         for genome_protein, genome_nucl in zip(protein_directory_files, genome_directory_files):
             genome_protein_base = genome_protein.replace(self.PROTEINS_SUFFIX, self.suffix)
             output_genome_protein_path = path.join(protein_directory_path, genome_protein)
@@ -328,9 +328,7 @@ class Annotate:
         if self.aln_reference:
             cmd += f"--subject-cover {self.aln_reference*100} "
 
-        logging.debug(cmd)
-        subprocess.call(cmd, shell=True)
-        logging.debug('Finished')
+        run_command(cmd)
 
     def hmmsearch_annotation(self, genomes_list, output_directory_path, database, ids_type, parser):
         '''
@@ -344,10 +342,7 @@ class Annotate:
         mkdir(output_directory_path)
         genome_dict = {genome.name: genome for genome in genomes_list}
 
-        if ids_type in (AnnotationParser.TIGRFAM, AnnotationParser.PFAM):
-            hmmcutoff = True
-        else:
-            hmmcutoff = False
+        hmmcutoff = (ids_type in (AnnotationParser.TIGRFAM, AnnotationParser.PFAM))
 
         if ids_type == AnnotationParser.KO_HMM:
             specific_cutoffs = self.databases.parse_ko_cutoffs()
@@ -397,9 +392,7 @@ class Annotate:
             logging.info('    - Generating MMSeqs2 database')
             cmd = "bash %s | sponge | mmseqs createdb /dev/stdin %s -v 0 > /dev/null 2>&1" % (
                 temp.name, db_path)
-            logging.debug(cmd)
-            subprocess.call(cmd, shell=True)
-            logging.debug('Finished')
+            run_command(cmd)
 
             logging.info('    - Clustering genome proteins')
             cmd = f"mmseqs cluster \
@@ -413,40 +406,30 @@ class Annotate:
                         -c {self.fraction_aligned} \
                         -v 0 "
 
-            logging.debug(cmd)
-            subprocess.call(cmd, shell=True)
-            logging.debug('Finished')
+            run_command(cmd)
 
             logging.info('    - Extracting clusters')
             cmd = 'mmseqs createtsv %s %s %s %s -v 0 > /dev/null 2>&1' % (
                 db_path, db_path, clu_path, clu_tsv_path)
-            logging.debug(cmd)
-            subprocess.call(cmd, shell=True)
-            logging.debug('Finished')
+            run_command(cmd)
 
             logging.info('    - Computing Smith-Waterman alignments for clustering results')
             cmd = "mmseqs alignall %s %s %s --alignment-mode 3 -v 0  " % (
                 db_path, clu_path, align_path)
-            logging.debug(cmd)
-            subprocess.call(cmd, shell=True)
-            logging.debug('Finished')
+            run_command(cmd)
 
             logging.info('    - Converting to BLAST-like output')
             cmd = "mmseqs createtsv %s %s %s %s -v 0 > /dev/null 2>&1   " % (
                 db_path, db_path, align_path, blast_output_path)
             # --format-output query,target,bits
-            logging.debug(cmd)
-            subprocess.call(cmd, shell=True)
-            logging.debug('Finished')
+            run_command(cmd)
 
             logging.info('    - Reformatting BLAST output')
             cmd = "OFS=\"\t\" awk 'FNR==NR{a[$1]=$2;next}{$3=a[$3]; \
                                             $1=\"\"; for(i=2;i<NF;i++){printf(\"%s\t\",$i)} \
                                             printf(\"\\n\")}' %s %s | cut -f1,2,5 > %s" \
                 % ("%s", db_path + '.lookup', blast_output_path, formatted_blast_output_path)
-            logging.debug(cmd)
-            subprocess.call(cmd, shell=True)
-            logging.debug('Finished')
+            run_command(cmd)
 
         ortholog_dict = self.run_mcl(formatted_blast_output_path,
                                      output_directory_path)
@@ -480,9 +463,7 @@ class Annotate:
                     --stream-mirror \
                     --stream-neg-log10 \
                     > /dev/null 2>&1"
-        logging.debug(cmd)
-        subprocess.call(cmd, shell=True)
-        logging.debug('Finished')
+        run_command(cmd)
 
         logging.info('    - Finding orthologs')
         ortholog_dict = dict()
@@ -492,9 +473,7 @@ class Annotate:
                     -I {self.inflation} \
                     -o {cluster_path} \
                     > /dev/null 2>&1'
-        logging.debug(cmd)
-        subprocess.call(cmd, shell=True)
-        logging.debug('Finished')
+        run_command(cmd)
 
         logging.info('    - Reformatting output')
         ortholog_dict = dict()
@@ -503,9 +482,7 @@ class Annotate:
                     -o {output_path} \
                     -tabr {dict_path} \
                     > /dev/null 2>&1'
-        logging.debug(cmd)
-        subprocess.call(cmd, shell=True)
-        logging.debug('Finished')
+        run_command(cmd)
 
         ortholog = 1
         for line in open(output_path):
@@ -567,7 +544,7 @@ class Annotate:
         return cluster_ids
 
     def _default_hmmsearch_options(self):
-        cmd = ''
+        cmd = str()
 
         if self.bit:
             cmd += '-T %s ' % (str(self.bit))
@@ -613,9 +590,7 @@ class Annotate:
 
         cmd += "%s %s/{}.faa 2> /dev/null" % (database, input_genome_path)
 
-        logging.debug(cmd)
-        subprocess.call(cmd, shell=True)
-        logging.debug('Finished')
+        run_command(cmd)
 
     def generate_gff_files(self, genomes_list):
         '''
@@ -655,7 +630,7 @@ class Annotate:
                         name = description.partition(' ')[0]
                         annotations = ' '.join(genome.sequences[name].all_annotations())
                         out_gene_io.write(">%s %s\n" % (name, annotations))
-                        out_gene_io.write(genome.sequences[name].gene + '\n')
+                        out_gene_io.write(sequence + '\n')
 
                 close(fd_gene)
                 logging.debug('Moving %s to %s', fname_gene, genome.gene)
@@ -684,38 +659,12 @@ class Annotate:
         output_directory_path = path.join(self.output_directory,
                                           self.GENOME_OBJ)
         mkdir(output_directory_path)
+        
         for genome in genomes_list:
             genome_pickle_path = path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX)
+            
             with open(genome_pickle_path, 'wb') as output:
                 pickle.dump(genome, output)
-
-    def list_splitter(self, input_list, chunk_number, chunk_max):
-        """
-        An iterator that separates a list into a number of smaller lists
-        (chunk_number). Maximum size for the sub-lists can also be
-        specified (chunk_max)
-        """
-        list_size = float(len(input_list))
-        chunk_size = int(round((list_size/chunk_number), 0))
-
-        if chunk_size > chunk_max:
-            chunk_size = chunk_max
-        elif chunk_size < 1:
-            chunk_size = list_size
-
-        while list_size > 0:
-
-            if len(input_list) <= chunk_size:
-                yield input_list
-                del input_list
-            else:
-                yield input_list[:chunk_size]
-                del input_list[:chunk_size]
-
-            try:
-                list_size = len(input_list)
-            except NameError:
-                list_size = 0
 
     def parse_genome_inputs(self, genome_directory, protein_directory, genome_files, protein_files):
         '''
@@ -767,7 +716,7 @@ class Annotate:
                                          path.join(self.output_directory, self.GENOME_BIN))
             prep_genomes_list = self.call_proteins(directory)
 
-        for chunk in self.list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
+        for chunk in list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
             genomes_list += self.pool.map(parse_genomes, chunk)
 
         return genomes_list

@@ -18,9 +18,9 @@
 
 import logging
 import os
-import subprocess
 from enrichm.databases import Databases
 from enrichm.data import Data
+from enrichm.toolbox import run_command
 ################################################################################
 class Plot:
 
@@ -37,11 +37,17 @@ class Plot:
     def draw_pca_plot(self, annotation_matrix, metadata, output_directory):
         logging.info('	- Generating PCA plot')
         output_path = os.path.join(output_directory, self.output_pca_plot)
-        cmd = "Rscript %s -i %s -m %s -o %s > /dev/null 2>&1" % (self.draw_pca_script_path, annotation_matrix, metadata, output_path)
-        subprocess.call(cmd, shell=True)
+        cmd = f"Rscript {self.draw_pca_script_path} \
+                    -i {annotation_matrix} \
+                    -m {metadata} \
+                    -o {output_path} > /dev/null 2>&1"
+        run_command(cmd)
 
     def draw_barplots(self, annotation_matrix, pvalue, output_directory):
         logging.info('	- Generating KO breakdown plots')
-        cmd = "Rscript %s -i %s -o %s -k %s -p %f > /dev/null 2>&1" \
-            % (self.draw_barplots_script_path, annotation_matrix, output_directory, self.ko00000, pvalue)
-        subprocess.call(cmd, shell=True)
+        cmd = f"Rscript {self.draw_barplots_script_path} \
+                    -i {annotation_matrix} \
+                    -o {output_directory} \
+                    -k {self.ko00000} \
+                    -p {pvalue} > /dev/null 2>&1"
+        run_command(cmd)

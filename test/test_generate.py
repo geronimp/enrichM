@@ -44,10 +44,9 @@ class Tests(unittest.TestCase):
     def test_hello_generate(self):
         tmp = tempfile.mkdtemp()
         generate_model = GenerateModel()
-
         generate_model.generate_pipeline(self.sample_matrix_path,
                                          self.sample_metadata_path,
-                                         generate_model.CLASSIFIER,
+                                         generate_model.classifier,
                                          0.2, # Default testing portion
                                          False, # Dont do a grid search for fine tuning
                                          2, # Threads
@@ -55,12 +54,10 @@ class Tests(unittest.TestCase):
                                         )
         expected_files = sorted(os.listdir(tmp))
         observed_files = sorted(os.listdir(self.sample_generate_path))
-
         self.assertEqual(len(expected_files), len(observed_files))
-
         for expected_file, observed_file in zip(expected_files, observed_files):
-            expected_file_path = os.path.join(tmp, expected_file)
-            observed_file_path = os.path.join(self.sample_generate_path, observed_file)
+            #expected_file_path = os.path.join(tmp, expected_file)
+            #observed_file_path = os.path.join(self.sample_generate_path, observed_file)
             # Are all files present?
             self.assertEqual(expected_file, observed_file)
         shutil.rmtree(tmp)

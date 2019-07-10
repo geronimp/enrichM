@@ -110,7 +110,7 @@ class MatrixGenerator:
         annotation_type - String.
         '''
         self.annotation_type = annotation_type
-        self.databases = Databases
+        self.databases = Databases()
         if self.annotation_type == self.KO:
             self.annotation_list = [x.strip() for x in open(os.path.join(self.databases.IDS_DIR, self.KO))]
 

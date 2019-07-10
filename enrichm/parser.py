@@ -33,41 +33,6 @@ class Parser:
     '''
     A collection of functions to parse files in various formats.
     '''
-    @staticmethod
-    def parse_genome_and_annotation_file_lf(genome_and_annotation_file):
-        genome_to_annotation_sets = dict()
-
-        for line in open(genome_and_annotation_file):
-
-            try:
-                genome, annotation = line.strip().split("\t")
-
-            except:
-                raise Exception("Input genomes/annotation file error on %s" % line)
-
-            if genome not in genome_to_annotation_sets:
-                genome_to_annotation_sets[genome] = set()
-
-            genome_to_annotation_sets[genome].add(annotation)
-
-        return genome_to_annotation_sets
-
-    @staticmethod
-    def parse_genome_and_annotation_file_matrix(genome_and_annotation_matrix):
-        genome_and_annotation_matrix_io = open(genome_and_annotation_matrix)
-        headers = genome_and_annotation_matrix_io.readline().strip().split('\t')[1:]
-        genome_to_annotation_sets = {genome_name:set() for genome_name in headers}
-
-        for line in genome_and_annotation_matrix_io:
-            sline = line.strip().split('\t')
-            annotation, entries = sline[0], sline[1:]
-
-            for genome_name, entry in zip(headers, entries):
-
-                if float(entry) > 0:
-                    genome_to_annotation_sets[genome_name].add(annotation)
-
-        return genome_to_annotation_sets
 
     @staticmethod
     def parse_taxonomy(taxonomy_path):
@@ -348,21 +313,21 @@ class ParseAnnotate:
 class ParseGenerate:
 
     def __init__(self, forester_model_directory):
-        self.LABELS_DICT = "labels_dict.pickle"
-        self.RF_MODEL = "rf_model.pickle"
-        self.ATTRIBUTE_IMPORTANCES = "attribute_importances.tsv"
+        self.labels_dict = "labels_dict.pickle"
+        self.rf_model = "rf_model.pickle"
+        self.attribute_importances = "attribute_importances.tsv"
         self.forester_model_directory = forester_model_directory
 
         for content in os.listdir(forester_model_directory):
             content_path = os.path.join(forester_model_directory, content)
 
-            if content == self.LABELS_DICT:
+            if content == self.labels_dict:
                 with open(content_path, 'rb') as content_path_io:
                     self.labels = pickle.load(content_path_io)
-            elif content == self.RF_MODEL:
+            elif content == self.rf_model:
                 with open(content_path, 'rb') as content_path_io:
                     self.model = pickle.load(content_path_io)
-            elif content == self.ATTRIBUTE_IMPORTANCES:
+            elif content == self.attribute_importances:
                 self.attributes = list()
                 with open(content_path) as content_path_io:
                     _ = content_path_io.readline() # Junk

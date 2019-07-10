@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # pylint: disable=line-too-long
-# pylint: disable=line-too-long
 ###############################################################################
 #                                                                             #
 #    This program is free software: you can redistribute it and/or modify     #
@@ -33,7 +32,6 @@ from enrichm.writer import Writer
 ################################################################################
 
 def gene_fisher_calc(x):
-
     annotation, group_1, group_2 = x[0], x[1], x[2]
 
     dat = x[3:]
@@ -118,24 +116,24 @@ def zscore_calc(x):
 
 class Enrichment:
 
-    TIGRFAM                 = "tigrfam"
-    PFAM                    = "pfam"
-    KEGG                    = "kegg"
-    CAZY                    = "cazy"
-    EC                      = "ec"
-    CLUSTER                 = "cluster"
-    ORTHOLOG                = "ortholog"
-    OTHER                   = "other"
+    TIGRFAM = "tigrfam"
+    PFAM = "pfam"
+    KEGG = "kegg"
+    CAZY = "cazy"
+    EC = "ec"
+    CLUSTER = "cluster"
+    ORTHOLOG = "ortholog"
+    OTHER = "other"
 
     def __init__(self):
 
-        self.TIGRFAM_PREFIX          = 'TIGR'
-        self.PFAM_PREFIX             = 'PF'
-        self.KEGG_PREFIX             = 'K'
-        self.CAZY_PREFIX             = ["GH", "AA", "GT","PL","CE","CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
-        self.EC_PREFIX             = ["1", "2", "3","4","5","6", "7"]
-        self.PROPORTIONS             = 'proportions.tsv'
-        self.MODULE_COMPLETENESS     = 'modules.tsv'
+        self.TIGRFAM_PREFIX = 'TIGR'
+        self.PFAM_PREFIX = 'PF'
+        self.KEGG_PREFIX = 'K'
+        self.CAZY_PREFIX = ["GH", "AA", "GT", "PL", "CE", "CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
+        self.EC_PREFIX = ["1", "2", "3","4","5","6", "7"]
+        self.PROPORTIONS = 'proportions.tsv'
+        self.MODULE_COMPLETENESS = 'modules.tsv'
 
     def check_annotation_type(self, annotations):
         '''
@@ -205,7 +203,7 @@ class Enrichment:
         return output_dict
 
     def calculate_portions(self,
-                           modules,
+                           annotations,
                            combination_dict,
                            annotations_dict,
                            genome_list,
@@ -224,41 +222,23 @@ class Enrichment:
         genome_list         - List. List of strings, each one a genome name
         proportions_cutoff  - Float. Value with which to cutoff
         '''
-        raw_proportions_output_lines        = [['Module'] + list(combination_dict.keys())]
+        raw_proportions_output_lines        = [['Annotation'] + list(combination_dict.keys())]
 
-        for module in modules:
+        for annotation in annotations:
 
-            module_values               = dict()
-            raw_proportions_output_line = [module]
+            annotation_values               = dict()
+            raw_proportions_output_line = [annotation]
 
             for group_name, genome_list in combination_dict.items():
                 if len(genome_list)>0:
                     coverage = len([genome for genome in genome_list
-                                    if module in annotations_dict[genome]])
+                                    if annotation in annotations_dict[genome]])
                     total    = float(len(genome_list))
                     entry    = coverage/total
-                    module_values[group_name] = entry
+                    annotation_values[group_name] = entry
                     raw_proportions_output_line.append(str(entry))
                 else:
                     raw_proportions_output_line.append('0.0')
-
-            if max(module_values.values())>0:
-                groups = combination_dict.keys()
-                for group in groups:
-                    group_val = module_values[group]
-                    compare_groups = list()
-                    if group_val>0:
-                        for other_group in groups:
-                            if other_group!=group:
-                                other_group_val = module_values[other_group]
-                                if other_group_val > 0:
-                                    compare_value = group_val/other_group_val
-                                else:
-                                    compare_value = float("inf")
-                                compare_groups.append(compare_value)
-
-                    if all([x>proportions_cutoff for x in compare_groups]):
-                        pass
 
             raw_proportions_output_lines.append(raw_proportions_output_line)
 
@@ -361,11 +341,9 @@ class Enrichment:
             elif ec:
                 annotation_matrix = pa.ec
 
+        logging.info('Parsing annotation matrix')
         annotations_dict, _, annotations, = Parser.parse_simple_matrix(annotation_matrix)
         annotation_type = self.check_annotation_type(annotations)
-
-        logging.info('Parsing metadata: %s' % metadata_path)
-        metadata, metadata_value_lists, attribute_dict = Parser.parse_metadata_matrix(metadata_path)
 
         if abundances_path:
             logging.info('Running abundances pipeline')
@@ -375,8 +353,19 @@ class Enrichment:
             logging.info('Parsing sample metadata')
             _, _, ab_attribute_dict = Parser.parse_metadata_matrix(abundance_metadata_path)
 
-            test = Test(annotations_dict, None, annotation_type, threshold, multi_test_correction, processes, database)
-            weighted_abundance = self.weight_annotation_matrix(abundances_dict, annotations_dict, ab_attribute_dict, annotations)
+            test = Test(annotations_dict,
+                        None,
+                        annotation_type,
+                        threshold,
+                        multi_test_correction,
+                        processes,
+                        database)
+
+            weighted_abundance \
+                = self.weight_annotation_matrix(abundances_dict,
+                                                annotations_dict,
+                                                ab_attribute_dict,
+                                                annotations)
             results = test.test_weighted_abundances(weighted_abundance, annotations)
 
             for result in results:
@@ -385,7 +374,10 @@ class Enrichment:
                 Writer.write(test_result_lines, test_result_output_path)
 
         else:
-
+            logging.info('Parsing metadata: %s' % metadata_path)
+            metadata, metadata_value_lists, attribute_dict \
+                = Parser.parse_metadata_matrix(metadata_path)
+                
             if batchfile:
                 gtdb_annotation_matrix = self.get_gtdb_database_path(annotation_type, database)
 

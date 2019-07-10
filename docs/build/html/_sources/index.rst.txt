@@ -1,16 +1,14 @@
-.. EnrichM documentation master file, created by
-   sphinx-quickstart on Tue May 28 11:18:15 2019.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-Welcome to EnrichM's documentation!
-===================================
+EnrichM
+=======
+Overview
+^^^^^^^^
+A set of comparative genomics utilities for large sets of metagenome assembled genomes (MAGs).
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-
+    help
+    licence
 
 Indices and tables
 ==================
@@ -18,3 +16,12 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+* :doc:`licence`
+* :doc:`help`
+* :doc:`Annotate`
+* :doc:`Classify`
+* :doc:`Enrichment`
+* :doc:`Pathway`
+* :doc:`Explore`
+* :doc:`Generate`
+* :doc:`Predict`

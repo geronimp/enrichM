@@ -202,9 +202,7 @@ if __name__ == "__main__":
 
     classify_input_options = classify.add_argument_group('Input options')
 
-    classify_input_options.add_argument('--genome_and_annotation_file',
-                help='Path to file containing a genome<tab>annotation list')
-    classify_input_options.add_argument('--genome_and_annotation_matrix',
+    classify_input_options.add_argument('--genome_and_annotation_matrix', required=True,
                 help='Path to file containing a genome annotation matrix')
     classify_input_options.add_argument('--custom_modules',
                 help='Tab separated file containing module name, definition as the columns')
