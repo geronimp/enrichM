@@ -85,8 +85,6 @@ class Classify:
         
         if module_rules_json:
             classification_rules = RulesJson().load(module_rules_json)
-            #classification_rules.synteny_rules()
-            import IPython; IPython.embed()
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
             modules_to_classify = self.update_with_custom_modules(custom_modules)
@@ -120,7 +118,8 @@ class Classify:
                     ko_path_list = list(chain(*ko_path.values()))
 
                     if perc_covered >= cutoff:
-
+                        import IPython; IPython.embed()
+                        # Add in rules checks
                         if path.is_single_step:
 
                             if perc_covered != 1:
@@ -143,11 +142,13 @@ class Classify:
                                 abundance_result[genome] = dict()
 
                             pathway_abundance = [abundances[genome][ko] for ko in ko_path_list]
+
                             if len(pathway_abundance)>0:
                                 pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
                             else:
                                 pathway_average_abundance = 0
                             abundance_result[genome][name] = pathway_average_abundance
+
                         genome_output_lines.append([genome, name, self.modules[name], ','.join(ko_path_list)])
                         output_line = [genome, name, self.modules[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
                         output_lines.append(output_line)

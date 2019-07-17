@@ -147,6 +147,50 @@ class Parser:
         return output_dict, columns
 
     @staticmethod
+    def parse_gff(gff_file):
+        output_dict = dict()
+        software_label = "software"
+        feature_type_label = "feature_type"
+        start_pos_label = "start_pos"
+        finish_pos_label = "finish_pos"
+        score_label = "score"
+        strand_label = "strand"
+        phase_label = "phase"
+
+        for line in open(gff_file):
+
+            if line.startswith('#'):continue
+
+            contig, software, feature_type, start_pos, \
+            finish_pos, score, strand, phase, attributes \
+                = line.strip().split('\t')
+
+            attributes_dict = dict()
+
+            for attribute in attributes.split(';'):
+                attribute_key, attribute_value = attribute.split('=')
+                attribute_value_list = attribute_value.split(',')
+                if attribute_key in attributes_dict:
+                    rasie Exception(f"Key duplicate in GFF file: {attribute_key}")
+                else:
+                    attributes_dict[attribute_key] = attribute_value_list 
+
+            result_dict = {software_label: software,
+                           feature_type_label: feature_type,
+                           start_pos_label: start_pos,
+                           finish_pos_label: finish_pos,
+                           score_label: score,
+                           strand_label: strand,
+                           phase_label: phase,
+                           annotations_label: attributes_dict}
+
+            if contig in output_dict:
+                output_dict[gff_file][contig].append(result_dict)
+            else:
+                output_dict[gff_file][contig] = [result_dict]
+        return output_dict
+
+    @staticmethod
     def parse_tpm_values(tpm_values):
         from enrichm.databases import Databases
         k2r = Databases().k2r()
@@ -419,4 +463,4 @@ class RulesJsonVersion0(RulesJson):
         return self._contents_json['modules'][module_name]['homology']
 
     def get_required_rules(self, module_name):
-        return self._contents_json['modules'][required]['homology']
+        return self._contents_json['modules'][module_name]['required']
