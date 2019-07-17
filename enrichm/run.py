@@ -202,6 +202,20 @@ class Run:
         if(args.cutoff>1 and args.cutoff<0):
             raise Exception("--cutoff needs to be between 0 and 1")
 
+        if(args.gff_files and args.genome_and_annotation_matrix):
+            raise Exception(f"Both --gff_files {args.gff_files} and --genome_and_annotation_matrix {args.genome_and_annotation_matrix} were specified. Please provide only one option.")
+
+        if(args.module_rules_json and not args.gff_files):
+            raise Exception(f"--gff_files must be provided to use --module_rules_json")
+
+        if args.module_rules_json:
+            if not os.path.isfile(args.module_rules_json):
+                raise Exception(f"File does not exist: {args.module_rules_json}")
+
+        if args.custom_modules:
+            if not os.path.isfile(args.custom_modules):
+                raise Exception(f"File does not exist: {args.custom_modules}")
+
     def _check_network(self, args):
         '''
         Check network (explore, pathway) input and output options are valid.
@@ -309,7 +323,7 @@ class Run:
             classify = Classify()
             classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
                                        args.genome_and_annotation_matrix, args.module_rules_json, 
-                                       args.output)
+                                       args.gff_files, args.output)
 
         elif args.subparser_name == self.ENRICHMENT:
             self._check_enrichment(args)

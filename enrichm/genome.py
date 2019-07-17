@@ -27,7 +27,7 @@ class Genome:
     A genome object which collects all the attirbutes of an imput genome,
     including protein sequences and their annotations
     '''
-    def __init__(self, light, path, nucl, gene):
+    def __init__(self, light, path, nucl, gene, gff=False):
         seqio = SequenceIO()
         self.clusters = set()
         self.orthologs = set()
@@ -42,9 +42,9 @@ class Genome:
         if light == False:
 
             if nucl is not None:
-                self.nucl 	= nucl
+                self.nucl = nucl
                 self.length = 0
-                gc_list 	= 0.0
+                gc_list = 0.0
 
                 for description, sequence in seqio.each(open(nucl)):
                     self.length += len(str(sequence))
@@ -78,8 +78,8 @@ class Genome:
                 self.protein_ordered_dict[protein_count] = name
 
     def add(self, annotations, evalue_cutoff, bitscore_cutoff,
-         percent_aln_query_cutoff, percent_aln_reference_cutoff, specific_cutoffs,
-            annotation_type, ref_ids):
+            percent_aln_query_cutoff, percent_aln_reference_cutoff,
+            specific_cutoffs, annotation_type, ref_ids):
         '''
         Adds a series of annotations to the proteins within a genome.
 

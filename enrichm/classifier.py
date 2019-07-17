@@ -30,6 +30,7 @@ from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser, RulesJson
 from enrichm.writer import Writer
 from enrichm.toolbox import get_present_annotations
+from enrichm.classify_checks import ClassifyChecks
 ###############################################################################
 
 class Classify:
@@ -65,7 +66,7 @@ class Classify:
         return custom_modules_dict
 
     def classify_pipeline(self, custom_modules, cutoff, aggregate, genome_and_annotation_matrix,
-                          module_rules_json, output_directory):
+                          module_rules_json, gff_files, output_directory):
         '''
 
         Parameters
@@ -79,18 +80,27 @@ class Classify:
         output                          - string. Path to file to output results to.
 
         '''
-
         pathway = dict()
         genome_output_lines = list()
-        
+
         if module_rules_json:
-            classification_rules = RulesJson().load(module_rules_json)
+            cc = ClassifyChecks(RulesJson().load(module_rules_json))
+
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
             modules_to_classify = self.update_with_custom_modules(custom_modules)
         else:
             modules_to_classify = self.m2def
-        genome_to_annotation_sets, _, _ = Parser.parse_simple_matrix(genome_and_annotation_matrix)
+
+        if gff_files:
+            genome_to_annotation_sets = dict()
+            annotation_results = dict()
+            for gff in gff_files:
+                feature_dict, genome_to_annotations_set = Parser.parse_gff(gff)
+                genome_to_annotation_sets[gff] = genome_to_annotations_set
+                annotation_results[gff] = feature_dict
+        else:
+            genome_to_annotation_sets, _, _ = Parser.parse_simple_matrix(genome_and_annotation_matrix)
 
         if aggregate:
             logging.info('Reading in abundances: %s' % (genome_and_annotation_matrix))
@@ -118,23 +128,26 @@ class Classify:
                     ko_path_list = list(chain(*ko_path.values()))
 
                     if perc_covered >= cutoff:
-                        import IPython; IPython.embed()
-                        # Add in rules checks
-                        if path.is_single_step:
 
-                            if perc_covered != 1:
+                        rule_check_result = cc.check(name, annotation_results[genome])
 
-                                if cutoff < 1:
-                                    num_all = 1
-                                    num_covered = 0
-                                    perc_covered = 0.0
+                        if rule_check_result:
+
+                            if path.is_single_step:
+
+                                if perc_covered != 1:
+
+                                    if cutoff < 1:
+                                        num_all = 1
+                                        num_covered = 0
+                                        perc_covered = 0.0
+
+                                    else:
+                                        continue
 
                                 else:
-                                    continue
-
-                            else:
-                                num_all = 1
-                                num_covered = 1
+                                    num_all = 1
+                                    num_covered = 1
 
                         if aggregate:
 

@@ -148,21 +148,15 @@ class Parser:
 
     @staticmethod
     def parse_gff(gff_file):
-        output_dict = dict()
-        software_label = "software"
-        feature_type_label = "feature_type"
-        start_pos_label = "start_pos"
-        finish_pos_label = "finish_pos"
-        score_label = "score"
-        strand_label = "strand"
-        phase_label = "phase"
+        feature_dict = dict()
+        genome_to_annotations_set = dict()
 
         for line in open(gff_file):
 
-            if line.startswith('#'):continue
+            if line.startswith('#'):
+                continue
 
-            contig, software, feature_type, start_pos, \
-            finish_pos, score, strand, phase, attributes \
+            _, _, _, start_pos, finish_pos, _, strand, _, attributes \
                 = line.strip().split('\t')
 
             attributes_dict = dict()
@@ -170,29 +164,28 @@ class Parser:
             for attribute in attributes.split(';'):
                 attribute_key, attribute_value = attribute.split('=')
                 attribute_value_list = attribute_value.split(',')
+
                 if attribute_key in attributes_dict:
-                    rasie Exception(f"Key duplicate in GFF file: {attribute_key}")
+                    raise Exception(f"Key duplicate in GFF file: {attribute_key}")
                 else:
                     attributes_dict[attribute_key] = attribute_value_list 
 
-            result_dict = {software_label: software,
-                           feature_type_label: feature_type,
-                           start_pos_label: start_pos,
-                           finish_pos_label: finish_pos,
-                           score_label: score,
-                           strand_label: strand,
-                           phase_label: phase,
-                           annotations_label: attributes_dict}
+            for attribute in attributes_dict['annotations']:
 
-            if contig in output_dict:
-                output_dict[gff_file][contig].append(result_dict)
-            else:
-                output_dict[gff_file][contig] = [result_dict]
-        return output_dict
+                if attribute in feature_dict:
+                    feature_dict[attribute].append([int(start_pos), int(finish_pos), strand])
+                    genome_to_annotations_set[attribute] += 1
+                else:
+                    feature_dict[attribute] = [[int(start_pos), int(finish_pos), strand]]
+                    genome_to_annotations_set[attribute] = 1
+
+        return feature_dict, genome_to_annotations_set
 
     @staticmethod
     def parse_tpm_values(tpm_values):
+
         from enrichm.databases import Databases
+
         k2r = Databases().k2r()
 
         output_dict = dict()
@@ -400,7 +393,7 @@ class RulesJson:
                         {"synteny": # Type of rule
                             {"block": # List of instances
                                 ["genes", "range", "strict"]}, # values of instance
-                        "homology": {},
+                        #"homology": {},
                         "required": {}
                         }
                      }
@@ -408,6 +401,7 @@ class RulesJson:
     
     def load(self, rules_json_filepath):
         logging.debug(f"Loading rules JSON file: {rules_json_filepath}")
+
         self.contents_dict = json.load(open(rules_json_filepath))
 
         logging.debug("Finding rules version")
@@ -454,7 +448,7 @@ class RulesJsonVersion0(RulesJson):
         self._contents_json = _contents_json
         self._filename = _filename
         self._version = _version
-        members = set(self._contents_json['modules'].keys())
+        self.members = set(self._contents_json['modules'].keys())
 
     def get_synteny_rules(self, module_name):
         return self._contents_json['modules'][module_name]['synteny']

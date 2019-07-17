@@ -225,8 +225,6 @@ class ModuleDescriptionParser:
             new_stuff = list()
 
             for e in current.understuff:
-                if e.startswith('AtoD'):
-                    import IPython; IPython.embed()
                 if isinstance(e, str):
 
                     if (' ' not in e or

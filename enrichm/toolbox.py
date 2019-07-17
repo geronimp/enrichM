@@ -22,6 +22,7 @@ Miscellaneous functions that dont necessarily belong anywhere but are still usef
 
 import logging
 import subprocess
+from itertools import islice
 
 def list_splitter(input_list, chunk_number, chunk_max):
     """
@@ -88,3 +89,14 @@ def get_present_annotations(input_dictionary):
             output_list.append(key)
 
     return output_list
+
+
+def window(seq, n=2):
+    "Stolen directly from https://stackoverflow.com/questions/6822725/rolling-or-sliding-window-iterator"
+    it = iter(seq)
+    result = tuple(islice(it, n))
+    if len(result) == n:
+        yield result
+    for elem in it:
+        result = result[1:] + (elem,)
+        yield result

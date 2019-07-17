@@ -202,12 +202,14 @@ if __name__ == "__main__":
 
     classify_input_options = classify.add_argument_group('Input options')
 
-    classify_input_options.add_argument('--genome_and_annotation_matrix', required=True,
+    classify_input_options.add_argument('--genome_and_annotation_matrix',
                 help='Path to file containing a genome annotation matrix')
     classify_input_options.add_argument('--custom_modules',
                 help='Tab separated file containing module name, definition as the columns')
     classify_input_options.add_argument('--module_rules_json',
                 help='json file specifying rules to interpret the annotation and guide module annotation')
+    classify_input_options.add_argument('--gff_files', nargs = '+',
+                help='GFF files for the genomes being classified.')
 
     classify_cutoff_options = classify.add_argument_group('Cutoff options')
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
