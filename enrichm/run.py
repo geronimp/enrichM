@@ -308,7 +308,8 @@ class Run:
             self._check_classify(args)
             classify = Classify()
             classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
-                                       args.genome_and_annotation_matrix, args.output)
+                                       args.genome_and_annotation_matrix, args.module_rules_json, 
+                                       args.output)
 
         elif args.subparser_name == self.ENRICHMENT:
             self._check_enrichment(args)

@@ -225,17 +225,14 @@ class ModuleDescriptionParser:
             new_stuff = list()
 
             for e in current.understuff:
-
+                if e.startswith('AtoD'):
+                    import IPython; IPython.embed()
                 if isinstance(e, str):
 
-                    if (re.match(KEGG, e) or
-                        re.match(GH, e) or
-                        re.match(PL, e) or
-                        re.match(CE, e) or
-                        re.match(TIGRFAM, e) or
-                        re.match(PFAM, e) or
-                            re.match(EC, e)):
-
+                    if (' ' not in e or
+                        ',' not in e or
+                        '+' not in e or
+                        '-' not in e):
                         new_stuff.append(ModuleDescriptionKoEntry(e))
 
                     else:
@@ -245,7 +242,7 @@ class ModuleDescriptionParser:
                             topush = ParserHelper()
                             comma_splits = self.split_on_space(e)
                             m = None
-
+                            
                             if len(comma_splits) == 1:
                                 plus_splits = self.split_on_plus(e)
                                 minus_splits = self.split_on_minus(e)

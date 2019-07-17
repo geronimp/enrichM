@@ -206,6 +206,8 @@ if __name__ == "__main__":
                 help='Path to file containing a genome annotation matrix')
     classify_input_options.add_argument('--custom_modules',
                 help='Tab separated file containing module name, definition as the columns')
+    classify_input_options.add_argument('--module_rules_json',
+                help='json file specifying rules to interpret the annotation and guide module annotation')
 
     classify_cutoff_options = classify.add_argument_group('Cutoff options')
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
@@ -214,6 +216,7 @@ if __name__ == "__main__":
     classify_runtime_options = classify.add_argument_group('Runtime options')
     classify_runtime_options.add_argument('--aggregate', action='store_true',
                                          help='Calculate the abundance of each pathway within each genome/sample (column)')
+    
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])

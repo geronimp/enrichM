@@ -27,7 +27,7 @@ from itertools import chain
 # Local
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
-from enrichm.parser import Parser
+from enrichm.parser import Parser, RulesJson
 from enrichm.writer import Writer
 from enrichm.toolbox import get_present_annotations
 ###############################################################################
@@ -59,16 +59,13 @@ class Classify:
             for line in custom_modules_io:
                 custom_modules_dict[line.split('\t')[0]] = line.strip().split('\t')[1]
 
-        self.m2def.update(custom_modules_dict)
-
         for key in custom_modules_dict:
             self.modules[key] = 'Custom'
 
-    def aggregate(self):
-        pass
+        return custom_modules_dict
 
     def classify_pipeline(self, custom_modules, cutoff, aggregate, genome_and_annotation_matrix,
-                          output_directory):
+                          module_rules_json, output_directory):
         '''
 
         Parameters
@@ -85,16 +82,20 @@ class Classify:
 
         pathway = dict()
         genome_output_lines = list()
-
+        
+        if module_rules_json:
+            classification_rules = RulesJson().load(module_rules_json)
+            #classification_rules.synteny_rules()
+            import IPython; IPython.embed()
         if custom_modules:
             logging.info('Reading in custom modules: %s' % custom_modules)
-            self.update_with_custom_modules(custom_modules)
-
+            modules_to_classify = self.update_with_custom_modules(custom_modules)
+        else:
+            modules_to_classify = self.m2def
         genome_to_annotation_sets, _, _ = Parser.parse_simple_matrix(genome_and_annotation_matrix)
 
         if aggregate:
-            logging.info('Reading in abundances: %s' %
-                         (genome_and_annotation_matrix))
+            logging.info('Reading in abundances: %s' % (genome_and_annotation_matrix))
             abundances, _, _ = Parser.parse_simple_matrix(genome_and_annotation_matrix)
             abundance_result = dict()
 
@@ -105,7 +106,7 @@ class Classify:
 
         genome_output_lines = [["Genome_name", "Module_id", "Module_name"]]
 
-        for name, pathway_string in self.m2def.items():
+        for name, pathway_string in modules_to_classify.items():
 
             if name not in self.signature_modules:
                 path = ModuleDescription(pathway_string)
@@ -155,11 +156,10 @@ class Classify:
         Writer.write(genome_output_lines, os.path.join(output_directory, self.module_paths))
 
         if aggregate:
-            #self.aggregate()
             samples = list(abundance_result.keys())
             output_lines = ['\t'.join(["ID"] + samples) + '\n']
 
-            for module in self.m2def.keys():
+            for module in modules_to_classify.keys():
 
                 if module not in self.signature_modules:
                     output_line = [module]

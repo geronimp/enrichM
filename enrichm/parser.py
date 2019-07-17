@@ -18,6 +18,8 @@
 
 import os
 import pickle
+import json
+import logging
 import multiprocessing as mp
 from enrichm.annotate import Annotate
 
@@ -339,3 +341,82 @@ class ParseGenerate:
         if None in [self.labels, self.model, self.attributes]:
             raise Exception("Malformatted forester model directory: %s" \
                             % (forester_model_directory))
+
+class RulesJson:
+    _CURRENT = "0"
+    VERSION = 'version'
+    
+    _GENERIC_KEYS = {
+        "0": [
+            "modules", # Modules with rules
+            "version" # Version of database
+        ]
+    }
+    _REQUIRED_KEYS = {"0": # DB version
+                        {"synteny": # Type of rule
+                            {"block": # List of instances
+                                ["genes", "range", "strict"]}, # values of instance
+                        "homology": {},
+                        "required": {}
+                        }
+                     }
+
+    
+    def load(self, rules_json_filepath):
+        logging.debug(f"Loading rules JSON file: {rules_json_filepath}")
+        self.contents_dict = json.load(open(rules_json_filepath))
+
+        logging.debug("Finding rules version")
+        current_package_version = self.contents_dict[self.VERSION]
+
+        logging.debug(f"Loading rules version {current_package_version}")
+        if current_package_version == '0':
+            rj = RulesJsonVersion0(self.contents_dict, rules_json_filepath, current_package_version)
+        else:
+            raise Exception(f"JSON rules file version invalid: {current_package_version}")
+
+        logging.debug("Checking package format is valid")
+        self.check_version_keys(self._GENERIC_KEYS[current_package_version], self.contents_dict)
+        for module_rules in self.contents_dict['modules'].values():
+            self.check_version_keys(self._REQUIRED_KEYS[current_package_version], module_rules)
+
+        return rj
+
+    def get_version(self):
+        if self.VERSION in self.contents_dict:
+            return self.contents_dict[self.VERSION]
+        else:
+            raise Exception("No version information in rules JSON file")
+
+    def check_version_keys(self, version_keys, contents_dict):
+        if isinstance(version_keys, dict):
+            for key, item in version_keys.items():
+                self.check_key(key, contents_dict, item)
+        elif isinstance(version_keys, list):
+            for key in version_keys:
+                self.check_key(key, contents_dict)
+
+    def check_key(self, key, contents, item=None):
+        if key in contents:
+            if item:
+                self.check_version_keys(item, contents[key])
+        else:
+            raise Exception(f"Malformatted rules file. Key not found: {key}")
+
+class RulesJsonVersion0(RulesJson):
+
+    def __init__(self, _contents_json, _filename, _version):
+        self.VERSION = 0
+        self._contents_json = _contents_json
+        self._filename = _filename
+        self._version = _version
+        members = set(self._contents_json['modules'].keys())
+
+    def get_synteny_rules(self, module_name):
+        return self._contents_json['modules'][module_name]['synteny']
+
+    def get_homology_rules(self, module_name):
+        return self._contents_json['modules'][module_name]['homology']
+
+    def get_required_rules(self, module_name):
+        return self._contents_json['modules'][required]['homology']
