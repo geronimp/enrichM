@@ -177,10 +177,8 @@ class ModuleDescriptionKoEntry:
         reaction_count = 1
         return found, count, reaction_count, [self.ko]
 
-
 class ParserHelper:
     pass
-
 
 class ModuleDescriptionParser:
 
@@ -227,16 +225,16 @@ class ModuleDescriptionParser:
             for e in current.understuff:
                 if isinstance(e, str):
 
-                    if (' ' not in e or
-                        ',' not in e or
-                        '+' not in e or
+                    if (' ' not in e and
+                        ',' not in e and
+                        '+' not in e and
                         '-' not in e):
                         new_stuff.append(ModuleDescriptionKoEntry(e))
 
                     else:
                         frags = self.split_on_comma(e)
-
                         if len(frags) == 1:
+
                             topush = ParserHelper()
                             comma_splits = self.split_on_space(e)
                             m = None

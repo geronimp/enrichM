@@ -100,3 +100,14 @@ def window(seq, n=2):
     for elem in it:
         result = result[1:] + (elem,)
         yield result
+
+def cluster(input_list, maxgap):
+    '''Stolen from https://stackoverflow.com/questions/14783947/grouping-clustering-numbers-in-python'''
+    input_list.sort()
+    groups = [[input_list[0]]]
+    for x in input_list[1:]:
+        if abs(x - groups[-1][-1]) <= maxgap:
+            groups[-1].append(x)
+        else:
+            groups.append([x])
+    return groups

@@ -149,22 +149,22 @@ class Classify:
                                     num_all = 1
                                     num_covered = 1
 
-                        if aggregate:
+                            if aggregate:
 
-                            if genome not in abundance_result:
-                                abundance_result[genome] = dict()
+                                if genome not in abundance_result:
+                                    abundance_result[genome] = dict()
 
-                            pathway_abundance = [abundances[genome][ko] for ko in ko_path_list]
+                                pathway_abundance = [abundances[genome][ko] for ko in ko_path_list]
 
-                            if len(pathway_abundance)>0:
-                                pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
-                            else:
-                                pathway_average_abundance = 0
-                            abundance_result[genome][name] = pathway_average_abundance
+                                if len(pathway_abundance)>0:
+                                    pathway_average_abundance = sum(pathway_abundance) / len(pathway_abundance)
+                                else:
+                                    pathway_average_abundance = 0
+                                abundance_result[genome][name] = pathway_average_abundance
 
-                        genome_output_lines.append([genome, name, self.modules[name], ','.join(ko_path_list)])
-                        output_line = [genome, name, self.modules[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
-                        output_lines.append(output_line)
+                            genome_output_lines.append([genome, name, self.modules[name], ','.join(ko_path_list)])
+                            output_line = [genome, name, self.modules[name], str(num_covered), str(num_all), str(round(perc_covered * 100, 2))]
+                            output_lines.append(output_line)
 
         Writer.write(output_lines, os.path.join(output_directory, self.ko_output))
         Writer.write(genome_output_lines, os.path.join(output_directory, self.module_paths))

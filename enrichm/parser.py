@@ -391,8 +391,7 @@ class RulesJson:
     }
     _REQUIRED_KEYS = {"0": # DB version
                         {"synteny": # Type of rule
-                            {"block": # List of instances
-                                ["genes", "range", "strict"]}, # values of instance
+                            ["genes", "range", "strict", "breaks"], # values of instance
                         #"homology": {},
                         "required": {}
                         }
@@ -415,6 +414,7 @@ class RulesJson:
 
         logging.debug("Checking package format is valid")
         self.check_version_keys(self._GENERIC_KEYS[current_package_version], self.contents_dict)
+
         for module_rules in self.contents_dict['modules'].values():
             self.check_version_keys(self._REQUIRED_KEYS[current_package_version], module_rules)
 
@@ -435,11 +435,21 @@ class RulesJson:
                 self.check_key(key, contents_dict)
 
     def check_key(self, key, contents, item=None):
-        if key in contents:
-            if item:
-                self.check_version_keys(item, contents[key])
-        else:
-            raise Exception(f"Malformatted rules file. Key not found: {key}")
+        
+        if isinstance(contents, dict):
+            if key in contents:
+                if item:
+                    self.check_version_keys(item, contents[key])
+            else:
+                raise Exception(f"Malformatted rules file. Key not found: {key}")
+        
+        elif isinstance(contents, list):
+            for content in contents:
+                if key in content:
+                    if item:
+                        self.check_version_keys(item, contents[key])
+                else:
+                    raise Exception(f"Malformatted rules file. Key not found: {key}")
 
 class RulesJsonVersion0(RulesJson):
 
