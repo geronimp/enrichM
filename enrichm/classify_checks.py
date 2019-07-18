@@ -121,7 +121,11 @@ class ClassifyChecks:
 
             else:
                 gene_positions = [genome_gff[gene] for gene in parameters['genes']]
-                for combination in product(*gene_positions):
+                # TODO This needs optimization
+                # We could probably restrain is to local syntenous groups, or 
+                # groups on the same contig.
+                for combination in product(*gene_positions): 
+
                     endings = [gene[1] for gene in combination]
                     clustered_group = cluster(endings, synteny_range)
                     if len(clustered_group) == 1:
