@@ -41,7 +41,7 @@ conda create -n enrichm_X.X.X python=3
 # Activate that environment once it has compiled
 source activate enrichm_X.X.X
 # Install EnrichM's dependencies
-conda install -c bioconda mcl R hmmer diamond prodigal parallel openmp mmseqs2 moreutils
+conda install -c bioconda mcl R hmmer diamond prodigal parallel openmp mmseqs2 moreutils seqmagick
 # Install EnrichM itself
 conda install -c geronimp enrichm
 
