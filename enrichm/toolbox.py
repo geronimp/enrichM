@@ -69,7 +69,7 @@ def run_command(cmd):
     :rtype: bool
     '''
     logging.debug(cmd)
-    subprocess.call(cmd, shell=True)
+    subprocess.check_call(cmd, shell=True)
     logging.debug('Finished')
 
 def get_present_annotations(input_dictionary):
