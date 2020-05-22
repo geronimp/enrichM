@@ -1,20 +1,4 @@
 #!/usr/bin/env python
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
 # Imports
 import unittest
 import os.path
@@ -32,7 +16,7 @@ from enrichm.annotate import Annotate
 
 class Tests(unittest.TestCase):
 
-    def test_hello_world_nucleic(self):
+    def test_hello_world_nucleic_dir(self):
         tmp = tempfile.mkdtemp()
         bin = os.path.join(path_to_data, 'test_nucleic_bin')
         cmd = '%s annotate \
@@ -45,9 +29,10 @@ class Tests(unittest.TestCase):
                         --force' % (path_to_script, bin, tmp)
         subprocess.call(cmd, shell=True)
 
-    def test_hello_world_protein(self):
+    def test_hello_world_protein_dir(self):
         tmp = tempfile.mkdtemp()
         bin = os.path.join(path_to_data, 'test_protein_bin')
+
         cmd = '%s annotate \
                         --threads 10 \
                         --ko \
@@ -58,16 +43,80 @@ class Tests(unittest.TestCase):
                         --force' % (path_to_script, bin, tmp)
         subprocess.call(cmd, shell=True)
 
+    def test_hello_world_nucleic_file(self):
+        tmp = tempfile.mkdtemp()
+        genome_file = os.path.join(path_to_data, 'test_nucleic_bin', "GCF_001889405.1_ASM188940v1_subset.fna")
+        cmd = '%s annotate \
+                        --threads 10 \
+                        --ko \
+                        --pfam \
+                        --tigrfam \
+                        --genome_files %s \
+                        --output %s \
+                        --force' % (path_to_script, genome_file, tmp)
+        subprocess.check_call(cmd, shell=True)
+
+    def test_hello_world_protein_file(self):
+        tmp = tempfile.mkdtemp()
+        protein_file = os.path.join(path_to_data, 'test_protein_bin', "GCF_001889405.1_ASM188940v1_subset.faa")
+
+        cmd = '%s annotate \
+                        --threads 10 \
+                        --ko \
+                        --pfam \
+                        --tigrfam \
+                        --protein_files %s \
+                        --output %s \
+                        --force' % (path_to_script, protein_file, tmp)
+        subprocess.check_call(cmd, shell=True)
+
+    def test_hello_world_hypothetical_cluster(self):
+        tmp = tempfile.mkdtemp()
+        protein_file = os.path.join(path_to_data, 'test_protein_bin', "GCF_001889405.1_ASM188940v1_subset.faa")
+
+        cmd = '%s annotate \
+                        --verbosity 5 \
+                        --threads 4 \
+                        --clusters \
+                        --protein_files %s \
+                        --output %s \
+                        --force' % (path_to_script, protein_file, tmp)
+        subprocess.check_call(cmd, shell=True)
+
+    def test_very_simple_orthology(self):
+        tmp = tempfile.mkdtemp()
+        protein_file = os.path.join(path_to_data, 'cluster_data', "very_simple_test.faa")
+
+        cmd = '%s annotate \
+                        --threads 4 \
+                        --orthologs \
+                        --protein_files %s \
+                        --output %s \
+                        --force' % (path_to_script, protein_file, tmp)
+        subprocess.check_call(cmd, shell=True)
+
+    def test_very_simple_homology(self):
+        tmp = tempfile.mkdtemp()
+        protein_file = os.path.join(path_to_data, 'cluster_data', "very_simple_test.faa")
+
+        cmd = '%s annotate \
+                        --threads 4 \
+                        --cluster \
+                        --protein_files %s \
+                        --output %s \
+                        --force' % (path_to_script, protein_file, tmp)
+        subprocess.check_call(cmd, shell=True)
+
     def test(self):
         tmp = tempfile.mkdtemp()
         self.simple_annotate_instance \
             = Annotate(tmp,
-                       True, True, True, True, True, True, True, True, # Annotate with all databases
+                       True, True, True, True, True, True, True, True, True,# Annotate with all databases
                        1e-05, 0, 0.3, 0.7, 0.7, 0.7, # Runtime options
                        False, False, False, True, # Cutoffs
                        5, # Inflation
                        4, 2500, # chunks
                        False, 1, 1, '.fna', False)
-
+#28
 if __name__ == "__main__":
     unittest.main()

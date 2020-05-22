@@ -1,21 +1,4 @@
 #!/usr/bin/env python3
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
-
 from enrichm.sequence_io import SequenceIO
 import logging
 import os
@@ -24,10 +7,10 @@ import os
 
 class Genome:
     '''
-    A genome object which collects all the attirbutes of an imput genome,
+    A genome object which collects all the attributes of an input genome,
     including protein sequences and their annotations
     '''
-    def __init__(self, light, path, nucl, gene):
+    def __init__(self, light, path, nucl, gene, gff=False):
         seqio = SequenceIO()
         self.clusters = set()
         self.orthologs = set()
@@ -42,9 +25,9 @@ class Genome:
         if light == False:
 
             if nucl is not None:
-                self.nucl 	= nucl
+                self.nucl = nucl
                 self.length = 0
-                gc_list 	= 0.0
+                gc_list = 0.0
 
                 for description, sequence in seqio.each(open(nucl)):
                     self.length += len(str(sequence))
@@ -78,8 +61,8 @@ class Genome:
                 self.protein_ordered_dict[protein_count] = name
 
     def add(self, annotations, evalue_cutoff, bitscore_cutoff,
-         percent_aln_query_cutoff, percent_aln_reference_cutoff, specific_cutoffs,
-            annotation_type, ref_ids):
+            percent_aln_query_cutoff, percent_aln_reference_cutoff,
+            specific_cutoffs, annotation_type, ref_ids):
         '''
         Adds a series of annotations to the proteins within a genome.
 
@@ -332,7 +315,7 @@ class Sequence(Genome):
         '''
 
         new_annotations = [Annotation(annotation, evalue, region, annotation_type) for annotation in annotations]
-        annotation_list = [annot for annot in self.annotations if annot.type == new_annotations[0].type]
+        annotation_list = [annotation for annotation in self.annotations if annotation.type == new_annotations[0].type]
 
         if len(annotation_list) > 0:
 
@@ -382,7 +365,7 @@ class Annotation(Sequence):
 
     def compare(self, other_annotation):
         '''
-        Compares evalue of current annotation with the evaulue of another annotation object.
+        Compares evalue of current annotation with the evalue of another annotation object.
 
         Parameters
         ----------
@@ -400,7 +383,7 @@ class Annotation(Sequence):
 
 class AnnotationParser:
     '''
-    Annotation parser class contains fucntions to parse hmmsearch domtblouts and blast results
+    Annotation parser class contains functions to parse hmmsearch domtblout and blast results
     currently for: KO, PFAM and TIGRFAM. COG to come
     '''
     KO      		= 'KO_IDS.txt'
@@ -478,7 +461,7 @@ class AnnotationParser:
                                           that must be aligned to consider the annotation.
         Yields
         ------
-        A sequence name, accession, E-value and region hit for every annottation result in
+        A sequence name, accession, E-value and region hit for every annotation result in
         blast_output_path that pass a set of cutoffs
         '''
 

@@ -1,20 +1,4 @@
 #!/usr/bin/env python3
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
 import logging
 import sys
 import os
@@ -74,23 +58,23 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        dependencies = {'hmmsearch':"http://hmmer.org/download.html",
-                        'diamond':"https://github.com/bbuchfink/diamond",
-                        'R':"https://www.r-project.org",
-                        'parallel':"https://www.gnu.org/software/parallel",
-                        'prodigal':"https://github.com/hyattpd/Prodigal/wiki/installation",
-                        'mmseqs':"https://github.com/soedinglab/MMseqs2"}
+        #dependencies = {'hmmsearch':"http://hmmer.org/download.html",
+        #                'diamond':"https://github.com/bbuchfink/diamond",
+        #                'R':"https://www.r-project.org",
+        #                'parallel':"https://www.gnu.org/software/parallel",
+        #                'prodigal':"https://github.com/hyattpd/Prodigal/wiki/installation",
+        #                'mmseqs':"https://github.com/soedinglab/MMseqs2"}
 
-        missing_dependencies = list()
+        #missing_dependencies = list()
 
-        for dependency in dependencies.keys():
+        #for dependency in dependencies.keys():
 
-            if shutil.which(dependency) == None:
-                missing_dependencies.append(dependency)
+        #    if shutil.which(dependency) == None:
+        #        missing_dependencies.append(dependency)
 
-        if len(missing_dependencies)>0:
-            dependency_string = '\n'.join(['\t%s\t%s' % (d, dependencies[d]) for d in missing_dependencies])
-            raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
+        #if len(missing_dependencies)>0:
+        #    dependency_string = '\n'.join(['\t%s\t%s' % (d, dependencies[d]) for d in missing_dependencies])
+        #    raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
 
         if args.subparser_name != self.DATA:
             # Set up working directory
@@ -172,9 +156,8 @@ class Run:
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
 
-        if not args.annotation_matrix:
-            if not args.annotate_output:
-                raise Exception("Either --annotate_output or --annotation_matrix must be specified!")
+        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files):
+            raise Exception("Either --annotate_output, --annotation_matrix or --gff_files must be specified!")
 
         if args.annotation_matrix or args.annotate_output:
             if not args.abundance:
@@ -185,11 +168,11 @@ class Run:
 
             if not any(types):
                 raise Exception(
-                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --orthologs --clusters --ko_hmm --ec --cazy")
+                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy")
 
             if len([x for x in types if x]) > 1:
                 raise Exception(
-                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --orthologs --clusters --ko_hmm --ec --cazy")
+                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy")
 
     def _check_classify(self, args):
         '''
@@ -201,6 +184,20 @@ class Run:
         '''
         if(args.cutoff>1 and args.cutoff<0):
             raise Exception("--cutoff needs to be between 0 and 1")
+
+        if(args.gff_files and args.genome_and_annotation_matrix):
+            raise Exception(f"Both --gff_files {args.gff_files} and --genome_and_annotation_matrix {args.genome_and_annotation_matrix} were specified. Please provide only one option.")
+
+        if(args.module_rules_json and not args.gff_files):
+            raise Exception(f"--gff_files must be provided to use --module_rules_json")
+
+        if args.module_rules_json:
+            if not os.path.isfile(args.module_rules_json):
+                raise Exception(f"File does not exist: {args.module_rules_json}")
+
+        if args.custom_modules:
+            if not os.path.isfile(args.custom_modules):
+                raise Exception(f"File does not exist: {args.custom_modules}")
 
     def _check_network(self, args):
         '''
@@ -289,7 +286,7 @@ class Run:
                                 # Define type of annotation to be carried out
                                 args.ko, args.ko_hmm, args.pfam, args.tigrfam,
                                 args.clusters, args.orthologs, args.cazy,
-                                args.ec,
+                                args.ec, args.orthogroup,
                                 # Cutoffs
                                 args.evalue, args.bit, args.id, args.aln_query,
                                 args.aln_reference, args.c, args.cut_ga, 
@@ -304,17 +301,18 @@ class Run:
                                        args.genome_files,
                                        args.protein_files)
 
-        elif args.subparser_name == self.CLASSIFY:
+        if args.subparser_name == self.CLASSIFY:
             self._check_classify(args)
             classify = Classify()
             classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
-                                       args.genome_and_annotation_matrix, args.output)
+                                       args.genome_and_annotation_matrix, args.module_rules_json, 
+                                       args.gff_files, args.output)
 
-        elif args.subparser_name == self.ENRICHMENT:
+        if args.subparser_name == self.ENRICHMENT:
             self._check_enrichment(args)
             enrichment = Enrichment()
             enrichment.enrichment_pipeline(# Input options
-                                           args.annotate_output, args.annotation_matrix,
+                                           args.annotate_output, args.annotation_matrix, args.gff_files,
                                            args.metadata, args.abundance, args.abundance_metadata,
                                            args.transcriptome, args.transcriptome_metadata,
                                            # Runtime options
@@ -323,11 +321,12 @@ class Run:
                                            args.batchfile, args.processes, 
                                            args.allow_negative_values, args.ko, args.pfam, 
                                            args.tigrfam, args.cluster, args.ortholog, args.cazy,
-                                           args.ec, args.ko_hmm,
+                                           args.ec, args.ko_hmm, args.range, args.subblock_size,
+                                           args.operon_mismatch_cutoff, args.operon_match_score_cutoff,
                                            # Outputs
                                            args.output)
 
-        elif(args.subparser_name == NetworkAnalyser.PATHWAY or
+        if(args.subparser_name == NetworkAnalyser.PATHWAY or
              args.subparser_name == NetworkAnalyser.EXPLORE):
             self._check_network(args)
             network_analyser=NetworkAnalyser()
@@ -345,7 +344,7 @@ class Run:
                  args.input_matrix,
                  args.output)
 
-        elif args.subparser_name == self.GENERATE:
+        if args.subparser_name == self.GENERATE:
             self._check_generate(args)
             generate_model = GenerateModel()
             generate_model.generate_pipeline(args.input_matrix,
@@ -356,7 +355,7 @@ class Run:
                   args.threads,
                   args.output)
 
-        elif args.subparser_name == self.USES:
+        if args.subparser_name == self.USES:
             self._check_uses(args)
             uses = Uses()
             uses.uses_pipeline(args.compounds_list,

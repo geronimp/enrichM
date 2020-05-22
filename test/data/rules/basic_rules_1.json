@@ -1,0 +1,13 @@
+{
+    "version": "0",
+    "modules": {
+        "sample_pathway": {
+            "synteny": [{"genes": ["A", "B", "C"],
+                            "range": 5000,
+                            "breaks": 0,
+                            "minsubblocksize": 3,
+                            "min": 3}],
+            "required": [[["D"]]]
+        }
+    }
+}
