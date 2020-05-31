@@ -157,12 +157,18 @@ if __name__ == "__main__":
                 help='Annotate with EC ids')
 
     annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
-    annotate_cutoff_options.add_argument('--cut_ga', action='store_true',
-                help='For PFAM and TIGRfam searches: use profiles GA gathering cutoffs to set all thresholding')
-    annotate_cutoff_options.add_argument('--cut_nc', action='store_true',
-                help='For PFAM and TIGRfam searches: use profiles NC noise cutoffs to set all thresholding')
-    annotate_cutoff_options.add_argument('--cut_tc', action='store_true',
-                help='For PFAM and TIGRfam searches: use profiles TC trusted cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_ga_pfam', action='store_true',
+                help='For PFAM searches: use profiles GA gathering cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_nc_pfam', action='store_true',
+                help='For PFAM searches: use profiles NC noise cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_tc_pfam', action='store_true',
+                help='For PFAM searches: use profiles TC trusted cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_ga_tigrfam', action='store_true',
+                help='For TIGRfam searches: use profiles GA gathering cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_nc_tigrfam', action='store_true',
+                help='For TIGRfam searches: use profiles NC noise cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_tc_tigrfam', action='store_true',
+                help='For TIGRfam searches: use profiles TC trusted cutoffs to set all thresholding')
     annotate_cutoff_options.add_argument('--cut_ko', action='store_true',
                 help='For KO HMM annotation searches: use cutoffs defined by KEGG to maximise F-score.')
     annotate_cutoff_options.add_argument('--evalue', type=float, default=1e-05,
