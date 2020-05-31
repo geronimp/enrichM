@@ -92,10 +92,10 @@ class Classify:
 
         logging.info("Read in annotations for %i genomes" % len(genome_to_annotation_sets))
 
-        output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name", "Steps_found",
-                             "Steps_needed", "Percent_steps_found"]) + '\n'] # "KO_found", "KO_needed", "Percent_KO_found"
+        output_lines = [["Genome_name", "Module_id", "Module_name", "Steps_found",
+                             "Steps_needed", "Percent_steps_found"]] # "KO_found", "KO_needed", "Percent_KO_found"
 
-        genome_output_lines = ['\t'.join(["Genome_name", "Module_id", "Module_name"]) + '\n']
+        genome_output_lines = [["Genome_name", "Module_id", "Module_name"]]
 
         for name, pathway_string in self.m2def.items():
 
@@ -146,7 +146,7 @@ class Classify:
 
         if aggregate:
             samples = list(abundance_result.keys() )
-            output_lines = ['\t'.join(["ID"] + samples) + '\n']
+            output_lines = [["ID"] + samples]
 
             for module in self.m2def.keys():
 
