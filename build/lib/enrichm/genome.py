@@ -79,7 +79,7 @@ class Genome:
 
     def add(self, annotations, evalue_cutoff, bitscore_cutoff,
          percent_aln_query_cutoff, percent_aln_reference_cutoff, specific_cutoffs,
-            annotation_type, ref_ids):
+            annotation_type, ref_ids, pfam2clan=None):
         '''
         Adds a series of annotations to the proteins within a genome.
 
@@ -147,7 +147,8 @@ class Genome:
                 refdict = self.ec_dict
 
         for seqname, annotations, evalue, annotation_range in iterator:
-            self.sequences[seqname].add(annotations, evalue, annotation_range, ref_ids)
+            self.sequences[seqname].add(annotations, evalue, annotation_range, ref_ids,
+                                        pfam2clan=pfam2clan)
 
             for annotation in annotations:
 
@@ -319,7 +320,7 @@ class Sequence(Genome):
 
         return result
 
-    def add(self, annotations, evalue, region, annotation_type):
+    def add(self, annotations, evalue, region, annotation_type, pfam2clan=None):
         '''
         Return annotations assigned to a list of positions within a sequence.
 
@@ -343,25 +344,28 @@ class Sequence(Genome):
                 overlap 	= [previous_annotation for previous_annotation in to_check
                                if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
 
-                if annotation_type==AnnotationParser.PFAM:
-                    self.annotations.append(new_annotation)
+                if len(overlap)>0:
 
-                else:
+                    for overlapping_previous_annotation in overlap:
 
-                    if len(overlap)>0:
+                        if annotation_type==AnnotationParser.PFAM:
+                            if pfam2clan[new_annotation.annotation] == pfam2clan[overlapping_previous_annotation.annotation]:
+                                if new_annotation.compare(overlapping_previous_annotation):
+                                    to_remove.append(overlapping_previous_annotation)
+                            else:
+                                self.annotations.append(new_annotation)
 
-                        for overlapping_previous_annotation in overlap:
-
+                        else:
                             if new_annotation.compare(overlapping_previous_annotation):
                                 to_remove.append(overlapping_previous_annotation)
 
-                        if len(to_remove)>0:
-                            self.annotations = [annotation for annotation in self.annotations
-                                                if annotation not in to_remove]
-                            self.annotations.append(new_annotation)
+                    if len(to_remove)>0:
+                        self.annotations = [annotation for annotation in self.annotations
+                                            if annotation not in to_remove]
+                        self.annotations.append(new_annotation)
 
-                    else:
-                            self.annotations.append(new_annotation)
+                else:
+                        self.annotations.append(new_annotation)
 
         else:
 

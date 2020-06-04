@@ -355,12 +355,18 @@ class Annotate:
 
         self.hmm_search(output_directory_path, database, hmmcutoff)
 
+        if ids_type == AnnotationParser.PFAM:
+            pfam2clan = self.databases.pfam2clan()
+        else:
+            pfam2clan = None
+
         for genome_annotation in listdir(output_directory_path):
             genome_id = path.splitext(genome_annotation)[0]
             genome = genome_dict[genome_id]
             output_annotation_path = path.join(output_directory_path, genome_annotation)
             genome.add(output_annotation_path, self.evalue, self.bit, self.aln_query,
-                       self.aln_reference, specific_cutoffs, parser, ids_type)
+                       self.aln_reference, specific_cutoffs, parser, ids_type,
+                       pfam2clan=pfam2clan)
 
     def annotate_hypothetical(self, genomes_list):
         '''
@@ -669,10 +675,10 @@ class Annotate:
         output_directory_path = path.join(self.output_directory,
                                           self.GENOME_OBJ)
         mkdir(output_directory_path)
-        
+
         for genome in genomes_list:
             genome_pickle_path = path.join(output_directory_path, genome.name + self.PICKLE_SUFFIX)
-            
+
             with open(genome_pickle_path, 'wb') as output:
                 pickle.dump(genome, output)
 
