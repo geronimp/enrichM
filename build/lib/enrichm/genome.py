@@ -349,7 +349,11 @@ class Sequence(Genome):
                     for overlapping_previous_annotation in overlap:
 
                         if annotation_type==AnnotationParser.PFAM:
-                            if pfam2clan[new_annotation.annotation] == pfam2clan[overlapping_previous_annotation.annotation]:
+                            if (new_annotation.annotation.split('.')[0] in pfam2clan
+                            and overlapping_previous_annotation.annotation.split('.')[0] in pfam2clan
+                            and pfam2clan[new_annotation.annotation.split('.')[0]]
+                                == pfam2clan[overlapping_previous_annotation.annotation.split('.')[0]]
+                            ):
                                 if new_annotation.compare(overlapping_previous_annotation):
                                     to_remove.append(overlapping_previous_annotation)
                             else:
