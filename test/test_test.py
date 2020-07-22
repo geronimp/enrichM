@@ -1,20 +1,4 @@
 #!/usr/bin/env python
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
 # Imports
 import unittest
 import os.path
@@ -106,14 +90,15 @@ class Tests(unittest.TestCase):
         self.assertEqual(expect_2, list())
     
     def test_test_weighted_abundances(self):
-        expect = [[[['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean', 'score', 'pvalue', 'corrected_pvalue', 'description'],
-                    ['K00001', 'sample_group_1', 'sample_group_2', '23.866666666666664', '6.5', 0.0, 0.04042779918502612, '0.060591636418731595', 'E1.1.1.1, adh; alcohol dehydrogenase [EC:1.1.1.1]'],
-                    ['K00002', 'sample_group_1', 'sample_group_2', '19.733333333333334', '12.4', 0.5, 0.060591636418731595, '0.060591636418731595', 'AKR1A1, adh; alcohol dehydrogenase (NADP+) [EC:1.1.1.2]'],
-                    ['K00003', 'sample_group_1', 'sample_group_2', '24.26666666666667', '5.533333333333334', 0.0, 0.04042779918502612, '0.060591636418731595', 'hom; homoserine dehydrogenase [EC:1.1.1.3]']],
-                   'sample_group_1_vs_sample_group_2_gvg_results.mannwhitneyu.tsv']]
+        expect = [[[['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_2_mean', 'score', 'pvalue', 'corrected_pvalue', 'description'],
+                    ['K00001', 'sample_group_1', 'sample_group_2', 'sample_group_1', '23.866666666666664', '6.5', 0.0, 0.04042779918502612, '0.060591636418731595', 'E1.1.1.1, adh; alcohol dehydrogenase [EC:1.1.1.1]'],
+                    ['K00002', 'sample_group_1', 'sample_group_2', 'sample_group_1', '19.733333333333334', '12.4', 0.5, 0.060591636418731595, '0.060591636418731595', 'AKR1A1, adh; alcohol dehydrogenase (NADP+) [EC:1.1.1.2]'],
+                    ['K00003', 'sample_group_1', 'sample_group_2', 'sample_group_1', '24.26666666666667', '5.533333333333334', 0.0, 0.04042779918502612, '0.060591636418731595', 'hom; homoserine dehydrogenase [EC:1.1.1.3]']],
+                     'sample_group_1_vs_sample_group_2_gvg_results.mannwhitneyu.tsv']]
         
         result = self.simple_test_object.test_weighted_abundances(self.sample_to_annotation,
                                                                   self.annotations)
+
         self.assertEqual(expect, result)
 
 if __name__ == "__main__":

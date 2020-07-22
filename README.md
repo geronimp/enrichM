@@ -7,14 +7,14 @@
 
 EnrichM is a set of comparative genomics tools for large sets of metagenome assembled genomes (MAGs). The current functionality includes:
 
-1. An basic annotation pipeline for MAGs.
+1. A basic annotation pipeline for MAGs.
 2. A pipeline to determine the metabolic pathways that are encoded by MAGs, using KEGG modules as a reference (although custom pathways can be specified)
 3. A pipeline to identify genes or metabolic pathways that are enriched within and between user-defined groups of genomes (groups can be genomes that are related functionally, phylogenetically, recovered from different environments, etc).
 4. To construct metabolic networks from annotated population genomes.
 5. Construct random forest machine learning models from the functional composition of either MAGs, metagenomes or transcriptomes.
 6. Apply these random forest machine learning models to classify new MAGs metagenomes.
 
-EnrichM is under active development, so there is no guaratee that master is stable. It's reccomended that EnrichM is downloaded either via pypi or conda (see below).
+EnrichM is under active development, so there is no guaratee that master is stable. It's recommended that EnrichM is downloaded either via pypi or conda (see below).
 
 # Installation
 ## Dependencies
@@ -41,7 +41,7 @@ conda create -n enrichm_X.X.X python=3
 # Activate that environment once it has compiled
 source activate enrichm_X.X.X
 # Install EnrichM's dependencies
-conda install -c bioconda mcl R hmmer diamond prodigal parallel openmp mmseqs2 moreutils seqmagick
+conda install -c bioconda mcl R hmmer diamond prodigal parallel openmp mmseqs2 moreutils
 # Install EnrichM itself
 conda install -c geronimp enrichm
 

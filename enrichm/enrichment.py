@@ -1,21 +1,5 @@
 #!/usr/bin/env python3
 # pylint: disable=line-too-long
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
 import random
 import os
 import logging
@@ -29,6 +13,7 @@ from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser, ParseAnnotate
 from enrichm.writer import Writer
+from enrichm.synteny_searcher import SyntenySearcher
 ################################################################################
 
 def gene_fisher_calc(x):
@@ -38,17 +23,23 @@ def gene_fisher_calc(x):
 
     if (dat[0][0]>0 or dat[1][0]>0) and (dat[0][1]>0 or dat[1][1]>0):
         score, pval = stats.fisher_exact(dat)
-
+        if (dat[0][0] / sum(dat[0])) > (dat[1][0] / sum(dat[1])):
+            enriched_in = group_1
+        else:
+            enriched_in = group_2
     else:
+        enriched_in = 'NA'
         score, pval = 'nan', 1.0
 
-    return [annotation, group_1, group_2] + dat[0] + dat[1] + [score, pval]
+    return [annotation, group_1, group_2, enriched_in] + dat[0] + dat[1] + [score, pval]
 
 def mannwhitneyu_calc(x):
     # Mann Whitney U test
     annotation, group_1, group_2, group_1_module_annotations, group_2_module_annotations = x
-    group_1_module_annotations = group_1_module_annotations[0]
-    group_2_module_annotations = group_2_module_annotations[0]
+    group_1_module_annotations = np.array(group_1_module_annotations[0])
+    group_2_module_annotations = np.array(group_2_module_annotations[0])
+    group_1_mean = np.mean(group_1_module_annotations)
+    group_2_mean = np.mean(group_2_module_annotations)
 
     if(sum(group_1_module_annotations)>0 and sum(group_2_module_annotations)>0):
 
@@ -56,18 +47,23 @@ def mannwhitneyu_calc(x):
             or
            len(set(group_2_module_annotations)) == 1):
             mw_t_stat, mw_p_value = 'NA', 1
+            enriched_in = 'NA'
 
         else:
-            group_1_module_annotations = np.array(group_1_module_annotations)
-            group_2_module_annotations = np.array(group_2_module_annotations)
+
+            if group_1_mean > group_2_mean:
+                enriched_in = group_1
+            else:
+                enriched_in = group_2
+
             mw_t_stat, mw_p_value = \
                 stats.mannwhitneyu(group_1_module_annotations,
                                          group_2_module_annotations)
     else:
         mw_t_stat, mw_p_value = 'NA', 1
+        enriched_in = 'NA'
 
-    return [annotation, group_1, group_2, str(np.mean(group_1_module_annotations)),
-            str(np.mean(group_2_module_annotations)), mw_t_stat, mw_p_value]
+    return [annotation, group_1, group_2, enriched_in, str(group_1_mean), str(group_2_mean), mw_t_stat, mw_p_value]
 
 def zscore_calc(x):
 
@@ -88,24 +84,25 @@ def zscore_calc(x):
         genome_name = group_1
 
     if genome>0:
-        reference_group_comp_sd \
-            = np.std(reference, axis=0)
-        reference_group_comp_mean \
-            = np.mean(reference, axis=0)
+        reference_group_comp_sd = np.std(reference, axis=0)
+        reference_group_comp_mean = np.mean(reference, axis=0)
 
         if (genome-reference_group_comp_mean)>0:
 
             if reference_group_comp_sd==0:
                 z_score = np.inf
                 p_value = 0.0
+                enriched_in = 'NA'
 
             else:
                 z_score = (genome-reference_group_comp_mean) / reference_group_comp_sd
                 p_value = 2-2*stats.norm.cdf(z_score)
+                enriched_in = genome_name
 
             return [annotation,
                     reference_name,
                     genome_name,
+                    enriched_in,
                     str(reference_group_comp_mean),
                     str(reference_group_comp_sd),
                     str(genome),
@@ -265,8 +262,8 @@ class Enrichment:
         module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
         module_descriptions = database.m()
 
-        g1_sig_kos = set()
-        g2_sig_kos = set()
+        g1_sig_annotations = set()
+        g2_sig_annotations = set()
 
         result_file_io = open(result_file_path)
         result_file_io.readline()
@@ -275,26 +272,26 @@ class Enrichment:
             sline = line.strip().split('\t')
             if float(sline[-2])<pval_cutoff:
                 if result_file_path.endswith("fisher.tsv"):
-                    g1 = float(sline[3]) / (int(sline[3]) + int(sline[4]))
-                    g2 = float(sline[5]) / (int(sline[5]) + int(sline[6]))
+                    g1 = float(sline[4]) / (int(sline[4]) + int(sline[5]))
+                    g2 = float(sline[6]) / (int(sline[6]) + int(sline[7]))
                 elif result_file_path.endswith("cdf.tsv"):
-                    g1 = float(sline[3])
-                    g2 = float(sline[5])
+                    g1 = float(sline[4])
+                    g2 = float(sline[6])
                 if g1>g2:
-                    g1_sig_kos.add(sline[0])
+                    g1_sig_annotations.add(sline[0])
                 else:
-                    g2_sig_kos.add(sline[0])
+                    g2_sig_annotations.add(sline[0])
 
         for module, definition in database.m2def().items():
 
             if module not in database.signature_modules:
                 pathway = ModuleDescription(definition)
-                num_all         = pathway.num_steps()
-                g1_num_covered, _, _, _ = pathway.num_covered_steps(g1_sig_kos)
-                g1_perc_covered    = g1_num_covered / float(num_all)
+                num_all = pathway.num_steps()
+                g1_num_covered, _, _, _ = pathway.num_covered_steps(g1_sig_annotations)
+                g1_perc_covered = g1_num_covered / float(num_all)
 
-                g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_kos)
-                g2_perc_covered    = g2_num_covered / float(num_all)
+                g2_num_covered, _, _, _ = pathway.num_covered_steps(g2_sig_annotations)
+                g2_perc_covered = g2_num_covered / float(num_all)
 
                 if g1_perc_covered>0:
                     output_line = [module, sline[1], num_all, g1_num_covered, g1_perc_covered, module_descriptions[module]]
@@ -309,40 +306,58 @@ class Enrichment:
         return module_output, prefix
 
     def enrichment_pipeline(# Input options
-           self, annotate_output, annotation_matrix, metadata_path, abundances_path, abundance_metadata_path, transcriptome_path, transcriptome_metadata_path,
+           self, annotate_output, annotation_matrix, gff_files, metadata_path,
+           abundances_path, abundance_metadata_path, transcriptome_path,
+           transcriptome_metadata_path,
            # Runtime options
            pval_cutoff, proportions_cutoff,
            threshold, multi_test_correction, batchfile, processes, allow_negative_values,
-           ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm,
+           ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm, synteny_range, subblock_size,
+           operon_mismatch_cutoff, operon_match_score_cutoff,
            # Output options
            output_directory):
 
         plot  = Plot()
-        database  = Databases()
+        database = Databases()
+        syntenysearcher = SyntenySearcher()
 
-        if annotate_output:
-            logging.info('Parsing annotate output: %s' % (annotate_output))
-            pa = ParseAnnotate(annotate_output, processes)
+        if gff_files:
+            logging.info("Parsing .gff file input(s)")
+            annotations_dict = dict()
+            gene_positions = dict()
 
-            if ko:
-                annotation_matrix = pa.ko
-            elif ko_hmm:
-                annotation_matrix = pa.ko_hmm
-            elif pfam:
-                annotation_matrix = pa.pfam
-            elif tigrfam:
-                annotation_matrix = pa.tigrfam
-            elif cluster:
-                annotation_matrix = pa.cluster
-            elif ortholog:
-                annotation_matrix = pa.ortholog
-            elif cazy:
-                annotation_matrix = pa.cazy
-            elif ec:
-                annotation_matrix = pa.ec
+            for gff_file in gff_files:
+                position, counts = Parser.parse_gff(gff_file)
+                annotations_dict.update(counts)
+                gene_positions.update(position)
 
-        logging.info('Parsing annotation matrix')
-        annotations_dict, _, annotations, = Parser.parse_simple_matrix(annotation_matrix)
+            annotations = set(chain(*[list(x.keys()) for x in annotations_dict.values()]))
+
+        else:
+            if annotate_output:
+                logging.info('Parsing annotate output: %s' % (annotate_output))
+                pa = ParseAnnotate(annotate_output, processes)
+
+                if ko:
+                    annotation_matrix = pa.ko
+                elif ko_hmm:
+                    annotation_matrix = pa.ko_hmm
+                elif pfam:
+                    annotation_matrix = pa.pfam
+                elif tigrfam:
+                    annotation_matrix = pa.tigrfam
+                elif cluster:
+                    annotation_matrix = pa.cluster
+                elif ortholog:
+                    annotation_matrix = pa.ortholog
+                elif cazy:
+                    annotation_matrix = pa.cazy
+                elif ec:
+                    annotation_matrix = pa.ec
+
+            logging.info('Parsing annotation matrix')
+            annotations_dict, _, annotations = Parser.parse_simple_matrix(annotation_matrix)
+
         annotation_type = self.check_annotation_type(annotations)
 
         if abundances_path:
@@ -426,9 +441,20 @@ class Enrichment:
         raw_proportions_output_lines = self.calculate_portions(annotations, combination_dict, annotations_dict, genome_list, proportions_cutoff)
         Writer.write(raw_proportions_output_lines, os.path.join(output_directory, self.PROPORTIONS))
 
-        logging.info('Generating summary plots')
+        if gff_files:
+            logging.info("Searching for co-located clusters of genes")
+            synteny_results_output_lines, synteny_results_path \
+                = syntenysearcher.search_for_blocks(results[0][0],
+                                                    gene_positions,
+                                                    metadata,
+                                                    synteny_range,
+                                                    subblock_size,
+                                                    operon_mismatch_cutoff,
+                                                    operon_match_score_cutoff)
+            Writer.write(synteny_results_output_lines, os.path.join(output_directory, synteny_results_path))
 
-        if annotation_type==self.KEGG:
+        logging.info('Generating summary plots')
+        if annotation_type == self.KEGG:
             logging.info('Finding module completeness in differentially abundant KOs')
 
             for result_file in os.listdir(output_directory):
@@ -442,13 +468,13 @@ class Enrichment:
 
 class Test(Enrichment):
 
-    FISHER_HEADER = [['annotation', 'group_1', 'group_2', 'group_1_true', 'group_1_false',
+    FISHER_HEADER = [['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_true', 'group_1_false',
                       'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue', 'description']]
 
-    MANNWHITNEYU_HEADER =[['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_2_mean',
+    MANNWHITNEYU_HEADER =[['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_2_mean',
                            'score', 'pvalue', 'corrected_pvalue', 'description']]
 
-    ZSCORE_HEADER = [['annotation', 'group_1', 'group_2', 'group_1_mean', 'group_1_sd',
+    ZSCORE_HEADER = [['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_1_sd',
                       'group_2_count', 'score', 'pvalue', 'corrected_pvalue', 'description']]
 
     PA                     = 'presence_absence'
@@ -532,6 +558,7 @@ class Test(Enrichment):
         group_false = 0
 
         for genome in self.groups[group]:
+
             if annotation in self.genome_annotations[genome]:
                 if freq:
                     group_true.append(self.genome_annotations[genome][annotation])
@@ -644,7 +671,6 @@ class Test(Enrichment):
 
             for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                 output_lines[idx].append(str(corrected_pval))
-
             output_lines = self.add_descriptions(output_lines)
             output_lines = self.MANNWHITNEYU_HEADER + output_lines
             results.append([output_lines, prefix + '_' + self.GVG_OUTPUT])

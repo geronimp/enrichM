@@ -3,27 +3,11 @@
 """
 Various functions for annotating genomes.
 """
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
-
 # System imports
 
 import pickle
 import shutil
+import os
 import tempfile
 import logging
 import subprocess
@@ -77,9 +61,9 @@ class Annotate:
 
     def __init__(self, output_directory, annotate_ko, annotate_ko_hmm, annotate_pfam,
                  annotate_tigrfam, annoatate_cluster, annotate_ortholog, annotate_cazy, annotate_ec,
-                 evalue, bit, percent_id_cutoff, aln_query, aln_reference, fraction_aligned, cut_ga,
-                 cut_nc, cut_tc, cut_hmm, inflation, chunk_number, chunk_max, count_domains,
-                 threads, parallel, suffix, light):
+                 annotate_orthogroup, evalue, bit, percent_id_cutoff, aln_query, aln_reference, 
+                 fraction_aligned, cut_ga, cut_nc, cut_tc, cut_hmm, inflation, chunk_number, chunk_max,
+                 count_domains, threads, parallel, suffix, light):
 
         # Define inputs and outputs
         self.output_directory = output_directory
@@ -91,6 +75,7 @@ class Annotate:
         self.annotate_tigrfam = annotate_tigrfam
         self.annotate_cluster = annoatate_cluster
         self.annotate_ortholog = annotate_ortholog
+        self.annotate_orthogroup = annotate_orthogroup
         self.annotate_cazy = annotate_cazy
         self.annotate_ec = annotate_ec
 
@@ -145,9 +130,9 @@ class Annotate:
             for genome_path in genome_file_list:
 
                 if genome_path.endswith(self.suffix):
-                    genome_paths.append(genome_path)
+                    genome_paths.append(f"{genome_path}")
 
-            cmd = f"xargs --arg-file=/dev/stdin ln -s --target-directory={genome_directory}"
+            cmd = f"xargs --arg-file=/dev/stdin cp --target-directory={genome_directory}"
 
             logging.debug(cmd)
             process = subprocess.Popen(["bash", "-c", cmd],
@@ -274,7 +259,7 @@ class Annotate:
 
         for line in input_file_io:
             split_line = line.strip().split('\t')
-            genome_id, _ = split_line[0].split('~')
+            genome_id = split_line[0].split('~')[0]
 
             if last is None:
                 last = genome_id
@@ -370,57 +355,71 @@ class Annotate:
         output_directory_path = path.join(self.output_directory, self.GENOME_HYPOTHETICAL)
         mkdir(output_directory_path)
 
-        with tempfile.NamedTemporaryFile() as temp:
-
-            to_write = str()
-
-            for genome in genomes_list:
-                to_write += f"sed \"s/>/>{genome.name}~/g\" {genome.path}\n"
-
-            temp.flush()
-
-            tmp_dir = tempfile.mkdtemp()
-
-            db_path = path.join(output_directory_path, "db")
-            clu_path = path.join(output_directory_path, "clu")
-            align_path = path.join(output_directory_path, "alignDb")
-            blast_output_path = path.join(output_directory_path, "alignDb.m8")
-            formatted_blast_output_path = path.join(output_directory_path, "alignDb.formatted.m8")
-
-            clu_tsv_path = path.join(output_directory_path, "hypothetical_clusters.tsv")
-
-            logging.info('    - Generating MMSeqs2 database')
-            cmd = "bash %s | sponge | mmseqs createdb /dev/stdin %s -v 0 > /dev/null 2>&1" % (
-                temp.name, db_path)
+        renamed_genomes = list()
+        for genome in genomes_list:
+            renamed_genome = next(tempfile._get_candidate_names())
+            cmd = f"sed 's/>/>{genome.name}~/g' {genome.path} > {renamed_genome}"
             run_command(cmd)
+            renamed_genomes.append(renamed_genome)
 
-            logging.info('    - Clustering genome proteins')
-            cmd = f"mmseqs cluster \
-                        {db_path} \
-                        {clu_path} \
-                        {tmp_dir} \
-                        --max-seqs 1000 \
-                        --threads {self.threads} \
-                        --min-seq-id {self.percent_id_cutoff} \
-                        -e {self.evalue} \
-                        -c {self.fraction_aligned} \
-                        -v 0 "
+        
+        tmp_dir = tempfile.mkdtemp()
 
-            run_command(cmd)
+        db_path = path.join(output_directory_path, "db")
+        clu_path = path.join(output_directory_path, "clu")
+        align_path = path.join(output_directory_path, "alignDb")
+        blast_output_path = path.join(output_directory_path, "alignDb.m8")
+        formatted_blast_output_path = path.join(output_directory_path, "alignDb.formatted.m8")
 
-            logging.info('    - Extracting clusters')
-            cmd = 'mmseqs createtsv %s %s %s %s -v 0 > /dev/null 2>&1' % (
-                db_path, db_path, clu_path, clu_tsv_path)
-            run_command(cmd)
+        clu_tsv_path = path.join(output_directory_path, "hypothetical_clusters.tsv")
+
+        logging.info('    - Generating MMSeqs2 database')
+        cmd = f"mmseqs createdb {' '.join(renamed_genomes)} {db_path}"
+        run_command(cmd)
+        for renamed_genome in renamed_genomes:
+            os.remove(renamed_genome)
+
+        logging.info('    - Clustering genome proteins')
+        cmd = f"mmseqs cluster \
+                    {db_path} \
+                    {clu_path} \
+                    {tmp_dir} \
+                    --threads {self.threads} \
+                    --min-seq-id {self.percent_id_cutoff} \
+                    -c {self.fraction_aligned} \
+                    -v 0"
+        run_command(cmd)
+
+        logging.info('    - Extracting clusters')
+        cmd = f'mmseqs createtsv \
+                    {db_path} \
+                    {db_path} \
+                    {clu_path} \
+                    {clu_tsv_path} \
+                    --threads {self.threads} \
+                    -v 0'
+        run_command(cmd)
+
+        if self.annotate_ortholog:
 
             logging.info('    - Computing Smith-Waterman alignments for clustering results')
-            cmd = "mmseqs alignall %s %s %s --alignment-mode 3 -v 0  " % (
-                db_path, clu_path, align_path)
+            cmd = f"mmseqs alignall \
+                        {db_path} \
+                        {clu_path} \
+                        {align_path} \
+                        --alignment-mode 3 \
+                        --threads {self.threads} \
+                        -v 0"
             run_command(cmd)
 
             logging.info('    - Converting to BLAST-like output')
-            cmd = "mmseqs createtsv %s %s %s %s -v 0 > /dev/null 2>&1   " % (
-                db_path, db_path, align_path, blast_output_path)
+            cmd = f"mmseqs createtsv \
+                        {db_path} \
+                        {db_path} \
+                        {align_path} \
+                        {blast_output_path} \
+                        --threads {self.threads} \
+                        -v 0"
             # --format-output query,target,bits
             run_command(cmd)
 
@@ -431,16 +430,21 @@ class Annotate:
                 % ("%s", db_path + '.lookup', blast_output_path, formatted_blast_output_path)
             run_command(cmd)
 
-        ortholog_dict = self.run_mcl(formatted_blast_output_path,
-                                     output_directory_path)
-        ortholog_ids = ortholog_dict.keys()
-        cluster_ids = self.parse_cluster_results(clu_tsv_path, genomes_list,
-                                                 ortholog_dict, output_directory_path)
+            ortholog_dict = self.run_mcl(formatted_blast_output_path,
+                                            output_directory_path)
+            ortholog_ids = ortholog_dict.keys()
+        else:
+            ortholog_dict = dict()
+            ortholog_ids = list()
+        cluster_ids = self.parse_cluster_results(clu_tsv_path,
+                                                 genomes_list,
+                                                 ortholog_dict,
+                                                 output_directory_path)
         return cluster_ids, ortholog_ids
 
     def run_mcl(self, blast_abc, output_directory_path):
         '''
-        Parse the protein clusters producedf from Mmseqs2 using mcl
+        Parse the protein clusters produced from Mmseqs2 using mcl
 
         Parameters
         ----------
@@ -453,7 +457,7 @@ class Annotate:
         mci_path = path.join(output_directory_path, "alignDb.mci")
         cluster_path = path.join(output_directory_path, "mcl_clusters.tsv")
         output_path = path.join(output_directory_path, "mcl_clusters.convert.tsv")
-
+        
         logging.info('    - Preparing network')
         ortholog_dict = dict()
         cmd = f"mcxload \
@@ -461,18 +465,15 @@ class Annotate:
                     -write-tab {dict_path} \
                     -o {mci_path} \
                     --stream-mirror \
-                    --stream-neg-log10 \
-                    > /dev/null 2>&1"
+                    --stream-neg-log10"
         run_command(cmd)
-
         logging.info('    - Finding orthologs')
         ortholog_dict = dict()
         cmd = f'mcl \
                     {mci_path} \
                     -te {self.threads} \
                     -I {self.inflation} \
-                    -o {cluster_path} \
-                    > /dev/null 2>&1'
+                    -o {cluster_path}'
         run_command(cmd)
 
         logging.info('    - Reformatting output')
@@ -480,8 +481,7 @@ class Annotate:
         cmd = f'mcxdump \
                     -icl {cluster_path} \
                     -o {output_path} \
-                    -tabr {dict_path} \
-                    > /dev/null 2>&1'
+                    -tabr {dict_path}'
         run_command(cmd)
 
         ortholog = 1
@@ -493,7 +493,6 @@ class Annotate:
                 ortholog_dict[ortholog_idx].add(protein)
 
             ortholog += 1
-
         return ortholog_dict
 
     def parse_cluster_results(self, cluster_output_path, genomes_list, ortholog_dict,
@@ -533,6 +532,7 @@ class Annotate:
                     previous_cluster_name = cluster_id
                     cluster_ids.add("cluster_%i" % counter)
                     genome_dictionary[genome_id].add_cluster(sequence_id, "cluster_%i" % counter)
+
                 out_io.write('\t'.join([genome_id, sequence_id, "cluster_%i" % counter]) + '\n')
 
         for ortholog, group in ortholog_dict.items():
@@ -755,6 +755,9 @@ class Annotate:
                     freq_table = path.join(self.output_directory, self.OUTPUT_ORTHOLOG)
                     matrix_generator.write_matrix(genomes_list, self.count_domains, freq_table)
 
+            if self.annotate_orthogroup:
+                logging.warning(f"Not yet implemented")
+                #self.annotate_orthogroup(genomes_list)
 
             if self.annotate_ko:
                 annotation_type = AnnotationParser.BLASTPARSER
@@ -841,8 +844,8 @@ class Annotate:
                 logging.info('Generating .gff files:')
                 self.generate_gff_files(genomes_list)
 
-                logging.info('Renaming protein headers')
-                self.rename_fasta(genomes_list)
+            logging.info('Renaming protein headers')
+            self.rename_fasta(genomes_list)
 
             if not self.light:
                 logging.info('Storing genome objects')
@@ -852,3 +855,4 @@ class Annotate:
 
         else:
             logging.error('No files found with %s suffix in input directory', self.suffix)
+            raise Exception("No input files found")

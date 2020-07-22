@@ -1,20 +1,4 @@
 #!/usr/bin/env python
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
 # Imports
 import unittest
 import os.path
@@ -81,7 +65,7 @@ class Tests(unittest.TestCase):
                          module.num_covered_steps(fails2)[0] == total_steps)
         self.assertEqual(True,
                          module.num_covered_steps(passes2)[0] == total_steps)
-        
+
         # M00006
         module = ModuleDescription("(K13937,((K00036,K19243) (K01057,K07404))) K00033")
         total_steps = module.num_steps()
@@ -91,6 +75,7 @@ class Tests(unittest.TestCase):
         passes2 = ['K13937', 'K00033']
         passes3 = ['K19243', 'K07404', 'K00033']
         passes4 = ['K00036', 'K07404', 'K00033']
+
         self.assertEqual(True,
                          module.num_covered_steps(passes1)[0] == total_steps)
         self.assertEqual(True,
@@ -103,16 +88,16 @@ class Tests(unittest.TestCase):
                          module.num_covered_steps(fails1)[0] == total_steps)
         self.assertEqual(False,
                          module.num_covered_steps(fails2)[0] == total_steps)
-    
+
+
     def test_update(self):
-        
+
         with open(tempfile.mktemp(), 'w') as out_io:
             out_io.write(f"test\tcontents\n")
             out_io.flush()
             classify = Classify()
             classify.update_with_custom_modules(out_io.name)
             self.assertEqual(True, 'test' in classify.modules)
-            self.assertEqual('contents', classify.m2def['test'])
 
 
 if __name__ == "__main__":
