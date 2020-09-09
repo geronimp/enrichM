@@ -17,7 +17,7 @@
 ###############################################################################
 # Imports
 import os
-import urllib
+import urllib.request
 import shutil
 import logging
 from pathlib import Path
