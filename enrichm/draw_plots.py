@@ -1,21 +1,4 @@
 #!/usr/bin/env python3
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
-
 import logging
 import os
 from enrichm.databases import Databases
@@ -37,6 +20,7 @@ class Plot:
     def draw_pca_plot(self, annotation_matrix, metadata, output_directory):
         logging.info('	- Generating PCA plot')
         output_path = os.path.join(output_directory, self.output_pca_plot)
+
         cmd = f"Rscript {self.draw_pca_script_path} \
                     -i {annotation_matrix} \
                     -m {metadata} \

@@ -1,21 +1,4 @@
 #!/usr/bin/env python3
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
-
 # Imports
 import re
 ###############################################################################
@@ -177,10 +160,8 @@ class ModuleDescriptionKoEntry:
         reaction_count = 1
         return found, count, reaction_count, [self.ko]
 
-
 class ParserHelper:
     pass
-
 
 class ModuleDescriptionParser:
 
@@ -225,27 +206,22 @@ class ModuleDescriptionParser:
             new_stuff = list()
 
             for e in current.understuff:
-
                 if isinstance(e, str):
 
-                    if (re.match(KEGG, e) or
-                        re.match(GH, e) or
-                        re.match(PL, e) or
-                        re.match(CE, e) or
-                        re.match(TIGRFAM, e) or
-                        re.match(PFAM, e) or
-                            re.match(EC, e)):
-
+                    if (' ' not in e and
+                        ',' not in e and
+                        '+' not in e and
+                        '-' not in e):
                         new_stuff.append(ModuleDescriptionKoEntry(e))
 
                     else:
                         frags = self.split_on_comma(e)
-
                         if len(frags) == 1:
+
                             topush = ParserHelper()
                             comma_splits = self.split_on_space(e)
                             m = None
-
+                            
                             if len(comma_splits) == 1:
                                 plus_splits = self.split_on_plus(e)
                                 minus_splits = self.split_on_minus(e)

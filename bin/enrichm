@@ -1,20 +1,4 @@
 #!/usr/bin/env python3
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
 
 __author__      = "Joel Boyd"
 __copyright__   = "Copyright 2018"
@@ -121,6 +105,8 @@ if __name__ == "__main__":
     data_input_options = data.add_argument_group('Uninstall')
     data_input_options.add_argument('--uninstall', action='store_true',
                 help = 'Remove enrichm database')
+    data_input_options.add_argument('--create',
+                help = 'create enrichm database')
     data_input_options.add_argument('--dry', action='store_true',
                 help = 'Download an empty database (debug)')
 
@@ -151,6 +137,8 @@ if __name__ == "__main__":
                 help='Annotate with cluster ids')
     annotate_annotation_options.add_argument('--orthologs', action='store_true',
                 help='Annotate with ortholog ids')
+    annotate_annotation_options.add_argument('--orthogroup', action='store_true',
+                help='Annotate with orthogroup ids with OrthoFinder')
     annotate_annotation_options.add_argument('--cazy', action='store_true',
                 help='Annotate with dbCAN HMMs')
     annotate_annotation_options.add_argument('--ec', action='store_true',
@@ -171,20 +159,20 @@ if __name__ == "__main__":
                 help='Use this bit score cutoff to filter false positives (default: 0)')
     annotate_cutoff_options.add_argument('--id', type = float, default = 0.3,
                 help='Use this percent identity cutoff to filter false positives (default: 0.3)')
-    annotate_cutoff_options.add_argument('--aln_query', type = float, default = 0.7,
+    annotate_cutoff_options.add_argument('--aln_query', type = float, default = 0.8,
                 help='This fraction of the query must align to the reference (default: 0.7)')
-    annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0.7,
+    annotate_cutoff_options.add_argument('--aln_reference', type = float, default = 0.8,
                 help='This fraction of the reference must align to the query (default: 0.7)')
-    annotate_cutoff_options.add_argument('--c', type = float, default = 0.7,
-                help='When clustering, use matches above this fraction of aligned (covered) query and target residues (default: 0.7)')
+    annotate_cutoff_options.add_argument('--c', type = float, default = 0.5,
+                help='When clustering, use matches above this fraction of aligned (covered) query and target residues (default: 0.8)')
 
     annotate_runtime_options = annotate.add_argument_group('Runtime options')
     annotate_runtime_options.add_argument('--threads', default = '1',
                 help='Use this number of threads when annotating with BLAST and HMMsearch (default: 1)')
     annotate_runtime_options.add_argument('--parallel', default = '5',
                 help='Run this number of jobs in parallel when annotating with HMMsearch (default: 5)')
-    annotate_runtime_options.add_argument('--inflation', type = float, default = 5.0,
-                help='Inflation factor to use when calling clusters in ortholog (default = 5.0)')
+    annotate_runtime_options.add_argument('--inflation', type = float, default = 1.5,
+                help='Inflation factor to use when calling clusters in ortholog (default = 1.5)')
     annotate_runtime_options.add_argument('--suffix',
                 help='Treat files ending with this suffix within the --genome_directory as genomes (default: .fna for --genome_directory and .faa for )')
     annotate_runtime_options.add_argument('--light', action='store_true',
@@ -202,10 +190,14 @@ if __name__ == "__main__":
 
     classify_input_options = classify.add_argument_group('Input options')
 
-    classify_input_options.add_argument('--genome_and_annotation_matrix', required=True,
+    classify_input_options.add_argument('--genome_and_annotation_matrix',
                 help='Path to file containing a genome annotation matrix')
     classify_input_options.add_argument('--custom_modules',
                 help='Tab separated file containing module name, definition as the columns')
+    classify_input_options.add_argument('--module_rules_json',
+                help='json file specifying rules to interpret the annotation and guide module annotation')
+    classify_input_options.add_argument('--gff_files',
+                help='GFF files for the genomes being classified.')
 
     classify_cutoff_options = classify.add_argument_group('Cutoff options')
     classify_cutoff_options.add_argument('--cutoff', type=float, default=0.0,
@@ -214,6 +206,7 @@ if __name__ == "__main__":
     classify_runtime_options = classify.add_argument_group('Runtime options')
     classify_runtime_options.add_argument('--aggregate', action='store_true',
                                          help='Calculate the abundance of each pathway within each genome/sample (column)')
+    
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     enrichment = subparsers.add_parser('enrichment', formatter_class=CustomHelpFormatter, parents=[base_all])
@@ -225,6 +218,8 @@ if __name__ == "__main__":
                 help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
     enrichment_input_options.add_argument('--annotation_matrix',
                 help='Annotation matrix to compare.')
+    enrichment_input_options.add_argument('--gff_files', nargs='+',
+                help='Gff files for genomes to compare.')
     enrichment_input_options.add_argument('--abundance',
                 help='Genome abundance matrix.')
     enrichment_input_options.add_argument('--abundance_metadata',
@@ -267,7 +262,15 @@ if __name__ == "__main__":
                 help='Compare dbCAN ids')
     enrichment_runtime_options.add_argument('--ec', action='store_true',
                 help='Compare EC ids')
-
+    enrichment_runtime_options.add_argument('--range', default=2500, type = int,
+                help='Base pair range to search for synteny within. Default = 2500.')
+    enrichment_runtime_options.add_argument('--subblock_size', default=2, type = int,
+                help='Number of genes clustered in a row to be reported. Default = 2.')
+    enrichment_runtime_options.add_argument('--operon_mismatch_cutoff', default=2, type = int,
+                help='Number of allowed mismatches when searching for operons across genomes. Default = 2.')
+    enrichment_runtime_options.add_argument('--operon_match_score_cutoff', default=0.5, type = float,
+                help='Score cutoff for operon matches')
+    
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     uses = subparsers.add_parser('uses', formatter_class=CustomHelpFormatter, parents=[base_all])
@@ -330,9 +333,12 @@ if __name__ == "__main__":
 
     if(len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help'):
         phelp()
+
     else:
         args = parser.parse_args()
-
+        if len(sys.argv) == 2:
+           print(subparsers.choices[args.subparser_name].print_help())
+           exit()
         if not args.log:
             args.log = os.path.join(args.subparser_name + '.log')
 

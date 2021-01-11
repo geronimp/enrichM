@@ -1,23 +1,8 @@
 #!/usr/bin/env python3
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
-
 import os
 import pickle
+import json
+import logging
 import multiprocessing as mp
 from enrichm.annotate import Annotate
 
@@ -145,8 +130,57 @@ class Parser:
         return output_dict, columns
 
     @staticmethod
+    def parse_gff(gff_file):
+        feature_dict = dict()
+        genome_to_annotations_dict = dict()
+        
+        gff_file_io = open(gff_file)
+        
+        for line in gff_file_io:
+
+            if line.startswith('#'):
+                continue
+            contig, _, _, start_pos, finish_pos, _, strand, _, attributes = line.strip().split('\t')
+            # Terminal ';' sometimes found in poorly formatted gffs. They gotta go.
+            if attributes.endswith(';'):
+                attributes = attributes[:-1]
+            attributes_dict = dict()
+
+            for attribute in attributes.split(';'):
+                attribute_key, attribute_value = attribute.split('=')
+                attribute_value_list = attribute_value.split(',')
+
+                if attribute_key in attributes_dict:
+                    raise Exception(f"Key duplicate in GFF file: {attribute_key}")
+                else:
+                    attributes_dict[attribute_key] = attribute_value_list 
+
+            genome = attributes_dict['genome'][0]
+
+            if genome not in genome_to_annotations_dict:
+                genome_to_annotations_dict[genome] = dict()
+                feature_dict[genome] = dict()
+
+            for attribute in attributes_dict['annotations']:
+
+                if contig not in feature_dict[genome]:
+                    feature_dict[genome][contig] = dict()
+                if attribute in feature_dict[genome][contig]:
+                    feature_dict[genome][contig][attribute].append([int(start_pos), int(finish_pos), strand])
+                    genome_to_annotations_dict[genome][attribute] += 1
+                else:
+                    feature_dict[genome][contig][attribute] = [[int(start_pos), int(finish_pos), strand]]
+                    genome_to_annotations_dict[genome][attribute] = 1
+
+        gff_file_io.close()
+
+        return feature_dict, genome_to_annotations_dict
+
+    @staticmethod
     def parse_tpm_values(tpm_values):
+
         from enrichm.databases import Databases
+
         k2r = Databases().k2r()
 
         output_dict = dict()
@@ -339,3 +373,105 @@ class ParseGenerate:
         if None in [self.labels, self.model, self.attributes]:
             raise Exception("Malformatted forester model directory: %s" \
                             % (forester_model_directory))
+
+class RulesJson:
+    _CURRENT = "0"
+    VERSION = 'version'
+    
+    _GENERIC_KEYS = {
+        "0": [
+            "modules", # Modules with rules
+            "version" # Version of database
+        ]
+    }
+    _REQUIRED_KEYS = {"0": # DB version
+                         # Type of rule
+                        {"synteny": # Define synteny blocks
+                            # values of rule
+                            ["genes", # genes in synteny block
+                             "range", # range of nucleic acids within which they are found
+                             "breaks", # How many breaks are allowed in the synteny block. Ignored if strict.
+                             "minsubblocksize", # How many genes must be found in split  synteny blocks. Ignored if strict.
+                             "min"], # Minimum number of genes that must be found in synteny to pass.
+                        #"homology": {},
+                        "required": {}
+                        }
+                     }
+
+    
+    def load(self, rules_json_filepath):
+        logging.debug(f"Loading rules JSON file: {rules_json_filepath}")
+
+        rules_json_filepath_io = open(rules_json_filepath)
+        self.contents_dict = json.load(rules_json_filepath_io)
+        rules_json_filepath_io.close()
+
+        logging.debug("Finding rules version")
+        current_package_version = self.contents_dict[self.VERSION]
+
+        logging.debug(f"Loading rules version {current_package_version}")
+        if current_package_version == '0':
+            rj = RulesJsonVersion0(self.contents_dict, rules_json_filepath, current_package_version)
+        else:
+            raise Exception(f"JSON rules file version invalid: {current_package_version}")
+
+        logging.debug("Checking package format is valid")
+        self.check_version_keys(self._GENERIC_KEYS[current_package_version], self.contents_dict)
+
+        for module_rules in self.contents_dict['modules'].values():
+            self.check_version_keys(self._REQUIRED_KEYS[current_package_version], module_rules)
+
+        return rj
+
+    def get_version(self):
+        if self.VERSION in self.contents_dict:
+            return self.contents_dict[self.VERSION]
+        else:
+            raise Exception("No version information in rules JSON file")
+
+    def check_version_keys(self, version_keys, contents_dict):
+
+        if isinstance(version_keys, dict):
+
+            for key, item in version_keys.items():
+                self.check_key(key, contents_dict, item)
+
+        elif isinstance(version_keys, list):
+
+            for key in version_keys:
+                self.check_key(key, contents_dict)
+
+    def check_key(self, key, contents, item=None):
+        
+        if isinstance(contents, dict):
+            if key in contents:
+                if item:
+                    self.check_version_keys(item, contents[key])
+            else:
+                raise Exception(f"Malformatted rules file. Key not found: {key}")
+        
+        elif isinstance(contents, list):
+            for content in contents:
+                if key in content:
+                    if item:
+                        self.check_version_keys(item, contents[key])
+                else:
+                    raise Exception(f"Malformatted rules file. Key not found: {key}")
+
+class RulesJsonVersion0(RulesJson):
+
+    def __init__(self, _contents_json, _filename, _version):
+        self.VERSION = 0
+        self._contents_json = _contents_json
+        self._filename = _filename
+        self._version = _version
+        self.members = set(self._contents_json['modules'].keys())
+
+    def get_synteny_rules(self, module_name):
+        return self._contents_json['modules'][module_name]['synteny']
+
+    def get_homology_rules(self, module_name):
+        return self._contents_json['modules'][module_name]['homology']
+
+    def get_required_rules(self, module_name):
+        return self._contents_json['modules'][module_name]['required']

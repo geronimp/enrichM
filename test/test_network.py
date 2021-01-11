@@ -1,7 +1,5 @@
-'''
-Tests for the network functions in EnrichM
-'''
-
+#!/usr/bin/env python
+# Imports
 import unittest
 import filecmp
 import tempfile

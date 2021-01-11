@@ -1,25 +1,11 @@
 #!/usr/bin/env python3
-###############################################################################
-#                                                                             #
-#    This program is free software: you can redistribute it and/or modify     #
-#    it under the terms of the GNU General Public License as published by     #
-#    the Free Software Foundation, either version 3 of the License, or        #
-#    (at your option) any later version.                                      #
-#                                                                             #
-#    This program is distributed in the hope that it will be useful,          #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of           #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            #
-#    GNU General Public License for more details.                             #
-#                                                                             #
-#    You should have received a copy of the GNU General Public License        #
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.     #
-#                                                                             #
-###############################################################################
+
 import logging
 import sys
 import os
 import shutil
 import time
+
 from enrichm.data import Data
 from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.enrichment import Enrichment
@@ -39,13 +25,13 @@ class Run:
 
     def __init__(self):
 
-        self.DATA            = 'data'
-        self.ANNOTATE        = 'annotate'
-        self.CLASSIFY        = 'classify'
-        self.ENRICHMENT      = 'enrichment'
-        self.PREDICT         = 'predict'
-        self.GENERATE        = 'generate'
-        self.USES            = 'uses'
+        self.DATA = 'data'
+        self.ANNOTATE = 'annotate'
+        self.CLASSIFY = 'classify'
+        self.ENRICHMENT = 'enrichment'
+        self.PREDICT = 'predict'
+        self.GENERATE = 'generate'
+        self.USES = 'uses'
 
     def _logging_setup(self, args):
         if args.verbosity not in range(1, 6):
@@ -112,6 +98,10 @@ class Run:
 
             os.mkdir(args.output)
 
+    def _check_data(self, args):
+        if not(args.create or args.uninstall):
+            raise Exception("Only one of the following can be specified: --create, --uninstall")
+
     def _check_annotate(self, args):
         '''
         Check annotate input and output options are valid.
@@ -172,9 +162,8 @@ class Run:
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
 
-        if not args.annotation_matrix:
-            if not args.annotate_output:
-                raise Exception("Either --annotate_output or --annotation_matrix must be specified!")
+        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files):
+            raise Exception("Either --annotate_output, --annotation_matrix or --gff_files must be specified!")
 
         if args.annotation_matrix or args.annotate_output:
             if not args.abundance:
@@ -185,11 +174,11 @@ class Run:
 
             if not any(types):
                 raise Exception(
-                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --orthologs --clusters --ko_hmm --ec --cazy")
+                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy")
 
             if len([x for x in types if x]) > 1:
                 raise Exception(
-                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --orthologs --clusters --ko_hmm --ec --cazy")
+                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy")
 
     def _check_classify(self, args):
         '''
@@ -201,6 +190,20 @@ class Run:
         '''
         if(args.cutoff>1 and args.cutoff<0):
             raise Exception("--cutoff needs to be between 0 and 1")
+
+        if(args.gff_files and args.genome_and_annotation_matrix):
+            raise Exception(f"Both --gff_files {args.gff_files} and --genome_and_annotation_matrix {args.genome_and_annotation_matrix} were specified. Please provide only one option.")
+
+        if(args.module_rules_json and not args.gff_files):
+            raise Exception(f"--gff_files must be provided to use --module_rules_json")
+
+        if args.module_rules_json:
+            if not os.path.isfile(args.module_rules_json):
+                raise Exception(f"File does not exist: {args.module_rules_json}")
+
+        if args.custom_modules:
+            if not os.path.isfile(args.custom_modules):
+                raise Exception(f"File does not exist: {args.custom_modules}")
 
     def _check_network(self, args):
         '''
@@ -264,6 +267,119 @@ class Run:
         '''
         pass
 
+    def run_data(self, args):
+        d = Data()
+        d.do(args.uninstall, args.create, args.dry)
+
+    def run_annotate(self, args):
+        self._check_annotate(args)
+        annotate = Annotate(# Define inputs and outputs
+                            args.output,
+                            # Define type of annotation to be carried out
+                            args.ko, args.ko_hmm, args.pfam, args.tigrfam,
+                            args.clusters, args.orthologs, args.cazy,
+                            args.ec, args.orthogroup,
+                            # Cutoffs
+                            args.evalue, args.bit, args.id, args.aln_query,
+                            args.aln_reference, args.c, args.cut_ga, 
+                            args.cut_nc, args.cut_tc, args.cut_ko,
+                            args.inflation, args.chunk_number, args.chunk_max,
+                            args.count_domains,
+                            # Parameters
+                            args.threads, args.parallel, args.suffix, args.light)
+
+        annotate.annotate_pipeline(args.genome_directory,
+                                    args.protein_directory,
+                                    args.genome_files,
+                                    args.protein_files)
+
+    def run_classify(self, args):
+        self._check_classify(args)
+        classify = Classify()
+        classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
+                                    args.genome_and_annotation_matrix, args.module_rules_json, 
+                                    args.gff_files, args.output)
+
+    def run_enrichment(self, args):
+        self._check_enrichment(args)
+        enrichment = Enrichment()
+        enrichment.enrichment_pipeline(# Input options
+                                        args.annotate_output, args.annotation_matrix, args.gff_files,
+                                        args.metadata, args.abundance, args.abundance_metadata,
+                                        args.transcriptome, args.transcriptome_metadata,
+                                        # Runtime options
+                                        args.pval_cutoff, args.proportions_cutoff, 
+                                        args.threshold, args.multi_test_correction, 
+                                        args.batchfile, args.processes, 
+                                        args.allow_negative_values, args.ko, args.pfam, 
+                                        args.tigrfam, args.cluster, args.ortholog, args.cazy,
+                                        args.ec, args.ko_hmm, args.range, args.subblock_size,
+                                        args.operon_mismatch_cutoff, args.operon_match_score_cutoff,
+                                        # Outputs
+                                        args.output)
+
+    def run_network(self, args):
+        self._check_network(args)
+        network_analyser=NetworkAnalyser()
+        network_analyser.network_pipeline(args.subparser_name, args.matrix, 
+                                            args.genome_metadata, args.tpm_values,
+                                            args.tpm_metadata, args.abundance, 
+                                            args.abundance_metadata, args.metabolome,
+                                            args.enrichment_output, args.depth, args.filter,
+                                            args.limit, args.queries, args.output)
+
+    def run_predict(self, args):
+        self._check_predict(args)
+        predict = Predict()
+        predict.predict_pipeline(args.forester_model_directory,
+                args.input_matrix,
+                args.output)
+
+    def run_generate(self, args):
+        self._check_generate(args)
+        generate_model = GenerateModel()
+        generate_model.generate_pipeline(args.input_matrix,
+                args.groups,
+                args.model_type,
+                args.testing_portion,
+                args.grid_search,
+                args.threads,
+                args.output)
+
+    def run_uses(self, args):
+        self._check_uses(args)
+        uses = Uses()
+        uses.uses_pipeline(args.compounds_list,
+                args.annotation_matrix,
+                args.metadata,
+                args.output,
+                args.count)
+
+    def get_pipeline(self, subparser_name):
+        if subparser_name == self.DATA:
+            pipeline = self.run_data
+        elif subparser_name == self.ANNOTATE:
+            pipeline = self.run_annotate
+        elif subparser_name == self.CLASSIFY:
+            pipeline = self.run_classify
+        elif subparser_name == self.ENRICHMENT:
+            pipeline = self.run_enrichment
+        elif subparser_name == NetworkAnalyser.PATHWAY:
+            pipeline = self.run_network
+        elif subparser_name == NetworkAnalyser.EXPLORE:
+            pipeline = self.run_network
+        elif subparser_name == self.PREDICT:
+            pipeline = self.run_predict
+        elif subparser_name == self.GENERATE:
+            pipeline = self.run_generate
+        elif subparser_name == self.USES:
+            pipeline = self.run_uses
+        else:
+            ValueError(subparser_name)
+
+
+        return pipeline
+
     def run_enrichm(self, args, command):
         '''
         Parameters
@@ -278,91 +394,7 @@ class Run:
         logging.info("Command: %s" % ' '.join(command))
         logging.info("Running the %s pipeline" % args.subparser_name)
 
-        if args.subparser_name == self.DATA:
-            d = Data()
-            d.do(args.uninstall, args.dry)
-
-        if args.subparser_name == self.ANNOTATE:
-            self._check_annotate(args)
-            annotate = Annotate(# Define inputs and outputs
-                                args.output,
-                                # Define type of annotation to be carried out
-                                args.ko, args.ko_hmm, args.pfam, args.tigrfam,
-                                args.clusters, args.orthologs, args.cazy,
-                                args.ec,
-                                # Cutoffs
-                                args.evalue, args.bit, args.id, args.aln_query,
-                                args.aln_reference, args.c, args.cut_ga, 
-                                args.cut_nc, args.cut_tc, args.cut_ko,
-                                args.inflation, args.chunk_number, args.chunk_max,
-                                args.count_domains,
-                                # Parameters
-                                args.threads, args.parallel, args.suffix, args.light)
-
-            annotate.annotate_pipeline(args.genome_directory,
-                                       args.protein_directory,
-                                       args.genome_files,
-                                       args.protein_files)
-
-        elif args.subparser_name == self.CLASSIFY:
-            self._check_classify(args)
-            classify = Classify()
-            classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
-                                       args.genome_and_annotation_matrix, args.output)
-
-        elif args.subparser_name == self.ENRICHMENT:
-            self._check_enrichment(args)
-            enrichment = Enrichment()
-            enrichment.enrichment_pipeline(# Input options
-                                           args.annotate_output, args.annotation_matrix,
-                                           args.metadata, args.abundance, args.abundance_metadata,
-                                           args.transcriptome, args.transcriptome_metadata,
-                                           # Runtime options
-                                           args.pval_cutoff, args.proportions_cutoff, 
-                                           args.threshold, args.multi_test_correction, 
-                                           args.batchfile, args.processes, 
-                                           args.allow_negative_values, args.ko, args.pfam, 
-                                           args.tigrfam, args.cluster, args.ortholog, args.cazy,
-                                           args.ec, args.ko_hmm,
-                                           # Outputs
-                                           args.output)
-
-        elif(args.subparser_name == NetworkAnalyser.PATHWAY or
-             args.subparser_name == NetworkAnalyser.EXPLORE):
-            self._check_network(args)
-            network_analyser=NetworkAnalyser()
-            network_analyser.network_pipeline(args.subparser_name, args.matrix, 
-                                              args.genome_metadata, args.tpm_values,
-                                              args.tpm_metadata, args.abundance, 
-                                              args.abundance_metadata, args.metabolome,
-                                              args.enrichment_output, args.depth, args.filter,
-                                              args.limit, args.queries, args.output)
-
-        if args.subparser_name == self.PREDICT:
-            self._check_predict(args)
-            predict = Predict()
-            predict.predict_pipeline(args.forester_model_directory,
-                 args.input_matrix,
-                 args.output)
-
-        elif args.subparser_name == self.GENERATE:
-            self._check_generate(args)
-            generate_model = GenerateModel()
-            generate_model.generate_pipeline(args.input_matrix,
-                  args.groups,
-                  args.model_type,
-                  args.testing_portion,
-                  args.grid_search,
-                  args.threads,
-                  args.output)
-
-        elif args.subparser_name == self.USES:
-            self._check_uses(args)
-            uses = Uses()
-            uses.uses_pipeline(args.compounds_list,
-                    args.annotation_matrix,
-                    args.metadata,
-                    args.output,
-                    args.count)
+        pipeline = self.get_pipeline(args.subparser_name)
+        pipeline(args)
 
         logging.info('Finished running EnrichM')
