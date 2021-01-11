@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+
 import logging
 import sys
 import os
 import shutil
 import time
+
 from enrichm.data import Data
 from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.enrichment import Enrichment
@@ -23,13 +25,13 @@ class Run:
 
     def __init__(self):
 
-        self.DATA            = 'data'
-        self.ANNOTATE        = 'annotate'
-        self.CLASSIFY        = 'classify'
-        self.ENRICHMENT      = 'enrichment'
-        self.PREDICT         = 'predict'
-        self.GENERATE        = 'generate'
-        self.USES            = 'uses'
+        self.DATA = 'data'
+        self.ANNOTATE = 'annotate'
+        self.CLASSIFY = 'classify'
+        self.ENRICHMENT = 'enrichment'
+        self.PREDICT = 'predict'
+        self.GENERATE = 'generate'
+        self.USES = 'uses'
 
     def _logging_setup(self, args):
         if args.verbosity not in range(1, 6):
@@ -58,23 +60,23 @@ class Run:
         ----------
         args    - object. Argparse object
         '''
-        #dependencies = {'hmmsearch':"http://hmmer.org/download.html",
-        #                'diamond':"https://github.com/bbuchfink/diamond",
-        #                'R':"https://www.r-project.org",
-        #                'parallel':"https://www.gnu.org/software/parallel",
-        #                'prodigal':"https://github.com/hyattpd/Prodigal/wiki/installation",
-        #                'mmseqs':"https://github.com/soedinglab/MMseqs2"}
+        dependencies = {'hmmsearch':"http://hmmer.org/download.html",
+                        'diamond':"https://github.com/bbuchfink/diamond",
+                        'R':"https://www.r-project.org",
+                        'parallel':"https://www.gnu.org/software/parallel",
+                        'prodigal':"https://github.com/hyattpd/Prodigal/wiki/installation",
+                        'mmseqs':"https://github.com/soedinglab/MMseqs2"}
 
-        #missing_dependencies = list()
+        missing_dependencies = list()
 
-        #for dependency in dependencies.keys():
+        for dependency in dependencies.keys():
 
-        #    if shutil.which(dependency) == None:
-        #        missing_dependencies.append(dependency)
+            if shutil.which(dependency) == None:
+                missing_dependencies.append(dependency)
 
-        #if len(missing_dependencies)>0:
-        #    dependency_string = '\n'.join(['\t%s\t%s' % (d, dependencies[d]) for d in missing_dependencies])
-        #    raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
+        if len(missing_dependencies)>0:
+            dependency_string = '\n'.join(['\t%s\t%s' % (d, dependencies[d]) for d in missing_dependencies])
+            raise Exception('The following dependencies need to be installed to run enrichm:\n%s' % (dependency_string))
 
         if args.subparser_name != self.DATA:
             # Set up working directory
@@ -95,6 +97,10 @@ class Run:
                     raise Exception("File '%s' exists." % args.output)
 
             os.mkdir(args.output)
+
+    def _check_data(self, args):
+        if not(args.create or args.uninstall):
+            raise Exception("Only one of the following can be specified: --create, --uninstall")
 
     def _check_annotate(self, args):
         '''
@@ -261,6 +267,119 @@ class Run:
         '''
         pass
 
+    def run_data(self, args):
+        d = Data()
+        d.do(args.uninstall, args.create, args.dry)
+
+    def run_annotate(self, args):
+        self._check_annotate(args)
+        annotate = Annotate(# Define inputs and outputs
+                            args.output,
+                            # Define type of annotation to be carried out
+                            args.ko, args.ko_hmm, args.pfam, args.tigrfam,
+                            args.clusters, args.orthologs, args.cazy,
+                            args.ec, args.orthogroup,
+                            # Cutoffs
+                            args.evalue, args.bit, args.id, args.aln_query,
+                            args.aln_reference, args.c, args.cut_ga, 
+                            args.cut_nc, args.cut_tc, args.cut_ko,
+                            args.inflation, args.chunk_number, args.chunk_max,
+                            args.count_domains,
+                            # Parameters
+                            args.threads, args.parallel, args.suffix, args.light)
+
+        annotate.annotate_pipeline(args.genome_directory,
+                                    args.protein_directory,
+                                    args.genome_files,
+                                    args.protein_files)
+
+    def run_classify(self, args):
+        self._check_classify(args)
+        classify = Classify()
+        classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
+                                    args.genome_and_annotation_matrix, args.module_rules_json, 
+                                    args.gff_files, args.output)
+
+    def run_enrichment(self, args):
+        self._check_enrichment(args)
+        enrichment = Enrichment()
+        enrichment.enrichment_pipeline(# Input options
+                                        args.annotate_output, args.annotation_matrix, args.gff_files,
+                                        args.metadata, args.abundance, args.abundance_metadata,
+                                        args.transcriptome, args.transcriptome_metadata,
+                                        # Runtime options
+                                        args.pval_cutoff, args.proportions_cutoff, 
+                                        args.threshold, args.multi_test_correction, 
+                                        args.batchfile, args.processes, 
+                                        args.allow_negative_values, args.ko, args.pfam, 
+                                        args.tigrfam, args.cluster, args.ortholog, args.cazy,
+                                        args.ec, args.ko_hmm, args.range, args.subblock_size,
+                                        args.operon_mismatch_cutoff, args.operon_match_score_cutoff,
+                                        # Outputs
+                                        args.output)
+
+    def run_network(self, args):
+        self._check_network(args)
+        network_analyser=NetworkAnalyser()
+        network_analyser.network_pipeline(args.subparser_name, args.matrix, 
+                                            args.genome_metadata, args.tpm_values,
+                                            args.tpm_metadata, args.abundance, 
+                                            args.abundance_metadata, args.metabolome,
+                                            args.enrichment_output, args.depth, args.filter,
+                                            args.limit, args.queries, args.output)
+
+    def run_predict(self, args):
+        self._check_predict(args)
+        predict = Predict()
+        predict.predict_pipeline(args.forester_model_directory,
+                args.input_matrix,
+                args.output)
+
+    def run_generate(self, args):
+        self._check_generate(args)
+        generate_model = GenerateModel()
+        generate_model.generate_pipeline(args.input_matrix,
+                args.groups,
+                args.model_type,
+                args.testing_portion,
+                args.grid_search,
+                args.threads,
+                args.output)
+
+    def run_uses(self, args):
+        self._check_uses(args)
+        uses = Uses()
+        uses.uses_pipeline(args.compounds_list,
+                args.annotation_matrix,
+                args.metadata,
+                args.output,
+                args.count)
+
+    def get_pipeline(self, subparser_name):
+        if subparser_name == self.DATA:
+            pipeline = self.run_data
+        elif subparser_name == self.ANNOTATE:
+            pipeline = self.run_annotate
+        elif subparser_name == self.CLASSIFY:
+            pipeline = self.run_classify
+        elif subparser_name == self.ENRICHMENT:
+            pipeline = self.run_enrichment
+        elif subparser_name == NetworkAnalyser.PATHWAY:
+            pipeline = self.run_network
+        elif subparser_name == NetworkAnalyser.EXPLORE:
+            pipeline = self.run_network
+        elif subparser_name == self.PREDICT:
+            pipeline = self.run_predict
+        elif subparser_name == self.GENERATE:
+            pipeline = self.run_generate
+        elif subparser_name == self.USES:
+            pipeline = self.run_uses
+        else:
+            ValueError(subparser_name)
+
+
+        return pipeline
+
     def run_enrichm(self, args, command):
         '''
         Parameters
@@ -275,93 +394,7 @@ class Run:
         logging.info("Command: %s" % ' '.join(command))
         logging.info("Running the %s pipeline" % args.subparser_name)
 
-        if args.subparser_name == self.DATA:
-            d = Data()
-            d.do(args.uninstall, args.dry)
-
-        if args.subparser_name == self.ANNOTATE:
-            self._check_annotate(args)
-            annotate = Annotate(# Define inputs and outputs
-                                args.output,
-                                # Define type of annotation to be carried out
-                                args.ko, args.ko_hmm, args.pfam, args.tigrfam,
-                                args.clusters, args.orthologs, args.cazy,
-                                args.ec, args.orthogroup,
-                                # Cutoffs
-                                args.evalue, args.bit, args.id, args.aln_query,
-                                args.aln_reference, args.c, args.cut_ga, 
-                                args.cut_nc, args.cut_tc, args.cut_ko,
-                                args.inflation, args.chunk_number, args.chunk_max,
-                                args.count_domains,
-                                # Parameters
-                                args.threads, args.parallel, args.suffix, args.light)
-
-            annotate.annotate_pipeline(args.genome_directory,
-                                       args.protein_directory,
-                                       args.genome_files,
-                                       args.protein_files)
-
-        if args.subparser_name == self.CLASSIFY:
-            self._check_classify(args)
-            classify = Classify()
-            classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
-                                       args.genome_and_annotation_matrix, args.module_rules_json, 
-                                       args.gff_files, args.output)
-
-        if args.subparser_name == self.ENRICHMENT:
-            self._check_enrichment(args)
-            enrichment = Enrichment()
-            enrichment.enrichment_pipeline(# Input options
-                                           args.annotate_output, args.annotation_matrix, args.gff_files,
-                                           args.metadata, args.abundance, args.abundance_metadata,
-                                           args.transcriptome, args.transcriptome_metadata,
-                                           # Runtime options
-                                           args.pval_cutoff, args.proportions_cutoff, 
-                                           args.threshold, args.multi_test_correction, 
-                                           args.batchfile, args.processes, 
-                                           args.allow_negative_values, args.ko, args.pfam, 
-                                           args.tigrfam, args.cluster, args.ortholog, args.cazy,
-                                           args.ec, args.ko_hmm, args.range, args.subblock_size,
-                                           args.operon_mismatch_cutoff, args.operon_match_score_cutoff,
-                                           # Outputs
-                                           args.output)
-
-        if(args.subparser_name == NetworkAnalyser.PATHWAY or
-             args.subparser_name == NetworkAnalyser.EXPLORE):
-            self._check_network(args)
-            network_analyser=NetworkAnalyser()
-            network_analyser.network_pipeline(args.subparser_name, args.matrix, 
-                                              args.genome_metadata, args.tpm_values,
-                                              args.tpm_metadata, args.abundance, 
-                                              args.abundance_metadata, args.metabolome,
-                                              args.enrichment_output, args.depth, args.filter,
-                                              args.limit, args.queries, args.output)
-
-        if args.subparser_name == self.PREDICT:
-            self._check_predict(args)
-            predict = Predict()
-            predict.predict_pipeline(args.forester_model_directory,
-                 args.input_matrix,
-                 args.output)
-
-        if args.subparser_name == self.GENERATE:
-            self._check_generate(args)
-            generate_model = GenerateModel()
-            generate_model.generate_pipeline(args.input_matrix,
-                  args.groups,
-                  args.model_type,
-                  args.testing_portion,
-                  args.grid_search,
-                  args.threads,
-                  args.output)
-
-        if args.subparser_name == self.USES:
-            self._check_uses(args)
-            uses = Uses()
-            uses.uses_pipeline(args.compounds_list,
-                    args.annotation_matrix,
-                    args.metadata,
-                    args.output,
-                    args.count)
+        pipeline = self.get_pipeline(args.subparser_name)
+        pipeline(args)
 
         logging.info('Finished running EnrichM')

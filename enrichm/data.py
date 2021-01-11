@@ -81,7 +81,7 @@ class Data:
         logging.info('Cleaning up')
         os.remove(new_db_path_archive)
 
-    def do(self, uninstall, dry):
+    def do(self, uninstall, create, dry):
         '''
         Check database versions, if they're out of date, archive the old and download the new.
         '''
@@ -98,8 +98,8 @@ class Data:
 
             os.rmdir(self.DATABASE_DIR)
 
-        else:
-
+        elif create:
+            import IPython; IPython.embed()
             try:
                 version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
             except:

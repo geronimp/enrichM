@@ -22,13 +22,14 @@ class Tests(unittest.TestCase):
 
     def test_classify_from_matrix(self):
         tmp = tempfile.mkdtemp()
+        
         ko_matrix = os.path.join(path_to_annotate, 'ko_frequency_table.tsv')
         cmd = f'{path_to_script} classify \
                     --genome_and_annotation_matrix {ko_matrix} \
                     --output {tmp} \
                     --force \
                     --verbosity 1'
-        subprocess.call(cmd, shell=True)
+        result = subprocess.check_call(cmd, shell=True)
 
     def test_classify_with_custom_modules(self):
         tmp = tempfile.mkdtemp()
@@ -38,7 +39,7 @@ class Tests(unittest.TestCase):
                     --output {tmp} \
                     --force \
                     --verbosity 1'
-        subprocess.call(cmd, shell=True)
+        subprocess.check_call(cmd, shell=True)
 
     def test_curate(self):
         # M00516 
