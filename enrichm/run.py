@@ -288,7 +288,7 @@ class Run:
                             # Cutoffs
                             args.evalue, args.bit, args.id, args.aln_query,
                             args.aln_reference, args.c, args.cut_ga_pfam,
-                            
+
                             args.cut_nc_pfam, args.cut_tc_pfam,
                             args.cut_ga_tigrfam, args.cut_nc_tigrfam,
                             args.cut_tc_tigrfam, args.cut_ko,

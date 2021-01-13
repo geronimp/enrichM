@@ -41,7 +41,10 @@ class Parser:
         for line in open(genome_and_annotation_file):
 
             try:
-                genome, annotation = line.strip().split("\t")
+                if line == '\n':
+                    continue
+                else:
+                    genome, annotation = line.strip().split("\t")
 
             except:
                 raise Exception("Input genomes/annotation file error on %s" % line)
