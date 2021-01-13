@@ -134,12 +134,17 @@ class Run:
         if(args.aln_reference>1 or args.aln_reference<0):
             raise Exception("Alignment to reference cutoff (--aln_reference) must be between 0 and 1")
 
-        if any([args.cut_ga, args.cut_nc, args.cut_tc]):
-            if len([x for x in [args.cut_ga, args.cut_nc, args.cut_tc] if x])>1:
-                raise Exception("Only one of the following can be selected: --cut_ga, --cut_nc, --cut_tc")
-
+        if any([args.cut_ga_pfam, args.cut_nc_pfam, args.cut_tc_pfam]):
+            if len([x for x in [args.cut_ga_pfam, args.cut_nc_pfam, args.cut_tc_pfam] if x])>1:
+                raise Exception("Only one of the following can be selected: --cut_ga_pfam, --cut_nc_pfam, --cut_tc_pfam")
             if args.evalue:
-                logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga, --cut_nc, --cut_tc')
+                logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga_pfam, --cut_nc_pfam, --cut_tc_pfam, --cut_ga_tigrfam, --cut_nc_tigrfam, --cut_tc_tigrfam')
+
+        if any([args.cut_ga_tigrfam, args.cut_nc_tigrfam, args.cut_tc_tigrfam]):
+            if len([x for x in [args.cut_ga_tigrfam, args.cut_nc_tigrfam, args.cut_tc_tigrfam] if x])>1:
+                raise Exception("Only one of the following can be selected: --cut_ga_tigrfam, --cut_nc_tigrfam, --cut_tc_tigrfam")
+            if args.evalue:
+                logging.warning('selecting one of the following overrides evalue thresholds: --cut_ga_pfam, --cut_nc_pfam, --cut_tc_pfam, --cut_ga_tigrfam, --cut_nc_tigrfam, --cut_tc_tigrfam')
 
     def _check_enrichment(self, args):
         '''
@@ -273,6 +278,7 @@ class Run:
 
     def run_annotate(self, args):
         self._check_annotate(args)
+
         annotate = Annotate(# Define inputs and outputs
                             args.output,
                             # Define type of annotation to be carried out
@@ -281,8 +287,10 @@ class Run:
                             args.ec, args.orthogroup,
                             # Cutoffs
                             args.evalue, args.bit, args.id, args.aln_query,
-                            args.aln_reference, args.c, args.cut_ga, 
-                            args.cut_nc, args.cut_tc, args.cut_ko,
+                            args.aln_reference, args.c, args.cut_ga_pfam,
+                            args.cut_nc_pfam, args.cut_tc_pfam,
+                            args.cut_ga_tigrfam, args.cut_nc_tigrfam,
+                            args.cut_tc_tigrfam, args.cut_ko,
                             args.inflation, args.chunk_number, args.chunk_max,
                             args.count_domains,
                             # Parameters
@@ -318,6 +326,7 @@ class Run:
                                         # Outputs
                                         args.output)
 
+
     def run_network(self, args):
         self._check_network(args)
         network_analyser=NetworkAnalyser()
@@ -327,6 +336,7 @@ class Run:
                                             args.abundance_metadata, args.metabolome,
                                             args.enrichment_output, args.depth, args.filter,
                                             args.limit, args.queries, args.output)
+
 
     def run_predict(self, args):
         self._check_predict(args)
@@ -345,6 +355,7 @@ class Run:
                 args.grid_search,
                 args.threads,
                 args.output)
+
 
     def run_uses(self, args):
         self._check_uses(args)
@@ -393,8 +404,6 @@ class Run:
 
         logging.info("Command: %s" % ' '.join(command))
         logging.info("Running the %s pipeline" % args.subparser_name)
-
         pipeline = self.get_pipeline(args.subparser_name)
         pipeline(args)
-
         logging.info('Finished running EnrichM')

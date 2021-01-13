@@ -76,8 +76,8 @@ class Annotate:
 
     def __init__(self, output_directory, annotate_ko, annotate_ko_hmm, annotate_pfam, annotate_tigrfam,
                  annoatate_cluster, annotate_ortholog, annotate_cazy, annotate_ec, evalue, bit, percent_id_cutoff,
-                 aln_query, aln_reference, fraction_aligned, cut_ga, cut_nc, cut_tc,
-                 cut_hmm, inflation, chunk_number, chunk_max, count_domains,
+                 aln_query, aln_reference, fraction_aligned, cut_ga_pfam, cut_nc_pfam, cut_tc_pfam,
+                 cut_ga_tigrfam, cut_nc_tigrfam, cut_tc_tigrfam, cut_hmm, inflation, chunk_number, chunk_max, count_domains,
                  threads, parallel, suffix, light):
 
         # Define inputs and outputs
@@ -100,9 +100,12 @@ class Annotate:
         self.aln_query = aln_query
         self.aln_reference = aln_reference
         self.fraction_aligned = fraction_aligned
-        self.cut_ga = cut_ga
-        self.cut_nc = cut_nc
-        self.cut_tc = cut_tc
+        self.cut_ga_pfam = cut_ga_pfam
+        self.cut_nc_pfam = cut_nc_pfam
+        self.cut_tc_pfam = cut_tc_pfam
+        self.cut_ga_tigrfam = cut_ga_tigrfam
+        self.cut_nc_tigrfam = cut_nc_tigrfam
+        self.cut_tc_tigrfam = cut_tc_tigrfam
         self.cut_hmm = cut_hmm
         self.inflation = inflation
         self.chunk_number = chunk_number
@@ -356,12 +359,18 @@ class Annotate:
 
         self.hmm_search(output_directory_path, database, hmmcutoff)
 
+        if ids_type == AnnotationParser.PFAM:
+            pfam2clan = self.databases.pfam2clan()
+        else:
+            pfam2clan = None
+
         for genome_annotation in listdir(output_directory_path):
             genome_id = path.splitext(genome_annotation)[0]
             genome = genome_dict[genome_id]
             output_annotation_path = path.join(output_directory_path, genome_annotation)
             genome.add(output_annotation_path, self.evalue, self.bit, self.aln_query,
-                       self.aln_reference, specific_cutoffs, parser, ids_type)
+                       self.aln_reference, specific_cutoffs, parser, ids_type,
+                       pfam2clan=pfam2clan)
 
     def annotate_hypothetical(self, genomes_list):
         '''
@@ -598,13 +607,19 @@ class Annotate:
                           % (input_genome_path, self.PROTEINS_SUFFIX, self.parallel,
                              self.threads, output_path, self.ANNOTATION_SUFFIX)
         if hmmcutoff:
-            if(self.cut_ga or self.cut_nc or self.cut_tc):
-
-                if self.cut_ga:
+            if (self.cut_ga_pfam or self.cut_nc_pfam or self.cut_tc_pfam) and 'pfam' in database:
+                if self.cut_ga_pfam:
                     cmd += " --cut_ga "
-                if self.cut_nc:
+                if self.cut_nc_pfam:
                     cmd += " --cut_nc "
-                if self.cut_tc:
+                if self.cut_tc_pfam:
+                    cmd += " --cut_tc "
+            elif (self.cut_ga_tigrfam or self.cut_nc_tigrfam or self.cut_tc_tigrfam) and 'tigrfam' in database:
+                if self.cut_ga_tigrfam:
+                    cmd += " --cut_ga "
+                if self.cut_nc_tigrfam:
+                    cmd += " --cut_nc "
+                if self.cut_tc_tigrfam:
                     cmd += " --cut_tc "
             else:
                 cmd += self._default_hmmsearch_options()
