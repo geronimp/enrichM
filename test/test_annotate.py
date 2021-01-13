@@ -113,10 +113,10 @@ class Tests(unittest.TestCase):
             = Annotate(tmp,
                        True, True, True, True, True, True, True, True, True,# Annotate with all databases
                        1e-05, 0, 0.3, 0.7, 0.7, 0.7, # Runtime options
-                       False, False, False, True, # Cutoffs
+                       False, False, False, False, False, False, True, # Cutoffs
                        5, # Inflation
                        4, 2500, # chunks
                        False, 1, 1, '.fna', False)
-#28
+
 if __name__ == "__main__":
     unittest.main()
