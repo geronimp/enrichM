@@ -123,7 +123,7 @@ class Data:
                     logging.info('Database is up to date!')
 
             else:
-                logging.info('Creating file to store databases.')
+                logging.info('Creating folder to store databases.')
                 os.makedirs(self.DATABASE_DIR)
                 self._download_db(version_remote)
 
