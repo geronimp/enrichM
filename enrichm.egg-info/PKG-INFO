@@ -1,36 +1,34 @@
 Metadata-Version: 2.1
 Name: enrichm
-Version: 0.5.0
+Version: 0.6.2
 Summary: enrichm is a toolbox for comparing the functional composition of population genomes
 Home-page: https://github.com/geronimp/enrichM
 Author: Joel Boyd, Ben Woodcroft, Alexander Baker
 Author-email: joel.boyd@uqconnect.edu.au
 License: GPL3+
-Download-URL: https://github.com/geronimp/enrichm/archive/0.5.0.tar.gz
+Download-URL: https://github.com/geronimp/enrichm/archive/0.6.2.tar.gz
 Description: <p align="center">
         <img src="logo/logo.png">
         </p>
         
         [![Build Status](https://travis-ci.com/geronimp/enrichM.svg?branch=master)](https://travis-ci.com/geronimp/enrichM)
-        [![Downloads](https://pepy.tech/badge/enrichm/month)](https://pepy.tech/project/enrichm/month)
         [![version status](https://img.shields.io/pypi/v/enrichm.svg)](https://pypi.python.org/pypi/enrichm)
         
         EnrichM is a set of comparative genomics tools for large sets of metagenome assembled genomes (MAGs). The current functionality includes:
         
-        1. An basic annotation pipeline for MAGs.
+        1. A basic annotation pipeline for MAGs.
         2. A pipeline to determine the metabolic pathways that are encoded by MAGs, using KEGG modules as a reference (although custom pathways can be specified)
         3. A pipeline to identify genes or metabolic pathways that are enriched within and between user-defined groups of genomes (groups can be genomes that are related functionally, phylogenetically, recovered from different environments, etc).
         4. To construct metabolic networks from annotated population genomes.
         5. Construct random forest machine learning models from the functional composition of either MAGs, metagenomes or transcriptomes.
         6. Apply these random forest machine learning models to classify new MAGs metagenomes.
         
-        EnrichM is under active development, so there is no guaratee that master is stable. It's reccomended that EnrichM is downloaded either via pypi or conda (see below).
+        EnrichM is under active development, so there is no guaratee that master is stable. It's recommended that EnrichM is downloaded either via pypi or conda (see below).
         
         # Installation
         ## Dependencies
         EnrichM is written in python 3, and required >v3.6 to run. EnrichM requires the following non-python dependencies:
         * [hmmer](http://hmmer.org/) >= 3.1b
-        * [seqmagick](https://fhcrc.github.io/seqmagick/) >= 0.6.1
         * [diamond](https://github.com/bbuchfink/diamond) == 0.9.22
         * [prodigal](http://prodigal.ornl.gov/) >= 2.6.3
         * [parallel](https://www.gnu.org/software/parallel/) >= 20180222
@@ -124,6 +122,7 @@ Description: <p align="center">
         ```
         Comparative genomics using EnrichM. Joel A Boyd Ben J Woodcroft Gene W Tyson. 2019. In preparation.
         ```
+        
 Keywords: MAGs,Population genomes,metagenomics,Annotation,Comparison
 Platform: UNKNOWN
 Description-Content-Type: text/markdown

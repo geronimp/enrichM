@@ -7,6 +7,7 @@ enrichm/PLOT_ko_pca.r
 enrichm/__init__.py
 enrichm/annotate.py
 enrichm/classifier.py
+enrichm/classify_checks.py
 enrichm/data.py
 enrichm/databases.py
 enrichm/draw_plots.py
@@ -20,6 +21,8 @@ enrichm/parser.py
 enrichm/predict.py
 enrichm/run.py
 enrichm/sequence_io.py
+enrichm/synteny_searcher.py
+enrichm/toolbox.py
 enrichm/uses.py
 enrichm/version.py
 enrichm/writer.py
@@ -35,5 +38,6 @@ test/test_enrichment.py
 test/test_generate.py
 test/test_network.py
 test/test_predict.py
+test/test_rules.py
 test/test_test.py
 test/test_writer.py

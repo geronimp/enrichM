@@ -1,6 +1,10 @@
-scipy
-numpy
-scikit-learn
-statsmodels
-tempdir
-fuzzywuzzy
+python-dateutil>=2.8.0
+statsmodels>=0.8.0rc1
+numpy>=1.9.1
+pandas>=0.17.1
+scipy>=0.17.0
+biopython>=1.66
+fuzzywuzzy>=0.18.0
+six>=1.10.0
+scikit-learn>=0.0
+tempdir>=0.7.1
