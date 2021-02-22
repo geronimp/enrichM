@@ -25,7 +25,7 @@ class Data:
     def __init__(self):
         self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
 
-    def _archive_db(self, old_db_file):
+    def _remove_db(self, old_db_file):
         '''
         Archive an old database file
 
@@ -33,22 +33,9 @@ class Data:
         ----------
         old_db_file	- String. File name of old database file to archive
         '''
+        logging.info('Removing old database.')
 
-        old_database_path = os.path.join(self.DATABASE_DIR, "old")
-        if not os.path.isdir(old_database_path):
-            logging.info('Creating directory to store databases: %s' % (old_database_path))
-            os.makedirs(old_database_path)
-
-        old_db_path_archive \
-            = os.path.join(old_database_path, old_db_file + self.ARCHIVE_SUFFIX)
-        old_db_path \
-            = os.path.join(self.DATABASE_DIR, old_db_file)
-
-        logging.info('Compressing old database')
-        cmd = "tar -cvzf %s %s > /dev/null" % (old_db_path_archive, old_db_path)
-        run_command(cmd)
-
-        logging.info('Cleaning up')
+        old_db_path = os.path.join(self.DATABASE_DIR, old_db_file)
         shutil.rmtree(old_db_path)
 
     def _download_db(self, new_db_file):
@@ -59,7 +46,7 @@ class Data:
         ----------
         new_db_file	- String. File name of new database to download and decompress.
         '''
-
+        
         new_db_path_archive \
             = os.path.join(self.DATABASE_DIR, new_db_file)
         
@@ -99,7 +86,6 @@ class Data:
             os.rmdir(self.DATABASE_DIR)
 
         elif create:
-            import IPython; IPython.embed()
             try:
                 version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
             except:
@@ -117,13 +103,14 @@ class Data:
 
                 if version_local!=version_remote:
                     logging.info('New database found. Archiving old database.')
-                    self._archive_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
+                    self._remove_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
                     self._download_db(version_remote)
                 else:
                     logging.info('Database is up to date!')
 
             else:
                 logging.info('Creating folder to store databases.')
+                import IPython; IPython.embed()
                 os.makedirs(self.DATABASE_DIR)
                 self._download_db(version_remote)
 

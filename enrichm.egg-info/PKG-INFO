@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: enrichm
-Version: 0.6.2
+Version: 0.6.3
 Summary: enrichm is a toolbox for comparing the functional composition of population genomes
 Home-page: https://github.com/geronimp/enrichM
 Author: Joel Boyd, Ben Woodcroft, Alexander Baker
 Author-email: joel.boyd@uqconnect.edu.au
 License: GPL3+
-Download-URL: https://github.com/geronimp/enrichm/archive/0.6.2.tar.gz
+Download-URL: https://github.com/geronimp/enrichm/archive/0.6.3.tar.gz
 Description: <p align="center">
         <img src="logo/logo.png">
         </p>
