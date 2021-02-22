@@ -42,7 +42,6 @@ def mannwhitneyu_calc(x):
     group_2_mean = np.mean(group_2_module_annotations)
 
     if(sum(group_1_module_annotations)>0 and sum(group_2_module_annotations)>0):
-
         if(len(set(group_1_module_annotations)) == 1
             or
            len(set(group_2_module_annotations)) == 1):
@@ -60,6 +59,7 @@ def mannwhitneyu_calc(x):
                 stats.mannwhitneyu(group_1_module_annotations,
                                          group_2_module_annotations)
     else:
+        
         mw_t_stat, mw_p_value = 'NA', 1
         enriched_in = 'NA'
 
@@ -178,7 +178,7 @@ class Enrichment:
                                  annotations):
 
         output_dict = {sample_group: dict() for sample_group in sample_dict.keys()}
-
+        
         logging.info('Aggregating abundances across samples')
         for group, samples in sample_dict.items():
             output_dict[group] = dict()
@@ -195,6 +195,7 @@ class Enrichment:
                             value = genome_annotation_dict[annotation]
                             if genome in sample_abundance[sample]:
                                 sample_annotation_abundance += sample_abundance[sample][genome]*value
+
                     output_dict[group][annotation].append(sample_annotation_abundance)
 
         return output_dict
@@ -305,6 +306,7 @@ class Enrichment:
 
         return module_output, prefix
 
+
     def enrichment_pipeline(# Input options
            self, annotate_output, annotation_matrix, gff_files, metadata_path,
            abundances_path, abundance_metadata_path, transcriptome_path,
@@ -359,7 +361,7 @@ class Enrichment:
             annotations_dict, _, annotations = Parser.parse_simple_matrix(annotation_matrix)
 
         annotation_type = self.check_annotation_type(annotations)
-
+        
         if abundances_path:
             logging.info('Running abundances pipeline')
             logging.info('Parsing sample abundance')
@@ -382,13 +384,15 @@ class Enrichment:
                                                 ab_attribute_dict,
                                                 annotations)
             results = test.test_weighted_abundances(weighted_abundance, annotations)
-
+            genome_list = list(annotations_dict.keys())
+            
             for result in results:
                 test_result_lines, test_result_output_file = result
                 test_result_output_path = os.path.join(output_directory, test_result_output_file)
                 Writer.write(test_result_lines, test_result_output_path)
 
         else:
+            
             logging.info('Parsing metadata: %s' % metadata_path)
             metadata, metadata_value_lists, attribute_dict \
                 = Parser.parse_metadata_matrix(metadata_path)
@@ -417,7 +421,7 @@ class Enrichment:
 
             logging.info("Comparing sets of genomes")
             combination_dict = dict()
-
+            
             for combination in product(*list([metadata_value_lists])):
                 genome_list = list()
 
@@ -438,8 +442,13 @@ class Enrichment:
                 test_result_output_path = os.path.join(output_directory, test_result_output_file)
                 Writer.write(test_result_lines, test_result_output_path)
 
-        raw_proportions_output_lines = self.calculate_portions(annotations, combination_dict, annotations_dict, genome_list, proportions_cutoff)
-        Writer.write(raw_proportions_output_lines, os.path.join(output_directory, self.PROPORTIONS))
+            raw_proportions_output_lines = \
+                self.calculate_portions(annotations,
+                                        combination_dict,
+                                        annotations_dict,
+                                        genome_list,
+                                        proportions_cutoff)
+            Writer.write(raw_proportions_output_lines, os.path.join(output_directory, self.PROPORTIONS))
 
         if gff_files:
             logging.info("Searching for co-located clusters of genes")
@@ -666,7 +675,6 @@ class Test(Enrichment):
                 gene_count = [annotation, combination[0],
                               combination[1], [group_1], [group_2]]
                 res_list.append(gene_count)
-
             output_lines = self.pool.map(mannwhitneyu_calc, res_list)
 
             for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):

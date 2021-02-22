@@ -340,7 +340,7 @@ class Annotate:
             specific_cutoffs = None
 
         self.hmm_search(output_directory_path, database, hmmcutoff)
-
+        
         if ids_type == AnnotationParser.PFAM:
             pfam2clan = self.databases.pfam2clan()
         else:
