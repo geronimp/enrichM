@@ -107,8 +107,6 @@ if __name__ == "__main__":
                 help = 'Remove enrichm database')
     data_input_options.add_argument('--create', action="store_true",
                 help = 'Create enrichm database')
-    data_input_options.add_argument('--dry', action='store_true',
-                help = 'Download an empty database (debug)')
     data_input_options.add_argument('--verbosity', type = int, default = 4,
                 help='Level of verbosity (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
@@ -346,8 +344,9 @@ if __name__ == "__main__":
         if len(sys.argv) == 2:
            print(subparsers.choices[args.subparser_name].print_help())
            exit()
-        if type(args.log)!=str:
+        if not hasattr(args, "log") or args.log!=str:
             args.log = os.path.join(args.subparser_name + '.log')
+
         run = Run()
         run.run_enrichm(args, sys.argv)
 

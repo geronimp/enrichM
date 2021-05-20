@@ -102,6 +102,9 @@ class Run:
         if not(args.create or args.uninstall):
             raise Exception("Only one of the following can be specified: --create, --uninstall")
 
+        if not(os.access(Data.DATABASE_DIR, os.R_OK|os.W_OK)):
+            raise Exception(f"EnrichM does not have read/write in database directory: {Data.DATABASE_DIR}")
+
     def _check_annotate(self, args):
         '''
         Check annotate input and output options are valid.
@@ -273,8 +276,9 @@ class Run:
         pass
 
     def run_data(self, args):
+        self._check_data(args)
         d = Data()
-        d.do(args.uninstall, args.create, args.dry)
+        d.do(args.uninstall, args.create)
 
     def run_annotate(self, args):
         self._check_annotate(args)
