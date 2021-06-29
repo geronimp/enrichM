@@ -36,20 +36,8 @@ sudo pip3 install enrichm
 ## conda (recommended)
 Install the conda package like so:
 ```
-# Create a python3 environment for EnrichM. Replace "X.X.X" with the version number
-conda create -n enrichm_X.X.X python=3
-# Activate that environment once it has compiled
-source activate enrichm_X.X.X
-# Install EnrichM's dependencies
-conda install -c bioconda mcl R hmmer diamond prodigal parallel openmp mmseqs2 moreutils
-# Install EnrichM itself
-conda install -c geronimp enrichm
-
-# Install R dependencies
-R
-install.packages(‘gridExtra’)
-install.packages(‘optparse’)
-q()
+# Create a python3 environment for EnrichM. Replace "X.X.X" with the EnrichM version number
+conda create -c bioconda -n enrichm_X.X.X enrichm=X.X.X
 ```
 After this, you'll need to set up EnrichM to run by downloading its back end databases.
 

@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
-    data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter, parents=[base_all])
+    data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter)
     data_input_options = data.add_argument_group('Uninstall')
     data_input_options.add_argument('--uninstall', action='store_true',
                 help = 'Remove enrichm database')
@@ -109,7 +109,8 @@ if __name__ == "__main__":
                 help = 'create enrichm database')
     data_input_options.add_argument('--dry', action='store_true',
                 help = 'Download an empty database (debug)')
-
+    data_input_options.add_argument('--verbosity', type = int, default = 4,
+                help='Level of verbosity (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     annotate = subparsers.add_parser('annotate', formatter_class=CustomHelpFormatter, parents=[base_all])
@@ -345,9 +346,8 @@ if __name__ == "__main__":
         if len(sys.argv) == 2:
            print(subparsers.choices[args.subparser_name].print_help())
            exit()
-        if not args.log:
+        if type(args.log)!=str:
             args.log = os.path.join(args.subparser_name + '.log')
-
         run = Run()
         run.run_enrichm(args, sys.argv)
 

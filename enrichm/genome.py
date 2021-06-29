@@ -90,12 +90,13 @@ class Genome:
                ref_ids == AnnotationParser.KO_HMM):
                 percent_aln_query_cutoff = 0.0
                 percent_aln_reference_cutoff = 0.0
-
+            
             iterator = ap.from_hmmsearch_results(annotations, evalue_cutoff,
                                                  bitscore_cutoff, percent_aln_query_cutoff,
                                                  percent_aln_reference_cutoff,
                                         specific_cutoffs,
                                         (True if ref_ids == AnnotationParser.KO_HMM else False))
+            
 
             if ref_ids == AnnotationParser.PFAM:
                 self.pfam_dict = dict()
@@ -316,14 +317,12 @@ class Sequence(Genome):
 
         new_annotations = [Annotation(annotation, evalue, region, annotation_type) for annotation in annotations]
         annotation_list = [annotation for annotation in self.annotations if annotation.type == new_annotations[0].type]
-
         if len(annotation_list) > 0:
-
             to_remove 	= list()
             to_check 	= annotation_list
 
             for new_annotation in new_annotations:
-                overlap 	= [previous_annotation for previous_annotation in to_check
+                overlap = [previous_annotation for previous_annotation in to_check
                                if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
 
                 if len(overlap)>0:
@@ -354,7 +353,6 @@ class Sequence(Genome):
                         self.annotations.append(new_annotation)
 
         else:
-
             for new_annotation in new_annotations:
                 self.annotations.append(new_annotation)
 
