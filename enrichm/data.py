@@ -14,13 +14,14 @@ class Data:
     Utilities for archiving, downloading and updating databases.
     '''
     db_var = "ENRICHM_DB"
+    VERSION = 'VERSION'
+    ARCHIVE_SUFFIX = '.tar.gz'
+
     if db_var in os.environ:
-        DATABASE_DIR 	= os.environ[db_var]
+        DATABASE_DIR = os.environ[db_var]
     else:
-        DATA_PATH 		= str(Path.home())
-        DATABASE_DIR	= os.path.join(DATA_PATH, 'databases')
-    VERSION 		= 'VERSION'
-    ARCHIVE_SUFFIX 	= '.tar.gz'
+        DATA_PATH = str(Path.home())
+        DATABASE_DIR = os.path.join(DATA_PATH, 'databases')
 
     def __init__(self):
         self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
@@ -47,8 +48,7 @@ class Data:
         new_db_file	- String. File name of new database to download and decompress.
         '''
         
-        new_db_path_archive \
-            = os.path.join(self.DATABASE_DIR, new_db_file)
+        new_db_path_archive = os.path.join(self.DATABASE_DIR, new_db_file)
         
         logging.info('Downloading new database: %s', new_db_file)
         cmd = f'wget \
@@ -68,11 +68,12 @@ class Data:
         logging.info('Cleaning up')
         os.remove(new_db_path_archive)
 
-    def do(self, uninstall, create, dry):
+    def do(self, uninstall, create):
         '''
         Check database versions, if they're out of date, archive the old and download the new.
         '''
-
+        logging.info(f"Database location: {self.DATABASE_DIR}")
+        
         if uninstall:
 
             for file in os.listdir(self.DATABASE_DIR):
@@ -98,8 +99,8 @@ class Data:
                 if os.path.isfile(version_local_path):
                     version_local = open(version_local_path).readline().strip()
                 else:
-                    raise Exception(
-                        "Unable to locate enrichM database! Please specify its location by creating a local BASH variable called ENRICHM_DIR: export ENRICHM_DB=/path/to/database/")
+                    logging.info(f'EnrichM database not detected in database directory ({self.DATABASE_DIR}). Downloading database.')
+                    self._download_db(version_remote)
 
                 if version_local!=version_remote:
                     logging.info('New database found. Archiving old database.')
@@ -110,7 +111,6 @@ class Data:
 
             else:
                 logging.info('Creating folder to store databases.')
-                import IPython; IPython.embed()
                 os.makedirs(self.DATABASE_DIR)
                 self._download_db(version_remote)
 

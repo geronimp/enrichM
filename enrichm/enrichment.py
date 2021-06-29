@@ -517,8 +517,6 @@ class Test(Enrichment):
         self.pool                   = mp.Pool(processes = processes)
         self.m2def                  = database.m2def()
         self.m                      = database.m()
-        self.clan2pfam              = database.clan2pfam()
-        self.clan_to_description    = database.clan2name()
         self.k                      = database.k()
         self.tigrfamdescription     = database.tigrfamdescription()
         self.pfam2description       = database.pfam2description()

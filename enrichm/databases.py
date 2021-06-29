@@ -23,7 +23,6 @@ class Databases:
 
             self.IDS_DIR = os.path.join(self.CUR_DATABASE_DIR, 'ids')
             self.REF_DIR = os.path.join(self.CUR_DATABASE_DIR, 'databases')
-            self.GTDB_DIR = os.path.join(self.CUR_DATABASE_DIR, 'gtdb')
             self.KO_HMM_CUTOFFS = os.path.join(self.CUR_DATABASE_DIR, 'ko_cutoffs.tsv')
 
             self.PICKLE = 'pickle'
@@ -35,15 +34,7 @@ class Databases:
             self.KO_HMM_DB_NAME = 'ko'
             self.TIGRFAM_DB_NAME = 'tigrfam'
             self.CAZY_DB_NAME = 'cazy'
-            self.GTDB_DB_NAME = 'GTDB_R80_DB'
 
-            self.GTDB_CAZY = os.path.join(self.GTDB_DIR, "gtdb_cazy.tsv")
-            self.GTDB_KO = os.path.join(self.GTDB_DIR, "gtdb_ko.tsv")
-            self.GTDB_PFAM = os.path.join(self.GTDB_DIR, "gtdb_pfam.tsv")
-            self.GTDB_TIGRFAM = os.path.join(self.GTDB_DIR, "gtdb_tigrfam.tsv")
-            self.GTDB_EC = os.path.join(self.GTDB_DIR, "gtdb_ec.tsv")
-
-            self.TAXONOMY = os.path.join(self.CUR_DATABASE_DIR, 'taxonomy_gtdb.tsv')
             self.M2DEF = os.path.join(self.CUR_DATABASE_DIR, 'module_to_definition')
             self.M = os.path.join(self.CUR_DATABASE_DIR, 'module_descriptions')
             self.COMPOUND_DESC = os.path.join(self.CUR_DATABASE_DIR, 'br08001')
@@ -61,12 +52,10 @@ class Databases:
             self.K = os.path.join(self.CUR_DATABASE_DIR, 'ko_descriptions')
 
             self.PFAM2CLAN = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_clan')
-            self.CLAN2NAME = os.path.join(self.CUR_DATABASE_DIR, 'clan_to_name')
             self.PFAM2NAME = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_name')
             self.PFAM2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_description')
             self.EC2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'ec_to_description')
             self.TIGRFAM2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'tigrfam_descriptions')
-            self.CLAN2PFAM = os.path.join(self.CUR_DATABASE_DIR, 'clan_to_pfam')
         else:
             raise Exception(f"\nNo database version file found. Have you: \n\
 - Installed the EnrichM database using the 'enrichm data' command?\n\
@@ -85,7 +74,6 @@ bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR
 
         self.KO_DB = os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
         self.EC_DB = os.path.join(self.REF_DIR, self.EC_DB_NAME + self.DMND_SUFFIX)
-        self.GTDB_DB = os.path.join(self.REF_DIR, self.GTDB_DB_NAME)
 
         self.PFAM_DB = os.path.join(self.REF_DIR, self.PFAM_DB_NAME + self.HMM_SUFFIX)
         self.KO_HMM_DB = os.path.join(self.REF_DIR, self.KO_HMM_DB_NAME + self.HMM_SUFFIX)
@@ -121,10 +109,6 @@ bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR
         logging.debug("Loading module to compound information")
         return self.load_pickle(self.M2R)
 
-    def m2c(self):
-        logging.debug("Loading reaction to compound information")
-        return self.load_pickle(self.M2C)
-
     def r2c(self):
         logging.debug("Loading compound to reaction information")
         return self.load_pickle(self.R2C)
@@ -157,14 +141,6 @@ bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR
         logging.debug("Loading clan descriptions")
         return self.load_pickle(self.PFAM2CLAN)
 
-    def clan2name(self):
-        logging.debug("Loading pfam names")
-        return self.load_pickle(self.CLAN2NAME)
-
-    def pfam2name(self):
-        logging.debug("Loading pfam descriptions")
-        return self.load_pickle(self.PFAM2NAME)
-
     def pfam2description(self):
         logging.debug("Loading ec descriptions")
         return self.load_pickle(self.PFAM2DESCRIPTION)
@@ -173,19 +149,9 @@ bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR
         logging.debug("Loading pfam hierarchy")
         return self.load_pickle(self.EC2DESCRIPTION)
 
-    def clan2pfam(self):
-        logging.debug("Loading tigrfam descriptions")
-        return self.load_pickle(self.CLAN2PFAM)
-
     def tigrfamdescription(self):
         logging.debug("Loading reference db paths")
         return self.load_pickle(self.TIGRFAM2DESCRIPTION)
-
-    def taxonomy(self):
-        # Oh, circular dependencies.
-        # Local imports suck but making another parser class would suck more
-        from enrichm.parser import Parser
-        return Parser.parse_taxonomy(self.TAXONOMY)
 
     def k2r(self):
         k2r = dict()
