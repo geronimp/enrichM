@@ -99,7 +99,6 @@ class Data:
             os.rmdir(self.DATABASE_DIR)
 
         elif create:
-            import IPython; IPython.embed()
             try:
                 version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
             except:

@@ -10,8 +10,6 @@ data.EnrichM is under GPL3 v3, and is available on GitHub. For support or inquir
 please either leave an issue on the GitHub page or post on the M tools supportpage:
 https://groups.google.com/forum/#!forum/supportm
 
-.. toctree::
-   :maxdepth: 2
 
 Installation
 ------------
@@ -26,11 +24,3 @@ Installation
    /usage/classify
    /usage/enrichment
    /usage/pathway
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
