@@ -112,5 +112,4 @@ class Data:
             else:
                 logging.info('Creating folder to store databases.')
                 os.makedirs(self.DATABASE_DIR)
-                self._download_db(version_remote)
-
+                self._download_db(version_remote) 

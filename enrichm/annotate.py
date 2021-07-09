@@ -173,7 +173,7 @@ class Annotate:
             if genome.endswith(self.suffix):
                 genome_paths.append(path.splitext(genome)[0])
 
-        logging.info("    - Calling proteins for %i genomes", len(genome_paths))
+        logging.info("    - Calling proteins for %i genome(s)", len(genome_paths))
         cmd = "ls %s/*%s | \
                     sed 's/%s//g' | \
                     grep -o '[^/]*$' | \
@@ -240,7 +240,7 @@ class Annotate:
             temp.flush()
             output_annotation_path = path.join(output_directory_path, self.OUTPUT_DIAMOND) + \
                                         self.ANNOTATION_SUFFIX
-            logging.info('    - BLASTing genomes')
+            logging.info('    - BLASTing genome(s)')
             self.diamond_search(temp.name, output_annotation_path, database)
 
             for genome_name, batch in self.get_batches(output_annotation_path):
@@ -759,7 +759,7 @@ class Annotate:
             logging.info("Starting annotation:")
 
             if (self.annotate_cluster or self.annotate_ortholog):
-                logging.info('    - Annotating genomes with hypothetical clusters')
+                logging.info('    - Annotating genome(s) with hypothetical clusters')
                 cluster_ids, ortholog_ids = self.annotate_hypothetical(genomes_list)
 
                 logging.info('    - Generating hypotheticals frequency table')
@@ -778,7 +778,7 @@ class Annotate:
 
             if self.annotate_ko:
                 annotation_type = AnnotationParser.BLASTPARSER
-                logging.info('    - Annotating genomes with ko ids using DIAMOND')
+                logging.info('    - Annotating genome(s) with ko ids using DIAMOND')
                 self.annotate_diamond(genomes_list, self.databases.KO_DB,
                                       annotation_type, AnnotationParser.KO,
                                       self.GENOME_KO)
@@ -790,7 +790,7 @@ class Annotate:
 
             if self.annotate_ko_hmm:
                 annotation_type = AnnotationParser.HMMPARSER
-                logging.info('    - Annotating genomes with ko ids using HMMs')
+                logging.info('    - Annotating genome(s) with ko ids using HMMs')
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(
                                               self.output_directory, self.GENOME_KO_HMM),
@@ -806,7 +806,7 @@ class Annotate:
 
             if self.annotate_ec:
                 annotation_type = AnnotationParser.BLASTPARSER
-                logging.info('    - Annotating genomes with ec ids')
+                logging.info('    - Annotating genome(s) with ec ids')
                 self.annotate_diamond(genomes_list, self.databases.EC_DB, annotation_type,
                                       AnnotationParser.EC, self.GENOME_EC)
 
@@ -817,7 +817,7 @@ class Annotate:
 
             if self.annotate_pfam:
                 annotation_type = AnnotationParser.HMMPARSER
-                logging.info('    - Annotating genomes with pfam ids')
+                logging.info('    - Annotating genome(s) with pfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(self.output_directory, self.GENOME_PFAM),
                                           self.databases.PFAM_DB,
@@ -831,7 +831,7 @@ class Annotate:
 
             if self.annotate_tigrfam:
                 annotation_type = AnnotationParser.HMMPARSER
-                logging.info('    - Annotating genomes with tigrfam ids')
+                logging.info('    - Annotating genome(s) with tigrfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(self.output_directory, self.GENOME_TIGRFAM),
                                           self.databases.TIGRFAM_DB,
@@ -845,7 +845,7 @@ class Annotate:
 
             if self.annotate_cazy:
                 annotation_type = AnnotationParser.HMMPARSER
-                logging.info('    - Annotating genomes with CAZY ids')
+                logging.info('    - Annotating genome(s) with CAZY ids')
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(self.output_directory, self.GENOME_CAZY),
                                           self.databases.CAZY_DB,

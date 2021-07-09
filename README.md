@@ -5,33 +5,18 @@
 [![Build Status](https://travis-ci.com/geronimp/enrichM.svg?branch=master)](https://travis-ci.com/geronimp/enrichM)
 [![version status](https://img.shields.io/pypi/v/enrichm.svg)](https://pypi.python.org/pypi/enrichm)
 
-EnrichM is a set of comparative genomics tools for large sets of metagenome assembled genomes (MAGs). The current functionality includes:
+EnrichM is a set of tools for comparative genomics of metagenome assembled genomes (MAGs). Currently, EnrichM:
 
-1. A basic annotation pipeline for MAGs.
-2. A pipeline to determine the metabolic pathways that are encoded by MAGs, using KEGG modules as a reference (although custom pathways can be specified)
-3. A pipeline to identify genes or metabolic pathways that are enriched within and between user-defined groups of genomes (groups can be genomes that are related functionally, phylogenetically, recovered from different environments, etc).
-4. To construct metabolic networks from annotated population genomes.
+1. Serves as a basic annotation pipeline for MAGs.
+2. Interprets annotations and lists the metabolic pathways that are encoded by MAGs, using KEGG modules as a reference (although custom pathways can be specified)
+3. A pipeline to identify genes or metabolic pathways that are enriched within and between user-defined groups of genomes (groups can be genomes that are related functionally, phylogenetically, recovered from different environments, etc.).
+4. Constructs metabolic networks from annotated population genomes.
 5. Construct random forest machine learning models from the functional composition of either MAGs, metagenomes or transcriptomes.
-6. Apply these random forest machine learning models to classify new MAGs metagenomes.
+6. Apply these random forest machine learning models to classify new MAGs.
 
-EnrichM is under active development, so there is no guaratee that master is stable. It's recommended that EnrichM is downloaded either via pypi or conda (see below).
+EnrichM is under active development, so there is no guarantee that master is stable. It's recommended that EnrichM is downloaded either via pypi or conda (see below).
 
 # Installation
-## Dependencies
-EnrichM is written in python 3, and required >v3.6 to run. EnrichM requires the following non-python dependencies:
-* [hmmer](http://hmmer.org/) >= 3.1b
-* [diamond](https://github.com/bbuchfink/diamond) == 0.9.22
-* [prodigal](http://prodigal.ornl.gov/) >= 2.6.3
-* [parallel](https://www.gnu.org/software/parallel/) >= 20180222
-* [mmseqs](https://github.com/soedinglab/MMseqs2) >= 2-23394
-* [R](https://www.r-project.org/) >= 3.0.1
-* [mcl](https://micans.org/mcl/) >= 14-137
-
-## PyPi
-Install from PyPi like this:
-```
-sudo pip3 install enrichm
-```
 
 ## conda (recommended)
 Install the conda package like so:
@@ -39,7 +24,24 @@ Install the conda package like so:
 # Create a python3 environment for EnrichM. Replace "X.X.X" with the EnrichM version number
 conda create -c bioconda -n enrichm_X.X.X enrichm=X.X.X
 ```
-After this, you'll need to set up EnrichM to run by downloading its back end databases.
+After this, download the reference database using the EnrichM data command (see Setup section below).
+
+## PyPi
+Install from PyPi like this:
+```
+sudo pip3 install enrichm
+```
+
+## Manual installation
+## Dependencies
+EnrichM  requires python >v3.6 to run. The following non-python dependencies are also required:
+* [hmmer](http://hmmer.org/) >= 3.1b
+* [diamond](https://github.com/bbuchfink/diamond) == 0.9.22
+* [prodigal](http://prodigal.ornl.gov/) >= 2.6.3
+* [parallel](https://www.gnu.org/software/parallel/) >= 20180222
+* [mmseqs](https://github.com/soedinglab/MMseqs2) >= 2-23394
+* [R](https://www.r-project.org/) >= 3.0.1
+* [mcl](https://micans.org/mcl/) >= 14-137
 
 # Setup
 ## Loading EnrichM's database
@@ -52,18 +54,18 @@ This should take approximately 15 minutes. To check for updates and install upda
 enrichm data --uninstall
 ```
 
-## Sepcifying the location of the EnrichM database
+## Specifying the location of the EnrichM database
 If you would like to store the EnrichM database outside of your home directory, move you need to tell EnrichM where to look. To do this, export a BASH variable named "ENRICHM_DB":
 
 ```
 export ENRICHM_DB=/path/to/database/
 ```
 
-After which EnrichM should be able to find the database. It may be worthwhile putting this in your .bashrc so you dont have to re-run it every time you open a terminal.
+After which EnrichM should be able to find the database. It may be worthwhile putting this in your .bashrc so you don't have to re-run it every time you open a terminal.
 
 # Subcommands
 ## annotate
-Annotate is a function that allows you to annotate your population genomes with [KO](http://www.kegg.jp/kegg/ko.html), [PFAM](http://pfam.xfam.org/), [TIGRFAM](http://www.jcvi.org/cgi-bin/tigrfams/index.cgi), and CAZY using [dbCAN](cys.bios.niu.edu/dbCAN2). The result will be a .gff file for each genome, and a frequency matrix for each annotation type where the rows are annotation IDs and the columns are genomes.
+Annotate is a function that allows you to annotate your population genomes with [KO](http://www.kegg.jp/kegg/ko.html), [PFAM](http://pfam.xfam.org/), [TIGRFAM](http://www.jcvi.org/cgi-bin/tigrfams/index.cgi), and CAZY using [dbCAN2](http://bcb.unl.edu/dbCAN2/). The result will be a .gff file for each genome, and a frequency matrix for each annotation type where the rows are annotation IDs and the columns are genomes.
 
 See the [annotate help page](https://github.com/geronimp/enrichM/wiki/annotate) for more
 
