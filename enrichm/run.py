@@ -308,7 +308,10 @@ class Run:
 
     def run_classify(self, args):
         self._check_classify(args)
-        classify = Classify()
+        skip_database_check  = False
+        if args.custom_modules:
+            skip_database_check = True
+        classify = Classify(skip_database_check)
         classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
                                     args.genome_and_annotation_matrix, args.module_rules_json, 
                                     args.gff_files, args.output)
