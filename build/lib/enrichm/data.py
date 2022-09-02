@@ -79,9 +79,9 @@ class Data:
         new_db_path_archive \
             = os.path.join(self.DATABASE_DIR, new_db_file)
         logging.info('Downloading new database: %s' % new_db_file)
-        cmd = 'wget -q %s -O %s' % (self.ftp + new_db_file, new_db_path_archive)
+        cmd = 'wget -c -q %s -O %s' % (self.ftp + new_db_file, new_db_path_archive)
         subprocess.call(cmd, shell = True)
-        cmd = 'wget -q %s -O %s' % (self.ftp + self.VERSION, os.path.join(self.DATABASE_DIR, self.VERSION))
+        cmd = 'wget -c -q %s -O %s' % (self.ftp + self.VERSION, os.path.join(self.DATABASE_DIR, self.VERSION))
         subprocess.call(cmd, shell = True)
 
         logging.info('Decompressing new database')
