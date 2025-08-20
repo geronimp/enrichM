@@ -3,13 +3,13 @@
 import re
 ###############################################################################
 
-KEGG = '^(K\d{5})$'
-GH = '(GH\d+)'
-PL = '(PL\d+)'
-TIGRFAM = '^(TIGR\d{5})$'
-PFAM = '(PF\d+)'
-CE = '(CE\d+)'
-EC = '\\d{1,2}(\\.(\\-|\\d{1,2})){3}'
+KEGG = r'^(K\d{5})$'
+GH = r'(GH\d+)'
+PL = r'(PL\d+)'
+TIGRFAM = r'^(TIGR\d{5})$'
+PFAM = r'(PF\d+)'
+CE = r'(CE\d+)'
+EC = r'\\d{1,2}(\\.(\\-|\\d{1,2})){3}'
 
 class ModuleDescription:
 

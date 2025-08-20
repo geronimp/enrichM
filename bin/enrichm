@@ -28,7 +28,7 @@ class CustomHelpFormatter(argparse.HelpFormatter):
         return text.splitlines()
 
 def phelp():
-    print("""                         _____            _      _     __  __ 
+    print(r"""                         _____            _      _     __  __ 
                         | ____|_ __  _ __(_) ___| |__ |  \/  |
                         |  _| | '_ \| '__| |/ __| '_ \| |\/| |
                         | |___| | | | |  | | (__| | | | |  | |
