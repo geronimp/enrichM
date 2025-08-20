@@ -1,3 +1,5 @@
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+enrichm/_pycache__/*
+test/_pycache__/*
