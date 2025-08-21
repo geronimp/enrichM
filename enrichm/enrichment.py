@@ -315,9 +315,9 @@ class Enrichment:
            operon_mismatch_cutoff, operon_match_score_cutoff,
            # Output options
            output_directory):
-
-        plot  = Plot()
+        
         database = Databases()
+        plot  = Plot(database)
         syntenysearcher = SyntenySearcher()
 
         if gff_files:
@@ -483,10 +483,10 @@ class Test(Enrichment):
     ZSCORE_HEADER = [['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_1_sd',
                       'group_2_count', 'score', 'pvalue', 'corrected_pvalue', 'description']]
 
-    PA                     = 'presence_absence'
-    IVG_OUTPUT             = 'ivg_results.cdf.tsv'
-    GENE_FISHER_OUTPUT     = 'gvg_results.fisher.tsv'
-    GVG_OUTPUT             = 'gvg_results.mannwhitneyu.tsv'
+    PA = 'presence_absence'
+    IVG_OUTPUT = 'ivg_results.cdf.tsv'
+    GENE_FISHER_OUTPUT = 'gvg_results.fisher.tsv'
+    GVG_OUTPUT = 'gvg_results.mannwhitneyu.tsv'
 
     mtc_dict = {'b': 'Bonferroni',
                 's': 'Sidak',
@@ -507,17 +507,17 @@ class Test(Enrichment):
         Collects functions to count and test differential abundance among groups of genomes.
         '''
 
-        self.threshold              = threshold
-        self.multi_test_correction  = multi_test_correction
-        self.annotation_type        = annotation_type
-        self.groups                 = groups
-        self.pool                   = mp.Pool(processes = processes)
-        self.m2def                  = database.m2def()
-        self.m                      = database.m()
-        self.k                      = database.k()
-        self.tigrfamdescription     = database.tigrfamdescription()
-        self.pfam2description       = database.pfam2description()
-        self.ec2description         = database.ec2description()
+        self.threshold = threshold
+        self.multi_test_correction = multi_test_correction
+        self.annotation_type = annotation_type
+        self.groups = groups
+        self.pool = mp.Pool(processes = processes)
+        self.m2def = database.m2def()
+        self.m = database.m()
+        self.k = database.k()
+        self.tigrfamdescription = database.tigrfamdescription()
+        self.pfam2description = database.pfam2description()
+        self.ec2description = database.ec2description()
 
         if annotation_type==self.PFAM:
             self.genome_annotations = dict()

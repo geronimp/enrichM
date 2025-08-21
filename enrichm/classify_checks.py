@@ -11,8 +11,7 @@ class ClassifyChecks:
     '''
     Applies extra, manually defined filters to the 'Classify' annotation process.
     '''
-    def __init__(self, classify_checks):
-        self.classify_checks = classify_checks
+    classify_checks: dict
 
     def check(self, module_name, genome_gff):
         """ Description

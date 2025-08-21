@@ -100,7 +100,6 @@ class Annotate:
     light: bool
     databases: Databases
 
-
     def prep_genome(self, genome_file_list, genome_directory):
         '''
         Do any preparation specific to the genome annotation pipeline.

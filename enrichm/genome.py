@@ -10,14 +10,15 @@ class Genome:
     A genome object which collects all the attributes of an input genome,
     including protein sequences and their annotations
     '''
+    seqio = SequenceIO
+    clusters = set()
+    orthologs = set()
+    protein_ordered_dict = dict()
+    sequences = dict()
+    cluster_dict = dict()
+    ortholog_dict = dict()
+
     def __init__(self, light, path, nucl, gene, gff=False):
-        seqio = SequenceIO()
-        self.clusters = set()
-        self.orthologs = set()
-        self.protein_ordered_dict = dict()
-        self.sequences = dict()
-        self.cluster_dict = dict()
-        self.ortholog_dict = dict()
         self.path = path
         self.gene = gene
         self.name = os.path.split(os.path.splitext(path)[0])[1]
@@ -391,19 +392,16 @@ class AnnotationParser:
     Annotation parser class contains functions to parse hmmsearch domtblout and blast results
     currently for: KO, PFAM and TIGRFAM. COG to come
     '''
-    KO      		= 'KO_IDS.txt'
-    KO_HMM 			= 'KO_IDS.txt'
-    EC				= 'EC_IDS.txt'
-    PFAM    		= 'PFAM_IDS.txt'
-    TIGRFAM 		= 'TIGRFAM_IDS.txt'
-    CAZY      		= 'CAZY_IDS.txt'
-    HYPOTHETICAL 	= 'HYPOTHETICAL.txt'
-    ORTHOLOG 		= 'ORTHOLOG.txt'
-    HMMPARSER 		= 'hmm'
-    BLASTPARSER 	= 'blast'
-
-    def __init__(self, annotation_type):
-        pass
+    KO = 'KO_IDS.txt'
+    KO_HMM = 'KO_IDS.txt'
+    EC = 'EC_IDS.txt'
+    PFAM = 'PFAM_IDS.txt'
+    TIGRFAM = 'TIGRFAM_IDS.txt'
+    CAZY = 'CAZY_IDS.txt'
+    HYPOTHETICAL = 'HYPOTHETICAL.txt'
+    ORTHOLOG = 'ORTHOLOG.txt'
+    HMMPARSER = 'hmm'
+    BLASTPARSER = 'blast'
 
     def from_blast_results(self,
                            blast_output,
