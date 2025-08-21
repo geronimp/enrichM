@@ -18,6 +18,7 @@ from enrichm.databases import Databases
 from enrichm.sequence_io import SequenceIO
 from enrichm.writer import Writer, MatrixGenerator
 from enrichm.toolbox import list_splitter, run_command
+import pyrodigal
 
 def parse_genomes(params):
     '''
@@ -58,6 +59,7 @@ class Annotate:
     PROTEINS_SUFFIX = '.faa'
     ANNOTATION_SUFFIX = '.tsv'
     PICKLE_SUFFIX = '.pickle'
+    
 
     def __init__(self, output_directory, annotate_ko, annotate_ko_hmm, annotate_pfam,
                  annotate_tigrfam, annoatate_cluster, annotate_ortholog, annotate_cazy, annotate_ec,
@@ -111,6 +113,7 @@ class Annotate:
 
         # Load databases
         self.databases = Databases()
+        self.seqio = SequenceIO()
 
     def prep_genome(self, genome_file_list, genome_directory):
         '''
@@ -161,6 +164,7 @@ class Annotate:
         -------
         returns the directory containing an .faa file for each input genomes
         '''
+        gene_finder = pyrodigal.GeneFinder(meta=True)
         protein_directory_path = path.join(self.output_directory, self.GENOME_PROTEINS)
         gene_directory_path = path.join(self.output_directory, self.GENOME_GENES)
         mkdir(protein_directory_path)
@@ -174,23 +178,26 @@ class Annotate:
                 genome_paths.append(path.splitext(genome)[0])
 
         logging.info("    - Calling proteins for %i genomes", len(genome_paths))
-        cmd = "ls %s/*%s | \
-                    sed 's/%s//g' | \
-                    grep -o '[^/]*$' | \
-                    parallel -j %s \
-                        prodigal \
-                            -q \
-                            -p meta \
-                            -o /dev/null \
-                            -d %s/{}%s \
-                            -a %s/{}%s \
-                            -i %s/{}%s \
-                            > /dev/null 2>&1" \
-                % (genome_directory, self.suffix, self.suffix, self.parallel, gene_directory_path,
-                   self.suffix, protein_directory_path, self.PROTEINS_SUFFIX, genome_directory,
-                   self.suffix)
+        for genome_file in listdir(genome_directory):
+            if genome_file.endswith(self.suffix):
+                genome_path = path.join(genome_directory, genome_file)
+                genome_id = path.splitext(genome_file)[0]
+                protein_out = path.join(protein_directory_path, genome_id + self.PROTEINS_SUFFIX)
+                gene_out = path.join(gene_directory_path, genome_id + self.suffix)
 
-        run_command(cmd)
+                faa_out = open(protein_out, "w")
+                fna_out = open(gene_out, "w")
+                for description, sequence in self.seqio.each(open(genome_path)):
+                    genes = gene_finder.find_genes(sequence)
+                    # Write proteins
+                    for idx, gene in enumerate(genes):
+                        idx = idx + 1
+                        faa_out.write(f">{description}~{idx}\n{gene.translate()}\n")
+                        fna_out.write(f">{description}~{idx}\n{gene.sequence()}\n")
+                faa_out.flush()
+                faa_out.close()
+                fna_out.flush()
+                fna_out.close()                                                
 
         protein_directory_files = listdir(protein_directory_path)
         genome_directory_files = listdir(genome_directory)
@@ -633,7 +640,6 @@ class Annotate:
         ----------
         genomes_list - List. List of Genome objects
         '''
-        seqio = SequenceIO()
 
         for genome in genomes_list:
             file_object, fname = tempfile.mkstemp(suffix='.faa', text=True)
@@ -643,7 +649,7 @@ class Annotate:
 
                 with open(fname_gene, 'w') as out_gene_io:
 
-                    for description, sequence in seqio.each(open(genome.gene)):
+                    for description, sequence in self.seqio.each(open(genome.gene)):
                         name = description.partition(' ')[0]
                         annotations = ' '.join(genome.sequences[name].all_annotations())
                         out_gene_io.write(">%s %s\n" % (name, annotations))
@@ -655,7 +661,7 @@ class Annotate:
 
             with open(fname, 'w') as out_io:
 
-                for description, sequence in seqio.each(open(genome.path)):
+                for description, sequence in self.seqio.each(open(genome.path)):
                     name = description.partition(' ')[0]
                     annotations = ' '.join(genome.sequences[name].all_annotations())
                     out_io.write(">%s %s\n" % (name, annotations))
@@ -733,8 +739,7 @@ class Annotate:
                                          path.join(self.output_directory, self.GENOME_BIN))
             prep_genomes_list = self.call_proteins(directory)
 
-        for chunk in list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
-            genomes_list += self.pool.map(parse_genomes, chunk)
+        genomes_list = [parse_genomes(genome) for genome in prep_genomes_list]
 
         return genomes_list
 

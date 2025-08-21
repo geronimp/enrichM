@@ -31,19 +31,18 @@ class Genome:
 
                 for description, sequence in seqio.each(open(nucl)):
                     self.length += len(str(sequence))
-                    gc_list 	+= (str(sequence).count('G') + str(sequence).count('C'))
+                    gc_list += (str(sequence).count('G') + str(sequence).count('C'))
 
                 self.gc = round((gc_list/float(self.length))*100, 2)
 
             if gene:
-
+                gene_dict = {desc.partition(' ')[0]: seq for desc, seq in seqio.each(open(gene))}
                 for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
-
-                    for _, gene_sequence in seqio.each(open(gene)):
-                        name = protein_description.partition(' ')[0]
-                        sequence = Sequence(protein_description, protein_sequence, gene_sequence)
-                        self.sequences[name] = sequence
-                        self.protein_ordered_dict[protein_count] = name
+                    name = protein_description.partition(' ')[0]
+                    gene_sequence = gene_dict.get(name)
+                    sequence = Sequence(protein_description, protein_sequence, gene_sequence)
+                    self.sequences[name] = sequence
+                    self.protein_ordered_dict[protein_count] = name
             else:
 
                 for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
