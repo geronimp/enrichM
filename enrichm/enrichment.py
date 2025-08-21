@@ -121,16 +121,13 @@ class Enrichment:
     CLUSTER = "cluster"
     ORTHOLOG = "ortholog"
     OTHER = "other"
-
-    def __init__(self):
-
-        self.TIGRFAM_PREFIX = 'TIGR'
-        self.PFAM_PREFIX = 'PF'
-        self.KEGG_PREFIX = 'K'
-        self.CAZY_PREFIX = ["GH", "AA", "GT", "PL", "CE", "CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
-        self.EC_PREFIX = ["1", "2", "3","4","5","6", "7"]
-        self.PROPORTIONS = 'proportions.tsv'
-        self.MODULE_COMPLETENESS = 'modules.tsv'
+    TIGRFAM_PREFIX = 'TIGR'
+    PFAM_PREFIX = 'PF'
+    KEGG_PREFIX = 'K'
+    CAZY_PREFIX = ["GH", "AA", "GT", "PL", "CE", "CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
+    EC_PREFIX = ["1", "2", "3","4","5","6", "7"]
+    PROPORTIONS = 'proportions.tsv'
+    MODULE_COMPLETENESS = 'modules.tsv'
 
     def check_annotation_type(self, annotations):
         '''

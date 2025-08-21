@@ -332,17 +332,15 @@ class Run:
                                         # Outputs
                                         args.output)
 
-
     def run_network(self, args):
         self._check_network(args)
-        network_analyser=NetworkAnalyser()
+        network_analyser=NetworkAnalyser(Databases())
         network_analyser.network_pipeline(args.subparser_name, args.matrix, 
                                             args.genome_metadata, args.tpm_values,
                                             args.tpm_metadata, args.abundance, 
                                             args.abundance_metadata, args.metabolome,
                                             args.enrichment_output, args.depth, args.filter,
                                             args.limit, args.queries, args.output)
-
 
     def run_predict(self, args):
         self._check_predict(args)
@@ -362,10 +360,9 @@ class Run:
                 args.threads,
                 args.output)
 
-
     def run_uses(self, args):
         self._check_uses(args)
-        uses = Uses()
+        uses = Uses(Databases())
         uses.uses_pipeline(args.compounds_list,
                 args.annotation_matrix,
                 args.metadata,

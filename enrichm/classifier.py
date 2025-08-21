@@ -20,19 +20,19 @@ class Classify:
     '''
     Determines which metabolic pathways are encoded by different MAGs
     '''
+    ko_output = "module_completeness.tsv"
+    module_paths = "module_paths.tsv"
+    aggregate_output = "aggregate_output.tsv"
+    signature_modules = set()
+    m2def = dict()
+    modules = dict()
 
     def __init__(self, skip_database_check=False):
-        self.signature_modules = set()
-        self.m2def = dict()
-        self.modules = dict()
         if not skip_database_check:
             databases = Databases()
             self.signature_modules = databases.signature_modules
             self.m2def = databases.m2def()
             self.modules = databases.m()
-        self.ko_output = "module_completeness.tsv"
-        self.module_paths = "module_paths.tsv"
-        self.aggregate_output = "aggregate_output.tsv"
 
     def update_with_custom_modules(self, custom_modules):
         '''
