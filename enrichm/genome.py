@@ -10,7 +10,7 @@ class Genome:
     A genome object which collects all the attributes of an input genome,
     including protein sequences and their annotations
     '''
-    def __init__(self, light, path, nucl, gene, gff=False):
+    def __init__(self, light, genome_path, protein, nucleotide, gff=False):
         seqio = SequenceIO()
         self.clusters = set()
         self.orthologs = set()
@@ -18,34 +18,33 @@ class Genome:
         self.sequences = dict()
         self.cluster_dict = dict()
         self.ortholog_dict = dict()
-        self.path = path
-        self.gene = gene
-        self.name = os.path.split(os.path.splitext(path)[0])[1]
+        self.genome_path = genome_path
+        self.protein = protein
+        self.name = os.path.split(os.path.splitext(genome_path)[0])[1]
 
         if light == False:
 
-            if nucl is not None:
-                self.nucl = nucl
+            if nucleotide is not None:
+                self.nucleotide = nucleotide
                 self.length = 0
                 gc_list = 0.0
 
-                for description, sequence in seqio.each(open(nucl)):
+                for description, sequence in seqio.each(open(nucleotide)):
                     self.length += len(str(sequence))
                     gc_list += (str(sequence).count('G') + str(sequence).count('C'))
 
                 self.gc = round((gc_list/float(self.length))*100, 2)
 
-            if gene:
-                gene_dict = {desc.partition(' ')[0]: seq for desc, seq in seqio.each(open(gene))}
-                for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
+            if protein:
+                gene_dict = {desc.partition(' ')[0]: seq for desc, seq in seqio.each(open(protein))}
+                for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(protein))):
                     name = protein_description.partition(' ')[0]
                     gene_sequence = gene_dict.get(name)
                     sequence = Sequence(protein_description, protein_sequence, gene_sequence)
                     self.sequences[name] = sequence
                     self.protein_ordered_dict[protein_count] = name
             else:
-
-                for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(path))):
+                for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(protein))):
                     name = protein_description.partition(' ')[0]
                     sequence = Sequence(protein_description, protein_sequence)
                     self.sequences[name] = sequence
@@ -53,7 +52,7 @@ class Genome:
 
         else:
 
-            for protein_count, (description, _) in enumerate(seqio.each(open(path))):
+            for protein_count, (description, _) in enumerate(seqio.each(open(protein))):
                 name = description.partition(' ')[0]
                 sequence = Sequence(description)
                 self.sequences[name] = sequence
@@ -129,8 +128,7 @@ class Genome:
                 refdict = self.ec_dict
 
         for seqname, annotations, evalue, annotation_range in iterator:
-            self.sequences[seqname].add(annotations, evalue, annotation_range, ref_ids,
-                                        pfam2clan=pfam2clan)
+            self.sequences[seqname].add(annotations, evalue, annotation_range, ref_ids, pfam2clan=pfam2clan)
 
             for annotation in annotations:
 
@@ -228,12 +226,12 @@ class Sequence(Genome):
     Sequence object which collects all attributes of a sequence including its length,
     and annotations. Can compare current annotation with new annotaitons.
     '''
-    def __init__(self, description, sequence=None, gene=None):
+    def __init__(self, description, sequence=None, protein=None):
         self.annotations = list()
         line_split = description.split(' # ')
 
-        if gene:
-            self.gene = gene
+        if protein:
+            self.protein = protein
         if sequence:
             self.seq = str(sequence)
             self.length = int(len(sequence))
