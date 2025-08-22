@@ -30,3 +30,4 @@ r = ">=4.4,<4.5"
 [pypi-dependencies]
 pyrodigal = ">=3.6.3.post1, <4"
 ipython = ">=9.4.0, <10"
+polars = ">=1.32.3, <2"
