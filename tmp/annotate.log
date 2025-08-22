@@ -1,7 +1,0 @@
-[2025-08-20 13:11:45 PM] INFO: Command: ./bin/enrichm annotate --cluster --protein_files test/data/*/cluster_data/very_simple_test.faa --output tmp
-[2025-08-20 13:11:45 PM] INFO: Running the annotate pipeline
-[2025-08-20 13:11:45 PM] INFO: Running pipeline: annotate
-[2025-08-20 13:11:45 PM] INFO: Setting up for genome annotation
-[2025-08-20 13:11:45 PM] INFO: Using provided proteins
-[2025-08-20 13:11:45 PM] INFO: Preparing genomes for annotation
-[2025-08-20 13:11:45 PM] ERROR: No files found with .faa suffix in input directory

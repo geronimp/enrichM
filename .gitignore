@@ -2,4 +2,5 @@
 .pixi/*
 !.pixi/config.toml
 enrichm/_pycache__/*
-test/_pycache__/*
+test/_pycache__/*__pycache__/
+*.pyc
