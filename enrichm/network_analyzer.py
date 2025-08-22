@@ -28,7 +28,7 @@ class NetworkAnalyser:
     NETWORK_OUTPUT_FILE = 'network.tsv'
     METADATA_OUTPUT_FILE = 'metadata.tsv'
     TRAVERSE_OUTPUT_FILE = 'traverse.tsv'
-    databases: Databases
+    databases: Databases = Databases()
 
     def average(self, input_dictionary):
         '''

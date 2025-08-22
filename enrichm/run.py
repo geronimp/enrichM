@@ -281,23 +281,37 @@ class Run:
     def run_annotate(self, args):
         self._check_annotate(args)
 
-        annotate = Annotate(# Define inputs and outputs
-                            args.output,
-                            # Define type of annotation to be carried out
-                            args.ko, args.ko_hmm, args.pfam, args.tigrfam,
-                            args.clusters, args.orthologs, args.cazy,
-                            args.ec, args.orthogroup,
-                            # Cutoffs
-                            args.evalue, args.bit, args.id, args.aln_query,
-                            args.aln_reference, args.c, args.cut_ga_pfam,
-
-                            args.cut_nc_pfam, args.cut_tc_pfam,
-                            args.cut_ga_tigrfam, args.cut_nc_tigrfam,
-                            args.cut_tc_tigrfam, args.cut_ko,
-                            args.inflation, args.chunk_number, args.chunk_max,
+        annotate = Annotate(args.output,
+                            args.ko,
+                            args.ko_hmm,
+                            args.pfam,
+                            args.tigrfam,
+                            args.clusters,
+                            args.orthologs,
+                            args.cazy,
+                            args.ec,
+                            args.orthogroup,
+                            args.evalue,
+                            args.bit,
+                            args.id,
+                            args.aln_query,
+                            args.aln_reference,
+                            args.c,
+                            args.cut_ga_pfam,
+                            args.cut_nc_pfam,
+                            args.cut_tc_pfam,
+                            args.cut_ga_tigrfam,
+                            args.cut_nc_tigrfam,
+                            args.cut_tc_tigrfam,
+                            args.cut_ko,
+                            args.inflation,
+                            args.chunk_number,
+                            args.chunk_max,
                             args.count_domains,
-                            # Parameters
-                            args.threads, args.parallel, args.suffix, args.light, Databases())
+                            args.threads,
+                            args.parallel,
+                            args.suffix,
+                            args.light)
 
         annotate.annotate_pipeline(args.genome_directory,
                                     args.protein_directory,

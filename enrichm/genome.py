@@ -10,7 +10,6 @@ class Genome:
     A genome object which collects all the attributes of an input genome,
     including protein sequences and their annotations
     '''
-    seqio = SequenceIO
     clusters = set()
     orthologs = set()
     protein_ordered_dict = dict()
@@ -19,9 +18,14 @@ class Genome:
     ortholog_dict = dict()
 
     def __init__(self, light, genome_path, protein, nucleotide, gff=False):
+        seqio = SequenceIO()
+
         self.genome_path = genome_path
         self.protein = protein
-        self.name = os.path.split(os.path.splitext(genome_path)[0])[1]
+        if genome_path:
+            self.name = os.path.split(os.path.splitext(genome_path)[0])[1]
+        else:
+            self.name = os.path.split(os.path.splitext(protein)[0])[1]
 
 
         if light == False:
@@ -45,7 +49,7 @@ class Genome:
                     sequence = Sequence(protein_description, protein_sequence, gene_sequence)
                     self.sequences[name] = sequence
                     self.protein_ordered_dict[protein_count] = name
-            else:
+            else: # TODO: is this needed?
                 for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(protein))):
                     name = protein_description.partition(' ')[0]
                     sequence = Sequence(protein_description, protein_sequence)
@@ -79,7 +83,7 @@ class Genome:
                                           'HYPOTHETICAL' or 'COG'
         '''
         # Load up annotation parser, and tell it what annotation type to expect
-        ap = AnnotationParser(annotation_type)
+        ap = AnnotationParser()
 
         # If annotation type is a hmmsearch result
         if(annotation_type == AnnotationParser.HMMPARSER):

@@ -61,21 +61,16 @@ class Annotate:
     PROTEINS_SUFFIX: ClassVar[str] = '.faa'
     ANNOTATION_SUFFIX: ClassVar[str] = '.tsv'
     PICKLE_SUFFIX: ClassVar[str] = '.pickle'
-
-    # Define inputs and outputs
     output_directory: str
-    # Define type of annotation to be carried out
     annotate_ko: bool
     annotate_ko_hmm: bool
     annotate_pfam: bool
     annotate_tigrfam: bool
     annotate_cluster: bool
     annotate_ortholog: bool
-    annotate_orthogroup: bool
     annotate_cazy: bool
     annotate_ec: bool
-
-    # Cutoffs
+    annotate_orthogroup: bool
     evalue: float
     bit: float
     percent_id_cutoff: float
@@ -93,7 +88,13 @@ class Annotate:
     chunk_number: float
     chunk_max: float
     count_domains: float
-
+    threads: str
+    parallel: str
+    suffix: str
+    light: bool
+    databases: Databases = Databases()
+    seqio: SequenceIO = SequenceIO()
+    
     def prep_genome(self, genome_file_list, genome_directory):
         '''
         Do any preparation specific to the genome annotation pipeline.
@@ -345,7 +346,7 @@ class Annotate:
         renamed_genomes = list()
         for genome in genomes_list:
             renamed_genome = next(tempfile._get_candidate_names())
-            cmd = f"sed 's/>/>{genome.name}~/g' {genome.genome_path} > {renamed_genome}"
+            cmd = f"sed 's/>/>{genome.name}~/g' {genome.protein} > {renamed_genome}"
             run_command(cmd)
             renamed_genomes.append(renamed_genome)
 
@@ -685,7 +686,7 @@ class Annotate:
             for genome_proteins_file in listdir(directory):
 
                 if genome_proteins_file.endswith(self.suffix):
-                    genome = (self.light, path.join(directory, genome_proteins_file), None, None)
+                    genome = (self.light, None, path.join(directory, genome_proteins_file), None)
                     prep_genomes_list.append(genome)
 
         elif protein_files:
@@ -695,7 +696,8 @@ class Annotate:
 
             for protein_file in listdir(directory):
                 protein_file_path = path.join(directory, path.basename(protein_file))
-                prep_genomes_list.append((self.light, protein_file_path, None, None))
+                genome = (self.light, None, protein_file_path, None)
+                prep_genomes_list.append(genome)
 
         elif genome_directory:
             logging.info("Calling proteins for annotation")
