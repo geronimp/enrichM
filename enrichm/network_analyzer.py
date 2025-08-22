@@ -3,35 +3,32 @@ import logging
 import os
 import statistics
 import itertools
+from dataclasses import dataclass
 from enrichm.network_builder import NetworkBuilder
 from enrichm.databases import Databases
 from enrichm.parser import Parser
 from enrichm.writer import Writer
 ###############################################################################
 
+@dataclass
 class NetworkAnalyser:
     """
     Prepare metagenome, metatranscriptome, metabolomic data for constructing 
     SIF network files.
     """
-    MATRIX          = 'matrix'
-    NETWORK         = 'network'
-    EXPLORE         = 'explore'
-    DEGRADE         = 'degrade'
-    PATHWAY         = 'pathway'
-    ANNOTATE        = 'annotate'
-    ENRICHMENT      = 'enrichment'
-    MODULE_AB       = 'module_ab'
-    TRAVERSE        = 'traverse'
-
-    NETWORK_OUTPUT_FILE  = 'network.tsv'
+    MATRIX = 'matrix'
+    NETWORK = 'network'
+    EXPLORE = 'explore'
+    DEGRADE = 'degrade'
+    PATHWAY = 'pathway'
+    ANNOTATE = 'annotate'
+    ENRICHMENT = 'enrichment'
+    MODULE_AB = 'module_ab'
+    TRAVERSE = 'traverse'
+    NETWORK_OUTPUT_FILE = 'network.tsv'
     METADATA_OUTPUT_FILE = 'metadata.tsv'
     TRAVERSE_OUTPUT_FILE = 'traverse.tsv'
-
-    def __init__(self):
-        self.databases = Databases()
-        self.reactions = self.databases.r()
-        self.reaction_to_ko = self.databases.r2k()
+    databases: Databases
 
     def average(self, input_dictionary):
         '''
@@ -135,7 +132,7 @@ class NetworkAnalyser:
 
     def average_tpm_values(self, transriptome_abundance_dict, group_metadata):
         output_dict = dict()
-        reactions = list(self.reactions.keys())
+        reactions = list(self.databases.r().keys())
         
         for genome_group_name, group_reaction_abundance_dict in transriptome_abundance_dict.items():
             output_dict[genome_group_name] = dict()
@@ -228,7 +225,7 @@ class NetworkAnalyser:
             genome_to_group, genome_groups, group_to_genome = \
                     self.mock_metadata(genome_names)
 
-        reaction_matrix = self.aggregate_dictionary(self.reaction_to_ko, orthology_matrix)
+        reaction_matrix = self.aggregate_dictionary(self.databases.r2k(), orthology_matrix)
 
         # Read in fisher results
         if enrichment_output:

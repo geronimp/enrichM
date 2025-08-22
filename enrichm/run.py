@@ -14,6 +14,7 @@ from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
 from enrichm.uses import Uses
+from enrichm.databases import Databases
 
 ####################################################################################################
 
@@ -22,16 +23,13 @@ debug = {1:logging.CRITICAL, 2:logging.ERROR, 3:logging.WARNING, 4:logging.INFO,
 ####################################################################################################
 
 class Run:
-
-    def __init__(self):
-
-        self.DATA = 'data'
-        self.ANNOTATE = 'annotate'
-        self.CLASSIFY = 'classify'
-        self.ENRICHMENT = 'enrichment'
-        self.PREDICT = 'predict'
-        self.GENERATE = 'generate'
-        self.USES = 'uses'
+    DATA = 'data'
+    ANNOTATE = 'annotate'
+    CLASSIFY = 'classify'
+    ENRICHMENT = 'enrichment'
+    PREDICT = 'predict'
+    GENERATE = 'generate'
+    USES = 'uses'
 
     def _logging_setup(self, args):
         if args.verbosity not in range(1, 6):
@@ -299,7 +297,7 @@ class Run:
                             args.inflation, args.chunk_number, args.chunk_max,
                             args.count_domains,
                             # Parameters
-                            args.threads, args.parallel, args.suffix, args.light)
+                            args.threads, args.parallel, args.suffix, args.light, Databases())
 
         annotate.annotate_pipeline(args.genome_directory,
                                     args.protein_directory,
@@ -334,17 +332,15 @@ class Run:
                                         # Outputs
                                         args.output)
 
-
     def run_network(self, args):
         self._check_network(args)
-        network_analyser=NetworkAnalyser()
+        network_analyser=NetworkAnalyser(Databases())
         network_analyser.network_pipeline(args.subparser_name, args.matrix, 
                                             args.genome_metadata, args.tpm_values,
                                             args.tpm_metadata, args.abundance, 
                                             args.abundance_metadata, args.metabolome,
                                             args.enrichment_output, args.depth, args.filter,
                                             args.limit, args.queries, args.output)
-
 
     def run_predict(self, args):
         self._check_predict(args)
@@ -364,10 +360,9 @@ class Run:
                 args.threads,
                 args.output)
 
-
     def run_uses(self, args):
         self._check_uses(args)
-        uses = Uses()
+        uses = Uses(Databases())
         uses.uses_pipeline(args.compounds_list,
                 args.annotation_matrix,
                 args.metadata,

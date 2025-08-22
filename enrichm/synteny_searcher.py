@@ -11,10 +11,8 @@ from enrichm.toolbox import reverse_dictionary_of_lists, cluster
 
 class SyntenySearcher:
 
-    def __init__(self):
-        self.synteny_results_output_file = "synteny_results.tsv"
-        self.synteny_results_header = ["Genome_group", "Core_gene_block", "Num_genes", "Group_genomes", "Hit_genomes", "Percent_genomes",  "Genomes"]
-
+    synteny_results_output_file = "synteny_results.tsv"
+    synteny_results_header = ["Genome_group", "Core_gene_block", "Num_genes", "Group_genomes", "Hit_genomes", "Percent_genomes",  "Genomes"]
 
     def cluster_operons_by_common_elements(self, synteny_to_genome, operon_mismatch_cutoff, operon_match_score_cutoff):
         cluster_list = list()

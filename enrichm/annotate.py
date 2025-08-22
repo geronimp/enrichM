@@ -13,8 +13,11 @@ import logging
 import subprocess
 import multiprocessing as mp
 from os import path, close, mkdir, listdir
-from enrichm.genome import Genome, AnnotationParser
+from dataclasses import dataclass
+from typing import ClassVar
 from enrichm.databases import Databases
+
+from enrichm.genome import Genome, AnnotationParser
 from enrichm.sequence_io import SequenceIO
 from enrichm.writer import Writer, MatrixGenerator
 from enrichm.toolbox import list_splitter, run_command
@@ -28,89 +31,74 @@ def parse_genomes(params):
     genome = Genome(*params)
     return genome
 
+@dataclass
 class Annotate:
-    '''
-    Annotates proteins, and MAGs
-    '''
-    GENOME_BIN = 'genome_bin'
-    GENOME_PROTEINS = 'genome_proteins'
-    GENOME_GENES = 'genome_genes'
-    GENOME_KO = 'annotations_ko'
-    GENOME_KO_HMM = 'annotations_ko_hmm'
-    GENOME_EC = 'annotations_ec'
-    GENOME_PFAM = 'annotations_pfam'
-    GENOME_TIGRFAM = 'annotations_tigrfam'
-    GENOME_HYPOTHETICAL = 'annotations_hypothetical'
-    GENOME_CAZY = 'annotations_cazy'
-    GENOME_GFF = 'annotations_gff'
-    GENOME_OBJ = 'annotations_genomes'
-    OUTPUT_KO = 'ko_frequency_table.tsv'
-    OUTPUT_KO_HMM = 'ko_hmm_frequency_table.tsv'
-    OUTPUT_EC = 'ec_frequency_table.tsv'
-    OUTPUT_PFAM = 'pfam_frequency_table.tsv'
-    OUTPUT_TIGRFAM = 'tigrfam_frequency_table.tsv'
-    OUTPUT_CAZY = 'cazy_frequency_table.tsv'
-    OUTPUT_CLUSTER = 'cluster_frequency_table.tsv'
-    OUTPUT_ORTHOLOG = 'ortholog_frequency_table.tsv'
-    OUTPUT_HYPOTHETICAL_ANNOTATIONS = 'hypothetical_annotations.tsv'
-    OUTPUT_DIAMOND = "DIAMOND_search"
-    GFF_SUFFIX = '.gff'
-    PROTEINS_SUFFIX = '.faa'
-    ANNOTATION_SUFFIX = '.tsv'
-    PICKLE_SUFFIX = '.pickle'
 
-    def __init__(self, output_directory, annotate_ko, annotate_ko_hmm, annotate_pfam,
-                 annotate_tigrfam, annoatate_cluster, annotate_ortholog, annotate_cazy, annotate_ec,
-                 annotate_orthogroup, evalue, bit, percent_id_cutoff, aln_query, aln_reference, 
-                 fraction_aligned, cut_ga_pfam, cut_nc_pfam, cut_tc_pfam, cut_ga_tigrfam, cut_nc_tigrfam,
-                 cut_tc_tigrfam, cut_hmm, inflation, chunk_number, chunk_max,
-                 count_domains, threads, parallel, suffix, light):
+    GENOME_BIN: ClassVar[str] = 'genome_bin'
+    GENOME_PROTEINS: ClassVar[str] = 'genome_proteins'
+    GENOME_GENES: ClassVar[str] = 'genome_genes'
+    GENOME_KO: ClassVar[str] = 'annotations_ko'
+    GENOME_KO_HMM: ClassVar[str] = 'annotations_ko_hmm'
+    GENOME_EC: ClassVar[str] = 'annotations_ec'
+    GENOME_PFAM: ClassVar[str] = 'annotations_pfam'
+    GENOME_TIGRFAM: ClassVar[str] = 'annotations_tigrfam'
+    GENOME_HYPOTHETICAL: ClassVar[str] = 'annotations_hypothetical'
+    GENOME_CAZY: ClassVar[str] = 'annotations_cazy'
+    GENOME_GFF: ClassVar[str] = 'annotations_gff'
+    GENOME_OBJ: ClassVar[str] = 'annotations_genomes'
+    OUTPUT_KO: ClassVar[str] = 'ko_frequency_table.tsv'
+    OUTPUT_KO_HMM: ClassVar[str] = 'ko_hmm_frequency_table.tsv'
+    OUTPUT_EC: ClassVar[str] = 'ec_frequency_table.tsv'
+    OUTPUT_PFAM: ClassVar[str] = 'pfam_frequency_table.tsv'
+    OUTPUT_TIGRFAM: ClassVar[str] = 'tigrfam_frequency_table.tsv'
+    OUTPUT_CAZY: ClassVar[str] = 'cazy_frequency_table.tsv'
+    OUTPUT_CLUSTER: ClassVar[str] = 'cluster_frequency_table.tsv'
+    OUTPUT_ORTHOLOG: ClassVar[str] = 'ortholog_frequency_table.tsv'
+    OUTPUT_HYPOTHETICAL_ANNOTATIONS: ClassVar[str] = 'hypothetical_annotations.tsv'
+    OUTPUT_DIAMOND: ClassVar[str] = "DIAMOND_search"
+    GFF_SUFFIX: ClassVar[str] = '.gff'
+    PROTEINS_SUFFIX: ClassVar[str] = '.faa'
+    ANNOTATION_SUFFIX: ClassVar[str] = '.tsv'
+    PICKLE_SUFFIX: ClassVar[str] = '.pickle'
 
+    # Define inputs and outputs
+    output_directory: str
+    # Define type of annotation to be carried out
+    annotate_ko: bool
+    annotate_ko_hmm: bool
+    annotate_pfam: bool
+    annotate_tigrfam: bool
+    annotate_cluster: bool
+    annotate_ortholog: bool
+    annotate_orthogroup: bool
+    annotate_cazy: bool
+    annotate_ec: bool
 
-        # Define inputs and outputs
-        self.output_directory = output_directory
+    # Cutoffs
+    evalue: float
+    bit: float
+    percent_id_cutoff: float
+    aln_query: float
+    aln_reference: float
+    fraction_aligned: float
+    cut_ga_pfam: float
+    cut_nc_pfam: float
+    cut_tc_pfam: float
+    cut_ga_tigrfam: float
+    cut_nc_tigrfam: float
+    cut_tc_tigrfam: float
+    cut_hmm: float
+    inflation: float
+    chunk_number: float
+    chunk_max: float
+    count_domains: float
 
-        # Define type of annotation to be carried out
-        self.annotate_ko = annotate_ko
-        self.annotate_ko_hmm = annotate_ko_hmm
-        self.annotate_pfam = annotate_pfam
-        self.annotate_tigrfam = annotate_tigrfam
-        self.annotate_cluster = annoatate_cluster
-        self.annotate_ortholog = annotate_ortholog
-        self.annotate_orthogroup = annotate_orthogroup
-        self.annotate_cazy = annotate_cazy
-        self.annotate_ec = annotate_ec
-
-        # Cutoffs
-        self.evalue = evalue
-        self.bit = bit
-        self.percent_id_cutoff = percent_id_cutoff
-        self.aln_query = aln_query
-        self.aln_reference = aln_reference
-        self.fraction_aligned = fraction_aligned
-        self.cut_ga_pfam = cut_ga_pfam
-        self.cut_nc_pfam = cut_nc_pfam
-        self.cut_tc_pfam = cut_tc_pfam
-        self.cut_ga_tigrfam = cut_ga_tigrfam
-        self.cut_nc_tigrfam = cut_nc_tigrfam
-        self.cut_tc_tigrfam = cut_tc_tigrfam
-        self.cut_hmm = cut_hmm
-        self.inflation = inflation
-        self.chunk_number = chunk_number
-        self.chunk_max = chunk_max
-        self.count_domains = count_domains
-
-        # Parameters
-        self.threads = threads
-        self.parallel = parallel
-        self.suffix = suffix
-        self.light = light
-
-        # Set up multiprocesses pool
-        self.pool = mp.Pool(processes=int(self.parallel))
-
-        # Load databases
-        self.databases = Databases()
+    # Parameters
+    threads: str
+    parallel: str
+    suffix: str
+    light: bool
+    databases: Databases
 
     def prep_genome(self, genome_file_list, genome_directory):
         '''
@@ -734,7 +722,8 @@ class Annotate:
             prep_genomes_list = self.call_proteins(directory)
 
         for chunk in list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
-            genomes_list += self.pool.map(parse_genomes, chunk)
+            pool = mp.Pool(processes=int(self.parallel))
+            genomes_list += pool.map(parse_genomes, chunk)
 
         return genomes_list
 

@@ -8,9 +8,8 @@ from enrichm.parser import Parser
 
 class Predict:
 
-    def __init__(self):
-        self.predictions_output_file = 'predictions.tsv'
-        self.predictions_header = ["Sample", "Prediction", "Probability"]
+    predictions_output_file = 'predictions.tsv'
+    predictions_header = ["Sample", "Prediction", "Probability"]
 
     def make_predictions(self, model, sample_list, content_list, attribute_dictionary):
         '''

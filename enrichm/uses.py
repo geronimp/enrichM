@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from dataclasses import dataclass
+
 from enrichm.writer import Writer
 from enrichm.parser import Parser
 from enrichm.databases import Databases
@@ -8,24 +10,16 @@ from itertools import combinations
 import logging
 import os
 
+@dataclass
 class Uses:
 
-    def __init__(self):
-        
-        databases = Databases()
-        
-        self.reaction_to_ko = databases.r2k()
-        self.compound_to_reaction = databases.c2r()
-        self.compounds = databases.c()
-
-        self.positive = 'positive'
-        self.negative = 'negative'
-
-        self.abundace = "frequency_matrix.tsv"
-        self.enrichment = "enrichment_results.tsv"
-        self.abundace_header = ["Compound"]
-        self.enrichment_header = ["Compound", "Group_1", "Group_2", "group_1_mean", "group_2_mean",
-                                  "score", "pvalue", "description"]
+    positive = 'positive'
+    negative = 'negative'
+    abundace = "frequency_matrix.tsv"
+    enrichment = "enrichment_results.tsv"
+    abundace_header = ["Compound"]
+    enrichment_header = ["Compound", "Group_1", "Group_2", "group_1_mean", "group_2_mean", "score", "pvalue", "description"]
+    databases: Databases()
 
     def gather_present_annotations(self, column_annotations):
 
@@ -44,10 +38,10 @@ class Uses:
 
         for compound in compound_list:
 
-            if compound in self.compound_to_reaction:
+            if compound in self.databases.c2r():
 
                 enrichment_tallys[compound] = dict()
-                abundance_line = [compound + '~' + self.compounds[compound]]
+                abundance_line = [compound + '~' + self.databases.c()[compound]]
 
                 for column_header in column_names:
                     column_positive_tally = 0
@@ -55,12 +49,12 @@ class Uses:
 
                     # Gather all annotations present for this column (genome)
                     present_annotations = self.gather_present_annotations(annotations[column_header])
-                    for reaction in self.compound_to_reaction[compound]:
+                    for reaction in self.databases.c2r()[compound]:
 
                         # If there are more than 0 KOs that carry out the reaction present in
                         # the genome
-                        if reaction in self.reaction_to_ko:
-                            overlapping_annotations = present_annotations.intersection(self.reaction_to_ko[reaction])
+                        if reaction in self.databases.r2k():
+                            overlapping_annotations = present_annotations.intersection(self.databases.r2k()[reaction])
 
                             if len(overlapping_annotations)>0:
 
@@ -96,7 +90,7 @@ class Uses:
                 group_2_values =  [tally[self.positive] for tally in group_2_tallys.values()]
 
                 output_line = mannwhitneyu_calc((compound, group_1_name, group_2_name, [group_1_values, None], [group_2_values, None]))
-                output_lines.append(output_line + [self.compounds[compound]])
+                output_lines.append(output_line + [self.databases.c()[compound]])
 
         return output_lines
 
