@@ -225,6 +225,8 @@ if __name__ == "__main__":
                 help='Annotation matrix to compare.')
     enrichment_input_options.add_argument('--gff_files', nargs='+',
                 help='Gff files for genomes to compare.')
+    enrichment_input_options.add_argument('--dram_output',
+                help='Output of DRAM distill for comparison of gene groups.')
     enrichment_input_options.add_argument('--abundance',
                 help='Genome abundance matrix.')
     enrichment_input_options.add_argument('--abundance_metadata',

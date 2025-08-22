@@ -168,7 +168,7 @@ class Run:
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
 
-        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files):
+        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files and not args.dram_output):
             raise Exception("Either --annotate_output, --annotation_matrix or --gff_files must be specified!")
 
         if args.annotation_matrix or args.annotate_output:
@@ -334,6 +334,7 @@ class Run:
         enrichment.enrichment_pipeline(args.annotate_output,
                                        args.annotation_matrix,
                                        args.gff_files,
+                                       args.dram_output,
                                        args.metadata,
                                        args.abundance,
                                        args.abundance_metadata,
