@@ -1,15 +1,34 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: enrichm
-Version: 0.6.4
+Version: 0.6.6
 Summary: enrichm is a toolbox for comparing the functional composition of population genomes
 Home-page: https://github.com/geronimp/enrichM
+Download-URL: https://github.com/geronimp/enrichm/archive/0.6.6.tar.gz
 Author: Joel Boyd, Ben Woodcroft, Alexander Baker
 Author-email: joel.boyd@uqconnect.edu.au
 License: GPL3+
-Download-URL: https://github.com/geronimp/enrichm/archive/0.6.4.tar.gz
 Keywords: MAGs,Population genomes,metagenomics,Annotation,Comparison
-Platform: UNKNOWN
 Description-Content-Type: text/markdown
+Requires-Dist: python-dateutil>=2.8.0
+Requires-Dist: statsmodels>=0.8.0rc1
+Requires-Dist: numpy>=1.9.1
+Requires-Dist: pandas>=0.17.1
+Requires-Dist: scipy>=0.17.0
+Requires-Dist: biopython>=1.66
+Requires-Dist: fuzzywuzzy>=0.18.0
+Requires-Dist: six>=1.10.0
+Requires-Dist: tempdir>=0.7.1
+Requires-Dist: scikit-learn>=0.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: download-url
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: summary
 
 <p align="center">
 <img src="logo/logo.png">
@@ -114,5 +133,3 @@ A manuscript is in the final stages of preparation and a bioRxiv pre-print will 
 ```
 Comparative genomics using EnrichM. Joel A Boyd Ben J Woodcroft Gene W Tyson. 2019. In preparation.
 ```
-
-

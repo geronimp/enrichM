@@ -1,4 +1,5 @@
 README.md
+pyproject.toml
 setup.py
 bin/enrichm
 enrichm/PLOT_ko_breakdown.r
