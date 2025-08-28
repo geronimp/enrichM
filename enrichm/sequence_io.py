@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+from dataclasses import dataclass
+
+@dataclass
 class Sequence:
-    def __init__(self, name, seq):
-        self.name = name
-        self.seq = seq
+    name: str
+    seq: str
 
 class SequenceIO:
     # Stolen from https://github.com/lh3/readfq/blob/master/readfq.py

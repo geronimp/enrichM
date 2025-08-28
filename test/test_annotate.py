@@ -82,7 +82,8 @@ class Tests(unittest.TestCase):
                         --output %s \
                         --force' % (path_to_script, protein_file, tmp)
         subprocess.check_call(cmd, shell=True)
-
+        
+    @unittest.skip("No input data for this test")
     def test_very_simple_orthology(self):
         tmp = tempfile.mkdtemp()
         protein_file = os.path.join(path_to_data, 'cluster_data', "very_simple_test.faa")
@@ -95,6 +96,7 @@ class Tests(unittest.TestCase):
                         --force' % (path_to_script, protein_file, tmp)
         subprocess.check_call(cmd, shell=True)
 
+    @unittest.skip("No input data for this test")
     def test_very_simple_homology(self):
         tmp = tempfile.mkdtemp()
         protein_file = os.path.join(path_to_data, 'cluster_data', "very_simple_test.faa")

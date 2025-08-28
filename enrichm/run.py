@@ -14,6 +14,7 @@ from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
 from enrichm.uses import Uses
+from enrichm.databases import Databases
 
 ####################################################################################################
 
@@ -22,16 +23,13 @@ debug = {1:logging.CRITICAL, 2:logging.ERROR, 3:logging.WARNING, 4:logging.INFO,
 ####################################################################################################
 
 class Run:
-
-    def __init__(self):
-
-        self.DATA = 'data'
-        self.ANNOTATE = 'annotate'
-        self.CLASSIFY = 'classify'
-        self.ENRICHMENT = 'enrichment'
-        self.PREDICT = 'predict'
-        self.GENERATE = 'generate'
-        self.USES = 'uses'
+    DATA = 'data'
+    ANNOTATE = 'annotate'
+    CLASSIFY = 'classify'
+    ENRICHMENT = 'enrichment'
+    PREDICT = 'predict'
+    GENERATE = 'generate'
+    USES = 'uses'
 
     def _logging_setup(self, args):
         if args.verbosity not in range(1, 6):
@@ -283,23 +281,37 @@ class Run:
     def run_annotate(self, args):
         self._check_annotate(args)
 
-        annotate = Annotate(# Define inputs and outputs
-                            args.output,
-                            # Define type of annotation to be carried out
-                            args.ko, args.ko_hmm, args.pfam, args.tigrfam,
-                            args.clusters, args.orthologs, args.cazy,
-                            args.ec, args.orthogroup,
-                            # Cutoffs
-                            args.evalue, args.bit, args.id, args.aln_query,
-                            args.aln_reference, args.c, args.cut_ga_pfam,
-
-                            args.cut_nc_pfam, args.cut_tc_pfam,
-                            args.cut_ga_tigrfam, args.cut_nc_tigrfam,
-                            args.cut_tc_tigrfam, args.cut_ko,
-                            args.inflation, args.chunk_number, args.chunk_max,
+        annotate = Annotate(args.output,
+                            args.ko,
+                            args.ko_hmm,
+                            args.pfam,
+                            args.tigrfam,
+                            args.clusters,
+                            args.orthologs,
+                            args.cazy,
+                            args.ec,
+                            args.orthogroup,
+                            args.evalue,
+                            args.bit,
+                            args.id,
+                            args.aln_query,
+                            args.aln_reference,
+                            args.c,
+                            args.cut_ga_pfam,
+                            args.cut_nc_pfam,
+                            args.cut_tc_pfam,
+                            args.cut_ga_tigrfam,
+                            args.cut_nc_tigrfam,
+                            args.cut_tc_tigrfam,
+                            args.cut_ko,
+                            args.inflation,
+                            args.chunk_number,
+                            args.chunk_max,
                             args.count_domains,
-                            # Parameters
-                            args.threads, args.parallel, args.suffix, args.light)
+                            args.threads,
+                            args.parallel,
+                            args.suffix,
+                            args.light)
 
         annotate.annotate_pipeline(args.genome_directory,
                                     args.protein_directory,
@@ -334,17 +346,15 @@ class Run:
                                         # Outputs
                                         args.output)
 
-
     def run_network(self, args):
         self._check_network(args)
-        network_analyser=NetworkAnalyser()
+        network_analyser=NetworkAnalyser(Databases())
         network_analyser.network_pipeline(args.subparser_name, args.matrix, 
                                             args.genome_metadata, args.tpm_values,
                                             args.tpm_metadata, args.abundance, 
                                             args.abundance_metadata, args.metabolome,
                                             args.enrichment_output, args.depth, args.filter,
                                             args.limit, args.queries, args.output)
-
 
     def run_predict(self, args):
         self._check_predict(args)
@@ -364,10 +374,9 @@ class Run:
                 args.threads,
                 args.output)
 
-
     def run_uses(self, args):
         self._check_uses(args)
-        uses = Uses()
+        uses = Uses(Databases())
         uses.uses_pipeline(args.compounds_list,
                 args.annotation_matrix,
                 args.metadata,

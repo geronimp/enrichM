@@ -13,11 +13,15 @@ import logging
 import subprocess
 import multiprocessing as mp
 from os import path, close, mkdir, listdir
-from enrichm.genome import Genome, AnnotationParser
+from dataclasses import dataclass
+from typing import ClassVar
 from enrichm.databases import Databases
+
+from enrichm.genome import Genome, AnnotationParser
 from enrichm.sequence_io import SequenceIO
 from enrichm.writer import Writer, MatrixGenerator
 from enrichm.toolbox import list_splitter, run_command
+import pyrodigal
 
 def parse_genomes(params):
     '''
@@ -28,90 +32,69 @@ def parse_genomes(params):
     genome = Genome(*params)
     return genome
 
+@dataclass
 class Annotate:
-    '''
-    Annotates proteins, and MAGs
-    '''
-    GENOME_BIN = 'genome_bin'
-    GENOME_PROTEINS = 'genome_proteins'
-    GENOME_GENES = 'genome_genes'
-    GENOME_KO = 'annotations_ko'
-    GENOME_KO_HMM = 'annotations_ko_hmm'
-    GENOME_EC = 'annotations_ec'
-    GENOME_PFAM = 'annotations_pfam'
-    GENOME_TIGRFAM = 'annotations_tigrfam'
-    GENOME_HYPOTHETICAL = 'annotations_hypothetical'
-    GENOME_CAZY = 'annotations_cazy'
-    GENOME_GFF = 'annotations_gff'
-    GENOME_OBJ = 'annotations_genomes'
-    OUTPUT_KO = 'ko_frequency_table.tsv'
-    OUTPUT_KO_HMM = 'ko_hmm_frequency_table.tsv'
-    OUTPUT_EC = 'ec_frequency_table.tsv'
-    OUTPUT_PFAM = 'pfam_frequency_table.tsv'
-    OUTPUT_TIGRFAM = 'tigrfam_frequency_table.tsv'
-    OUTPUT_CAZY = 'cazy_frequency_table.tsv'
-    OUTPUT_CLUSTER = 'cluster_frequency_table.tsv'
-    OUTPUT_ORTHOLOG = 'ortholog_frequency_table.tsv'
-    OUTPUT_HYPOTHETICAL_ANNOTATIONS = 'hypothetical_annotations.tsv'
-    OUTPUT_DIAMOND = "DIAMOND_search"
-    GFF_SUFFIX = '.gff'
-    PROTEINS_SUFFIX = '.faa'
-    ANNOTATION_SUFFIX = '.tsv'
-    PICKLE_SUFFIX = '.pickle'
 
-    def __init__(self, output_directory, annotate_ko, annotate_ko_hmm, annotate_pfam,
-                 annotate_tigrfam, annoatate_cluster, annotate_ortholog, annotate_cazy, annotate_ec,
-                 annotate_orthogroup, evalue, bit, percent_id_cutoff, aln_query, aln_reference, 
-                 fraction_aligned, cut_ga_pfam, cut_nc_pfam, cut_tc_pfam, cut_ga_tigrfam, cut_nc_tigrfam,
-                 cut_tc_tigrfam, cut_hmm, inflation, chunk_number, chunk_max,
-                 count_domains, threads, parallel, suffix, light):
-
-
-        # Define inputs and outputs
-        self.output_directory = output_directory
-
-        # Define type of annotation to be carried out
-        self.annotate_ko = annotate_ko
-        self.annotate_ko_hmm = annotate_ko_hmm
-        self.annotate_pfam = annotate_pfam
-        self.annotate_tigrfam = annotate_tigrfam
-        self.annotate_cluster = annoatate_cluster
-        self.annotate_ortholog = annotate_ortholog
-        self.annotate_orthogroup = annotate_orthogroup
-        self.annotate_cazy = annotate_cazy
-        self.annotate_ec = annotate_ec
-
-        # Cutoffs
-        self.evalue = evalue
-        self.bit = bit
-        self.percent_id_cutoff = percent_id_cutoff
-        self.aln_query = aln_query
-        self.aln_reference = aln_reference
-        self.fraction_aligned = fraction_aligned
-        self.cut_ga_pfam = cut_ga_pfam
-        self.cut_nc_pfam = cut_nc_pfam
-        self.cut_tc_pfam = cut_tc_pfam
-        self.cut_ga_tigrfam = cut_ga_tigrfam
-        self.cut_nc_tigrfam = cut_nc_tigrfam
-        self.cut_tc_tigrfam = cut_tc_tigrfam
-        self.cut_hmm = cut_hmm
-        self.inflation = inflation
-        self.chunk_number = chunk_number
-        self.chunk_max = chunk_max
-        self.count_domains = count_domains
-
-        # Parameters
-        self.threads = threads
-        self.parallel = parallel
-        self.suffix = suffix
-        self.light = light
-
-        # Set up multiprocesses pool
-        self.pool = mp.Pool(processes=int(self.parallel))
-
-        # Load databases
-        self.databases = Databases()
-
+    GENOME_BIN: ClassVar[str] = 'genome_bin'
+    GENOME_PROTEINS: ClassVar[str] = 'genome_proteins'
+    GENOME_GENES: ClassVar[str] = 'genome_genes'
+    GENOME_KO: ClassVar[str] = 'annotations_ko'
+    GENOME_KO_HMM: ClassVar[str] = 'annotations_ko_hmm'
+    GENOME_EC: ClassVar[str] = 'annotations_ec'
+    GENOME_PFAM: ClassVar[str] = 'annotations_pfam'
+    GENOME_TIGRFAM: ClassVar[str] = 'annotations_tigrfam'
+    GENOME_HYPOTHETICAL: ClassVar[str] = 'annotations_hypothetical'
+    GENOME_CAZY: ClassVar[str] = 'annotations_cazy'
+    GENOME_GFF: ClassVar[str] = 'annotations_gff'
+    GENOME_OBJ: ClassVar[str] = 'annotations_genomes'
+    OUTPUT_KO: ClassVar[str] = 'ko_frequency_table.tsv'
+    OUTPUT_KO_HMM: ClassVar[str] = 'ko_hmm_frequency_table.tsv'
+    OUTPUT_EC: ClassVar[str] = 'ec_frequency_table.tsv'
+    OUTPUT_PFAM: ClassVar[str] = 'pfam_frequency_table.tsv'
+    OUTPUT_TIGRFAM: ClassVar[str] = 'tigrfam_frequency_table.tsv'
+    OUTPUT_CAZY: ClassVar[str] = 'cazy_frequency_table.tsv'
+    OUTPUT_CLUSTER: ClassVar[str] = 'cluster_frequency_table.tsv'
+    OUTPUT_ORTHOLOG: ClassVar[str] = 'ortholog_frequency_table.tsv'
+    OUTPUT_HYPOTHETICAL_ANNOTATIONS: ClassVar[str] = 'hypothetical_annotations.tsv'
+    OUTPUT_DIAMOND: ClassVar[str] = "DIAMOND_search"
+    GFF_SUFFIX: ClassVar[str] = '.gff'
+    PROTEINS_SUFFIX: ClassVar[str] = '.faa'
+    ANNOTATION_SUFFIX: ClassVar[str] = '.tsv'
+    PICKLE_SUFFIX: ClassVar[str] = '.pickle'
+    output_directory: str
+    annotate_ko: bool
+    annotate_ko_hmm: bool
+    annotate_pfam: bool
+    annotate_tigrfam: bool
+    annotate_cluster: bool
+    annotate_ortholog: bool
+    annotate_cazy: bool
+    annotate_ec: bool
+    annotate_orthogroup: bool
+    evalue: float
+    bit: float
+    percent_id_cutoff: float
+    aln_query: float
+    aln_reference: float
+    fraction_aligned: float
+    cut_ga_pfam: float
+    cut_nc_pfam: float
+    cut_tc_pfam: float
+    cut_ga_tigrfam: float
+    cut_nc_tigrfam: float
+    cut_tc_tigrfam: float
+    cut_hmm: float
+    inflation: float
+    chunk_number: float
+    chunk_max: float
+    count_domains: float
+    threads: str
+    parallel: str
+    suffix: str
+    light: bool
+    databases: Databases = Databases()
+    seqio: SequenceIO = SequenceIO()
+    
     def prep_genome(self, genome_file_list, genome_directory):
         '''
         Do any preparation specific to the genome annotation pipeline.
@@ -161,6 +144,7 @@ class Annotate:
         -------
         returns the directory containing an .faa file for each input genomes
         '''
+        gene_finder = pyrodigal.GeneFinder(meta=True)
         protein_directory_path = path.join(self.output_directory, self.GENOME_PROTEINS)
         gene_directory_path = path.join(self.output_directory, self.GENOME_GENES)
         mkdir(protein_directory_path)
@@ -174,36 +158,29 @@ class Annotate:
                 genome_paths.append(path.splitext(genome)[0])
 
         logging.info("    - Calling proteins for %i genomes", len(genome_paths))
-        cmd = "ls %s/*%s | \
-                    sed 's/%s//g' | \
-                    grep -o '[^/]*$' | \
-                    parallel -j %s \
-                        prodigal \
-                            -q \
-                            -p meta \
-                            -o /dev/null \
-                            -d %s/{}%s \
-                            -a %s/{}%s \
-                            -i %s/{}%s \
-                            > /dev/null 2>&1" \
-                % (genome_directory, self.suffix, self.suffix, self.parallel, gene_directory_path,
-                   self.suffix, protein_directory_path, self.PROTEINS_SUFFIX, genome_directory,
-                   self.suffix)
+        for genome_file in listdir(genome_directory):
+            if genome_file.endswith(self.suffix):
+                genome_path = path.join(genome_directory, genome_file)
+                genome_id = path.splitext(genome_file)[0]
+                protein_out = path.join(protein_directory_path, genome_id + self.PROTEINS_SUFFIX)
+                gene_out = path.join(gene_directory_path, genome_id + self.suffix)
 
-        run_command(cmd)
+                faa_out = open(protein_out, "w")
+                fna_out = open(gene_out, "w")
+                for description, sequence in self.seqio.each(open(genome_path)):
+                    genes = gene_finder.find_genes(sequence)
+                    # Write proteins
+                    for idx, gene in enumerate(genes):
+                        idx = idx + 1
+                        faa_out.write(f">{description}_{idx}\n{gene.translate()}\n")
+                        fna_out.write(f">{description}_{idx}\n{gene.sequence()}\n")
+                faa_out.flush()
+                faa_out.close()
+                fna_out.flush()
+                fna_out.close()                                                
 
-        protein_directory_files = listdir(protein_directory_path)
-        genome_directory_files = listdir(genome_directory)
-
-        for genome_protein, genome_nucl in zip(protein_directory_files, genome_directory_files):
-            genome_protein_base = genome_protein.replace(self.PROTEINS_SUFFIX, self.suffix)
-            output_genome_protein_path = path.join(protein_directory_path, genome_protein)
-            output_genome_nucl_path = path.join(genome_directory, genome_nucl)
-            output_genome_gene_path = path.join(gene_directory_path, genome_protein_base)
-
-            genome = (self.light, output_genome_protein_path, output_genome_nucl_path,
-                      output_genome_gene_path)
-            genome_list.append(genome)
+                genome = (self.light, genome_path, protein_out, gene_out)
+                genome_list.append(genome)
 
         return genome_list
 
@@ -234,7 +211,7 @@ class Annotate:
             to_write = str()
 
             for genome in genomes_list:
-                to_write += f"sed \"s/>/>{genome.name}~/g\" {genome.path}\n"
+                to_write += f"sed \"s/>/>{genome.name}~/g\" {genome.protein}\n"
 
             temp.write(str.encode(to_write))
             temp.flush()
@@ -369,7 +346,7 @@ class Annotate:
         renamed_genomes = list()
         for genome in genomes_list:
             renamed_genome = next(tempfile._get_candidate_names())
-            cmd = f"sed 's/>/>{genome.name}~/g' {genome.path} > {renamed_genome}"
+            cmd = f"sed 's/>/>{genome.name}~/g' {genome.protein} > {renamed_genome}"
             run_command(cmd)
             renamed_genomes.append(renamed_genome)
 
@@ -633,37 +610,36 @@ class Annotate:
         ----------
         genomes_list - List. List of Genome objects
         '''
-        seqio = SequenceIO()
 
         for genome in genomes_list:
             file_object, fname = tempfile.mkstemp(suffix='.faa', text=True)
 
-            if genome.gene:
+            if genome.protein:
                 fd_gene, fname_gene = tempfile.mkstemp(suffix='.fna', text=True)
 
                 with open(fname_gene, 'w') as out_gene_io:
 
-                    for description, sequence in seqio.each(open(genome.gene)):
+                    for description, sequence in self.seqio.each(open(genome.protein)):
                         name = description.partition(' ')[0]
                         annotations = ' '.join(genome.sequences[name].all_annotations())
                         out_gene_io.write(">%s %s\n" % (name, annotations))
                         out_gene_io.write(sequence + '\n')
 
                 close(fd_gene)
-                logging.debug('Moving %s to %s', fname_gene, genome.gene)
-                shutil.move(fname_gene, genome.gene)
+                logging.debug('Moving %s to %s', fname_gene, genome.protein)
+                shutil.move(fname_gene, genome.protein)
 
             with open(fname, 'w') as out_io:
 
-                for description, sequence in seqio.each(open(genome.path)):
+                for description, sequence in self.seqio.each(open(genome.protein)):
                     name = description.partition(' ')[0]
                     annotations = ' '.join(genome.sequences[name].all_annotations())
                     out_io.write(">%s %s\n" % (name, annotations))
                     out_io.write(str(sequence) + '\n')
 
             close(file_object)
-            logging.debug('Moving %s to %s', fname, genome.path)
-            shutil.move(fname, genome.path)
+            logging.debug('Moving %s to %s', fname, genome.protein)
+            shutil.move(fname, genome.protein)
 
     def pickle_objects(self, genomes_list):
         '''
@@ -710,7 +686,7 @@ class Annotate:
             for genome_proteins_file in listdir(directory):
 
                 if genome_proteins_file.endswith(self.suffix):
-                    genome = (self.light, path.join(directory, genome_proteins_file), None, None)
+                    genome = (self.light, None, path.join(directory, genome_proteins_file), None)
                     prep_genomes_list.append(genome)
 
         elif protein_files:
@@ -720,7 +696,8 @@ class Annotate:
 
             for protein_file in listdir(directory):
                 protein_file_path = path.join(directory, path.basename(protein_file))
-                prep_genomes_list.append((self.light, protein_file_path, None, None))
+                genome = (self.light, None, protein_file_path, None)
+                prep_genomes_list.append(genome)
 
         elif genome_directory:
             logging.info("Calling proteins for annotation")
@@ -733,8 +710,8 @@ class Annotate:
                                          path.join(self.output_directory, self.GENOME_BIN))
             prep_genomes_list = self.call_proteins(directory)
 
-        for chunk in list_splitter(prep_genomes_list, self.chunk_number, self.chunk_max):
-            genomes_list += self.pool.map(parse_genomes, chunk)
+        logging.info("Parsing genomes for annotation")
+        genomes_list = [parse_genomes(genome) for genome in prep_genomes_list]
 
         return genomes_list
 

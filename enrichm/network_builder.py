@@ -102,7 +102,7 @@ class NetworkBuilder:
                             'C00015']) # UDP
 
     def nested_dict_vals(self, input_dictionary):
-        reaction_regex = '(R\d{5})$'
+        reaction_regex = r'(R\d{5})$'
 
         for key, item in input_dictionary.items():
 

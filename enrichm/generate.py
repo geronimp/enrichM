@@ -17,30 +17,17 @@ from enrichm.parser import Parser
 ################################################################################
 
 class GenerateModel:
-    '''
-    Functions to generate, train and optimise random forest machine learning models.
-    '''
-    def __init__(self):
-        '''
-        Inputs
-        ------
 
-        Outputs
-        -------
-
-        '''
-        # Subparser names
-        self.regressor = "regressor"
-        self.classifier = "classifier"
-
-        # Output file names
-        self.attribute_importances = 'attribute_importances.tsv'
-        self.model_pickle = "rf_model.pickle"
-        self.labels_dict = "labels_dict.pickle"
-        self.model_accuracy = "accuracy.tsv"
-
-        # Headers
-        self.attribute_importances_header = ['Variable', 'Importance']
+    # Subparser names
+    regressor = "regressor"
+    classifier = "classifier"
+    # Output file names
+    attribute_importances = 'attribute_importances.tsv'
+    model_pickle = "rf_model.pickle"
+    labels_dict = "labels_dict.pickle"
+    model_accuracy = "accuracy.tsv"
+    # Headers
+    attribute_importances_header = ['Variable', 'Importance']
 
     def numerify(self, input_list):
         '''
