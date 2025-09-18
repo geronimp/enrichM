@@ -14,7 +14,6 @@ from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
 from enrichm.uses import Uses
-from enrichm.databases import Databases
 
 ####################################################################################################
 
@@ -359,7 +358,7 @@ class Run:
 
     def run_network(self, args):
         self._check_network(args)
-        network_analyser=NetworkAnalyser(Databases())
+        network_analyser = NetworkAnalyser()
         network_analyser.network_pipeline(args.subparser_name, args.matrix, 
                                             args.genome_metadata, args.tpm_values,
                                             args.tpm_metadata, args.abundance, 
@@ -387,7 +386,7 @@ class Run:
 
     def run_uses(self, args):
         self._check_uses(args)
-        uses = Uses(Databases())
+        uses = Uses()
         uses.uses_pipeline(args.compounds_list,
                 args.annotation_matrix,
                 args.metadata,

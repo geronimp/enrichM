@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from dataclasses import dataclass
+from typing import Optional
 
 from enrichm.writer import Writer
 from enrichm.parser import Parser
@@ -19,7 +20,12 @@ class Uses:
     enrichment = "enrichment_results.tsv"
     abundace_header = ["Compound"]
     enrichment_header = ["Compound", "Group_1", "Group_2", "group_1_mean", "group_2_mean", "score", "pvalue", "description"]
-    databases: Databases()
+    databases: Optional[Databases] = None
+
+    def _get_db(self) -> Databases:
+        if self.databases is None:
+            self.databases = Databases()
+        return self.databases
 
     def gather_present_annotations(self, column_annotations):
 
@@ -33,15 +39,16 @@ class Uses:
         return present_annotations
 
     def uses(self, compound_list, annotations, column_names, count):
+        databases = self._get_db()
         output_lines_abundance = [self.abundace_header + column_names]
         enrichment_tallys = dict()
 
         for compound in compound_list:
 
-            if compound in self.databases.c2r():
+            if compound in databases.c2r():
 
                 enrichment_tallys[compound] = dict()
-                abundance_line = [compound + '~' + self.databases.c()[compound]]
+                abundance_line = [compound + '~' + databases.c()[compound]]
 
                 for column_header in column_names:
                     column_positive_tally = 0
@@ -49,12 +56,12 @@ class Uses:
 
                     # Gather all annotations present for this column (genome)
                     present_annotations = self.gather_present_annotations(annotations[column_header])
-                    for reaction in self.databases.c2r()[compound]:
+                    for reaction in databases.c2r()[compound]:
 
                         # If there are more than 0 KOs that carry out the reaction present in
                         # the genome
-                        if reaction in self.databases.r2k():
-                            overlapping_annotations = present_annotations.intersection(self.databases.r2k()[reaction])
+                        if reaction in databases.r2k():
+                            overlapping_annotations = present_annotations.intersection(databases.r2k()[reaction])
 
                             if len(overlapping_annotations)>0:
 
@@ -79,6 +86,7 @@ class Uses:
         return output_lines_abundance, enrichment_tallys
 
     def enrichment(self, enrichment_tallys, metadata):
+        databases = self._get_db()
         output_lines = [self.enrichment_header]
 
         for compound, tallys in enrichment_tallys.items():
@@ -90,7 +98,7 @@ class Uses:
                 group_2_values =  [tally[self.positive] for tally in group_2_tallys.values()]
 
                 output_line = mannwhitneyu_calc((compound, group_1_name, group_2_name, [group_1_values, None], [group_2_values, None]))
-                output_lines.append(output_line + [self.databases.c()[compound]])
+                output_lines.append(output_line + [databases.c()[compound]])
 
         return output_lines
 

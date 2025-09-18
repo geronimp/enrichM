@@ -4,6 +4,7 @@ import os
 import statistics
 import itertools
 from dataclasses import dataclass
+from typing import Optional
 from enrichm.network_builder import NetworkBuilder
 from enrichm.databases import Databases
 from enrichm.parser import Parser
@@ -28,8 +29,13 @@ class NetworkAnalyser:
     NETWORK_OUTPUT_FILE = 'network.tsv'
     METADATA_OUTPUT_FILE = 'metadata.tsv'
     TRAVERSE_OUTPUT_FILE = 'traverse.tsv'
-    databases: Databases = Databases()
+    databases: Optional[Databases] = None
 
+    def _get_db(self) -> Databases:
+        if self.databases is None:
+            self.databases = Databases()
+        return self.databases
+    
     def average(self, input_dictionary):
         '''
         Take the average of the values of a dictionary of dictionaries
@@ -132,7 +138,8 @@ class NetworkAnalyser:
 
     def average_tpm_values(self, transriptome_abundance_dict, group_metadata):
         output_dict = dict()
-        reactions = list(self.databases.r().keys())
+        databases = self._get_db()
+        reactions = list(databases.r().keys())
         
         for genome_group_name, group_reaction_abundance_dict in transriptome_abundance_dict.items():
             output_dict[genome_group_name] = dict()
@@ -225,7 +232,8 @@ class NetworkAnalyser:
             genome_to_group, genome_groups, group_to_genome = \
                     self.mock_metadata(genome_names)
 
-        reaction_matrix = self.aggregate_dictionary(self.databases.r2k(), orthology_matrix)
+        databases = self._get_db()
+        reaction_matrix = self.aggregate_dictionary(databases.r2k(), orthology_matrix)
 
         # Read in fisher results
         if enrichment_output:
