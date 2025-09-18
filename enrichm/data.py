@@ -101,6 +101,7 @@ class Data:
                 else:
                     logging.info(f'EnrichM database not detected in database directory ({self.DATABASE_DIR}). Downloading database.')
                     self._download_db(version_remote)
+                    version_local = open(version_local_path).readline().strip()
 
                 if version_local!=version_remote:
                     logging.info('New database found. Archiving old database.')

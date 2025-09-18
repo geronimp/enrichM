@@ -14,7 +14,7 @@ import subprocess
 import multiprocessing as mp
 from os import path, close, mkdir, listdir
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Optional
 from enrichm.databases import Databases
 
 from enrichm.genome import Genome, AnnotationParser
@@ -92,8 +92,13 @@ class Annotate:
     parallel: str
     suffix: str
     light: bool
-    databases: Databases = Databases()
+    databases: Optional[Databases] = None
     seqio: SequenceIO = SequenceIO()
+    
+    def _get_db(self) -> Databases:
+        if self.databases is None:
+            self.databases = Databases()
+        return self.databases
     
     def prep_genome(self, genome_file_list, genome_directory):
         '''
@@ -309,17 +314,18 @@ class Annotate:
         mkdir(output_directory_path)
         genome_dict = {genome.name: genome for genome in genomes_list}
 
+        databases = self._get_db()
         hmmcutoff = (ids_type in (AnnotationParser.TIGRFAM, AnnotationParser.PFAM))
 
         if ids_type == AnnotationParser.KO_HMM:
-            specific_cutoffs = self.databases.parse_ko_cutoffs()
+            specific_cutoffs = databases.parse_ko_cutoffs()
         else:
             specific_cutoffs = None
 
         self.hmm_search(output_directory_path, database, hmmcutoff)
         
         if ids_type == AnnotationParser.PFAM:
-            pfam2clan = self.databases.pfam2clan()
+            pfam2clan = databases.pfam2clan()
         else:
             pfam2clan = None
 
@@ -734,6 +740,7 @@ class Annotate:
 
         if genomes_list:
             logging.info("Starting annotation:")
+            databases = self._get_db()
 
             if (self.annotate_cluster or self.annotate_ortholog):
                 logging.info('    - Annotating genomes with hypothetical clusters')
@@ -756,7 +763,7 @@ class Annotate:
             if self.annotate_ko:
                 annotation_type = AnnotationParser.BLASTPARSER
                 logging.info('    - Annotating genomes with ko ids using DIAMOND')
-                self.annotate_diamond(genomes_list, self.databases.KO_DB,
+                self.annotate_diamond(genomes_list, databases.KO_DB,
                                       annotation_type, AnnotationParser.KO,
                                       self.GENOME_KO)
 
@@ -771,7 +778,7 @@ class Annotate:
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(
                                               self.output_directory, self.GENOME_KO_HMM),
-                                          self.databases.KO_HMM_DB,
+                                          databases.KO_HMM_DB,
                                           AnnotationParser.KO,
                                           annotation_type)
 
@@ -784,7 +791,7 @@ class Annotate:
             if self.annotate_ec:
                 annotation_type = AnnotationParser.BLASTPARSER
                 logging.info('    - Annotating genomes with ec ids')
-                self.annotate_diamond(genomes_list, self.databases.EC_DB, annotation_type,
+                self.annotate_diamond(genomes_list, databases.EC_DB, annotation_type,
                                       AnnotationParser.EC, self.GENOME_EC)
 
                 logging.info('    - Generating ec frequency table')
@@ -797,7 +804,7 @@ class Annotate:
                 logging.info('    - Annotating genomes with pfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(self.output_directory, self.GENOME_PFAM),
-                                          self.databases.PFAM_DB,
+                                          databases.PFAM_DB,
                                           AnnotationParser.PFAM,
                                           annotation_type)
 
@@ -811,7 +818,7 @@ class Annotate:
                 logging.info('    - Annotating genomes with tigrfam ids')
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(self.output_directory, self.GENOME_TIGRFAM),
-                                          self.databases.TIGRFAM_DB,
+                                          databases.TIGRFAM_DB,
                                           AnnotationParser.TIGRFAM,
                                           annotation_type)
 
@@ -825,7 +832,7 @@ class Annotate:
                 logging.info('    - Annotating genomes with CAZY ids')
                 self.hmmsearch_annotation(genomes_list,
                                           path.join(self.output_directory, self.GENOME_CAZY),
-                                          self.databases.CAZY_DB,
+                                          databases.CAZY_DB,
                                           AnnotationParser.CAZY,
                                           annotation_type)
 
