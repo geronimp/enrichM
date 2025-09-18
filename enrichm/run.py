@@ -168,13 +168,12 @@ class Run:
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
 
-        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files):
+        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files and not args.dram_output):
             raise Exception("Either --annotate_output, --annotation_matrix or --gff_files must be specified!")
 
-        if args.annotation_matrix or args.annotate_output:
-            if not args.abundance:
-                if not args.metadata:
-                    raise Exception("Genome groups need to be specified using the --metadata flag")
+        if args.annotation_matrix or args.annotate_output or args.dram_output:
+            if not args.metadata:
+                raise Exception("Genome groups need to be specified using the --metadata flag")
 
         if args.annotate_output:
 
@@ -331,20 +330,32 @@ class Run:
     def run_enrichment(self, args):
         self._check_enrichment(args)
         enrichment = Enrichment()
-        enrichment.enrichment_pipeline(# Input options
-                                        args.annotate_output, args.annotation_matrix, args.gff_files,
-                                        args.metadata, args.abundance, args.abundance_metadata,
-                                        args.transcriptome, args.transcriptome_metadata,
-                                        # Runtime options
-                                        args.pval_cutoff, args.proportions_cutoff, 
-                                        args.threshold, args.multi_test_correction, 
-                                        args.batchfile, args.processes, 
-                                        args.allow_negative_values, args.ko, args.pfam, 
-                                        args.tigrfam, args.cluster, args.ortholog, args.cazy,
-                                        args.ec, args.ko_hmm, args.range, args.subblock_size,
-                                        args.operon_mismatch_cutoff, args.operon_match_score_cutoff,
-                                        # Outputs
-                                        args.output)
+        enrichment.enrichment_pipeline(args.annotate_output,
+                                       args.annotation_matrix,
+                                       args.gff_files,
+                                       args.dram_output,
+                                       args.metadata,
+                                       args.abundance,
+                                       args.abundance_metadata,
+                                       args.pval_cutoff,
+                                       args.proportions_cutoff,
+                                       args.threshold,
+                                       args.multi_test_correction,
+                                       args.batchfile,
+                                       args.processes,
+                                       args.ko,
+                                       args.pfam,
+                                       args.tigrfam,
+                                       args.cluster,
+                                       args.ortholog,
+                                       args.cazy,
+                                       args.ec,
+                                       args.ko_hmm,
+                                       args.range,
+                                       args.subblock_size,
+                                       args.operon_mismatch_cutoff,
+                                       args.operon_match_score_cutoff,
+                                       args.output)
 
     def run_network(self, args):
         self._check_network(args)
