@@ -360,15 +360,14 @@ class Enrichment:
                 parse_key = "cazy_ids"
 
             headers, tables = Parser.parse_dram_output(dram_output)
-            long = Parser.merge_counts_long(headers, tables, key=parse_key)
+            long = Parser.merge_counts_long(headers, tables, key=parse_key).to_pandas()
+            annotations = long.ko_id.unique().tolist()
+
             annotations_dict = (
-                long.to_pandas()                      # easiest path for grouping
-                    .groupby("sample")
+                long.groupby("sample")
                     .apply(lambda g: dict(zip(g["ko_id"], g["count"].astype(float))))
                     .to_dict()
             )
-            import IPython ; IPython.embed()
-            annotations_dict, _, annotations = Parser.parse_dram_output(dram_output)
         annotation_type = self.check_annotation_type(annotations)
         
         if abundances_path:

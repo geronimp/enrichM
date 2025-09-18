@@ -296,7 +296,7 @@ class Parser:
         assert len(headers) == len(tables), "headers and tables must have same length"
         pieces = []
         for h, t in zip(headers, tables):
-            ct = self.ensure_counts(t, key=key, name="count")
+            ct = Parser.ensure_counts(t, key=key, name="count")
             pieces.append(ct.with_columns(sample=pl.lit(h)))
         return pl.concat(pieces, how="diagonal")
     

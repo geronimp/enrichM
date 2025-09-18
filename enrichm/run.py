@@ -171,10 +171,9 @@ class Run:
         if(not args.annotation_matrix and not args.annotate_output and not args.gff_files and not args.dram_output):
             raise Exception("Either --annotate_output, --annotation_matrix or --gff_files must be specified!")
 
-        if args.annotation_matrix or args.annotate_output:
-            if not args.abundance:
-                if not args.metadata:
-                    raise Exception("Genome groups need to be specified using the --metadata flag")
+        if args.annotation_matrix or args.annotate_output or args.dram_output:
+            if not args.metadata:
+                raise Exception("Genome groups need to be specified using the --metadata flag")
 
         if args.annotate_output:
 
