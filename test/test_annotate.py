@@ -86,7 +86,7 @@ class Tests(unittest.TestCase):
     @unittest.skip("No input data for this test")
     def test_very_simple_orthology(self):
         tmp = tempfile.mkdtemp()
-        protein_file = os.path.join(path_to_data, 'cluster_data', "very_simple_test.faa")
+        protein_file = os.path.join(path_to_data, 'test_protein_bin', "GCF_001889405.1_ASM188940v1_subset.faa")
 
         cmd = '%s annotate \
                         --threads 4 \
@@ -96,10 +96,9 @@ class Tests(unittest.TestCase):
                         --force' % (path_to_script, protein_file, tmp)
         subprocess.check_call(cmd, shell=True)
 
-    @unittest.skip("No input data for this test")
     def test_very_simple_homology(self):
         tmp = tempfile.mkdtemp()
-        protein_file = os.path.join(path_to_data, 'cluster_data', "very_simple_test.faa")
+        protein_file = os.path.join(path_to_data, 'test_protein_bin', "GCF_001889405.1_ASM188940v1_subset.faa")
 
         cmd = '%s annotate \
                         --threads 4 \
