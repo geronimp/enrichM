@@ -4,3 +4,4 @@
 enrichm/_pycache__/*
 test/__pycache__/*
 *.pyc
+test-results/
