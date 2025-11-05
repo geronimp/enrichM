@@ -11,6 +11,7 @@ path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')]+sys.path
 
 from enrichm.annotate import Annotate
+from enrichm.genome import Genome, Annotation, AnnotationParser
 
 ###############################################################################
 
@@ -107,6 +108,30 @@ class Tests(unittest.TestCase):
                         --output %s \
                         --force' % (path_to_script, protein_file, tmp)
         subprocess.check_call(cmd, shell=True)
+
+    def test_genome_instances_have_isolated_sequences(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            genome_one = os.path.join(tmp_dir, "genome_one.faa")
+            genome_two = os.path.join(tmp_dir, "genome_two.faa")
+
+            with open(genome_one, 'w', encoding='utf-8') as handle:
+                handle.write(">shared_seq\nMAAAA\n")
+            with open(genome_two, 'w', encoding='utf-8') as handle:
+                handle.write(">shared_seq\nMTTTT\n")
+
+            genome_a = Genome(False, None, genome_one, None)
+            genome_b = Genome(False, None, genome_two, None)
+
+            self.assertIsNot(genome_a.sequences, genome_b.sequences)
+            self.assertEqual(set(genome_a.sequences.keys()), {"shared_seq"})
+            self.assertEqual(set(genome_b.sequences.keys()), {"shared_seq"})
+
+            seq_a = next(iter(genome_a.sequences.values()))
+            seq_b = next(iter(genome_b.sequences.values()))
+            seq_a.annotations.append(Annotation("K00001", 0.0, {0}, AnnotationParser.KO))
+
+            self.assertEqual(len(seq_a.annotations), 1)
+            self.assertEqual(len(seq_b.annotations), 0)
 
     def test(self):
         tmp = tempfile.mkdtemp()
