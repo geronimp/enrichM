@@ -484,6 +484,7 @@ class Enrichment:
         plot.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
 class Test(Enrichment):
+    __test__ = False
 
     FISHER_HEADER = [['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_true', 'group_1_false',
                       'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue', 'description']]
@@ -522,7 +523,9 @@ class Test(Enrichment):
         self.multi_test_correction = multi_test_correction
         self.annotation_type = annotation_type
         self.groups = groups
-        self.pool = mp.Pool(processes = processes)
+        self.pool = None
+        if processes and processes > 1:
+            self.pool = mp.Pool(processes=processes)
         self.m2def = database.m2def()
         self.m = database.m()
         self.k = database.k()
@@ -536,6 +539,11 @@ class Test(Enrichment):
                 self.genome_annotations[key] = {key.split('.')[0]:entry for key,entry in item.items()}
         else:
             self.genome_annotations = genome_annotations
+
+    def _map(self, func, items):
+        if self.pool is None:
+            return [func(item) for item in items]
+        return self.pool.map(func, items)
 
     def test_chooser(self, groups):
         groups = [len(x) for x in groups]
@@ -681,7 +689,7 @@ class Test(Enrichment):
                 gene_count = [annotation, combination[0],
                               combination[1], [group_1], [group_2]]
                 res_list.append(gene_count)
-            output_lines = self.pool.map(mannwhitneyu_calc, res_list)
+            output_lines = self._map(mannwhitneyu_calc, res_list)
 
             for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                 output_lines[idx].append(str(corrected_pval))
@@ -703,7 +711,7 @@ class Test(Enrichment):
             if enrichment_test == stats.fisher_exact:
                 logging.info('Testing gene enrichment using Fisher\'s exact test')
                 gene_count = self.gene_frequencies(*combination)
-                output_lines = self.pool.map(gene_fisher_calc, gene_count)
+                output_lines = self._map(gene_fisher_calc, gene_count)
 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
@@ -723,7 +731,7 @@ class Test(Enrichment):
             if(overrepresentation_test == stats.mannwhitneyu):
                 logging.info('Testing over-representation using Mann-Whitney U test')
                 gene_count = self.gene_frequencies(*combination, True)
-                output_lines = self.pool.map(mannwhitneyu_calc, gene_count)
+                output_lines = self._map(mannwhitneyu_calc, gene_count)
 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
                     output_lines[idx].append(str(corrected_pval))
@@ -734,7 +742,7 @@ class Test(Enrichment):
             elif overrepresentation_test == stats.norm.cdf:
                 logging.info('Testing over-representation using Z score test')
                 gene_count = self.gene_frequencies(*combination, True)
-                output_lines = self.pool.map(zscore_calc, gene_count)
+                output_lines = self._map(zscore_calc, gene_count)
                 output_lines = [x for x in output_lines if x]
 
                 for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
