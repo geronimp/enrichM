@@ -5,3 +5,4 @@ enrichm/_pycache__/*
 test/__pycache__/*
 *.pyc
 dist/*
+test-results/

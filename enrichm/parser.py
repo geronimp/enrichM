@@ -4,6 +4,7 @@ import pickle
 import json
 import logging
 import multiprocessing as mp
+import polars as pl
 from enrichm.annotate import Annotate
 
 ################################################################################
@@ -261,6 +262,50 @@ class Parser:
         else:
             raise Exception("Malformatted enrichment output: %s" % enrichment_output)
 
+    @staticmethod
+    def parse_dram_output(dram_output):
+        '''
+        Parses DRAM output and returns a list of genome ids and list of parsed ids
+        '''
+        if not os.path.isdir(dram_output):
+            raise Exception(f"DRAM output directory does not exist: {dram_output}")
+        genome_ids = []
+        tables = []
+        for entry in os.listdir(dram_output):
+            full_path = os.path.join(dram_output, entry)
+            annotations = os.path.join(full_path, "annotations.tsv")
+            if os.path.isdir(full_path):
+                genome_ids.append(entry)
+            if os.path.isfile(annotations):
+                tables.append(pl.read_csv(annotations, separator="\t"))
+
+        return genome_ids, tables
+
+    @staticmethod
+    def ensure_counts(df: pl.DataFrame, key="ko_id", name="count"):
+        if set(df.columns) == {key, name}:
+            return df
+        return (
+            df.filter(pl.col(key).is_not_null())
+            .group_by(key)
+            .agg(pl.count().alias(name))
+        )
+    
+    @staticmethod
+    def merge_counts_long(headers: list[str], tables: list[pl.DataFrame], key="ko_id"):
+        assert len(headers) == len(tables), "headers and tables must have same length"
+        pieces = []
+        for h, t in zip(headers, tables):
+            ct = Parser.ensure_counts(t, key=key, name="count")
+            pieces.append(ct.with_columns(sample=pl.lit(h)))
+        return pl.concat(pieces, how="diagonal")
+    
+    @staticmethod
+    def to_wide(long_df: pl.DataFrame, key="ko_id"):
+        wide = long_df.pivot(
+            values="count", index=key, on="sample", aggregate_function="first"
+        ).sort(key)
+        return wide.fill_null(0)
 
 class ParseAnnotate:
 

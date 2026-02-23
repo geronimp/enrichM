@@ -239,7 +239,6 @@ class Enrichment:
 
         return raw_proportions_output_lines
 
-
     def get_gtdb_database_path(self, annotation_type, database):
 
         if annotation_type == self.KEGG:
@@ -303,18 +302,12 @@ class Enrichment:
 
         return module_output, prefix
 
-
     def enrichment_pipeline(# Input options
-           self, annotate_output, annotation_matrix, gff_files, metadata_path,
-           abundances_path, abundance_metadata_path, transcriptome_path,
-           transcriptome_metadata_path,
-           # Runtime options
-           pval_cutoff, proportions_cutoff,
-           threshold, multi_test_correction, batchfile, processes, allow_negative_values,
-           ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm, synteny_range, subblock_size,
-           operon_mismatch_cutoff, operon_match_score_cutoff,
-           # Output options
-           output_directory):
+           self, annotate_output, annotation_matrix, gff_files, dram_output, metadata_path,
+           abundances_path, abundance_metadata_path, pval_cutoff, proportions_cutoff,
+           threshold, multi_test_correction, batchfile, processes, ko, pfam, tigrfam,
+           cluster, ortholog, cazy, ec, ko_hmm, synteny_range, subblock_size,
+           operon_mismatch_cutoff, operon_match_score_cutoff, output_directory):
         
         database = Databases()
         plot  = Plot(database)
@@ -332,7 +325,7 @@ class Enrichment:
 
             annotations = set(chain(*[list(x.keys()) for x in annotations_dict.values()]))
 
-        else:
+        elif annotate_output or annotation_matrix:
             if annotate_output:
                 logging.info('Parsing annotate output: %s' % (annotate_output))
                 pa = ParseAnnotate(annotate_output, processes)
@@ -357,6 +350,24 @@ class Enrichment:
             logging.info('Parsing annotation matrix')
             annotations_dict, _, annotations = Parser.parse_simple_matrix(annotation_matrix)
 
+        elif dram_output:
+            logging.info('Parsing DRAM output')
+            if ko:
+                parse_key = "ko_id"
+            elif pfam:
+                parse_key = "pfam_hits"
+            elif cazy:
+                parse_key = "cazy_ids"
+
+            headers, tables = Parser.parse_dram_output(dram_output)
+            long = Parser.merge_counts_long(headers, tables, key=parse_key).to_pandas()
+            annotations = long.ko_id.unique().tolist()
+
+            annotations_dict = (
+                long.groupby("sample")
+                    .apply(lambda g: dict(zip(g["ko_id"], g["count"].astype(float))))
+                    .to_dict()
+            )
         annotation_type = self.check_annotation_type(annotations)
         
         if abundances_path:

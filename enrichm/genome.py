@@ -10,18 +10,18 @@ class Genome:
     A genome object which collects all the attributes of an input genome,
     including protein sequences and their annotations
     '''
-    clusters = set()
-    orthologs = set()
-    protein_ordered_dict = dict()
-    sequences = dict()
-    cluster_dict = dict()
-    ortholog_dict = dict()
 
     def __init__(self, light, genome_path, protein, nucleotide, gff=False):
         seqio = SequenceIO()
 
         self.genome_path = genome_path
         self.protein = protein
+        self.clusters = set()
+        self.orthologs = set()
+        self.protein_ordered_dict = dict()
+        self.sequences = dict()
+        self.cluster_dict = dict()
+        self.ortholog_dict = dict()
         if genome_path:
             self.name = os.path.split(os.path.splitext(genome_path)[0])[1]
         else:
