@@ -161,7 +161,7 @@ class GenerateModel:
         logging.info('Generating model for random search cross validation')
 
         n_estimators = [int(x) for x in np.linspace(start=200, stop=2000, num=10)]
-        max_features = ['auto', 'sqrt']
+        max_features = ['sqrt', 'log2', None]
         max_depth = [int(x) for x in np.linspace(10, 110, num=11)]
         max_depth.append(None)
         min_samples_split = [2, 5, 10]
