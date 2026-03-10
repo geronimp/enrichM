@@ -28,7 +28,7 @@ class Tests(unittest.TestCase):
                         --genome_directory %s \
                         --output %s \
                         --force' % (path_to_script, bin, tmp)
-        subprocess.call(cmd, shell=True)
+        subprocess.check_call(cmd, shell=True)
 
     def test_hello_world_protein_dir(self):
         tmp = tempfile.mkdtemp()
@@ -42,7 +42,7 @@ class Tests(unittest.TestCase):
                         --protein_directory %s \
                         --output %s \
                         --force' % (path_to_script, bin, tmp)
-        subprocess.call(cmd, shell=True)
+        subprocess.check_call(cmd, shell=True)
 
     def test_hello_world_nucleic_file(self):
         tmp = tempfile.mkdtemp()
@@ -132,6 +132,20 @@ class Tests(unittest.TestCase):
 
             self.assertEqual(len(seq_a.annotations), 1)
             self.assertEqual(len(seq_b.annotations), 0)
+
+    def test_genome_loads_sequences_in_order(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            protein_file = os.path.join(tmp_dir, "test_genome.faa")
+            with open(protein_file, 'w') as fh:
+                fh.write(">seq_a\nMAAAK\n>seq_b\nMTTTK\n>seq_c\nMCCCK\n")
+
+            genome = Genome(False, None, protein_file, None)
+
+            self.assertEqual(len(genome.sequences), 3)
+            self.assertIn('seq_a', genome.sequences)
+            self.assertIn('seq_b', genome.sequences)
+            self.assertIn('seq_c', genome.sequences)
+            self.assertEqual(genome.protein_ordered_dict, {0: 'seq_a', 1: 'seq_b', 2: 'seq_c'})
 
     def test(self):
         tmp = tempfile.mkdtemp()

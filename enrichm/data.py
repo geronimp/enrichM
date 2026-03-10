@@ -89,7 +89,7 @@ class Data:
         elif create:
             try:
                 version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
-            except:
+            except Exception:
                 raise Exception(
                     "Unable to find most current EnrichM database VERSION in ftp. Please complain at https://github.com/geronimp/enrichM")
 
@@ -97,11 +97,13 @@ class Data:
                 version_local_path = os.path.join(self.DATABASE_DIR, self.VERSION)
 
                 if os.path.isfile(version_local_path):
-                    version_local = open(version_local_path).readline().strip()
+                    with open(version_local_path) as fh:
+                        version_local = fh.readline().strip()
                 else:
                     logging.info(f'EnrichM database not detected in database directory ({self.DATABASE_DIR}). Downloading database.')
                     self._download_db(version_remote)
-                    version_local = open(version_local_path).readline().strip()
+                    with open(version_local_path) as fh:
+                        version_local = fh.readline().strip()
 
                 if version_local!=version_remote:
                     logging.info('New database found. Archiving old database.')

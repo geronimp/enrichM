@@ -158,7 +158,7 @@ class Run:
         ------
         '''
         ### ~ TODO: Check Multi test correction inputs...
-        types = [args.ko, args.pfam, args.tigrfam, args.cluster, args.ortholog, args.cazy, args.ec, args.ko_hmm]
+        types = [args.ko, args.pfam, args.tigrfam, args.cluster, args.ortholog, args.cazy, args.ec, args.ko_hmm, args.cog, args.go, args.eggnog]
 
         if not args.abundance and args.abundance_metadata:
            raise Exception("Values for both --abundance and --abundance_metadata are required")
@@ -167,10 +167,10 @@ class Run:
         if args.annotation_matrix and args.annotate_output:
             raise Exception("Use either --annotate_output or --annotation_matrix")
 
-        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files and not args.dram_output):
+        if(not args.annotation_matrix and not args.annotate_output and not args.gff_files and not args.dram_output and not args.emapper_output):
             raise Exception("Either --annotate_output, --annotation_matrix or --gff_files must be specified!")
 
-        if args.annotation_matrix or args.annotate_output or args.dram_output:
+        if args.annotation_matrix or args.annotate_output or args.dram_output or args.emapper_output:
             if not args.metadata:
                 raise Exception("Genome groups need to be specified using the --metadata flag")
 
@@ -333,6 +333,7 @@ class Run:
                                        args.annotation_matrix,
                                        args.gff_files,
                                        args.dram_output,
+                                       args.emapper_output,
                                        args.metadata,
                                        args.abundance,
                                        args.abundance_metadata,
@@ -350,6 +351,9 @@ class Run:
                                        args.cazy,
                                        args.ec,
                                        args.ko_hmm,
+                                       args.cog,
+                                       args.go,
+                                       args.eggnog,
                                        args.range,
                                        args.subblock_size,
                                        args.operon_mismatch_cutoff,

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # pylint: disable=line-too-long
-import random
 import os
+import re
 import logging
 import multiprocessing as mp
 from itertools import product, combinations, chain
@@ -121,52 +121,61 @@ class Enrichment:
     CLUSTER = "cluster"
     ORTHOLOG = "ortholog"
     OTHER = "other"
+    COG = "cog"
+    GO = "go"
+    EGGNOG = "eggnog"
     TIGRFAM_PREFIX = 'TIGR'
     PFAM_PREFIX = 'PF'
     KEGG_PREFIX = 'K'
+    GO_PREFIX = 'GO:'
     CAZY_PREFIX = ["GH", "AA", "GT", "PL", "CE", "CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
     EC_PREFIX = ["1", "2", "3","4","5","6", "7"]
+    KO_PATTERN = re.compile(r'^K\d{5}$')
     PROPORTIONS = 'proportions.tsv'
     MODULE_COMPLETENESS = 'modules.tsv'
 
+    def _annotation_type_of(self, annotation):
+        cazy_prefix = ''.join(c for c in annotation if not c.isdigit() and c != '_')
+        if annotation.startswith(self.TIGRFAM_PREFIX):
+            return self.TIGRFAM
+        elif self.KO_PATTERN.match(annotation):
+            return self.KEGG
+        elif annotation.startswith(self.PFAM_PREFIX):
+            return self.PFAM
+        elif cazy_prefix in self.CAZY_PREFIX:
+            return self.CAZY
+        elif annotation.split('.')[0] in self.EC_PREFIX:
+            return self.EC
+        elif annotation.startswith(self.GO_PREFIX):
+            return self.GO
+        elif len(annotation) <= 2 and annotation.isalpha() and annotation.isupper():
+            return self.COG
+        elif '@' in annotation:
+            return self.EGGNOG
+        else:
+            return self.OTHER
+
     def check_annotation_type(self, annotations):
         '''
-        Takes a random sample of the rownames from the input matrix
-        and based on the characters they start with, determines the
-        type of annotation being used.
+        Inspects all rownames from the input matrix and determines the annotation
+        type. Raises ValueError if mixed annotation types are detected.
 
         Parameters
         ----------
-        annotaitons     - List. A list of strings, each a rowname
+        annotations     - List. A list of strings, each a rowname
                           from the original input matrix
 
         Output
         ------
         The annotation type
         '''
-
-        sample = random.sample(annotations, 1)[0]
-        cazy_prefix = ''
-
-        for character in list(sample):
-
-            if character.isdigit()!=True:
-
-                if character!='_':
-                    cazy_prefix+=character
-
-        if sample.startswith(self.TIGRFAM_PREFIX):
-            return self.TIGRFAM
-        elif sample.startswith(self.KEGG_PREFIX):
-            return self.KEGG
-        elif sample.startswith(self.PFAM_PREFIX):
-            return self.PFAM
-        elif cazy_prefix in self.CAZY_PREFIX:
-            return self.CAZY
-        elif sample.split('.')[0] in self.EC_PREFIX:
-            return self.EC
-        else:
-            return self.OTHER
+        types = {self._annotation_type_of(a) for a in annotations}
+        if len(types) > 1:
+            raise ValueError(
+                f"Mixed annotation types detected: {types}. "
+                "All annotations must be the same type."
+            )
+        return types.pop()
 
     def weight_annotation_matrix(self,
                                  sample_abundance,
@@ -235,7 +244,8 @@ class Enrichment:
                 else:
                     raw_proportions_output_line.append('0.0')
 
-            raw_proportions_output_lines.append(raw_proportions_output_line)
+            if annotation_values and any(v >= proportions_cutoff for v in annotation_values.values()):
+                raw_proportions_output_lines.append(raw_proportions_output_line)
 
         return raw_proportions_output_lines
 
@@ -303,11 +313,12 @@ class Enrichment:
         return module_output, prefix
 
     def enrichment_pipeline(# Input options
-           self, annotate_output, annotation_matrix, gff_files, dram_output, metadata_path,
-           abundances_path, abundance_metadata_path, pval_cutoff, proportions_cutoff,
-           threshold, multi_test_correction, batchfile, processes, ko, pfam, tigrfam,
-           cluster, ortholog, cazy, ec, ko_hmm, synteny_range, subblock_size,
-           operon_mismatch_cutoff, operon_match_score_cutoff, output_directory):
+           self, annotate_output, annotation_matrix, gff_files, dram_output, emapper_output,
+           metadata_path, abundances_path, abundance_metadata_path, pval_cutoff,
+           proportions_cutoff, threshold, multi_test_correction, batchfile, processes,
+           ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm, cog, go, eggnog,
+           synteny_range, subblock_size, operon_mismatch_cutoff, operon_match_score_cutoff,
+           output_directory):
         
         database = Databases()
         plot  = Plot(database)
@@ -361,14 +372,42 @@ class Enrichment:
 
             headers, tables = Parser.parse_dram_output(dram_output)
             long = Parser.merge_counts_long(headers, tables, key=parse_key).to_pandas()
-            annotations = long.ko_id.unique().tolist()
+            annotations = long[parse_key].unique().tolist()
 
             annotations_dict = (
                 long.groupby("sample")
-                    .apply(lambda g: dict(zip(g["ko_id"], g["count"].astype(float))))
+                    .apply(lambda g: dict(zip(g[parse_key], g["count"].astype(float))))
                     .to_dict()
             )
-        annotation_type = self.check_annotation_type(annotations)
+
+        elif emapper_output:
+            logging.info('Parsing emapper output')
+            if ko:
+                parse_key = self.KEGG
+            elif cog:
+                parse_key = self.COG
+            elif go:
+                parse_key = self.GO
+            elif eggnog:
+                parse_key = self.EGGNOG
+            elif pfam:
+                parse_key = self.PFAM
+            elif ec:
+                parse_key = self.EC
+
+            genome_ids, tables = Parser.parse_emapper_output(emapper_output, parse_key)
+            long = Parser.merge_counts_long(genome_ids, tables, key="annotation").to_pandas()
+            annotations = long["annotation"].unique().tolist()
+            annotations_dict = (
+                long.groupby("sample")
+                    .apply(lambda g: dict(zip(g["annotation"], g["count"].astype(float))))
+                    .to_dict()
+            )
+
+        annotation_type = (
+            parse_key if emapper_output
+            else self.check_annotation_type(annotations)
+        )
         
         if abundances_path:
             logging.info('Running abundances pipeline')
@@ -604,7 +643,7 @@ class Test(Enrichment):
     def gene_frequencies(self, group_1, group_2, freq=False):
 
         res_list    = list()
-        annotations = set(chain(*self.genome_annotations.values()))
+        annotations = sorted(set(chain(*self.genome_annotations.values())))
 
         for annotation in annotations:
             passed = True
@@ -653,6 +692,9 @@ class Test(Enrichment):
             desc = self.ec2description
 
         if self.annotation_type == self.OTHER:
+            desc = None
+
+        if self.annotation_type in (self.COG, self.GO, self.EGGNOG):
             desc = None
 
         for line in output_lines:

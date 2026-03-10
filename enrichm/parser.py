@@ -282,6 +282,99 @@ class Parser:
         return genome_ids, tables
 
     @staticmethod
+    def parse_emapper_output(emapper_dir, annotation_type):
+        '''
+        Parses emapper .emapper.annotations files and returns genome ids and count tables.
+
+        Parameters
+        ----------
+        emapper_dir     : str. Directory of per-genome .emapper.annotations files.
+        annotation_type : str. One of 'ko', 'cog', 'go', 'eggnog', 'pfam', 'ec'.
+
+        Returns
+        -------
+        (genome_ids: list[str], tables: list[pl.DataFrame])
+        Each table has columns ['annotation', 'count'].
+        '''
+        if not os.path.isdir(emapper_dir):
+            raise Exception(f"emapper output directory does not exist: {emapper_dir}")
+
+        # Column indices in emapper output (0-indexed, after skipping comment/header lines)
+        COL_IDX = {
+            "ko":     11,  # KEGG_ko
+            "cog":    6,   # COG_category
+            "go":     9,   # GOs
+            "eggnog": 4,   # eggNOG_OGs
+            "pfam":   20,  # PFAMs
+            "ec":     10,  # EC
+        }
+
+        if annotation_type not in COL_IDX:
+            raise ValueError(
+                f"Unknown annotation_type: {annotation_type}. Must be one of {list(COL_IDX)}"
+            )
+
+        col_idx = COL_IDX[annotation_type]
+        genome_ids = []
+        tables = []
+
+        for fname in sorted(os.listdir(emapper_dir)):
+            if not fname.endswith(".emapper.annotations"):
+                continue
+            genome_name = fname[: -len(".emapper.annotations")]
+            fpath = os.path.join(emapper_dir, fname)
+
+            df = pl.read_csv(
+                fpath,
+                separator="\t",
+                comment_prefix="#",
+                has_header=False,
+                infer_schema_length=0,
+            )
+
+            if df.width <= col_idx:
+                continue
+
+            raw = df[df.columns[col_idx]]
+            raw = raw.filter(raw.is_not_null() & (raw != "-") & (raw != ""))
+
+            if annotation_type == "ko":
+                values = (
+                    raw.str.split(",")
+                       .explode()
+                       .str.replace("ko:", "", literal=True)
+                )
+            elif annotation_type == "cog":
+                values = (
+                    raw.map_elements(lambda s: list(s), return_dtype=pl.List(pl.String))
+                       .explode()
+                )
+            elif annotation_type in ("go", "pfam", "ec"):
+                values = raw.str.split(",").explode()
+            elif annotation_type == "eggnog":
+                values = (
+                    raw.str.split(",")
+                       .list.last()
+                       .str.split("@")
+                       .list.first()
+                )
+
+            values = values.filter(
+                values.is_not_null() & (values != "-") & (values != "")
+            )
+
+            count_df = (
+                pl.DataFrame({"annotation": values})
+                .group_by("annotation")
+                .agg(pl.len().alias("count"))
+            )
+
+            genome_ids.append(genome_name)
+            tables.append(count_df)
+
+        return genome_ids, tables
+
+    @staticmethod
     def ensure_counts(df: pl.DataFrame, key="ko_id", name="count"):
         if set(df.columns) == {key, name}:
             return df

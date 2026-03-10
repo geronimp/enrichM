@@ -26,10 +26,13 @@ class ModuleDescription:
 
     def kos(self):
         '''Return an iterable over the total list of KOs in the module'''
-        r_kegg = re.compile(KEGG)
+        # Use non-anchored patterns for extraction from the full description string.
+        # Module-level KEGG/TIGRFAM constants are anchored (^...$) for per-token
+        # validation and cannot match within a multi-token string.
+        r_kegg = re.compile(r'(K\d{5})')
         r_gh = re.compile(GH)
         r_pl = re.compile(PL)
-        r_tigrfam = re.compile(TIGRFAM)
+        r_tigrfam = re.compile(r'(TIGR\d{5})')
         r_pfam = re.compile(PFAM)
         r_ce = re.compile(CE)
         r_ec = re.compile(EC)

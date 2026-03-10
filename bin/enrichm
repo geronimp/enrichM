@@ -227,6 +227,8 @@ if __name__ == "__main__":
                 help='Gff files for genomes to compare.')
     enrichment_input_options.add_argument('--dram_output',
                 help='Output of DRAM distill for comparison of gene groups.')
+    enrichment_input_options.add_argument('--emapper_output',
+                help='Directory of per-genome .emapper.annotations files (eggNOG-mapper output).')
     enrichment_input_options.add_argument('--abundance',
                 help='Genome abundance matrix.')
     enrichment_input_options.add_argument('--abundance_metadata',
@@ -269,6 +271,12 @@ if __name__ == "__main__":
                 help='Compare dbCAN ids')
     enrichment_runtime_options.add_argument('--ec', action='store_true',
                 help='Compare EC ids')
+    enrichment_runtime_options.add_argument('--cog', action='store_true',
+                help='Compare COG functional category annotations')
+    enrichment_runtime_options.add_argument('--go', action='store_true',
+                help='Compare GO term annotations')
+    enrichment_runtime_options.add_argument('--eggnog', action='store_true',
+                help='Compare eggNOG orthologous group annotations')
     enrichment_runtime_options.add_argument('--range', default=2500, type = int,
                 help='Base pair range to search for synteny within. Default = 2500.')
     enrichment_runtime_options.add_argument('--subblock_size', default=2, type = int,

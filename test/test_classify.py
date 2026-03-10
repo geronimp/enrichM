@@ -91,6 +91,22 @@ class Tests(unittest.TestCase):
                          module.num_covered_steps(fails2)[0] == total_steps)
 
 
+    def test_kos_returns_ko_ids(self):
+        module = ModuleDescription("K00001+K00002 K00003")
+        self.assertEqual(sorted(module.kos()), ['K00001', 'K00002', 'K00003'])
+
+    def test_kos_returns_single_ko(self):
+        module = ModuleDescription("K00001")
+        self.assertEqual(module.kos(), ['K00001'])
+
+    def test_kos_returns_pfam_ids(self):
+        module = ModuleDescription("PF00001 PF00002")
+        self.assertEqual(sorted(module.kos()), ['PF00001', 'PF00002'])
+
+    def test_kos_returns_tigrfam_ids(self):
+        module = ModuleDescription("TIGR00001 TIGR00002")
+        self.assertEqual(sorted(module.kos()), ['TIGR00001', 'TIGR00002'])
+
     def test_update(self):
 
         with open(tempfile.mktemp(), 'w') as out_io:

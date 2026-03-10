@@ -35,34 +35,32 @@ class Genome:
                 self.length = 0
                 gc_list = 0.0
 
-                for description, sequence in seqio.each(open(nucleotide)):
-                    self.length += len(str(sequence))
-                    gc_list += (str(sequence).count('G') + str(sequence).count('C'))
+                with open(nucleotide) as fh:
+                    for description, sequence in seqio.each(fh):
+                        self.length += len(str(sequence))
+                        gc_list += (str(sequence).count('G') + str(sequence).count('C'))
 
                 self.gc = round((gc_list/float(self.length))*100, 2)
 
             if protein:
-                gene_dict = {desc.partition(' ')[0]: seq for desc, seq in seqio.each(open(protein))}
-                for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(protein))):
+                with open(protein) as fh:
+                    entries = list(seqio.each(fh))
+                gene_dict = {desc.partition(' ')[0]: seq for desc, seq in entries}
+                for protein_count, (protein_description, protein_sequence) in enumerate(entries):
                     name = protein_description.partition(' ')[0]
                     gene_sequence = gene_dict.get(name)
                     sequence = Sequence(protein_description, protein_sequence, gene_sequence)
                     self.sequences[name] = sequence
                     self.protein_ordered_dict[protein_count] = name
-            else: # TODO: is this needed?
-                for protein_count, (protein_description, protein_sequence) in enumerate(seqio.each(open(protein))):
-                    name = protein_description.partition(' ')[0]
-                    sequence = Sequence(protein_description, protein_sequence)
-                    self.sequences[name] = sequence
-                    self.protein_ordered_dict[protein_count] = name
 
         else:
 
-            for protein_count, (description, _) in enumerate(seqio.each(open(protein))):
-                name = description.partition(' ')[0]
-                sequence = Sequence(description)
-                self.sequences[name] = sequence
-                self.protein_ordered_dict[protein_count] = name
+            with open(protein) as fh:
+                for protein_count, (description, _) in enumerate(seqio.each(fh)):
+                    name = description.partition(' ')[0]
+                    sequence = Sequence(description)
+                    self.sequences[name] = sequence
+                    self.protein_ordered_dict[protein_count] = name
 
     def add(self, annotations, evalue_cutoff, bitscore_cutoff, percent_aln_query_cutoff,
             percent_aln_reference_cutoff, specific_cutoffs, annotation_type, ref_ids, pfam2clan=None):
