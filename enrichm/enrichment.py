@@ -63,7 +63,23 @@ def mannwhitneyu_calc(x):
         mw_t_stat, mw_p_value = 'NA', 1
         enriched_in = 'NA'
 
-    return [annotation, group_1, group_2, enriched_in, str(group_1_mean), str(group_2_mean), mw_t_stat, mw_p_value]
+    n1 = len(group_1_module_annotations)
+    n2 = len(group_2_module_annotations)
+
+    if mw_t_stat == 'NA':
+        fold_change = 'NA'
+        effect_size = 'NA'
+    else:
+        effect_size = (2 * mw_t_stat - n1 * n2) / (n1 * n2)
+        if group_2_mean == 0:
+            fold_change = 'inf' if group_1_mean > 0 else 'NA'
+        else:
+            fold_change = group_1_mean / group_2_mean
+
+    return [annotation, group_1, group_2, enriched_in,
+            str(group_1_mean), str(group_2_mean),
+            str(fold_change), str(effect_size),
+            mw_t_stat, mw_p_value]
 
 def zscore_calc(x):
 
@@ -108,6 +124,18 @@ def zscore_calc(x):
                     str(genome),
                     str(z_score),
                     p_value]
+
+def kruskal_wallis_calc(x):
+    annotation, group_names, group_values_list = x
+    group_arrays = [np.array(v) for v in group_values_list]
+    non_empty = [(n, v) for n, v in zip(group_names, group_arrays) if sum(v) > 0]
+    if len(non_empty) < 2:
+        return None
+    try:
+        h_stat, pvalue = stats.kruskal(*[v for _, v in non_empty])
+    except ValueError:
+        return None
+    return [annotation, ','.join(group_names), h_stat, pvalue]
 
 ################################################################################
 
@@ -249,21 +277,29 @@ class Enrichment:
 
         return raw_proportions_output_lines
 
-    def get_gtdb_database_path(self, annotation_type, database):
-
-        if annotation_type == self.KEGG:
-            gtdb_annotation_matrix = database.GTDB_KO
-        elif annotation_type == self.TIGRFAM:
-            gtdb_annotation_matrix = database.GTDB_PFAM
-        elif annotation_type == self.PFAM:
-            gtdb_annotation_matrix = database.GTDB_TIGRFAM
-        elif annotation_type == self.CAZY:
-            gtdb_annotation_matrix = database.GTDB_CAZY
-        elif annotation_type == self.EC:
-            gtdb_annotation_matrix = database.GTDB_EC
-        else:
-            gtdb_annotation_matrix = None
-        return gtdb_annotation_matrix
+    @staticmethod
+    def filter_by_prevalence(annotations_dict, min_prevalence):
+        """Remove annotations present in fewer than min_prevalence fraction of genomes."""
+        if min_prevalence <= 0:
+            return annotations_dict
+        n_genomes = len(annotations_dict)
+        if n_genomes == 0:
+            return annotations_dict
+        counts = {}
+        for genome_anns in annotations_dict.values():
+            for ann, val in genome_anns.items():
+                if val > 0:
+                    counts[ann] = counts.get(ann, 0) + 1
+        min_count = min_prevalence * n_genomes
+        keep = {ann for ann, c in counts.items() if c >= min_count}
+        logging.info(
+            f'Prevalence filter: keeping {len(keep)} of {len(counts)} annotations '
+            f'(>= {min_prevalence * 100:.1f}% of {n_genomes} genomes)'
+        )
+        return {
+            genome: {ann: val for ann, val in anns.items() if ann in keep}
+            for genome, anns in annotations_dict.items()
+        }
 
     def module_completeness(self, database, result_file_path, pval_cutoff):
         module_output = [["Module", "Lineage", "Total steps", "Steps covered", "Percentage covered", "Module description"]]
@@ -315,7 +351,7 @@ class Enrichment:
     def enrichment_pipeline(# Input options
            self, annotate_output, annotation_matrix, gff_files, dram_output, emapper_output,
            metadata_path, abundances_path, abundance_metadata_path, pval_cutoff,
-           proportions_cutoff, threshold, multi_test_correction, batchfile, processes,
+           proportions_cutoff, min_prevalence, threshold, multi_test_correction, processes,
            ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm, cog, go, eggnog,
            synteny_range, subblock_size, operon_mismatch_cutoff, operon_match_score_cutoff,
            output_directory):
@@ -404,6 +440,10 @@ class Enrichment:
                     .to_dict()
             )
 
+        if min_prevalence > 0:
+            annotations_dict = self.filter_by_prevalence(annotations_dict, min_prevalence)
+            annotations = list(set(chain(*[list(x.keys()) for x in annotations_dict.values()])))
+
         annotation_type = (
             parse_key if emapper_output
             else self.check_annotation_type(annotations)
@@ -444,28 +484,6 @@ class Enrichment:
             metadata, metadata_value_lists, attribute_dict \
                 = Parser.parse_metadata_matrix(metadata_path)
                 
-            if batchfile:
-                gtdb_annotation_matrix = self.get_gtdb_database_path(annotation_type, database)
-
-                batchfile_metadata, batchfile_metadata_value_lists, batchfile_attribute_dict = Parser.parse_metadata_matrix(batchfile)
-                genomes_set = set(batchfile_metadata.keys())
-                reference_genome_annotations, genomes_set = Parser.filter_large_matrix(genomes_set, gtdb_annotation_matrix)
-
-                annotations_dict.update(reference_genome_annotations)
-                new_batchfile_attribute_dict = dict()
-
-                for group_name, accession_id_list in batchfile_attribute_dict.items():
-                    filtered_accession_id_list = [accession_id for accession_id in accession_id_list if accession_id in genomes_set]
-
-                    if len(filtered_accession_id_list)>0:
-                        new_batchfile_attribute_dict[group_name] = filtered_accession_id_list
-
-                attribute_dict.update(new_batchfile_attribute_dict)
-                batchfile_metadata={group_name:batchfile_metadata[group_name] for group_name in genomes_set}
-                metadata.update(batchfile_metadata)
-                batchfile_metadata_value_lists = set(new_batchfile_attribute_dict.keys())
-                metadata_value_lists = metadata_value_lists.union(batchfile_metadata_value_lists)
-
             logging.info("Comparing sets of genomes")
             combination_dict = dict()
             
@@ -526,13 +544,16 @@ class Test(Enrichment):
     __test__ = False
 
     FISHER_HEADER = [['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_true', 'group_1_false',
-                      'group_2_true', 'group_2_false', 'score', 'pvalue', 'corrected_pvalue', 'description']]
+                      'group_2_true', 'group_2_false', 'odds_ratio', 'pvalue', 'corrected_pvalue', 'description']]
 
-    MANNWHITNEYU_HEADER =[['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_2_mean',
-                           'score', 'pvalue', 'corrected_pvalue', 'description']]
+    MANNWHITNEYU_HEADER = [['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_2_mean',
+                            'fold_change', 'effect_size', 'U_statistic', 'pvalue', 'corrected_pvalue', 'description']]
 
     ZSCORE_HEADER = [['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_1_sd',
-                      'group_2_count', 'score', 'pvalue', 'corrected_pvalue', 'description']]
+                      'group_2_count', 'z_score', 'pvalue', 'corrected_pvalue', 'description']]
+
+    KW_HEADER = [['annotation', 'groups', 'H_statistic', 'pvalue', 'corrected_pvalue', 'description']]
+    KW_OUTPUT = 'kruskal_wallis.tsv'
 
     PA = 'presence_absence'
     IVG_OUTPUT = 'ivg_results.cdf.tsv'
@@ -741,8 +762,30 @@ class Test(Enrichment):
 
         return results
 
+    def kruskal_wallis_frequencies(self):
+        group_names = list(self.groups.keys())
+        annotations = sorted(set(chain(*self.genome_annotations.values())))
+        res_list = []
+        for annotation in annotations:
+            group_values = [self.count(annotation, g, freq=True)[0] for g in group_names]
+            if all(sum(v) == 0 for v in group_values):
+                continue
+            res_list.append([annotation, group_names, group_values])
+        return res_list
+
     def test_pipeline(self, group_dict):
         results = list()
+
+        if len(group_dict) > 2:
+            logging.info('Testing multi-group over-representation using Kruskal-Wallis test')
+            kw_input = self.kruskal_wallis_frequencies()
+            kw_lines = [x for x in self._map(kruskal_wallis_calc, kw_input) if x is not None]
+            if kw_lines:
+                for idx, cpval in enumerate(self.corrected_pvals(kw_lines)):
+                    kw_lines[idx].append(str(cpval))
+                kw_lines = self.add_descriptions(kw_lines)
+                kw_lines = self.KW_HEADER + kw_lines
+                results.append([kw_lines, self.KW_OUTPUT])
 
         for combination in combinations(group_dict, 2):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )

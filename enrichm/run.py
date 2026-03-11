@@ -96,11 +96,17 @@ class Run:
             os.mkdir(args.output)
 
     def _check_data(self, args):
-        if not(args.create or args.uninstall):
-            raise Exception("Only one of the following can be specified: --create, --uninstall")
+        if args.create and args.uninstall:
+            raise Exception("Only one of --create or --uninstall may be specified, not both.")
 
-        if not(os.access(Data.DATABASE_DIR, os.R_OK|os.W_OK)):
-            raise Exception(f"EnrichM does not have read/write in database directory: {Data.DATABASE_DIR}")
+        if not (args.create or args.uninstall):
+            raise Exception("One of --create or --uninstall must be specified.")
+
+        if args.uninstall:
+            if not os.path.isdir(Data.DATABASE_DIR):
+                raise Exception(f"Database directory does not exist: {Data.DATABASE_DIR}")
+            if not os.access(Data.DATABASE_DIR, os.R_OK | os.W_OK):
+                raise Exception(f"EnrichM does not have read/write access to database directory: {Data.DATABASE_DIR}")
 
     def _check_annotate(self, args):
         '''
@@ -339,9 +345,9 @@ class Run:
                                        args.abundance_metadata,
                                        args.pval_cutoff,
                                        args.proportions_cutoff,
+                                       args.min_prevalence,
                                        args.threshold,
                                        args.multi_test_correction,
-                                       args.batchfile,
                                        args.processes,
                                        args.ko,
                                        args.pfam,

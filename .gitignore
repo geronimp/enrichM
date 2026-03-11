@@ -7,3 +7,5 @@ test/__pycache__/*
 dist/*
 test-results/
 resume_claude.bash
+test/test.bash
+test/test_output/

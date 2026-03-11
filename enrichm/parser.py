@@ -90,47 +90,6 @@ class Parser:
         return entries
 
     @staticmethod
-    def filter_large_matrix(columns, matrix):
-        '''
-        description
-
-        Inputs
-        ------
-
-        Outputs
-        -------
-
-        '''
-        columns = list(columns)
-        matrix_io = open(matrix)
-        header = matrix_io.readline().strip().split('\t')
-
-        indexes = list()
-        include = list()
-
-        for column in columns:
-
-            if column in header:
-                indexes.append(header.index(column))
-                include.append(column)
-
-        columns = include
-
-        output_dict = {column:dict() for column in columns}
-
-        for row in matrix_io:
-            srow = row.strip().split()
-            annotation = srow[0]
-
-            for column, index in zip(columns, indexes):
-                count = int(srow[index])
-
-                if count > 0:
-                    output_dict[column][annotation] = int(srow[index])
-
-        return output_dict, columns
-
-    @staticmethod
     def parse_gff(gff_file):
         feature_dict = dict()
         genome_to_annotations_dict = dict()

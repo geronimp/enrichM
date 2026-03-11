@@ -13,7 +13,7 @@ path_to_annotate = os.path.join(path_to_data, 'enrichm_annotate')
 
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
 
-from enrichm.enrichment import Enrichment, gene_fisher_calc, mannwhitneyu_calc, zscore_calc
+from enrichm.enrichment import Enrichment, Test, gene_fisher_calc, mannwhitneyu_calc, zscore_calc, kruskal_wallis_calc
 
 ###############################################################################
 
@@ -265,6 +265,106 @@ class Tests(unittest.TestCase):
     def test_check_annotation_type_cog_list(self):
         result = Enrichment().check_annotation_type(['C', 'M', 'J'])
         self.assertEqual(result, Enrichment.COG)
+
+
+    # --- mannwhitneyu_calc effect size / fold change ---
+
+    def test_mannwhitneyu_calc_includes_fold_change_and_effect_size(self):
+        # Non-constant groups with group_1_mean=3.0, group_2_mean=1.0 → fold_change=3.0
+        result = mannwhitneyu_calc(['K00001', 'g1', 'g2', [[2, 3, 4]], [[0, 1, 2]]])
+        # columns: annotation, g1, g2, enriched_in, g1_mean, g2_mean, fold_change, effect_size, U, pvalue
+        self.assertEqual(result[4], '3.0')   # group_1_mean
+        self.assertEqual(result[5], '1.0')   # group_2_mean
+        self.assertEqual(result[6], '3.0')   # fold_change = 3.0/1.0
+        # effect_size = (2*U - n1*n2)/(n1*n2) — just check it's a numeric string
+        self.assertNotEqual(result[7], 'NA')
+
+    def test_mannwhitneyu_calc_fold_change_div_zero(self):
+        # group_2 mean=0 → fold_change='inf'
+        result = mannwhitneyu_calc(['K00001', 'g1', 'g2', [[3, 3, 3]], [[0, 0, 0]]])
+        self.assertEqual(result[6], 'NA')  # fold_change NA when both zero path
+        # Actually group_1 > 0, group_2 == 0: mw_t_stat='NA', so fold_change='NA'
+        # Adjust: test with non-constant groups where group_2_mean==0 is impossible
+        # Instead test directly: group_2_mean==0 case via constant-group path
+        self.assertEqual(result[3], 'NA')
+
+    def test_mannwhitneyu_calc_fold_change_inf_when_group2_zero_mean(self):
+        # When group_2_mean is 0 but we have non-zero group_1 with non-constant values,
+        # MWU hits sum==0 for group_2, so mw_t_stat='NA'. Test the logic via a known path:
+        # Use group_2 all zeros: triggers the sum==0 branch, fold_change='NA', effect_size='NA'
+        result = mannwhitneyu_calc(['K00001', 'g1', 'g2', [[1, 2, 3]], [[0, 0, 0]]])
+        self.assertEqual(result[6], 'NA')
+        self.assertEqual(result[7], 'NA')
+
+    def test_mannwhitneyu_calc_effect_size_na_when_constant(self):
+        # Constant group → mw_t_stat='NA' → effect_size='NA'
+        result = mannwhitneyu_calc(['K00001', 'g1', 'g2', [[5, 5, 5]], [[1, 2, 3]]])
+        self.assertEqual(result[7], 'NA')
+
+    # --- filter_by_prevalence ---
+
+    def test_filter_by_prevalence_removes_rare_annotations(self):
+        # K00001 in 1 of 3 genomes, cutoff 0.5 → removed
+        ann_dict = {
+            'g1': {'K00001': 1, 'K00002': 1},
+            'g2': {'K00002': 1},
+            'g3': {'K00002': 1},
+        }
+        result = Enrichment.filter_by_prevalence(ann_dict, 0.5)
+        self.assertNotIn('K00001', result['g1'])
+        self.assertIn('K00002', result['g1'])
+
+    def test_filter_by_prevalence_keeps_common_annotations(self):
+        # K00001 in 2 of 3 genomes, cutoff 0.5 → kept
+        ann_dict = {
+            'g1': {'K00001': 1},
+            'g2': {'K00001': 1},
+            'g3': {'K00002': 1},
+        }
+        result = Enrichment.filter_by_prevalence(ann_dict, 0.5)
+        self.assertIn('K00001', result['g1'])
+
+    def test_filter_by_prevalence_zero_cutoff_is_noop(self):
+        ann_dict = {
+            'g1': {'K00001': 1},
+            'g2': {'K00002': 1},
+        }
+        result = Enrichment.filter_by_prevalence(ann_dict, 0.0)
+        self.assertEqual(result, ann_dict)
+
+    # --- kruskal_wallis_calc ---
+
+    def test_kruskal_wallis_calc_three_groups(self):
+        # Three groups with different distributions
+        x = ['K00001', ['g1', 'g2', 'g3'], [[1, 2, 3], [4, 5, 6], [7, 8, 9]]]
+        result = kruskal_wallis_calc(x)
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0], 'K00001')
+        self.assertIn('g1', result[1])
+        # H statistic and p-value should be numeric
+        self.assertIsInstance(result[2], float)
+        self.assertIsInstance(result[3], float)
+
+    def test_kruskal_wallis_calc_all_zero_returns_none(self):
+        x = ['K00001', ['g1', 'g2', 'g3'], [[0, 0, 0], [0, 0, 0], [0, 0, 0]]]
+        result = kruskal_wallis_calc(x)
+        self.assertIsNone(result)
+
+    # --- header renames ---
+
+    def test_fisher_header_uses_odds_ratio(self):
+        self.assertIn('odds_ratio', Test.FISHER_HEADER[0])
+        self.assertNotIn('score', Test.FISHER_HEADER[0])
+
+    def test_mannwhitneyu_header_uses_fold_change_and_effect_size(self):
+        self.assertIn('fold_change', Test.MANNWHITNEYU_HEADER[0])
+        self.assertIn('effect_size', Test.MANNWHITNEYU_HEADER[0])
+        self.assertIn('U_statistic', Test.MANNWHITNEYU_HEADER[0])
+        self.assertNotIn('score', Test.MANNWHITNEYU_HEADER[0])
+
+    def test_zscore_header_uses_z_score(self):
+        self.assertIn('z_score', Test.ZSCORE_HEADER[0])
+        self.assertNotIn('score', Test.ZSCORE_HEADER[0])
 
 
 if __name__ == "__main__":

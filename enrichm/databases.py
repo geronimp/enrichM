@@ -61,6 +61,7 @@ class Databases:
 - Installed the EnrichM database using the 'enrichm data' command?\n\
 - Specified the location of the EnrichM database by exporting a \
 bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR})")
+
         self.signature_modules = set(['M00611', 'M00612', 'M00613', 'M00614',
                                       'M00617', 'M00618', 'M00615', 'M00616',
                                       'M00363', 'M00542', 'M00574', 'M00575',
@@ -82,75 +83,79 @@ bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR
         self.PFAM_CLAN_DB = os.path.join(self.IDS_DIR, 'PFAM_CLANS.txt')
 
     def m2def(self):
-        logging.debug("Loading module descriptions")
+        logging.debug("Loading module to definition information")
         return self.load_pickle(self.M2DEF)
 
     def m(self):
-        logging.debug("Loading reaction to pathway information")
+        logging.debug("Loading module descriptions")
         return self.load_pickle(self.M)
 
     def r2p(self):
-        logging.debug("Loading pathway to reaction information")
+        logging.debug("Loading reaction to pathway information")
         return self.load_pickle(self.R2P)
 
     def p2r(self):
-        logging.debug("Loading reaction to orthology information")
+        logging.debug("Loading pathway to reaction information")
         return self.load_pickle(self.P2R)
 
     def r2k(self):
-        logging.debug("Loading reaction to module information")
+        logging.debug("Loading reaction to orthology information")
         return self.load_pickle(self.R2K)
 
     def r2m(self):
-        logging.debug("Loading module to reaction information")
+        logging.debug("Loading reaction to module information")
         return self.load_pickle(self.R2M)
 
     def m2r(self):
-        logging.debug("Loading module to compound information")
+        logging.debug("Loading module to reaction information")
         return self.load_pickle(self.M2R)
 
+    def m2c(self):
+        logging.debug("Loading module to compound information")
+        return self.load_pickle(self.M2C)
+
     def r2c(self):
-        logging.debug("Loading compound to reaction information")
+        logging.debug("Loading reaction to compound information")
         return self.load_pickle(self.R2C)
 
     def c2r(self):
-        logging.debug("Loading compound descriptions")
+        logging.debug("Loading compound to reaction information")
         return self.load_pickle(self.C2R)
 
     def c(self):
-        logging.debug("Loading pathway descriptions")
+        logging.debug("Loading compound descriptions")
         return self.load_pickle(self.C)
 
     def p(self):
-        logging.debug("Loading reaction descriptions")
+        logging.debug("Loading pathway descriptions")
         return self.load_pickle(self.P)
 
     def r(self):
-        logging.debug("Loading ko descriptions")
+        logging.debug("Loading reaction descriptions")
         return self.load_pickle(self.R)
 
     def k(self):
-        logging.debug("Loading compound classifications")
+        logging.debug("Loading KO descriptions")
         return self.load_pickle(self.K)
 
     def compound_desc_dict(self):
-        logging.debug("Loading pfam to clan information")
+        logging.debug("Loading compound classifications")
         return self.load_pickle(self.COMPOUND_DESC)
 
     def pfam2clan(self):
-        logging.debug("Loading clan descriptions")
+        logging.debug("Loading pfam to clan information")
         return self.load_pickle(self.PFAM2CLAN)
 
     def pfam2description(self):
-        logging.debug("Loading ec descriptions")
+        logging.debug("Loading pfam to description information")
         return self.load_pickle(self.PFAM2DESCRIPTION)
 
     def ec2description(self):
-        logging.debug("Loading pfam hierarchy")
+        logging.debug("Loading EC to description information")
         return self.load_pickle(self.EC2DESCRIPTION)
 
     def tigrfamdescription(self):
-        logging.debug("Loading reference db paths")
+        logging.debug("Loading TIGRFAM descriptions")
         return self.load_pickle(self.TIGRFAM2DESCRIPTION)
 
     def k2r(self):
@@ -164,7 +169,6 @@ bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR
 
     def c2m(self):
         c2m = dict()
-
         for module, compounds in self.m2c().items():
             substrates = compounds[0]
             for substrate in substrates:
@@ -175,23 +179,18 @@ bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR
         return c2m
 
     def load_pickle(self, file):
-
         with open('.'.join([file, self.PICKLE_VERSION, self.PICKLE]), 'rb') as file_io:
             loaded_pickle = pickle.load(file_io)
-
         return loaded_pickle
 
     def parse_ko_cutoffs(self):
         cut_ko = dict()
-        out_io = open(self.KO_HMM_CUTOFFS)
-        _ = out_io.readline()
-
-        for line in out_io:
-            sline = line.strip().split('\t')
-
-            if sline[1] == '-':
-                cut_ko[sline[0]] = [0.0, "NA"]
-            else:
-                cut_ko[sline[0]] = [float(sline[1]), sline[2]]
-
+        with open(self.KO_HMM_CUTOFFS) as out_io:
+            _ = out_io.readline()
+            for line in out_io:
+                sline = line.strip().split('\t')
+                if sline[1] == '-':
+                    cut_ko[sline[0]] = [0.0, "NA"]
+                else:
+                    cut_ko[sline[0]] = [float(sline[1]), sline[2]]
         return cut_ko

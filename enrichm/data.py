@@ -11,7 +11,7 @@ from enrichm.toolbox import run_command
 
 class Data:
     '''
-    Utilities for archiving, downloading and updating databases.
+    Utilities for downloading and updating databases.
     '''
     db_var = "ENRICHM_DB"
     VERSION = 'VERSION'
@@ -26,72 +26,54 @@ class Data:
     def __init__(self):
         self.ftp = 'https://data.ace.uq.edu.au/public/enrichm/'
 
-    def _remove_db(self, old_db_file):
-        '''
-        Archive an old database file
-
-        Parameters
-        ----------
-        old_db_file	- String. File name of old database file to archive
-        '''
-        logging.info('Removing old database.')
-
-        old_db_path = os.path.join(self.DATABASE_DIR, old_db_file)
-        shutil.rmtree(old_db_path)
-
     def _download_db(self, new_db_file):
         '''
-        Download and decompress a new database file
+        Download and decompress a new database file.
 
         Parameters
         ----------
-        new_db_file	- String. File name of new database to download and decompress.
+        new_db_file - String. Filename of the new database tarball to download.
         '''
-        
         new_db_path_archive = os.path.join(self.DATABASE_DIR, new_db_file)
-        
+
         logging.info('Downloading new database: %s', new_db_file)
-        cmd = f'wget \
-                    -q {self.ftp + new_db_file} \
-                    -O {new_db_path_archive}'
-        run_command(cmd)
-        
-        cmd = f'wget \
-                    -q {self.ftp + self.VERSION} \
-                    -O {os.path.join(self.DATABASE_DIR, self.VERSION)}'
-        run_command(cmd)
+        urllib.request.urlretrieve(self.ftp + new_db_file, new_db_path_archive)
+        urllib.request.urlretrieve(
+            self.ftp + self.VERSION,
+            os.path.join(self.DATABASE_DIR, self.VERSION)
+        )
 
         logging.info('Decompressing new database')
-        cmd = 'tar -xvzf %s -C %s > /dev/null' % (new_db_path_archive, self.DATABASE_DIR)
-        run_command(cmd)
+        run_command(f'tar -xvzf {new_db_path_archive} -C {self.DATABASE_DIR} > /dev/null')
 
         logging.info('Cleaning up')
         os.remove(new_db_path_archive)
 
     def do(self, uninstall, create):
         '''
-        Check database versions, if they're out of date, archive the old and download the new.
+        Install, update, or remove the EnrichM database.
         '''
         logging.info(f"Database location: {self.DATABASE_DIR}")
-        
+
         if uninstall:
-
-            for file in os.listdir(self.DATABASE_DIR):
-                file_path = os.path.join(self.DATABASE_DIR, file)
-
-                if os.path.isdir(file_path):
-                    shutil.rmtree(file_path)
+            for entry in os.listdir(self.DATABASE_DIR):
+                entry_path = os.path.join(self.DATABASE_DIR, entry)
+                if os.path.isdir(entry_path):
+                    shutil.rmtree(entry_path)
                 else:
-                    os.remove(file_path)
-
+                    os.remove(entry_path)
             os.rmdir(self.DATABASE_DIR)
 
         elif create:
             try:
-                version_remote = urllib.request.urlopen(self.ftp + self.VERSION).readline().strip().decode("utf-8")
+                version_remote = urllib.request.urlopen(
+                    self.ftp + self.VERSION
+                ).readline().strip().decode('utf-8')
             except Exception:
                 raise Exception(
-                    "Unable to find most current EnrichM database VERSION in ftp. Please complain at https://github.com/geronimp/enrichM")
+                    "Unable to fetch the current EnrichM database VERSION. "
+                    "Please report the issue at https://github.com/geronimp/enrichM"
+                )
 
             if os.path.isdir(self.DATABASE_DIR):
                 version_local_path = os.path.join(self.DATABASE_DIR, self.VERSION)
@@ -99,21 +81,23 @@ class Data:
                 if os.path.isfile(version_local_path):
                     with open(version_local_path) as fh:
                         version_local = fh.readline().strip()
-                else:
-                    logging.info(f'EnrichM database not detected in database directory ({self.DATABASE_DIR}). Downloading database.')
-                    self._download_db(version_remote)
-                    with open(version_local_path) as fh:
-                        version_local = fh.readline().strip()
 
-                if version_local!=version_remote:
-                    logging.info('New database found. Archiving old database.')
-                    self._remove_db(version_local.replace(self.ARCHIVE_SUFFIX,''))
-                    self._download_db(version_remote)
+                    if version_local != version_remote:
+                        logging.info('New database version available. Removing old database.')
+                        shutil.rmtree(os.path.join(
+                            self.DATABASE_DIR,
+                            version_local.replace(self.ARCHIVE_SUFFIX, '')
+                        ))
+                        self._download_db(version_remote)
+                    else:
+                        logging.info('Database is up to date!')
                 else:
-                    logging.info('Database is up to date!')
-
+                    logging.info(
+                        'EnrichM database not detected in %s. Downloading database.',
+                        self.DATABASE_DIR
+                    )
+                    self._download_db(version_remote)
             else:
                 logging.info('Creating folder to store databases.')
                 os.makedirs(self.DATABASE_DIR)
                 self._download_db(version_remote)
-
