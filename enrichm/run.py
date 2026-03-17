@@ -7,13 +7,11 @@ import shutil
 import time
 
 from enrichm.data import Data
-from enrichm.network_analyzer import NetworkAnalyser
 from enrichm.enrichment import Enrichment
 from enrichm.annotate import Annotate
 from enrichm.classifier import Classify
 from enrichm.generate import GenerateModel
 from enrichm.predict import Predict
-from enrichm.uses import Uses
 
 ####################################################################################################
 
@@ -28,7 +26,6 @@ class Run:
     ENRICHMENT = 'enrichment'
     PREDICT = 'predict'
     GENERATE = 'generate'
-    USES = 'uses'
 
     def _logging_setup(self, args):
         if args.verbosity not in range(1, 6):
@@ -59,7 +56,6 @@ class Run:
         '''
         dependencies = {'hmmsearch':"http://hmmer.org/download.html",
                         'diamond':"https://github.com/bbuchfink/diamond",
-                        'R':"https://www.r-project.org",
                         'parallel':"https://www.gnu.org/software/parallel",
                         'prodigal':"https://github.com/hyattpd/Prodigal/wiki/installation",
                         'mmseqs':"https://github.com/soedinglab/MMseqs2"}
@@ -103,10 +99,11 @@ class Run:
             raise Exception("One of --create or --uninstall must be specified.")
 
         if args.uninstall:
-            if not os.path.isdir(Data.DATABASE_DIR):
-                raise Exception(f"Database directory does not exist: {Data.DATABASE_DIR}")
-            if not os.access(Data.DATABASE_DIR, os.R_OK | os.W_OK):
-                raise Exception(f"EnrichM does not have read/write access to database directory: {Data.DATABASE_DIR}")
+            db_dir = args.db_path or Data.DATABASE_DIR
+            if not os.path.isdir(db_dir):
+                raise Exception(f"Database directory does not exist: {db_dir}")
+            if not os.access(db_dir, os.R_OK | os.W_OK):
+                raise Exception(f"EnrichM does not have read/write access to database directory: {db_dir}")
 
     def _check_annotate(self, args):
         '''
@@ -215,71 +212,15 @@ class Run:
             if not os.path.isfile(args.custom_modules):
                 raise Exception(f"File does not exist: {args.custom_modules}")
 
-    def _check_network(self, args):
-        '''
-        Check network (explore, pathway) input and output options are valid.
-
-        Parameters
-        ----------
-        args    - object. Argparse object
-        '''
-        if not hasattr(args, 'enrichment_output'):
-            args.enrichment_output = None
-
-        if any([args.abundance, args.abundance_metadata]):
-            if not (args.abundance and args.abundance_metadata):
-                raise Exception("Both abundance and abundance metadata need to be specified")
-
-        if any([args.tpm_values, args.tpm_metadata]):
-            if not (args.tpm_values and args.tpm_metadata):
-                raise Exception("Both --tpm_values and --tpm_metadata need to be specified")
-
-        if args.subparser_name == NetworkAnalyser.PATHWAY:
-            args.depth = None
-            args.queries = None
-
-        if args.subparser_name == NetworkAnalyser.EXPLORE:
-            args.filter = None
-            args.limit = None
-
-            if not(args.queries):
-
-                if args.depth:
-                    logging.warning("--depth argument ignored without --queries flag")
-
     def _check_predict(self, args):
-        '''
-        Check general input and output options are valid.
-
-        Parameters
-        ----------
-        args    - object. Argparse object
-        '''
-        pass
-
-    def _check_uses(self, args):
-        '''
-        Check general input and output options are valid.
-
-        Parameters
-        ----------
-        args    - object. Argparse object
-        '''
         pass
 
     def _check_generate(self, args):
-        '''
-        Check general input and output options are valid.
-
-        Parameters
-        ----------
-        args    - object. Argparse object
-        '''
         pass
 
     def run_data(self, args):
         self._check_data(args)
-        d = Data()
+        d = Data(db_path=args.db_path)
         d.do(args.uninstall, args.create)
 
     def run_annotate(self, args):
@@ -329,7 +270,7 @@ class Run:
             skip_database_check = True
         classify = Classify(skip_database_check)
         classify.classify_pipeline(args.custom_modules, args.cutoff, args.aggregate,
-                                    args.genome_and_annotation_matrix, args.module_rules_json, 
+                                    args.genome_and_annotation_matrix, args.module_rules_json,
                                     args.gff_files, args.output)
 
     def run_enrichment(self, args):
@@ -366,16 +307,6 @@ class Run:
                                        args.operon_match_score_cutoff,
                                        args.output)
 
-    def run_network(self, args):
-        self._check_network(args)
-        network_analyser = NetworkAnalyser()
-        network_analyser.network_pipeline(args.subparser_name, args.matrix, 
-                                            args.genome_metadata, args.tpm_values,
-                                            args.tpm_metadata, args.abundance, 
-                                            args.abundance_metadata, args.metabolome,
-                                            args.enrichment_output, args.depth, args.filter,
-                                            args.limit, args.queries, args.output)
-
     def run_predict(self, args):
         self._check_predict(args)
         predict = Predict()
@@ -394,15 +325,6 @@ class Run:
                 args.threads,
                 args.output)
 
-    def run_uses(self, args):
-        self._check_uses(args)
-        uses = Uses()
-        uses.uses_pipeline(args.compounds_list,
-                args.annotation_matrix,
-                args.metadata,
-                args.output,
-                args.count)
-
     def get_pipeline(self, subparser_name):
         if subparser_name == self.DATA:
             pipeline = self.run_data
@@ -412,19 +334,12 @@ class Run:
             pipeline = self.run_classify
         elif subparser_name == self.ENRICHMENT:
             pipeline = self.run_enrichment
-        elif subparser_name == NetworkAnalyser.PATHWAY:
-            pipeline = self.run_network
-        elif subparser_name == NetworkAnalyser.EXPLORE:
-            pipeline = self.run_network
         elif subparser_name == self.PREDICT:
             pipeline = self.run_predict
         elif subparser_name == self.GENERATE:
             pipeline = self.run_generate
-        elif subparser_name == self.USES:
-            pipeline = self.run_uses
         else:
             ValueError(subparser_name)
-
 
         return pipeline
 

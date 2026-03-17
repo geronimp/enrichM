@@ -42,13 +42,6 @@ def phelp():
     classify        -> Determine what pathways a genome encodes.
     enrichment      -> Calculate enrichment of functional genes between groups.
 
-  Network analysis
-    pathway         -> Generate a metabolic network from specific KEGG module or
-                       compounds.
-    explore         -> Take steps into metabolism using a KEGG compound ID as a 
-                       starting point. Useful to see which pathways use a compound
-                       of interest.
-
   Machine learning
     generate        -> Generate a random forest model.
     predict         -> Run random forest model on new data.
@@ -81,33 +74,15 @@ if __name__ == "__main__":
 
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
-    base_network = argparse.ArgumentParser(add_help=False)
-
-    base_input_options = base_network.add_argument_group('Input options')
-    base_input_options.add_argument('--matrix', required=True,
-                help='KO matrix. REQUIRED.')
-    base_input_options.add_argument('--genome_metadata', 
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    base_input_options.add_argument('--abundance',
-                help='Abundance matrix.')
-    base_input_options.add_argument('--abundance_metadata',
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    base_input_options.add_argument('--tpm_values',
-                help='TPM values produced by DetectM.')
-    base_input_options.add_argument('--tpm_metadata',
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    base_input_options.add_argument('--metabolome',
-                help='Metabolome CID matrix.')
-
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
     data = subparsers.add_parser('data', formatter_class=CustomHelpFormatter)
     data_input_options = data.add_argument_group('Uninstall')
     data_input_options.add_argument('--uninstall', action='store_true',
-                help = 'Remove enrichm database')
-    data_input_options.add_argument('--create', action="store_true",
-                help = 'Create enrichm database')
-    data_input_options.add_argument('--verbosity', type = int, default = 4,
+                help='Remove enrichm database')
+    data_input_options.add_argument('--create', action='store_true',
+                help='Create enrichm database')
+    data_input_options.add_argument('--db_path', default=None,
+                help='Path to store the database (overrides ENRICHM_DB environment variable)')
+    data_input_options.add_argument('--verbosity', type=int, default=4,
                 help='Level of verbosity (1 - 5 - default = 4) 5 = Very verbose, 1 = Silent')
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
@@ -284,42 +259,6 @@ if __name__ == "__main__":
     enrichment_runtime_options.add_argument('--operon_match_score_cutoff', default=0.5, type = float,
                 help='Score cutoff for operon matches')
     
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
-    uses = subparsers.add_parser('uses', formatter_class=CustomHelpFormatter, parents=[base_all])
-
-    uses_input_options = uses.add_argument_group('Input options')
-    uses_input_options.add_argument('--annotation_matrix', required=True,
-                help='Input annotate output')
-    uses_input_options.add_argument('--metadata', required=True,
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    uses_input_options.add_argument('--compounds_list', required=True,
-                help='Metadata file with two columns, the first with the genome name, the second with the groupings to compare.')
-    uses_input_options.add_argument('--count', required=True, action='store_true',
-                help='Count rather than tally.')
-
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
-    pathway = subparsers.add_parser('pathway', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
-
-    pathway_pathway_options = pathway.add_argument_group('Pathway options')
-    pathway_pathway_options.add_argument('--limit', default=list(), nargs='+',
-                help='USE ONLY these reactions, or reactions within this pathway or module (space separated list).')
-    pathway_pathway_options.add_argument('--filter', default=list(), nargs='+',
-                help='Do not use these reactions, or reactions within this pathway or module (space separated list).')
-    pathway_pathway_options.add_argument('--enrichment_output',
-                help='Supply an enrichment output to integrate the results into the output network.')
-
-    #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
-
-    explore = subparsers.add_parser('explore', formatter_class=CustomHelpFormatter, parents=[base_network, base_all])
-
-    explore_query_options = explore.add_argument_group('Query options')
-    explore_query_options.add_argument('--queries', required=True,
-                help='A file containing the KEGG ids of the compounds from which to start in the metabolic network')
-    explore_query_options.add_argument('--depth', type=int, default=2,
-                help='Number of steps to take into the metabolic network')
-
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 
     generate = subparsers.add_parser('generate', formatter_class=CustomHelpFormatter, parents=[base_all])

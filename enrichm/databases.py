@@ -1,196 +1,232 @@
 #!/usr/bin/env python3
-# Imports
 import os
-import logging
+import sqlite3
 import pickle
-# Local
+import logging
 from enrichm.data import Data
 
 ###############################################################################
 
 class Databases:
+    """Access the enrichm reference database.
+
+    Supports two on-disk formats:
+      - New (SQLite): $ENRICHM_DB/enrichm.db  — created by 'enrichm data --create'
+      - Legacy (pickle): $ENRICHM_DB/<version>/  — the old tarball-based layout
+
+    The new format is preferred. The legacy format is used automatically as a
+    fallback so that existing database installations continue to work until
+    users migrate via 'enrichm data --create'.
+    """
 
     def __init__(self):
-        if os.path.isfile(os.path.join(Data.DATABASE_DIR, 'VERSION')):
+        self.db_path = os.path.join(Data.DATABASE_DIR, Data.DB_FILENAME)
+        self.hmm_dir = os.path.join(Data.DATABASE_DIR, 'hmm')
+        self.KO_HMM_CUTOFFS = os.path.join(Data.DATABASE_DIR, 'ko_cutoffs.tsv')
 
-            with open(os.path.join(Data.DATABASE_DIR, 'VERSION')) as out_io:
-                self.DB_VERSION = out_io.readline().strip().replace('.tar.gz', '')
+        self._db_available = os.path.isfile(self.db_path)
+        self._legacy = False
 
-            self.CUR_DATABASE_DIR = os.path.join(Data.DATABASE_DIR, self.DB_VERSION)
+        # Fall back to old pickle-based database if SQLite DB doesn't exist
+        if not self._db_available:
+            version_file = os.path.join(Data.DATABASE_DIR, 'VERSION')
+            if os.path.isfile(version_file):
+                with open(version_file) as fh:
+                    db_version = fh.readline().strip().replace('.tar.gz', '')
+                cur_dir = os.path.join(Data.DATABASE_DIR, db_version)
+                pickle_version_file = os.path.join(cur_dir, 'VERSION')
+                if os.path.isfile(pickle_version_file):
+                    with open(pickle_version_file) as fh:
+                        self._pickle_version = fh.readline().strip()
+                    self._legacy_dir = cur_dir
+                    self._legacy = True
+                    logging.debug(
+                        'Using legacy pickle database at %s '
+                        '(run "enrichm data --create" to migrate)',
+                        cur_dir,
+                    )
+                    # Legacy HMM paths (old layout)
+                    legacy_ref = os.path.join(cur_dir, 'databases')
+                    self.hmm_dir = legacy_ref
+                    self.KO_HMM_CUTOFFS = os.path.join(cur_dir, 'ko_cutoffs.tsv')
 
-            with open(os.path.join(self.CUR_DATABASE_DIR, 'VERSION')) as out_io:
-                self.PICKLE_VERSION = out_io.readline().strip()
+        # HMM database paths
+        self.KO_HMM_DB  = os.path.join(self.hmm_dir, 'ko.hmm')
+        self.PFAM_DB    = os.path.join(self.hmm_dir, 'pfam.hmm')
+        self.TIGRFAM_DB = os.path.join(self.hmm_dir, 'tigrfam.hmm')
+        self.CAZY_DB    = os.path.join(self.hmm_dir, 'cazy.hmm')
+        # Diamond databases (legacy layout; not created by new 'enrichm data')
+        self.KO_DB = os.path.join(self.hmm_dir, 'uniref100.KO.dmnd')
+        self.EC_DB = os.path.join(self.hmm_dir, 'uniref100.EC.dmnd')
 
-            self.IDS_DIR = os.path.join(self.CUR_DATABASE_DIR, 'ids')
-            self.REF_DIR = os.path.join(self.CUR_DATABASE_DIR, 'databases')
-            self.KO_HMM_CUTOFFS = os.path.join(self.CUR_DATABASE_DIR, 'ko_cutoffs.tsv')
+        self.signature_modules = set([
+            'M00611', 'M00612', 'M00613', 'M00614',
+            'M00617', 'M00618', 'M00615', 'M00616',
+            'M00363', 'M00542', 'M00574', 'M00575',
+            'M00564', 'M00660', 'M00664', 'M00625',
+            'M00627', 'M00745', 'M00651', 'M00652',
+            'M00704', 'M00725', 'M00726', 'M00730',
+            'M00744', 'M00718', 'M00639', 'M00641',
+            'M00642', 'M00643', 'M00769', 'M00649',
+            'M00696', 'M00697', 'M00698', 'M00700',
+            'M00702', 'M00714', 'M00705', 'M00746',
+        ])
 
-            self.PICKLE = 'pickle'
-            self.HMM_SUFFIX = '.hmm'
-            self.DMND_SUFFIX = '.dmnd'
-            self.KO_DB_NAME = 'uniref100.KO'
-            self.EC_DB_NAME = 'uniref100.EC'
-            self.PFAM_DB_NAME = 'pfam'
-            self.KO_HMM_DB_NAME = 'ko'
-            self.TIGRFAM_DB_NAME = 'tigrfam'
-            self.CAZY_DB_NAME = 'cazy'
+    # -------------------------------------------------------------------------
+    # Internal helpers
+    # -------------------------------------------------------------------------
 
-            self.M2DEF = os.path.join(self.CUR_DATABASE_DIR, 'module_to_definition')
-            self.M = os.path.join(self.CUR_DATABASE_DIR, 'module_descriptions')
-            self.COMPOUND_DESC = os.path.join(self.CUR_DATABASE_DIR, 'br08001')
-            self.R2K = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_orthology')
-            self.R2C = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_compound')
-            self.R2M = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_module')
-            self.M2R = os.path.join(self.CUR_DATABASE_DIR, 'module_to_reaction')
-            self.M2C = os.path.join(self.CUR_DATABASE_DIR, 'module_to_cpd')
-            self.R2P = os.path.join(self.CUR_DATABASE_DIR, 'reaction_to_pathway')
-            self.P2R = os.path.join(self.CUR_DATABASE_DIR, 'pathway_to_reaction')
-            self.C2R = os.path.join(self.CUR_DATABASE_DIR, 'compound_to_reaction')
-            self.C = os.path.join(self.CUR_DATABASE_DIR, 'compound_descriptions')
-            self.R = os.path.join(self.CUR_DATABASE_DIR, 'reaction_descriptions')
-            self.P = os.path.join(self.CUR_DATABASE_DIR, 'pathway_descriptions')
-            self.K = os.path.join(self.CUR_DATABASE_DIR, 'ko_descriptions')
+    def _require_db(self):
+        if not self._db_available and not self._legacy:
+            raise Exception(
+                f"\nNo enrichm database found at {Data.DATABASE_DIR}.\n"
+                f"Have you:\n"
+                f"- Installed the EnrichM database using 'enrichm data --create'?\n"
+                f"- Set the ENRICHM_DB environment variable? "
+                f"(Currently looking here: {Data.DATABASE_DIR})"
+            )
 
-            self.PFAM2CLAN = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_clan')
-            self.PFAM2NAME = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_name')
-            self.PFAM2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'pfam_to_description')
-            self.EC2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'ec_to_description')
-            self.TIGRFAM2DESCRIPTION = os.path.join(self.CUR_DATABASE_DIR, 'tigrfam_descriptions')
-        else:
-            raise Exception(f"\nNo database version file found. Have you: \n\
-- Installed the EnrichM database using the 'enrichm data' command?\n\
-- Specified the location of the EnrichM database by exporting a \
-bash variable called ENRICHM_DB? (Currently I'm looking here: {Data.DATABASE_DIR})")
+    def _query_dict(self, sql, params=()):
+        """Return a dict from a two-column SELECT (key, value)."""
+        self._require_db()
+        with sqlite3.connect(self.db_path) as conn:
+            return dict(conn.execute(sql, params).fetchall())
 
-        self.signature_modules = set(['M00611', 'M00612', 'M00613', 'M00614',
-                                      'M00617', 'M00618', 'M00615', 'M00616',
-                                      'M00363', 'M00542', 'M00574', 'M00575',
-                                      'M00564', 'M00660', 'M00664', 'M00625',
-                                      'M00627', 'M00745', 'M00651', 'M00652',
-                                      'M00704', 'M00725', 'M00726', 'M00730',
-                                      'M00744', 'M00718', 'M00639', 'M00641',
-                                      'M00642', 'M00643', 'M00769', 'M00649',
-                                      'M00696', 'M00697', 'M00698', 'M00700',
-                                      'M00702', 'M00714', 'M00705', 'M00746'])
+    def _query_list(self, sql, params=()):
+        """Return a flat list from a single-column SELECT."""
+        self._require_db()
+        with sqlite3.connect(self.db_path) as conn:
+            return [row[0] for row in conn.execute(sql, params).fetchall()]
 
-        self.KO_DB = os.path.join(self.REF_DIR, self.KO_DB_NAME + self.DMND_SUFFIX)
-        self.EC_DB = os.path.join(self.REF_DIR, self.EC_DB_NAME + self.DMND_SUFFIX)
+    def _load_pickle(self, name):
+        """Load a pickle file from the legacy database directory."""
+        path = '.'.join([
+            os.path.join(self._legacy_dir, name),
+            self._pickle_version,
+            'pickle',
+        ])
+        with open(path, 'rb') as fh:
+            return pickle.load(fh)
 
-        self.PFAM_DB = os.path.join(self.REF_DIR, self.PFAM_DB_NAME + self.HMM_SUFFIX)
-        self.KO_HMM_DB = os.path.join(self.REF_DIR, self.KO_HMM_DB_NAME + self.HMM_SUFFIX)
-        self.TIGRFAM_DB = os.path.join(self.REF_DIR, self.TIGRFAM_DB_NAME + self.HMM_SUFFIX)
-        self.CAZY_DB = os.path.join(self.REF_DIR, self.CAZY_DB_NAME + self.HMM_SUFFIX)
-        self.PFAM_CLAN_DB = os.path.join(self.IDS_DIR, 'PFAM_CLANS.txt')
+    # -------------------------------------------------------------------------
+    # Description lookups
+    # -------------------------------------------------------------------------
 
     def m2def(self):
-        logging.debug("Loading module to definition information")
-        return self.load_pickle(self.M2DEF)
+        logging.debug('Loading module definitions')
+        if self._legacy:
+            return self._load_pickle('module_to_definition')
+        return self._query_dict('SELECT module_id, definition FROM module_definitions')
 
     def m(self):
-        logging.debug("Loading module descriptions")
-        return self.load_pickle(self.M)
-
-    def r2p(self):
-        logging.debug("Loading reaction to pathway information")
-        return self.load_pickle(self.R2P)
-
-    def p2r(self):
-        logging.debug("Loading pathway to reaction information")
-        return self.load_pickle(self.P2R)
-
-    def r2k(self):
-        logging.debug("Loading reaction to orthology information")
-        return self.load_pickle(self.R2K)
-
-    def r2m(self):
-        logging.debug("Loading reaction to module information")
-        return self.load_pickle(self.R2M)
-
-    def m2r(self):
-        logging.debug("Loading module to reaction information")
-        return self.load_pickle(self.M2R)
-
-    def m2c(self):
-        logging.debug("Loading module to compound information")
-        return self.load_pickle(self.M2C)
-
-    def r2c(self):
-        logging.debug("Loading reaction to compound information")
-        return self.load_pickle(self.R2C)
-
-    def c2r(self):
-        logging.debug("Loading compound to reaction information")
-        return self.load_pickle(self.C2R)
-
-    def c(self):
-        logging.debug("Loading compound descriptions")
-        return self.load_pickle(self.C)
-
-    def p(self):
-        logging.debug("Loading pathway descriptions")
-        return self.load_pickle(self.P)
-
-    def r(self):
-        logging.debug("Loading reaction descriptions")
-        return self.load_pickle(self.R)
+        logging.debug('Loading module descriptions')
+        if self._legacy:
+            return self._load_pickle('module_descriptions')
+        return self._query_dict('SELECT module_id, description FROM module_descriptions')
 
     def k(self):
-        logging.debug("Loading KO descriptions")
-        return self.load_pickle(self.K)
-
-    def compound_desc_dict(self):
-        logging.debug("Loading compound classifications")
-        return self.load_pickle(self.COMPOUND_DESC)
+        logging.debug('Loading KO descriptions')
+        if self._legacy:
+            return self._load_pickle('ko_descriptions')
+        return self._query_dict('SELECT ko_id, description FROM ko_descriptions')
 
     def pfam2clan(self):
-        logging.debug("Loading pfam to clan information")
-        return self.load_pickle(self.PFAM2CLAN)
+        logging.debug('Loading Pfam clan membership')
+        if self._legacy:
+            return self._load_pickle('pfam_to_clan')
+        return self._query_dict('SELECT pfam_id, clan_id FROM pfam_clans')
 
     def pfam2description(self):
-        logging.debug("Loading pfam to description information")
-        return self.load_pickle(self.PFAM2DESCRIPTION)
+        logging.debug('Loading Pfam descriptions')
+        if self._legacy:
+            return self._load_pickle('pfam_to_description')
+        return self._query_dict('SELECT pfam_id, description FROM pfam_descriptions')
 
     def ec2description(self):
-        logging.debug("Loading EC to description information")
-        return self.load_pickle(self.EC2DESCRIPTION)
+        logging.debug('Loading EC descriptions')
+        if self._legacy:
+            return self._load_pickle('ec_to_description')
+        return self._query_dict('SELECT ec_id, description FROM ec_descriptions')
 
     def tigrfamdescription(self):
-        logging.debug("Loading TIGRFAM descriptions")
-        return self.load_pickle(self.TIGRFAM2DESCRIPTION)
+        logging.debug('Loading TIGRFAM descriptions')
+        if self._legacy:
+            return self._load_pickle('tigrfam_descriptions')
+        return self._query_dict(
+            'SELECT tigrfam_id, description FROM tigrfam_descriptions')
 
-    def k2r(self):
-        k2r = dict()
-        for reaction, kos in self.r2k().items():
-            for ko in kos:
-                if ko not in k2r:
-                    k2r[ko] = list()
-                k2r[ko].append(reaction)
-        return k2r
+    # -------------------------------------------------------------------------
+    # ID lists for MatrixGenerator (replaces IDS_DIR flat files)
+    # -------------------------------------------------------------------------
 
-    def c2m(self):
-        c2m = dict()
-        for module, compounds in self.m2c().items():
-            substrates = compounds[0]
-            for substrate in substrates:
-                if substrate in c2m:
-                    c2m[substrate].append(module)
-                else:
-                    c2m[substrate] = [module]
-        return c2m
+    def get_all_ko_ids(self):
+        if self._legacy:
+            ids_dir = os.path.join(self._legacy_dir, 'ids')
+            return [x.strip() for x in open(os.path.join(ids_dir, 'KO_IDS.txt'))]
+        return self._query_list('SELECT ko_id FROM ko_descriptions ORDER BY ko_id')
 
-    def load_pickle(self, file):
-        with open('.'.join([file, self.PICKLE_VERSION, self.PICKLE]), 'rb') as file_io:
-            loaded_pickle = pickle.load(file_io)
-        return loaded_pickle
+    def get_all_ec_ids(self):
+        if self._legacy:
+            ids_dir = os.path.join(self._legacy_dir, 'ids')
+            return [x.strip() for x in open(os.path.join(ids_dir, 'EC_IDS.txt'))]
+        return self._query_list('SELECT ec_id FROM ec_descriptions ORDER BY ec_id')
+
+    def get_all_pfam_ids(self):
+        if self._legacy:
+            ids_dir = os.path.join(self._legacy_dir, 'ids')
+            return [x.strip() for x in open(os.path.join(ids_dir, 'PFAM_IDS.txt'))]
+        return self._query_list(
+            'SELECT pfam_id FROM pfam_descriptions ORDER BY pfam_id')
+
+    def get_all_tigrfam_ids(self):
+        if self._legacy:
+            ids_dir = os.path.join(self._legacy_dir, 'ids')
+            return [x.strip() for x in open(os.path.join(ids_dir, 'TIGRFAM_IDS.txt'))]
+        return self._query_list(
+            'SELECT tigrfam_id FROM tigrfam_descriptions ORDER BY tigrfam_id')
+
+    def get_all_cazy_ids(self):
+        if self._legacy:
+            ids_dir = os.path.join(self._legacy_dir, 'ids')
+            cazy_path = os.path.join(ids_dir, 'CAZY_IDS.txt')
+            if os.path.isfile(cazy_path):
+                return [x.strip() for x in open(cazy_path)]
+        names = []
+        if os.path.isfile(self.CAZY_DB):
+            with open(self.CAZY_DB) as fh:
+                for line in fh:
+                    if line.startswith('NAME'):
+                        names.append(line.split(None, 1)[1].strip())
+        return sorted(names)
+
+    # -------------------------------------------------------------------------
+    # KOfam cutoff file
+    # -------------------------------------------------------------------------
 
     def parse_ko_cutoffs(self):
-        cut_ko = dict()
-        with open(self.KO_HMM_CUTOFFS) as out_io:
-            _ = out_io.readline()
-            for line in out_io:
+        cut_ko = {}
+        with open(self.KO_HMM_CUTOFFS) as fh:
+            fh.readline()  # header
+            for line in fh:
                 sline = line.strip().split('\t')
+                if len(sline) < 3:
+                    continue
                 if sline[1] == '-':
-                    cut_ko[sline[0]] = [0.0, "NA"]
+                    cut_ko[sline[0]] = [0.0, 'NA']
                 else:
                     cut_ko[sline[0]] = [float(sline[1]), sline[2]]
         return cut_ko
+
+    # -------------------------------------------------------------------------
+    # Database metadata
+    # -------------------------------------------------------------------------
+
+    def download_date(self):
+        """Return the ISO-8601 download date, or None for legacy installs."""
+        if self._legacy or not self._db_available:
+            return None
+        with sqlite3.connect(self.db_path) as conn:
+            row = conn.execute(
+                "SELECT value FROM metadata WHERE key='download_date'"
+            ).fetchone()
+        return row[0] if row else None

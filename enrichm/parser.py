@@ -137,49 +137,6 @@ class Parser:
         return feature_dict, genome_to_annotations_dict
 
     @staticmethod
-    def parse_tpm_values(tpm_values):
-
-        from enrichm.databases import Databases
-
-        k2r = Databases().k2r()
-
-        output_dict = dict()
-        annotation_types = set()
-        genome_types = set()
-
-        tpm_values_io = open(tpm_values, 'rb')
-        tpm_values_io.readline()
-
-        for line in tpm_values_io:
-            gene, _, _, _, _, _, _, _, _, _, tpm, \
-            _, _, annotation, sample = line.strip().split(b'\t')
-            annotation_list = annotation.split(b',')
-            tpm = float(tpm)
-            genome = '_'.join(str(gene, "utf-8").split('_')[:2]) # temporary
-            genome_types.add(genome)
-
-            if sample not in output_dict:
-                output_dict[sample] = dict()
-
-            if genome not in output_dict[sample]:
-                output_dict[sample][genome] = dict()
-
-            for annotation_type in annotation_list:
-
-                if str(annotation_type, "utf-8") in k2r:
-                    reactions = k2r[str(annotation_type, "utf-8")]
-
-                    for reaction in reactions:
-                        reaction = str.encode(reaction)
-
-                        if reaction not in output_dict[sample][genome]:
-                            output_dict[sample][genome][reaction] = 0.0
-                            annotation_types.add(reaction)
-
-                        output_dict[sample][genome][reaction] += tpm
-        return output_dict, annotation_types, genome_types
-
-    @staticmethod
     def parse_enrichment_output(enrichment_output):
         fisher_results = dict()
 

@@ -8,7 +8,6 @@ from itertools import product, combinations, chain
 from scipy import stats
 import numpy as np
 import statsmodels.sandbox.stats.multicomp as sm
-from enrichm.draw_plots import Plot
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser, ParseAnnotate
@@ -357,7 +356,6 @@ class Enrichment:
            output_directory):
         
         database = Databases()
-        plot  = Plot(database)
         syntenysearcher = SyntenySearcher()
 
         if gff_files:
@@ -527,18 +525,14 @@ class Enrichment:
                                                     operon_match_score_cutoff)
             Writer.write(synteny_results_output_lines, os.path.join(output_directory, synteny_results_path))
 
-        logging.info('Generating summary plots')
         if annotation_type == self.KEGG:
             logging.info('Finding module completeness in differentially abundant KOs')
 
             for result_file in os.listdir(output_directory):
 
                 if(result_file.endswith("fisher.tsv") or result_file.endswith("cdf.tsv")):
-                    plot.draw_barplots(os.path.join(output_directory, result_file), pval_cutoff, output_directory)
                     module_output, prefix = self.module_completeness(database, os.path.join(output_directory, result_file), pval_cutoff)
                     Writer.write(module_output, os.path.join(output_directory, prefix +'_'+ self.MODULE_COMPLETENESS))
-
-        plot.draw_pca_plot(annotation_matrix, metadata_path, output_directory)
 
 class Test(Enrichment):
     __test__ = False
@@ -586,12 +580,8 @@ class Test(Enrichment):
         self.pool = None
         if processes and processes > 1:
             self.pool = mp.Pool(processes=processes)
-        self.m2def = database.m2def()
-        self.m = database.m()
-        self.k = database.k()
-        self.tigrfamdescription = database.tigrfamdescription()
-        self.pfam2description = database.pfam2description()
-        self.ec2description = database.ec2description()
+        self._database = database
+        self._descriptions_loaded = False
 
         if annotation_type==self.PFAM:
             self.genome_annotations = dict()
@@ -696,7 +686,17 @@ class Test(Enrichment):
 
         return corrected_pvalues
 
+    def _load_descriptions(self):
+        if not self._descriptions_loaded:
+            self.k = self._database.k()
+            self.tigrfamdescription = self._database.tigrfamdescription()
+            self.pfam2description = self._database.pfam2description()
+            self.ec2description = self._database.ec2description()
+            self._descriptions_loaded = True
+
     def add_descriptions(self, output_lines):
+        self._load_descriptions()
+
         if self.annotation_type == self.KEGG:
             desc = self.k
 
