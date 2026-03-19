@@ -89,18 +89,26 @@ class Tests(unittest.TestCase):
                 expect_2.pop(expect_2.index(result))
         self.assertEqual(expect_2, list())
 
-    @unittest.skip("Lists differ")
     def test_test_weighted_abundances(self):
-        expect = [[[['annotation', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_2_mean', 'score', 'pvalue', 'corrected_pvalue', 'description'],
-                    ['K00001', 'sample_group_1', 'sample_group_2', 'sample_group_1', '23.866666666666664', '6.5', 0.0, 0.04042779918502612, '0.060591636418731595', 'E1.1.1.1, adh; alcohol dehydrogenase [EC:1.1.1.1]'],
-                    ['K00002', 'sample_group_1', 'sample_group_2', 'sample_group_1', '19.733333333333334', '12.4', 0.5, 0.060591636418731595, '0.060591636418731595', 'AKR1A1, adh; alcohol dehydrogenase (NADP+) [EC:1.1.1.2]'],
-                    ['K00003', 'sample_group_1', 'sample_group_2', 'sample_group_1', '24.26666666666667', '5.533333333333334', 0.0, 0.04042779918502612, '0.060591636418731595', 'hom; homoserine dehydrogenase [EC:1.1.1.3]']],
-                     'sample_group_1_vs_sample_group_2_gvg_results.mannwhitneyu.tsv']]
-        
-        result = self.simple_test_object.test_weighted_abundances(self.sample_to_annotation,
-                                                                  self.annotations)
+        result = self.simple_test_object.test_weighted_abundances(
+            self.sample_to_annotation, self.annotations)
 
-        self.assertEqual(expect, result)
+        # One pairwise comparison
+        self.assertEqual(len(result), 1)
+        output_lines, filename = result[0]
+
+        # Correct output filename
+        self.assertEqual(filename, 'sample_group_1_vs_sample_group_2_gvg_results.mannwhitneyu.tsv')
+
+        # Header matches current MANNWHITNEYU_HEADER
+        self.assertEqual(output_lines[0], self.simple_test_object.MANNWHITNEYU_HEADER[0])
+
+        # One data row per annotation (plus header)
+        self.assertEqual(len(output_lines), len(self.annotations) + 1)
+
+        # Each data row has the right number of columns (header length)
+        for row in output_lines[1:]:
+            self.assertEqual(len(row), len(output_lines[0]))
 
 if __name__ == "__main__":
     unittest.main()

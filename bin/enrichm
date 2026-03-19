@@ -250,14 +250,16 @@ if __name__ == "__main__":
                 help='Compare GO term annotations')
     enrichment_runtime_options.add_argument('--eggnog', action='store_true',
                 help='Compare eggNOG orthologous group annotations')
-    enrichment_runtime_options.add_argument('--range', default=2500, type = int,
-                help='Base pair range to search for synteny within. Default = 2500.')
-    enrichment_runtime_options.add_argument('--subblock_size', default=2, type = int,
-                help='Number of genes clustered in a row to be reported. Default = 2.')
-    enrichment_runtime_options.add_argument('--operon_mismatch_cutoff', default=2, type = int,
-                help='Number of allowed mismatches when searching for operons across genomes. Default = 2.')
-    enrichment_runtime_options.add_argument('--operon_match_score_cutoff', default=0.5, type = float,
-                help='Score cutoff for operon matches')
+    enrichment_runtime_options.add_argument('--intergenic_distance', default=300, type=int,
+                help='Maximum intergenic distance (bp) defining operon boundaries. Default = 300.')
+    enrichment_runtime_options.add_argument('--subblock_size', default=2, type=int,
+                help='Minimum number of enriched genes in a block to report it. Default = 2.')
+    enrichment_runtime_options.add_argument('--operon_mismatch_cutoff', default=2, type=int,
+                help='Number of allowed annotation mismatches when clustering operon blocks. Default = 2.')
+    enrichment_runtime_options.add_argument('--operon_match_score_cutoff', default=0.5, type=float,
+                help='Minimum annotation overlap fraction for clustering operon blocks. Default = 0.5.')
+    enrichment_runtime_options.add_argument('--me_distance', default=5000, type=int,
+                help='Distance (bp) within which an enriched gene is flagged as proximal to a mobile element. Default = 5000.')
     
     #~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#~#
 

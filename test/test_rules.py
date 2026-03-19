@@ -27,7 +27,7 @@ class Tests(unittest.TestCase):
 
         basic_rules_object = rules.load(basic_rules)
         classify_checks = ClassifyChecks(basic_rules_object)
-        features, _ =  parser.parse_gff(basic_gff)
+        features, _, _ = parser.parse_gff(basic_gff)
 
         self.assertFalse(classify_checks.check("sample_pathway", features['genome_1']))
         self.assertFalse(classify_checks.check("sample_pathway", features['genome_2']))
@@ -41,7 +41,7 @@ class Tests(unittest.TestCase):
         basic_gff = os.path.join(path_to_data, "gffs/basic_gff_2.gff")
         basic_rules_object = rules.load(basic_rules)
         classify_checks = ClassifyChecks(basic_rules_object)
-        features, _ =  parser.parse_gff(basic_gff)
+        features, _, _ = parser.parse_gff(basic_gff)
 
         self.assertTrue(classify_checks.check("sample_pathway", features['genome_1']))
         self.assertFalse(classify_checks.check("sample_pathway", features['genome_2']))
@@ -54,7 +54,7 @@ class Tests(unittest.TestCase):
         basic_gff = os.path.join(path_to_data, "gffs/basic_gff_3.gff")
         basic_rules_object = rules.load(basic_rules)
         classify_checks = ClassifyChecks(basic_rules_object)
-        features, _ =  parser.parse_gff(basic_gff)
+        features, _, _ = parser.parse_gff(basic_gff)
 
         self.assertTrue(classify_checks.check("sample_pathway", features['genome_1']))
         self.assertFalse(classify_checks.check("sample_pathway", features['genome_2']))
@@ -67,7 +67,7 @@ class Tests(unittest.TestCase):
         basic_gff = os.path.join(path_to_data, "gffs/basic_gff_4.gff")
         basic_rules_object = rules.load(basic_rules)
         classify_checks = ClassifyChecks(basic_rules_object)
-        features, _ =  parser.parse_gff(basic_gff)
+        features, _, _ = parser.parse_gff(basic_gff)
 
         self.assertTrue(classify_checks.check("sample_pathway", features['genome_1']))
 

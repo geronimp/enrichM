@@ -301,10 +301,11 @@ class Run:
                                        args.cog,
                                        args.go,
                                        args.eggnog,
-                                       args.range,
+                                       args.intergenic_distance,
                                        args.subblock_size,
                                        args.operon_mismatch_cutoff,
                                        args.operon_match_score_cutoff,
+                                       args.me_distance,
                                        args.output)
 
     def run_predict(self, args):

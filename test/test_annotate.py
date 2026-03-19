@@ -22,7 +22,7 @@ class Tests(unittest.TestCase):
         bin = os.path.join(path_to_data, 'test_nucleic_bin')
         cmd = '%s annotate \
                         --threads 10 \
-                        --ko \
+                        --ko_hmm \
                         --pfam \
                         --tigrfam \
                         --genome_directory %s \
@@ -36,7 +36,7 @@ class Tests(unittest.TestCase):
 
         cmd = '%s annotate \
                         --threads 10 \
-                        --ko \
+                        --ko_hmm \
                         --pfam \
                         --tigrfam \
                         --protein_directory %s \
@@ -49,7 +49,7 @@ class Tests(unittest.TestCase):
         genome_file = os.path.join(path_to_data, 'test_nucleic_bin', "GCF_001889405.1_ASM188940v1_subset.fna")
         cmd = '%s annotate \
                         --threads 10 \
-                        --ko \
+                        --ko_hmm \
                         --pfam \
                         --tigrfam \
                         --genome_files %s \
@@ -63,7 +63,7 @@ class Tests(unittest.TestCase):
 
         cmd = '%s annotate \
                         --threads 10 \
-                        --ko \
+                        --ko_hmm \
                         --pfam \
                         --tigrfam \
                         --protein_files %s \

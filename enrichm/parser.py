@@ -93,9 +93,10 @@ class Parser:
     def parse_gff(gff_file):
         feature_dict = dict()
         genome_to_annotations_dict = dict()
-        
+        gene_order = dict()  # {genome: {contig: [(start, end, strand, [annotations])]}}
+
         gff_file_io = open(gff_file)
-        
+
         for line in gff_file_io:
 
             if line.startswith('#'):
@@ -113,28 +114,43 @@ class Parser:
                 if attribute_key in attributes_dict:
                     raise Exception(f"Key duplicate in GFF file: {attribute_key}")
                 else:
-                    attributes_dict[attribute_key] = attribute_value_list 
+                    attributes_dict[attribute_key] = attribute_value_list
 
             genome = attributes_dict['genome'][0]
+            annotations = attributes_dict['annotations']
 
             if genome not in genome_to_annotations_dict:
                 genome_to_annotations_dict[genome] = dict()
                 feature_dict[genome] = dict()
+                gene_order[genome] = dict()
 
-            for attribute in attributes_dict['annotations']:
+            # gene_order: one entry per GFF line (gene), all annotations together
+            if contig not in gene_order[genome]:
+                gene_order[genome][contig] = []
+            gene_order[genome][contig].append(
+                (int(start_pos), int(finish_pos), strand, list(annotations))
+            )
+
+            # feature_dict: per-annotation lookup (existing behaviour)
+            for annotation in annotations:
 
                 if contig not in feature_dict[genome]:
                     feature_dict[genome][contig] = dict()
-                if attribute in feature_dict[genome][contig]:
-                    feature_dict[genome][contig][attribute].append([int(start_pos), int(finish_pos), strand])
-                    genome_to_annotations_dict[genome][attribute] += 1
+                if annotation in feature_dict[genome][contig]:
+                    feature_dict[genome][contig][annotation].append([int(start_pos), int(finish_pos), strand])
+                    genome_to_annotations_dict[genome][annotation] += 1
                 else:
-                    feature_dict[genome][contig][attribute] = [[int(start_pos), int(finish_pos), strand]]
-                    genome_to_annotations_dict[genome][attribute] = 1
+                    feature_dict[genome][contig][annotation] = [[int(start_pos), int(finish_pos), strand]]
+                    genome_to_annotations_dict[genome][annotation] = 1
 
         gff_file_io.close()
 
-        return feature_dict, genome_to_annotations_dict
+        # Sort each contig's gene list by start position
+        for genome in gene_order:
+            for contig in gene_order[genome]:
+                gene_order[genome][contig].sort(key=lambda g: g[0])
+
+        return feature_dict, genome_to_annotations_dict, gene_order
 
     @staticmethod
     def parse_enrichment_output(enrichment_output):

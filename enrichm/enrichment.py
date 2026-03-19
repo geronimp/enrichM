@@ -352,8 +352,8 @@ class Enrichment:
            metadata_path, abundances_path, abundance_metadata_path, pval_cutoff,
            proportions_cutoff, min_prevalence, threshold, multi_test_correction, processes,
            ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm, cog, go, eggnog,
-           synteny_range, subblock_size, operon_mismatch_cutoff, operon_match_score_cutoff,
-           output_directory):
+           intergenic_distance, subblock_size, operon_mismatch_cutoff, operon_match_score_cutoff,
+           me_distance, output_directory):
         
         database = Databases()
         syntenysearcher = SyntenySearcher()
@@ -362,11 +362,13 @@ class Enrichment:
             logging.info("Parsing .gff file input(s)")
             annotations_dict = dict()
             gene_positions = dict()
+            gene_order = dict()
 
             for gff_file in gff_files:
-                position, counts = Parser.parse_gff(gff_file)
+                position, counts, order = Parser.parse_gff(gff_file)
                 annotations_dict.update(counts)
                 gene_positions.update(position)
+                gene_order.update(order)
 
             annotations = set(chain(*[list(x.keys()) for x in annotations_dict.values()]))
 
@@ -518,12 +520,21 @@ class Enrichment:
             synteny_results_output_lines, synteny_results_path \
                 = syntenysearcher.search_for_blocks(results[0][0],
                                                     gene_positions,
+                                                    gene_order,
                                                     metadata,
-                                                    synteny_range,
+                                                    intergenic_distance,
                                                     subblock_size,
                                                     operon_mismatch_cutoff,
                                                     operon_match_score_cutoff)
             Writer.write(synteny_results_output_lines, os.path.join(output_directory, synteny_results_path))
+
+            logging.info("Flagging mobile element proximity")
+            me_output_lines, me_output_path \
+                = syntenysearcher.flag_mobile_elements(results[0][0],
+                                                       gene_order,
+                                                       metadata,
+                                                       me_distance)
+            Writer.write(me_output_lines, os.path.join(output_directory, me_output_path))
 
         if annotation_type == self.KEGG:
             logging.info('Finding module completeness in differentially abundant KOs')

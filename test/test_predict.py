@@ -26,7 +26,6 @@ class Tests(unittest.TestCase):
     sample_generate_path = os.path.join(PATH_TO_DATA, ml_data, sample_generate)
     sample_predict_path = os.path.join(PATH_TO_DATA, ml_data, sample_predict)
 
-    @unittest.skip("sklearn import error")
     def test_hello_predict(self):
         tmp = tempfile.mkdtemp()
         predict = Predict()
