@@ -1,0 +1,5 @@
+contig1	.	.	100	200	.	+	.	genome=genome_1;annotations=K00001
+contig1	.	.	900	1000	.	+	.	genome=genome_1;annotations=K00002
+contig1	.	.	100	200	.	+	.	genome=genome_2;annotations=K99999
+contig1	.	.	100	200	.	+	.	genome=genome_3;annotations=K00001
+contig1	.	.	500	600	.	+	.	genome=genome_3;annotations=K00002

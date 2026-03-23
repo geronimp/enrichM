@@ -1,0 +1,17 @@
+{
+  "version": "0",
+  "modules": {
+    "sample_pathway": {
+      "synteny": [
+        {
+          "genes": ["K00001", "K00002"],
+          "range": 500,
+          "breaks": 0,
+          "minsubblocksize": 2,
+          "min": 2
+        }
+      ],
+      "required": [[["K00001"]]]
+    }
+  }
+}
