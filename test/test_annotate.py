@@ -84,7 +84,7 @@ class Tests(unittest.TestCase):
                         --force' % (path_to_script, protein_file, tmp)
         subprocess.check_call(cmd, shell=True)
         
-    @unittest.skip("No input data for this test")
+    @unittest.skip("Requires mcl which is not available in this environment")
     def test_very_simple_orthology(self):
         tmp = tempfile.mkdtemp()
         protein_file = os.path.join(path_to_data, 'test_protein_bin', "GCF_001889405.1_ASM188940v1_subset.faa")
