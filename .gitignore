@@ -5,11 +5,11 @@ enrichm/_pycache__/*
 test/__pycache__/*
 *.pyc
 dist/*
-test-results/
-resume_claude.bash
-test/test.bash
-test/test_output/
 dist/
 *.egg-info/
+docs/build/
+test-results/
+test/test.bash
+test/test_output/
 database/
 *enrichm*output/
