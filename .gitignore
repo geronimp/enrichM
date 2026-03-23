@@ -9,3 +9,7 @@ test-results/
 resume_claude.bash
 test/test.bash
 test/test_output/
+dist/
+*.egg-info/
+database/
+*enrichm*output/
