@@ -35,5 +35,6 @@ setup(
         'certifi>=2024.0',
         'polars>=1.0',
         'pyrodigal>=3.0',
+        'dendropy>=4.5',
     ],
 )

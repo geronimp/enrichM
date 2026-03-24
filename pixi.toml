@@ -28,6 +28,7 @@ decorator = ">=5.2.1,<6"
 pytest = ">=8.4.1,<9"
 r = ">=4.4,<4.5"
 pyarrow = ">=21.0.0,<22"
+dendropy = ">=5.0.8,<6"
 
 [pypi-dependencies]
 pyrodigal = ">=3.6.3.post1, <4"

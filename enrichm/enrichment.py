@@ -1,19 +1,74 @@
 #!/usr/bin/env python3
 # pylint: disable=line-too-long
+import math
 import os
 import re
 import logging
 import multiprocessing as mp
 from itertools import product, combinations, chain
 from scipy import stats
+from scipy.cluster.hierarchy import linkage, cophenet
+from scipy.spatial.distance import pdist
 import numpy as np
 import statsmodels.sandbox.stats.multicomp as sm
+from sklearn.decomposition import NMF
+import dendropy
 from enrichm.databases import Databases
 from enrichm.module_description_parser import ModuleDescription
 from enrichm.parser import Parser, ParseAnnotate
 from enrichm.writer import Writer
 from enrichm.synteny_searcher import SyntenySearcher
 ################################################################################
+
+def indval_calc(x):
+    '''
+    Calculate Indicator Value (IndVal) for a single annotation in a focal group.
+    x = [annotation, focal_group, focal_abundances, all_group_abundances, n_permutations]
+    Returns [annotation, focal_group, indval, specificity, fidelity, pvalue]
+    '''
+    annotation, focal_group, focal_abundances, all_group_abundances, n_perms = x
+    focal_arr = np.array(focal_abundances, dtype=float)
+    focal_mean = np.mean(focal_arr)
+    all_means = np.array([np.mean(np.array(v, dtype=float)) for v in all_group_abundances.values()])
+    total_mean = np.sum(all_means)
+
+    if total_mean == 0:
+        return None
+
+    specificity = focal_mean / total_mean
+    fidelity = np.sum(focal_arr > 0) / len(focal_arr)
+    indval = np.sqrt(specificity * fidelity)
+
+    # Permutation p-value: pool all values, shuffle, recompute IndVal for focal group
+    all_vals = np.array(list(chain(*[list(v) for v in all_group_abundances.values()])), dtype=float)
+    focal_size = len(focal_arr)
+    group_sizes = [len(v) for v in all_group_abundances.values()]
+    focal_idx = list(all_group_abundances.keys()).index(focal_group)
+
+    rng = np.random.default_rng()
+    perm_indvals = np.empty(n_perms)
+
+    for i in range(n_perms):
+        shuffled = rng.permutation(all_vals)
+        idx = 0
+        perm_means = []
+        for j, size in enumerate(group_sizes):
+            chunk = shuffled[idx:idx + size]
+            perm_means.append(np.mean(chunk))
+            idx += size
+        perm_total = np.sum(perm_means)
+        if perm_total == 0:
+            perm_indvals[i] = 0.0
+            continue
+        perm_focal = shuffled[sum(group_sizes[:focal_idx]):sum(group_sizes[:focal_idx]) + focal_size]
+        perm_spec = perm_means[focal_idx] / perm_total
+        perm_fid = np.sum(perm_focal > 0) / focal_size
+        perm_indvals[i] = np.sqrt(perm_spec * perm_fid)
+
+    pvalue = (np.sum(perm_indvals >= indval) + 1) / (n_perms + 1)
+    return [annotation, focal_group, str(round(float(indval), 4)),
+            str(round(float(specificity), 4)), str(round(float(fidelity), 4)), pvalue]
+
 
 def gene_fisher_calc(x):
     annotation, group_1, group_2 = x[0], x[1], x[2]
@@ -135,6 +190,40 @@ def kruskal_wallis_calc(x):
     except ValueError:
         return None
     return [annotation, ','.join(group_names), h_stat, pvalue]
+
+def phylo_pairs_calc(x):
+    '''
+    Scoary1-style phylogenetic paired comparison for one annotation.
+    x = [annotation, pairs, genome_annotations, n_permutations]
+    pairs = list of (g1_genome, g2_genome) tuples derived from tree splits.
+    Returns [annotation, concordant, discordant, pvalue] or None.
+    '''
+    annotation, pairs, genome_annotations, n_perms = x
+    C, D = 0, 0
+    for g1_g, g2_g in pairs:
+        g1_has = genome_annotations.get(g1_g, {}).get(annotation, 0) > 0
+        g2_has = genome_annotations.get(g2_g, {}).get(annotation, 0) > 0
+        if g1_has and not g2_has:
+            C += 1
+        elif not g1_has and g2_has:
+            D += 1
+    if C + D == 0:
+        return None
+    # Within-pair permutation: randomly swap which genome is treated as g1
+    rng = np.random.default_rng()
+    perm_C = np.zeros(n_perms, dtype=int)
+    for i in range(n_perms):
+        c = 0
+        for g1_g, g2_g in pairs:
+            if rng.random() < 0.5:
+                g1_g, g2_g = g2_g, g1_g
+            g1_has = genome_annotations.get(g1_g, {}).get(annotation, 0) > 0
+            g2_has = genome_annotations.get(g2_g, {}).get(annotation, 0) > 0
+            if g1_has and not g2_has:
+                c += 1
+        perm_C[i] = c
+    pvalue = (np.sum(perm_C >= C) + 1) / (n_perms + 1)
+    return [annotation, C, D, pvalue]
 
 ################################################################################
 
@@ -353,7 +442,9 @@ class Enrichment:
            proportions_cutoff, min_prevalence, threshold, multi_test_correction, processes,
            ko, pfam, tigrfam, cluster, ortholog, cazy, ec, ko_hmm, cog, go, eggnog,
            intergenic_distance, subblock_size, operon_mismatch_cutoff, operon_match_score_cutoff,
-           me_distance, output_directory):
+           me_distance, output_directory,
+           decompose=False, n_components=None, select_components=False,
+           tree_path=None):
         
         database = Databases()
         syntenysearcher = SyntenySearcher()
@@ -500,7 +591,13 @@ class Enrichment:
                 combination_dict['_'.join(combination)] = genome_list
 
             test = Test(annotations_dict, combination_dict, annotation_type, threshold, multi_test_correction, processes, database)
-            results = test.test_pipeline(attribute_dict)
+            results = test.test_pipeline(attribute_dict, tree_path=tree_path)
+
+            if decompose:
+                logging.info('Running NMF decomposition')
+                nmf_results = test.nmf_decompose(n_components=n_components,
+                                                 select_components=select_components)
+                results.extend(nmf_results)
 
             for result in results:
                 test_result_lines, test_result_output_file = result
@@ -559,6 +656,19 @@ class Test(Enrichment):
 
     KW_HEADER = [['annotation', 'groups', 'H_statistic', 'pvalue', 'corrected_pvalue', 'description']]
     KW_OUTPUT = 'kruskal_wallis.tsv'
+
+    INDVAL_HEADER = [['annotation', 'indicator_group', 'indval', 'specificity', 'fidelity', 'pvalue', 'corrected_pvalue', 'description']]
+    INDVAL_OUTPUT = 'indval_results.tsv'
+
+    NMF_LOADINGS_OUTPUT = 'nmf_loadings.tsv'
+    NMF_SCORES_OUTPUT = 'nmf_scores.tsv'
+    NMF_MWU_HEADER = [['component', 'group_1', 'group_2', 'enriched_in', 'group_1_mean', 'group_2_mean',
+                        'fold_change', 'effect_size', 'U_statistic', 'pvalue', 'corrected_pvalue']]
+    NMF_MWU_OUTPUT = 'nmf_component_mwu.tsv'
+
+    PHYLO_HEADER = [['annotation', 'concordant_pairs', 'discordant_pairs',
+                     'pvalue', 'corrected_pvalue', 'description']]
+    PHYLO_OUTPUT = 'phylo_corrected.tsv'
 
     PA = 'presence_absence'
     IVG_OUTPUT = 'ivg_results.cdf.tsv'
@@ -784,7 +894,189 @@ class Test(Enrichment):
             res_list.append([annotation, group_names, group_values])
         return res_list
 
-    def test_pipeline(self, group_dict):
+    def _build_annotation_matrix(self):
+        '''Build genomes × annotations matrix. Returns (all_genomes, annotations, X).'''
+        all_genomes = list(self.genome_annotations.keys())
+        annotations = sorted(set(chain(*self.genome_annotations.values())))
+        X = np.array([[self.genome_annotations[g].get(a, 0.0) for a in annotations]
+                      for g in all_genomes], dtype=float)
+        return all_genomes, annotations, X
+
+    def _select_k_cophenetic(self, X, k_max=30, n_runs=20):
+        '''Select NMF k via cophenetic correlation coefficient.'''
+        n_genomes = X.shape[0]
+        k_range = range(2, min(k_max + 1, n_genomes))
+        best_k = 2
+        best_score = -1.0
+
+        for k in k_range:
+            consensus = np.zeros((n_genomes, n_genomes))
+            for _ in range(n_runs):
+                model = NMF(n_components=k, max_iter=500)
+                W = model.fit_transform(X)
+                labels = np.argmax(W, axis=1)
+                for i in range(n_genomes):
+                    for j in range(n_genomes):
+                        if labels[i] == labels[j]:
+                            consensus[i, j] += 1
+            consensus /= n_runs
+            dist = pdist(consensus, metric='euclidean')
+            Z = linkage(dist, method='average')
+            c, _ = cophenet(Z, dist)
+            logging.info(f'k={k}: cophenetic correlation = {c:.4f}')
+            if c > best_score:
+                best_score = c
+                best_k = k
+
+        logging.info(f'Selected k={best_k} (cophenetic r={best_score:.4f})')
+        return best_k
+
+    def nmf_decompose(self, n_components=None, select_components=False):
+        '''
+        Decompose annotation matrix via NMF. Returns list of [lines, filename] results.
+
+        Parameters
+        ----------
+        n_components        - int or None. Fixed k; overrides heuristic and cophenetic selection.
+        select_components   - bool. Use cophenetic correlation to select k automatically.
+        '''
+        all_genomes, annotations, X = self._build_annotation_matrix()
+        n_genomes = X.shape[0]
+
+        if n_components is not None:
+            k = n_components
+        elif select_components:
+            logging.info('Selecting NMF k via cophenetic correlation (this may take a while)')
+            k = self._select_k_cophenetic(X)
+        else:
+            k = max(2, int(math.sqrt(n_genomes / 2)))
+
+        logging.info(f'Running NMF decomposition with k={k} components on '
+                     f'{n_genomes} genomes × {len(annotations)} annotations')
+
+        model = NMF(n_components=k, random_state=42, max_iter=500)
+        W = model.fit_transform(X)   # n_genomes × k
+        H = model.components_        # k × n_annotations
+
+        results = []
+
+        # Component loadings: rows = components, cols = annotations
+        loading_lines = [['component'] + list(annotations)]
+        for i, row in enumerate(H):
+            loading_lines.append([f'component_{i + 1}'] + [str(round(float(v), 6)) for v in row])
+        results.append([loading_lines, self.NMF_LOADINGS_OUTPUT])
+
+        # Genome component scores: rows = genomes, cols = components
+        score_lines = [['genome'] + [f'component_{i + 1}' for i in range(k)]]
+        for genome, row in zip(all_genomes, W):
+            score_lines.append([genome] + [str(round(float(v), 6)) for v in row])
+        results.append([score_lines, self.NMF_SCORES_OUTPUT])
+
+        # MWU on component scores between all group pairs
+        genome_idx = {g: i for i, g in enumerate(all_genomes)}
+        group_names = list(self.groups.keys())
+        mwu_lines = []
+        for component_idx in range(k):
+            comp_name = f'component_{component_idx + 1}'
+            for g1, g2 in combinations(group_names, 2):
+                g1_scores = [W[genome_idx[g], component_idx] for g in self.groups[g1] if g in genome_idx]
+                g2_scores = [W[genome_idx[g], component_idx] for g in self.groups[g2] if g in genome_idx]
+                row = mannwhitneyu_calc([comp_name, g1, g2, [g1_scores], [g2_scores]])
+                mwu_lines.append(row)
+
+        if mwu_lines:
+            for idx, cpval in enumerate(self.corrected_pvals(mwu_lines)):
+                mwu_lines[idx].append(str(cpval))
+            mwu_lines = self.NMF_MWU_HEADER + mwu_lines
+            results.append([mwu_lines, self.NMF_MWU_OUTPUT])
+
+        return results
+
+    def _get_phylo_pairs(self, tree, g1_genomes, g2_genomes):
+        '''
+        Traverse tree internal nodes and collect cross-clade pairs where one
+        genome is in g1 and the other is in g2. Returns list of (g1_genome,
+        g2_genome) tuples — one per informative cross-clade pairing.
+        '''
+        all_genomes = set(g1_genomes) | set(g2_genomes)
+        g1_set = set(g1_genomes)
+        g2_set = set(g2_genomes)
+        pairs = set()
+        for node in tree.internal_nodes():
+            children = node.child_nodes()
+            if len(children) < 2:
+                continue
+            child_leaves = []
+            for child in children:
+                leaves = {n.taxon.label.strip() for n in child.leaf_iter()
+                          if n.taxon and n.taxon.label.strip() in all_genomes}
+                child_leaves.append(leaves)
+            for i in range(len(child_leaves)):
+                for j in range(i + 1, len(child_leaves)):
+                    for l in child_leaves[i]:
+                        for r in child_leaves[j]:
+                            if l in g1_set and r in g2_set:
+                                pairs.add((l, r))
+                            elif r in g1_set and l in g2_set:
+                                pairs.add((r, l))
+        return list(pairs)
+
+    def phylo_correction(self, tree_path, group_1, group_2, n_permutations=999):
+        '''
+        Run Scoary1-style phylogenetic paired comparison for all annotations,
+        testing whether group associations survive correction for shared ancestry.
+
+        Parameters
+        ----------
+        tree_path       - str. Path to Newick tree file.
+        group_1, group_2 - str. Group names in self.groups.
+        n_permutations  - int. Number of within-pair permutations (default 999).
+
+        Returns [lines, filename] or None if no informative pairs found.
+        '''
+        tree = dendropy.Tree.get(path=tree_path, schema='newick',
+                                 preserve_underscores=True)
+        g1_genomes = self.groups[group_1]
+        g2_genomes = self.groups[group_2]
+        pairs = self._get_phylo_pairs(tree, g1_genomes, g2_genomes)
+
+        if not pairs:
+            logging.warning(
+                f'No phylogenetically informative pairs for {group_1} vs {group_2}. '
+                'Check that tree tip labels match genome names.')
+            return None
+
+        logging.info(f'Phylo correction: {len(pairs)} paired comparisons '
+                     f'({group_1} vs {group_2})')
+
+        annotations = sorted(set(chain(*self.genome_annotations.values())))
+        calc_input = [[ann, pairs, self.genome_annotations, n_permutations]
+                      for ann in annotations]
+
+        lines = [x for x in self._map(phylo_pairs_calc, calc_input) if x is not None]
+        if not lines:
+            return None
+
+        for idx, cpval in enumerate(self.corrected_pvals(lines)):
+            lines[idx].append(str(cpval))
+        lines = self.add_descriptions(lines)
+        return [self.PHYLO_HEADER + lines, self.PHYLO_OUTPUT]
+
+    def indval_frequencies(self, n_permutations=999):
+        annotations = sorted(set(chain(*self.genome_annotations.values())))
+        res_list = []
+        for annotation in annotations:
+            all_group_abundances = {g: self.count(annotation, g, freq=True)[0] for g in self.groups}
+            if all(sum(float(v) for v in vals) == 0 for vals in all_group_abundances.values()):
+                continue
+            for focal_group in self.groups:
+                res_list.append([annotation, focal_group,
+                                 all_group_abundances[focal_group],
+                                 all_group_abundances,
+                                 n_permutations])
+        return res_list
+
+    def test_pipeline(self, group_dict, tree_path=None):
         results = list()
 
         if len(group_dict) > 2:
@@ -797,6 +1089,16 @@ class Test(Enrichment):
                 kw_lines = self.add_descriptions(kw_lines)
                 kw_lines = self.KW_HEADER + kw_lines
                 results.append([kw_lines, self.KW_OUTPUT])
+
+        logging.info('Calculating IndVal indicator scores')
+        indval_input = self.indval_frequencies()
+        indval_lines = [x for x in self._map(indval_calc, indval_input) if x is not None]
+        if indval_lines:
+            for idx, cpval in enumerate(self.corrected_pvals(indval_lines)):
+                indval_lines[idx].append(str(cpval))
+            indval_lines = self.add_descriptions(indval_lines)
+            indval_lines = self.INDVAL_HEADER + indval_lines
+            results.append([indval_lines, self.INDVAL_OUTPUT])
 
         for combination in combinations(group_dict, 2):
             enrichment_test, overrepresentation_test = self.test_chooser( [group_dict[member] for member in combination] )
@@ -850,5 +1152,12 @@ class Test(Enrichment):
             output_lines = self.add_descriptions(output_lines)
             output_lines = header + output_lines
             results.append([output_lines, prefix +'_'+ output])
+
+            if tree_path:
+                logging.info(f'Running phylogenetic correction for {combination[0]} vs {combination[1]}')
+                phylo_result = self.phylo_correction(tree_path, combination[0], combination[1])
+                if phylo_result:
+                    phylo_lines, phylo_output = phylo_result
+                    results.append([phylo_lines, prefix + '_' + phylo_output])
 
         return results

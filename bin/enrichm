@@ -225,6 +225,14 @@ if __name__ == "__main__":
                 help='The form of mutiple test correction to use. Uses the statsmodel module and consequently has all of its options.\nDefault: Benjamini-Hochberg FDR (fdr_bh) \nOptions: Bonferroni (b) \n\t Sidak (s) \n\t Holm (h) \n\t Holm-Sidak (hs) \n\t Simes-Hochberg (sh) \n\t Hommel (ho) \n\t FDR Benjamini-Yekutieli (fdr_by) \n\t FDR 2-stage Benjamini-Hochberg (fdr_tsbh) \n\t FDR 2-stage Benjamini-Krieger-Yekutieli (fdr_tsbky) \n\t FDR adaptive Gavrilov-Benjamini-Sarkar (fdr_gbs))', default='fdr_bh')
     enrichment_runtime_options.add_argument('--processes', type = int,
                 help='Number of processes to use for enrichment.', default=1)
+    enrichment_runtime_options.add_argument('--tree', type=str, default=None,
+                help='Path to Newick tree file. When provided, runs Scoary1-style phylogenetic paired comparison as a sensitivity analysis on all pairwise enrichment results.')
+    enrichment_runtime_options.add_argument('--decompose', action='store_true',
+                help='Decompose annotation matrix via NMF into latent functional components and test component scores between groups.')
+    enrichment_runtime_options.add_argument('--n_components', type=int, default=None,
+                help='Number of NMF components (k). Overrides automatic selection. Requires --decompose.')
+    enrichment_runtime_options.add_argument('--select_components', action='store_true',
+                help='Select NMF k automatically via cophenetic correlation (slow). Requires --decompose.')
     enrichment_runtime_options.add_argument('--allow_negative_values',
                 help='Allow negative values in input matrix.', action='store_true',)
     enrichment_runtime_options.add_argument('--ko', action='store_true',

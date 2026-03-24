@@ -13,7 +13,7 @@ path_to_annotate = os.path.join(path_to_data, 'enrichm_annotate')
 
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)),'..')]+sys.path
 
-from enrichm.enrichment import Enrichment, Test, gene_fisher_calc, mannwhitneyu_calc, zscore_calc, kruskal_wallis_calc
+from enrichm.enrichment import Enrichment, Test, gene_fisher_calc, mannwhitneyu_calc, zscore_calc, kruskal_wallis_calc, indval_calc, phylo_pairs_calc
 
 ###############################################################################
 
@@ -365,6 +365,150 @@ class Tests(unittest.TestCase):
     def test_zscore_header_uses_z_score(self):
         self.assertIn('z_score', Test.ZSCORE_HEADER[0])
         self.assertNotIn('score', Test.ZSCORE_HEADER[0])
+
+    # --- indval_calc ---
+
+    def test_indval_calc_returns_six_fields(self):
+        # Two groups: focal has high values, other has low values
+        x = ['K00001', 'group_1',
+             [3.0, 3.0, 3.0],
+             {'group_1': [3.0, 3.0, 3.0], 'group_2': [0.0, 0.0, 0.0]},
+             99]
+        result = indval_calc(x)
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 6)
+        self.assertEqual(result[0], 'K00001')
+        self.assertEqual(result[1], 'group_1')
+        # indval, specificity, fidelity are string-encoded floats
+        self.assertAlmostEqual(float(result[2]), 1.0, places=3)  # perfect indicator
+        self.assertAlmostEqual(float(result[3]), 1.0, places=3)  # specificity=1
+        self.assertAlmostEqual(float(result[4]), 1.0, places=3)  # fidelity=1
+
+    def test_indval_calc_all_zero_returns_none(self):
+        x = ['K00001', 'group_1',
+             [0.0, 0.0],
+             {'group_1': [0.0, 0.0], 'group_2': [0.0, 0.0]},
+             99]
+        result = indval_calc(x)
+        self.assertIsNone(result)
+
+    def test_indval_calc_pvalue_range(self):
+        x = ['K00001', 'group_1',
+             [1.0, 2.0, 3.0],
+             {'group_1': [1.0, 2.0, 3.0], 'group_2': [1.0, 1.0, 1.0]},
+             99]
+        result = indval_calc(x)
+        self.assertIsNotNone(result)
+        pvalue = result[5]
+        self.assertGreaterEqual(float(pvalue), 0.0)
+        self.assertLessEqual(float(pvalue), 1.0)
+
+    # --- nmf_decompose ---
+
+    def _make_test_object(self):
+        import unittest.mock as mock
+        db = mock.MagicMock()
+        db.k.return_value = {}
+        db.tigrfamdescription.return_value = {}
+        db.pfam2description.return_value = {}
+        db.ec2description.return_value = {}
+        return Test(
+            self.genome_annotation_simple_example,
+            self.genome_groups_simple_example,
+            'other', 0.05, 'fdr_bh', 1, db
+        )
+
+    def test_nmf_decompose_returns_three_result_files(self):
+        t = self._make_test_object()
+        results = t.nmf_decompose(n_components=2)
+        filenames = [r[1] for r in results]
+        self.assertIn('nmf_loadings.tsv', filenames)
+        self.assertIn('nmf_scores.tsv', filenames)
+        self.assertIn('nmf_component_mwu.tsv', filenames)
+
+    def test_nmf_decompose_loadings_shape(self):
+        t = self._make_test_object()
+        results = t.nmf_decompose(n_components=2)
+        loadings = next(r[0] for r in results if r[1] == 'nmf_loadings.tsv')
+        # header + 2 component rows
+        self.assertEqual(len(loadings), 3)
+        # header: 'component' + 3 annotations
+        self.assertEqual(len(loadings[0]), 4)
+
+    def test_nmf_decompose_scores_shape(self):
+        t = self._make_test_object()
+        results = t.nmf_decompose(n_components=2)
+        scores = next(r[0] for r in results if r[1] == 'nmf_scores.tsv')
+        # header + 3 genome rows
+        self.assertEqual(len(scores), 4)
+        # header: 'genome' + 2 components
+        self.assertEqual(len(scores[0]), 3)
+
+    def test_nmf_header_fields(self):
+        self.assertIn('component', Test.NMF_MWU_HEADER[0])
+        self.assertIn('fold_change', Test.NMF_MWU_HEADER[0])
+        self.assertIn('effect_size', Test.NMF_MWU_HEADER[0])
+
+    # --- phylo_pairs_calc ---
+
+    def test_phylo_pairs_calc_concordant(self):
+        # g1 genomes have annotation, g2 don't — all pairs concordant
+        pairs = [('g1a', 'g2a'), ('g1b', 'g2b')]
+        genome_annotations = {
+            'g1a': {'K00001': 1}, 'g1b': {'K00001': 1},
+            'g2a': {}, 'g2b': {},
+        }
+        x = ['K00001', pairs, genome_annotations, 99]
+        result = phylo_pairs_calc(x)
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0], 'K00001')
+        self.assertEqual(result[1], 2)   # 2 concordant
+        self.assertEqual(result[2], 0)   # 0 discordant
+        self.assertLessEqual(result[3], 1.0)
+
+    def test_phylo_pairs_calc_no_signal_returns_none(self):
+        # All genomes have annotation — no concordant or discordant pairs
+        pairs = [('g1a', 'g2a')]
+        genome_annotations = {'g1a': {'K00001': 1}, 'g2a': {'K00001': 1}}
+        x = ['K00001', pairs, genome_annotations, 99]
+        result = phylo_pairs_calc(x)
+        self.assertIsNone(result)
+
+    def test_phylo_pairs_calc_pvalue_range(self):
+        pairs = [('g1a', 'g2a'), ('g1b', 'g2b'), ('g1c', 'g2c')]
+        genome_annotations = {
+            'g1a': {'K00001': 1}, 'g1b': {'K00001': 1}, 'g1c': {'K00001': 1},
+            'g2a': {}, 'g2b': {}, 'g2c': {},
+        }
+        x = ['K00001', pairs, genome_annotations, 99]
+        result = phylo_pairs_calc(x)
+        self.assertGreaterEqual(result[3], 0.0)
+        self.assertLessEqual(result[3], 1.0)
+
+    def test_get_phylo_pairs_extracts_cross_clade_pairs(self):
+        import dendropy
+        import unittest.mock as mock
+        newick = '((g1a,g1b),(g2a,g2b));'
+        tree = dendropy.Tree.get(data=newick, schema='newick')
+        db = mock.MagicMock()
+        db.k.return_value = {}
+        db.tigrfamdescription.return_value = {}
+        db.pfam2description.return_value = {}
+        db.ec2description.return_value = {}
+        t = Test(self.genome_annotation_simple_example,
+                 self.genome_groups_simple_example,
+                 'other', 0.05, 'fdr_bh', 1, db)
+        pairs = t._get_phylo_pairs(tree, ['g1a', 'g1b'], ['g2a', 'g2b'])
+        # Should have 4 cross-clade pairs
+        self.assertEqual(len(pairs), 4)
+        for g1, g2 in pairs:
+            self.assertIn(g1, ['g1a', 'g1b'])
+            self.assertIn(g2, ['g2a', 'g2b'])
+
+    def test_phylo_header_fields(self):
+        self.assertIn('concordant_pairs', Test.PHYLO_HEADER[0])
+        self.assertIn('discordant_pairs', Test.PHYLO_HEADER[0])
+        self.assertIn('pvalue', Test.PHYLO_HEADER[0])
 
 
 if __name__ == "__main__":

@@ -306,7 +306,11 @@ class Run:
                                        args.operon_mismatch_cutoff,
                                        args.operon_match_score_cutoff,
                                        args.me_distance,
-                                       args.output)
+                                       args.output,
+                                       args.decompose,
+                                       args.n_components,
+                                       args.select_components,
+                                       args.tree)
 
     def run_predict(self, args):
         self._check_predict(args)
