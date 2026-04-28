@@ -9,6 +9,7 @@ dependencies:
   - parallel
   - prodigal
   - mmseqs2
+  - mcl
   - python 3.*
   - certifi >=2024
   - python-dateutil >=2.9.0.post0,<3
@@ -23,6 +24,9 @@ dependencies:
   - decorator >=5.2.1,<6
   - r >=4.4,<4.5
   - pyarrow >=21.0.0,<22
+  - dendropy >=5.0.8,<6
+  - matplotlib >=3.10.8,<4
+  - pandas >=2.3.2,<3
   - pip
   - pip:
     - pyrodigal>=3.6.3.post1,<4
