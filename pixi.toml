@@ -6,6 +6,8 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [tasks]
+pipeline = "python scripts/pipeline.py"
+nmf_heatmap = "python scripts/plot_nmf_heatmap.py"
 
 [dependencies]
 diamond = "*"
@@ -29,6 +31,7 @@ pytest = ">=8.4.1,<9"
 r = ">=4.4,<4.5"
 pyarrow = ">=21.0.0,<22"
 dendropy = ">=5.0.8,<6"
+matplotlib = ">=3.10.8,<4"
 
 [pypi-dependencies]
 pyrodigal = ">=3.6.3.post1, <4"

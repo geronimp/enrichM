@@ -244,21 +244,21 @@ class Enrichment:
     PFAM_PREFIX = 'PF'
     KEGG_PREFIX = 'K'
     GO_PREFIX = 'GO:'
-    CAZY_PREFIX = ["GH", "AA", "GT", "PL", "CE", "CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt"]
+    CAZY_PREFIX = ["GH", "AA", "GT", "PL", "CE", "CBM", "SLH", "dockerin", "cohesin", "GTCellulosesynt", "fungi_coh", "fungi_doc"]
     EC_PREFIX = ["1", "2", "3","4","5","6", "7"]
     KO_PATTERN = re.compile(r'^K\d{5}$')
     PROPORTIONS = 'proportions.tsv'
     MODULE_COMPLETENESS = 'modules.tsv'
 
     def _annotation_type_of(self, annotation):
-        cazy_prefix = ''.join(c for c in annotation if not c.isdigit() and c != '_')
+        base = annotation[:-4] if annotation.endswith('.hmm') else annotation
         if annotation.startswith(self.TIGRFAM_PREFIX):
             return self.TIGRFAM
         elif self.KO_PATTERN.match(annotation):
             return self.KEGG
         elif annotation.startswith(self.PFAM_PREFIX):
             return self.PFAM
-        elif cazy_prefix in self.CAZY_PREFIX:
+        elif any(base.startswith(p) for p in self.CAZY_PREFIX):
             return self.CAZY
         elif annotation.split('.')[0] in self.EC_PREFIX:
             return self.EC
@@ -352,7 +352,7 @@ class Enrichment:
             for group_name, genome_list in combination_dict.items():
                 if len(genome_list)>0:
                     coverage = len([genome for genome in genome_list
-                                    if annotation in annotations_dict[genome]])
+                                    if annotations_dict.get(genome, {}).get(annotation, 0) > 0])
                     total    = float(len(genome_list))
                     entry    = coverage/total
                     annotation_values[group_name] = entry
@@ -531,13 +531,55 @@ class Enrichment:
                     .to_dict()
             )
 
+        explicit_type = None
+        if ko or ko_hmm:
+            explicit_type = self.KEGG
+        elif pfam:
+            explicit_type = self.PFAM
+        elif tigrfam:
+            explicit_type = self.TIGRFAM
+        elif cluster:
+            explicit_type = self.CLUSTER
+        elif ortholog:
+            explicit_type = self.ORTHOLOG
+        elif cazy:
+            explicit_type = self.CAZY
+        elif ec:
+            explicit_type = self.EC
+        elif cog:
+            explicit_type = self.COG
+        elif go:
+            explicit_type = self.GO
+        elif eggnog:
+            explicit_type = self.EGGNOG
+
+        # Filter to the requested type when using a raw annotation matrix that may contain
+        # mixed annotation types (e.g. a combined tigrfam/pfam/cog frequency table).
+        if explicit_type and annotation_matrix and not annotate_output:
+            keep = {a for a in annotations if self._annotation_type_of(a) == explicit_type}
+            if keep:
+                if len(keep) < len(annotations):
+                    logging.info(
+                        'Filtering %d annotations to %d %s annotations',
+                        len(annotations), len(keep), explicit_type
+                    )
+                annotations = [a for a in annotations if a in keep]
+                for sample in annotations_dict:
+                    annotations_dict[sample] = {k: v for k, v in annotations_dict[sample].items() if k in keep}
+            else:
+                logging.warning(
+                    'Could not classify any of the %d annotations as type %r; '
+                    'skipping type filter. Check annotation name format.',
+                    len(annotations), explicit_type
+                )
+
         if min_prevalence > 0:
             annotations_dict = self.filter_by_prevalence(annotations_dict, min_prevalence)
             annotations = list(set(chain(*[list(x.keys()) for x in annotations_dict.values()])))
 
         annotation_type = (
             parse_key if emapper_output
-            else self.check_annotation_type(annotations)
+            else (explicit_type if explicit_type else self.check_annotation_type(annotations))
         )
         
         if abundances_path:
@@ -595,14 +637,18 @@ class Enrichment:
 
             if decompose:
                 logging.info('Running NMF decomposition')
-                nmf_results = test.nmf_decompose(n_components=n_components,
-                                                 select_components=select_components)
+                nmf_results, W, all_genomes, k = test.nmf_decompose(n_components=n_components,
+                                                                     select_components=select_components)
                 results.extend(nmf_results)
 
             for result in results:
                 test_result_lines, test_result_output_file = result
                 test_result_output_path = os.path.join(output_directory, test_result_output_file)
                 Writer.write(test_result_lines, test_result_output_path)
+
+            if decompose:
+                heatmap_path = os.path.join(output_directory, 'nmf_heatmap.png')
+                test.plot_nmf_heatmap(W, all_genomes, k, heatmap_path)
 
             raw_proportions_output_lines = \
                 self.calculate_portions(annotations,
@@ -789,8 +835,7 @@ class Test(Enrichment):
                               freq)
 
             if freq:
-                if(len([x for x in group_1_true if x!='0'])==0 and
-                    len([x for x in group_2_true if x!='0'])==0 ):
+                if not any(x > 0 for x in group_1_true) and not any(x > 0 for x in group_2_true):
                     passed = False
             else:
                 if(group_1_true==0 and group_2_true==0):
@@ -802,6 +847,8 @@ class Test(Enrichment):
         return res_list
 
     def corrected_pvals(self, output_lines):
+        if not output_lines:
+            return []
         pvalues = [output_line[-1] for output_line in output_lines]
         corrected_pvalues = self.correct_multi_test(pvalues)
 
@@ -837,6 +884,9 @@ class Test(Enrichment):
             desc = None
 
         if self.annotation_type in (self.COG, self.GO, self.EGGNOG):
+            desc = None
+
+        if self.annotation_type in (self.CLUSTER, self.ORTHOLOG):
             desc = None
 
         for line in output_lines:
@@ -990,7 +1040,87 @@ class Test(Enrichment):
             mwu_lines = self.NMF_MWU_HEADER + mwu_lines
             results.append([mwu_lines, self.NMF_MWU_OUTPUT])
 
-        return results
+        return results, W, all_genomes, k
+
+    def plot_nmf_heatmap(self, W, all_genomes, k, output_path):
+        '''
+        Write NMF genome score heatmap annotated with group labels to output_path.
+        '''
+        try:
+            import matplotlib
+            matplotlib.use('Agg')
+            import matplotlib.pyplot as plt
+            import matplotlib.patches as mpatches
+            from matplotlib.colors import Normalize
+        except ImportError:
+            logging.warning('matplotlib not available — skipping NMF heatmap')
+            return
+
+        import pandas as pd
+
+        component_cols = [f'component_{i + 1}' for i in range(k)]
+        scores = pd.DataFrame(W, index=all_genomes, columns=component_cols)
+
+        genome_to_group = {}
+        for group, genomes in self.groups.items():
+            for g in genomes:
+                genome_to_group[g] = group
+        groups = pd.Series([genome_to_group.get(g, 'Unknown') for g in all_genomes],
+                           index=all_genomes)
+
+        # Sort by group then dominant component
+        dominant = scores.idxmax(axis=1)
+        order = pd.DataFrame({'group': groups, 'dominant': dominant}) \
+                  .sort_values(['group', 'dominant']).index
+        scores = scores.loc[order]
+        groups = groups.loc[order]
+
+        unique_groups = groups.unique()
+        palette = plt.cm.Set2(np.linspace(0, 0.8, len(unique_groups)))
+        group_colours = {g: palette[i] for i, g in enumerate(unique_groups)}
+        row_colours = [group_colours[g] for g in groups]
+
+        fig = plt.figure(figsize=(8, 12))
+        gs = fig.add_gridspec(1, 3, width_ratios=[0.04, 1, 0.04], wspace=0.02)
+        ax_strip = fig.add_subplot(gs[0])
+        ax_heat  = fig.add_subplot(gs[1])
+        ax_cbar  = fig.add_subplot(gs[2])
+
+        data = scores.values
+        im = ax_heat.imshow(data, aspect='auto', cmap='YlOrRd',
+                            norm=Normalize(vmin=data.min(), vmax=data.max()),
+                            interpolation='nearest')
+
+        ax_heat.set_xticks(range(k))
+        ax_heat.set_xticklabels(component_cols, rotation=45, ha='right', fontsize=9)
+        ax_heat.set_yticks([])
+        ax_heat.set_xlabel('NMF component', fontsize=10)
+        ax_heat.set_title('NMF genome scores', fontsize=11, pad=8)
+
+        strip = np.array([[matplotlib.colors.to_rgba(c)] for c in row_colours])
+        ax_strip.imshow(strip, aspect='auto', interpolation='nearest')
+        ax_strip.set_xticks([])
+        ax_strip.set_yticks(range(len(order)))
+        ax_strip.set_yticklabels(order, fontsize=5)
+        ax_strip.yaxis.set_tick_params(length=0)
+        ax_strip.set_ylabel('Genome', fontsize=9)
+
+        plt.colorbar(im, cax=ax_cbar, label='Score')
+
+        def short_label(label):
+            label = label.replace('s__', '')
+            parts = label.split()
+            return f'{parts[0][0]}.{parts[1]}' if len(parts) >= 2 else label
+
+        patches = [mpatches.Patch(color=group_colours[g], label=short_label(g))
+                   for g in unique_groups]
+        ax_heat.legend(handles=patches, title='Group',
+                       bbox_to_anchor=(1.18, 1), loc='upper left',
+                       fontsize=8, title_fontsize=9, frameon=True)
+
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.close()
+        logging.info(f'NMF heatmap saved: {output_path}')
 
     def _get_phylo_pairs(self, tree, g1_genomes, g2_genomes):
         '''
@@ -1109,16 +1239,16 @@ class Test(Enrichment):
             if enrichment_test == stats.fisher_exact:
                 logging.info('Testing gene enrichment using Fisher\'s exact test')
                 gene_count = self.gene_frequencies(*combination)
-                output_lines = self._map(gene_fisher_calc, gene_count)
+                output_lines = [x for x in self._map(gene_fisher_calc, gene_count) if x is not None]
 
-                for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
-                    output_lines[idx].append(str(corrected_pval))
-
-                header = self.FISHER_HEADER
-                output = self.GENE_FISHER_OUTPUT
-                output_lines = self.add_descriptions(output_lines)
-                output_lines = header + output_lines
-                results.append([output_lines, prefix + '_' + output])
+                if output_lines:
+                    for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                        output_lines[idx].append(str(corrected_pval))
+                    output_lines = self.add_descriptions(output_lines)
+                    output_lines = self.FISHER_HEADER + output_lines
+                    results.append([output_lines, prefix + '_' + self.GENE_FISHER_OUTPUT])
+                else:
+                    logging.warning('No testable annotations for Fisher\'s exact test (%s)', ', '.join(combination))
 
             elif enrichment_test == self.PA:
                 logging.info('enrichment statistics not possible with only one genome to compare')
@@ -1126,32 +1256,33 @@ class Test(Enrichment):
 
             logging.info('Comparing gene over-representation among genomes')
 
-            if(overrepresentation_test == stats.mannwhitneyu):
+            if overrepresentation_test == stats.mannwhitneyu:
                 logging.info('Testing over-representation using Mann-Whitney U test')
                 gene_count = self.gene_frequencies(*combination, True)
-                output_lines = self._map(mannwhitneyu_calc, gene_count)
+                output_lines = [x for x in self._map(mannwhitneyu_calc, gene_count) if x is not None]
 
-                for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
-                    output_lines[idx].append(str(corrected_pval))
-
-                header = self.MANNWHITNEYU_HEADER
-                output = self.GVG_OUTPUT
+                if output_lines:
+                    for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                        output_lines[idx].append(str(corrected_pval))
+                    output_lines = self.add_descriptions(output_lines)
+                    output_lines = self.MANNWHITNEYU_HEADER + output_lines
+                    results.append([output_lines, prefix + '_' + self.GVG_OUTPUT])
+                else:
+                    logging.warning('No testable annotations for Mann-Whitney U test (%s)', ', '.join(combination))
 
             elif overrepresentation_test == stats.norm.cdf:
                 logging.info('Testing over-representation using Z score test')
                 gene_count = self.gene_frequencies(*combination, True)
-                output_lines = self._map(zscore_calc, gene_count)
-                output_lines = [x for x in output_lines if x]
+                output_lines = [x for x in self._map(zscore_calc, gene_count) if x]
 
-                for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
-                    output_lines[idx].append(str(corrected_pval))
-
-                header = self.ZSCORE_HEADER
-                output = self.IVG_OUTPUT
-
-            output_lines = self.add_descriptions(output_lines)
-            output_lines = header + output_lines
-            results.append([output_lines, prefix +'_'+ output])
+                if output_lines:
+                    for idx, corrected_pval in enumerate(self.corrected_pvals(output_lines)):
+                        output_lines[idx].append(str(corrected_pval))
+                    output_lines = self.add_descriptions(output_lines)
+                    output_lines = self.ZSCORE_HEADER + output_lines
+                    results.append([output_lines, prefix + '_' + self.IVG_OUTPUT])
+                else:
+                    logging.warning('No testable annotations for Z-score test (%s)', ', '.join(combination))
 
             if tree_path:
                 logging.info(f'Running phylogenetic correction for {combination[0]} vs {combination[1]}')

@@ -89,7 +89,7 @@ class Run:
                 else:
                     raise Exception("File '%s' exists." % args.output)
 
-            os.mkdir(args.output)
+            os.makedirs(args.output)
 
     def _check_data(self, args):
         if args.create and args.uninstall:

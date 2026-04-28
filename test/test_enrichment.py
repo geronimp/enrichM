@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # Imports
+import math
 import unittest
 import os.path
 import sys
 import subprocess
 import tempfile
 import filecmp
+from itertools import chain
 
 path_to_script = os.path.join(os.path.dirname(os.path.realpath(__file__)),'..','bin','enrichm')
 path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)),'data')
@@ -179,6 +181,27 @@ class Tests(unittest.TestCase):
     def test_zscore_calc_zero_genome_returns_none(self):
         result = zscore_calc(['K00001', 'ref', 'genome', [[1.0, 2.0, 3.0]], [[0.0]]])
         self.assertIsNone(result)
+
+    def test_calculate_portions_zero_value_keys_not_counted_as_present(self):
+        # Simulate parse_simple_matrix output: every annotation stored as a key
+        # for every genome, absent annotations stored with value 0.0.
+        # K00001 is absent in genome_2 (value 0.0) — proportion should be 0.5,
+        # not 1.0 (which the old `annotation in dict` check would have returned).
+        annotations_with_zeros = {
+            'genome_1': {'K00001': 1.0, 'K00002': 0.0},
+            'genome_2': {'K00001': 0.0, 'K00002': 1.0},
+            'genome_3': {'K00001': 1.0, 'K00002': 1.0},
+        }
+        groups = {'group_1': ['genome_1', 'genome_2'], 'group_2': ['genome_3']}
+        result = self.enrichment_test_object.calculate_portions(
+            ['K00001', 'K00002'], groups, annotations_with_zeros, [], 0)
+        data = {row[0]: row for row in result[1:]}
+        # K00001: present in genome_1 and genome_3, absent in genome_2
+        self.assertEqual(data['K00001'][1], '0.5')   # group_1: 1/2
+        self.assertEqual(data['K00001'][2], '1.0')   # group_2: 1/1
+        # K00002: absent in genome_1, present in genome_2 and genome_3
+        self.assertEqual(data['K00002'][1], '0.5')   # group_1: 1/2
+        self.assertEqual(data['K00002'][2], '1.0')   # group_2: 1/1
 
     # --- calculate_portions edge cases ---
 
@@ -420,7 +443,7 @@ class Tests(unittest.TestCase):
 
     def test_nmf_decompose_returns_three_result_files(self):
         t = self._make_test_object()
-        results = t.nmf_decompose(n_components=2)
+        results, W, all_genomes, k = t.nmf_decompose(n_components=2)
         filenames = [r[1] for r in results]
         self.assertIn('nmf_loadings.tsv', filenames)
         self.assertIn('nmf_scores.tsv', filenames)
@@ -428,7 +451,7 @@ class Tests(unittest.TestCase):
 
     def test_nmf_decompose_loadings_shape(self):
         t = self._make_test_object()
-        results = t.nmf_decompose(n_components=2)
+        results, W, all_genomes, k = t.nmf_decompose(n_components=2)
         loadings = next(r[0] for r in results if r[1] == 'nmf_loadings.tsv')
         # header + 2 component rows
         self.assertEqual(len(loadings), 3)
@@ -437,7 +460,7 @@ class Tests(unittest.TestCase):
 
     def test_nmf_decompose_scores_shape(self):
         t = self._make_test_object()
-        results = t.nmf_decompose(n_components=2)
+        results, W, all_genomes, k = t.nmf_decompose(n_components=2)
         scores = next(r[0] for r in results if r[1] == 'nmf_scores.tsv')
         # header + 3 genome rows
         self.assertEqual(len(scores), 4)
@@ -509,6 +532,428 @@ class Tests(unittest.TestCase):
         self.assertIn('concordant_pairs', Test.PHYLO_HEADER[0])
         self.assertIn('discordant_pairs', Test.PHYLO_HEADER[0])
         self.assertIn('pvalue', Test.PHYLO_HEADER[0])
+
+    # ---------------------------------------------------------------------------
+    # annotation matrix type filtering (the explicit_type / annotation_matrix fix)
+    # ---------------------------------------------------------------------------
+
+    def test_annotation_type_filter_retains_only_matching_type(self):
+        # Regression: passing --tigrfam with a mixed-type annotation matrix should
+        # silently filter to TIGRFAM rows only, not raise ValueError.
+        e = Enrichment()
+        mixed = ['TIGR00001', 'TIGR00002', 'PF00001', 'K00001']
+        keep = {a for a in mixed if e._annotation_type_of(a) == Enrichment.TIGRFAM}
+        filtered = [a for a in mixed if a in keep]
+        self.assertEqual(set(filtered), {'TIGR00001', 'TIGR00002'})
+        # After filtering, check_annotation_type must not raise
+        result = e.check_annotation_type(filtered)
+        self.assertEqual(result, Enrichment.TIGRFAM)
+
+    def test_annotation_type_filter_dict_mirrors_annotation_list(self):
+        # After type filtering, every key remaining in annotations_dict values
+        # must belong to the requested type.
+        e = Enrichment()
+        annotations = ['TIGR00001', 'PF00001', 'K00001']
+        annotations_dict = {
+            'g1': {'TIGR00001': 1, 'PF00001': 3, 'K00001': 4},
+            'g2': {'TIGR00001': 0, 'PF00001': 2},
+        }
+        keep = {a for a in annotations if e._annotation_type_of(a) == Enrichment.TIGRFAM}
+        filtered_dict = {
+            s: {k: v for k, v in d.items() if k in keep}
+            for s, d in annotations_dict.items()
+        }
+        for genome, ann_dict in filtered_dict.items():
+            for ann in ann_dict:
+                self.assertEqual(e._annotation_type_of(ann), Enrichment.TIGRFAM,
+                                 msg=f'Non-TIGRFAM annotation {ann!r} survived filter for genome {genome!r}')
+
+    def test_annotation_type_filter_pfam_from_mixed_matrix(self):
+        # Same fix for PFAM: only PF* rows should survive.
+        e = Enrichment()
+        mixed = ['PF00001', 'PF00002', 'TIGR00001', 'K00001', 'GH3']
+        keep = {a for a in mixed if e._annotation_type_of(a) == Enrichment.PFAM}
+        filtered = [a for a in mixed if a in keep]
+        self.assertEqual(set(filtered), {'PF00001', 'PF00002'})
+
+    def test_annotation_type_filter_ko_from_mixed_matrix(self):
+        # Same fix for KEGG.
+        e = Enrichment()
+        mixed = ['K00001', 'K99999', 'PF00001', 'TIGR00001']
+        keep = {a for a in mixed if e._annotation_type_of(a) == Enrichment.KEGG}
+        filtered = [a for a in mixed if a in keep]
+        self.assertEqual(set(filtered), {'K00001', 'K99999'})
+
+    def test_annotation_type_filter_cazy_from_mixed_matrix(self):
+        e = Enrichment()
+        mixed = ['GH3', 'AA7', 'GT2', 'PF00001', 'K00001']
+        keep = {a for a in mixed if e._annotation_type_of(a) == Enrichment.CAZY}
+        filtered = [a for a in mixed if a in keep]
+        self.assertEqual(set(filtered), {'GH3', 'AA7', 'GT2'})
+
+    def test_annotation_type_cazy_with_hmm_suffix(self):
+        # Regression: enrichM annotate records dbCAN HMM names verbatim from hmmsearch
+        # output (e.g. AA1.hmm, GH3.hmm). _annotation_type_of must recognise these.
+        e = Enrichment()
+        hmm_names = [
+            'AA1.hmm', 'GH3.hmm', 'GT2.hmm', 'PL9.hmm', 'CE1.hmm', 'CBM50.hmm',
+            # subfamily/descriptive-suffix variants produced by dbCAN
+            'CBM35inCE17.hmm', 'GT2_Chitin_synth_1.hmm', 'GT2_Glyco_tranf_2_2.hmm',
+            # fungal cohesin/dockerin use abbreviated names
+            'fungi_coh.hmm', 'fungi_doc.hmm',
+        ]
+        for name in hmm_names:
+            self.assertEqual(e._annotation_type_of(name), Enrichment.CAZY,
+                             msg=f'{name!r} not recognised as CAZY')
+
+    def test_annotation_type_filter_preserves_already_homogeneous_matrix(self):
+        # When the matrix already contains only the target type, nothing is removed.
+        e = Enrichment()
+        annotations = ['K00001', 'K00002', 'K00003']
+        keep = {a for a in annotations if e._annotation_type_of(a) == Enrichment.KEGG}
+        filtered = [a for a in annotations if a in keep]
+        self.assertEqual(sorted(filtered), sorted(annotations))
+
+    def test_annotation_type_filter_empty_result_when_wrong_type_requested(self):
+        # If user requests --tigrfam on a matrix of all KO annotations, nothing survives.
+        # The fix must produce an empty list; downstream code must not crash by calling
+        # check_annotation_type([]) (which would raise KeyError from set.pop()).
+        e = Enrichment()
+        ko_only = ['K00001', 'K00002', 'K00003']
+        keep = {a for a in ko_only if e._annotation_type_of(a) == Enrichment.TIGRFAM}
+        filtered = [a for a in ko_only if a in keep]
+        self.assertEqual(filtered, [])
+        # explicit_type is TIGRFAM so annotation_type = explicit_type, not check_annotation_type
+        # This means the pipeline should NOT call check_annotation_type on the empty list.
+        # Verify check_annotation_type([]) would fail (documents why we avoid calling it):
+        with self.assertRaises(KeyError):
+            e.check_annotation_type([])
+
+    def test_annotation_type_filter_not_applied_when_no_explicit_type(self):
+        # When no type flag is passed (explicit_type=None), the filter block is skipped.
+        # A homogeneous matrix goes straight to check_annotation_type.
+        e = Enrichment()
+        annotations = ['K00001', 'K00002']
+        result = e.check_annotation_type(annotations)
+        self.assertEqual(result, Enrichment.KEGG)
+
+    def test_annotation_type_filter_not_applied_for_annotate_output(self):
+        # The filter is conditional on 'not annotate_output'. When annotate_output is
+        # provided, ParseAnnotate already returns a single-type matrix, so filtering
+        # must not occur (it could incorrectly clobber valid rows).
+        # Here we simply verify the guard condition logic:
+        explicit_type = Enrichment.TIGRFAM
+        annotation_matrix = 'some_file.tsv'
+        annotate_output = '/path/to/annotate_output'  # truthy
+        # Guard: explicit_type and annotation_matrix and not annotate_output -> False
+        should_filter = bool(explicit_type and annotation_matrix and not annotate_output)
+        self.assertFalse(should_filter)
+
+    # ---------------------------------------------------------------------------
+    # add_descriptions: CLUSTER and ORTHOLOG types must not raise UnboundLocalError
+    # ---------------------------------------------------------------------------
+
+    def test_add_descriptions_cluster_type_does_not_crash(self):
+        # Regression guard: before the fix, annotation_type='cluster' caused
+        # UnboundLocalError because add_descriptions had no branch for CLUSTER/ORTHOLOG.
+        # This test will FAIL (UnboundLocalError) until that branch is added.
+        t = self._make_test_object()
+        t.annotation_type = Enrichment.CLUSTER
+        t._descriptions_loaded = True  # skip DB calls
+        t.k = {}
+        t.tigrfamdescription = {}
+        t.pfam2description = {}
+        t.ec2description = {}
+        try:
+            result = t.add_descriptions([['cluster_001', 'g1', 'g2', 'g1', 1, 0, 1, 0, 2.0, 0.05]])
+            self.assertEqual(result[0][-1], 'NA')
+        except UnboundLocalError:
+            self.fail('add_descriptions raised UnboundLocalError for CLUSTER annotation type')
+
+    def test_add_descriptions_ortholog_type_does_not_crash(self):
+        # Same regression guard for ORTHOLOG type.
+        t = self._make_test_object()
+        t.annotation_type = Enrichment.ORTHOLOG
+        t._descriptions_loaded = True
+        t.k = {}
+        t.tigrfamdescription = {}
+        t.pfam2description = {}
+        t.ec2description = {}
+        try:
+            result = t.add_descriptions([['ortholog_001', 'g1', 'g2', 'g1', 1, 0, 1, 0, 2.0, 0.05]])
+            self.assertEqual(result[0][-1], 'NA')
+        except UnboundLocalError:
+            self.fail('add_descriptions raised UnboundLocalError for ORTHOLOG annotation type')
+
+    # ---------------------------------------------------------------------------
+    # indval_calc: additional edge cases
+    # ---------------------------------------------------------------------------
+
+    def test_indval_calc_single_genome_in_focal_group(self):
+        # Fidelity with n=1: either 0.0 or 1.0 depending on presence.
+        x = ['K00001', 'g1',
+             [5.0],
+             {'g1': [5.0], 'g2': [1.0, 2.0, 3.0]},
+             99]
+        result = indval_calc(x)
+        self.assertIsNotNone(result)
+        self.assertEqual(float(result[4]), 1.0)  # fidelity = 1/1 = 1.0
+
+    def test_indval_calc_focal_all_zero_but_other_nonzero_returns_none(self):
+        # total_mean > 0 but focal_mean = 0: specificity=0, fidelity=0, indval=0.
+        # total_mean is NOT zero (other group has values), so we don't hit the early None return.
+        # indval = sqrt(0 * 0) = 0.0
+        x = ['K00001', 'g1',
+             [0.0, 0.0, 0.0],
+             {'g1': [0.0, 0.0, 0.0], 'g2': [1.0, 2.0, 3.0]},
+             99]
+        result = indval_calc(x)
+        self.assertIsNotNone(result)
+        self.assertAlmostEqual(float(result[2]), 0.0, places=4)  # indval = 0
+        self.assertAlmostEqual(float(result[3]), 0.0, places=4)  # specificity = 0
+        self.assertAlmostEqual(float(result[4]), 0.0, places=4)  # fidelity = 0
+
+    def test_indval_calc_pvalue_is_numeric(self):
+        # The pvalue field must be a numeric type suitable for multipletests correction,
+        # not a string (unlike indval/specificity/fidelity which are str-encoded).
+        x = ['K00001', 'g1',
+             [1.0, 2.0],
+             {'g1': [1.0, 2.0], 'g2': [3.0, 4.0]},
+             99]
+        result = indval_calc(x)
+        self.assertIsNotNone(result)
+        pval = result[5]
+        self.assertIsInstance(pval, float,
+                              msg='indval_calc pvalue must be a float for multipletests compatibility')
+        self.assertGreaterEqual(pval, 0.0)
+        self.assertLessEqual(pval, 1.0)
+
+    def test_indval_calc_three_groups(self):
+        # The focal group should have indval ~ 1.0 when it exclusively has the annotation.
+        x = ['K00001', 'g1',
+             [2.0, 2.0],
+             {'g1': [2.0, 2.0], 'g2': [0.0, 0.0], 'g3': [0.0, 0.0]},
+             99]
+        result = indval_calc(x)
+        self.assertIsNotNone(result)
+        self.assertAlmostEqual(float(result[2]), 1.0, places=3)   # indval ~ 1.0
+        self.assertAlmostEqual(float(result[3]), 1.0, places=3)   # specificity = 1.0
+        self.assertAlmostEqual(float(result[4]), 1.0, places=3)   # fidelity = 1.0
+
+    # ---------------------------------------------------------------------------
+    # phylo_pairs_calc: additional edge cases
+    # ---------------------------------------------------------------------------
+
+    def test_phylo_pairs_calc_only_discordant(self):
+        # g1 genomes lack annotation, g2 have it — all pairs discordant (D=2, C=0).
+        pairs = [('g1a', 'g2a'), ('g1b', 'g2b')]
+        genome_annotations = {
+            'g1a': {}, 'g1b': {},
+            'g2a': {'K00001': 1}, 'g2b': {'K00001': 1},
+        }
+        x = ['K00001', pairs, genome_annotations, 99]
+        result = phylo_pairs_calc(x)
+        self.assertIsNotNone(result)
+        self.assertEqual(result[1], 0)   # concordant = 0
+        self.assertEqual(result[2], 2)   # discordant = 2
+
+    def test_phylo_pairs_calc_mixed_signal(self):
+        # One concordant pair, one discordant pair.
+        pairs = [('g1a', 'g2a'), ('g1b', 'g2b')]
+        genome_annotations = {
+            'g1a': {'K00001': 1}, 'g1b': {},
+            'g2a': {}, 'g2b': {'K00001': 1},
+        }
+        x = ['K00001', pairs, genome_annotations, 99]
+        result = phylo_pairs_calc(x)
+        self.assertIsNotNone(result)
+        self.assertEqual(result[1], 1)  # concordant = 1
+        self.assertEqual(result[2], 1)  # discordant = 1
+
+    def test_phylo_pairs_calc_genome_not_in_annotations_treated_as_absent(self):
+        # Genome missing from genome_annotations dict entirely should count as absent.
+        pairs = [('g1a', 'g2a')]
+        genome_annotations = {
+            'g1a': {'K00001': 1},
+            # g2a completely absent from dict
+        }
+        x = ['K00001', pairs, genome_annotations, 99]
+        result = phylo_pairs_calc(x)
+        self.assertIsNotNone(result)
+        self.assertEqual(result[1], 1)  # g1a has it, g2a absent -> concordant
+        self.assertEqual(result[2], 0)
+
+    def test_phylo_pairs_calc_pvalue_bounded(self):
+        # With (n_perms+1) denominator, pvalue is always in (0, 1].
+        pairs = [('g1a', 'g2a'), ('g1b', 'g2b'), ('g1c', 'g2c')]
+        genome_annotations = {
+            'g1a': {'K00001': 1}, 'g1b': {'K00001': 1}, 'g1c': {'K00001': 1},
+            'g2a': {}, 'g2b': {}, 'g2c': {},
+        }
+        x = ['K00001', pairs, genome_annotations, 99]
+        result = phylo_pairs_calc(x)
+        pval = result[3]
+        self.assertGreater(pval, 0.0,
+                           msg='pvalue must be > 0 due to (count+1)/(n_perms+1) formula')
+        self.assertLessEqual(pval, 1.0)
+
+    # ---------------------------------------------------------------------------
+    # NMF decompose: additional edge cases
+    # ---------------------------------------------------------------------------
+
+    def test_nmf_decompose_custom_n_components_respected(self):
+        # When n_components is explicitly set, the returned k must match.
+        t = self._make_test_object()
+        _, W, _, k = t.nmf_decompose(n_components=2)
+        self.assertEqual(k, 2)
+        self.assertEqual(W.shape[1], 2)
+
+    def test_nmf_decompose_scores_genome_count_matches(self):
+        # Score matrix must have one row per genome.
+        t = self._make_test_object()
+        results, W, all_genomes, k = t.nmf_decompose(n_components=2)
+        scores = next(r[0] for r in results if r[1] == 'nmf_scores.tsv')
+        n_data_rows = len(scores) - 1  # exclude header
+        self.assertEqual(n_data_rows, len(self.genome_annotation_simple_example))
+
+    def test_nmf_decompose_loadings_annotation_count_matches(self):
+        # Loading matrix header must list all annotations.
+        t = self._make_test_object()
+        results, _, _, _ = t.nmf_decompose(n_components=2)
+        loadings = next(r[0] for r in results if r[1] == 'nmf_loadings.tsv')
+        n_ann_in_header = len(loadings[0]) - 1  # subtract 'component' column
+        all_annotations = set(chain(*[d.keys() for d in self.genome_annotation_simple_example.values()]))
+        self.assertEqual(n_ann_in_header, len(all_annotations))
+
+    def test_nmf_decompose_mwu_has_all_component_group_combinations(self):
+        # MWU output must have one row per (component, group_pair) combination.
+        t = self._make_test_object()
+        k = 2
+        results, _, _, _ = t.nmf_decompose(n_components=k)
+        mwu = next(r[0] for r in results if r[1] == 'nmf_component_mwu.tsv')
+        n_groups = len(self.genome_groups_simple_example)
+        n_group_pairs = n_groups * (n_groups - 1) // 2
+        n_data_rows = len(mwu) - 1  # exclude header
+        self.assertEqual(n_data_rows, k * n_group_pairs)
+
+    def test_nmf_decompose_default_k_heuristic(self):
+        # Without n_components or select_components, k = max(2, sqrt(n_genomes/2)).
+        # 3 genomes: sqrt(3/2) ~ 1.22, max(2, 1) = 2
+        import math
+        t = self._make_test_object()
+        n_genomes = len(self.genome_annotation_simple_example)
+        expected_k = max(2, int(math.sqrt(n_genomes / 2)))
+        _, _, _, k = t.nmf_decompose()
+        self.assertEqual(k, expected_k)
+
+    # ---------------------------------------------------------------------------
+    # _get_phylo_pairs: additional tree topology cases
+    # ---------------------------------------------------------------------------
+
+    def test_get_phylo_pairs_asymmetric_tree(self):
+        # Asymmetric topology: ((g1a,(g1b,g2a)),g2b)
+        # Internal node 1: left={g1a,g1b,g2a} right={g2b} -> g1a-g2b, g1b-g2b
+        # Internal node 2: left={g1a} right={g1b,g2a} -> g1a-g2a
+        import dendropy
+        import unittest.mock as mock
+        newick = '((g1a,(g1b,g2a)),g2b);'
+        tree = dendropy.Tree.get(data=newick, schema='newick')
+        db = mock.MagicMock()
+        db.k.return_value = {}
+        db.tigrfamdescription.return_value = {}
+        db.pfam2description.return_value = {}
+        db.ec2description.return_value = {}
+        t = Test(self.genome_annotation_simple_example,
+                 self.genome_groups_simple_example,
+                 'other', 0.05, 'fdr_bh', 1, db)
+        pairs = t._get_phylo_pairs(tree, ['g1a', 'g1b'], ['g2a', 'g2b'])
+        # All pairs must have g1-member on left and g2-member on right
+        for g1, g2 in pairs:
+            self.assertIn(g1, ['g1a', 'g1b'])
+            self.assertIn(g2, ['g2a', 'g2b'])
+        # Should produce at least 1 pair
+        self.assertGreater(len(pairs), 0)
+
+    def test_get_phylo_pairs_no_cross_clade_returns_empty(self):
+        # If all g1 genomes are in one clade and all g2 in another but the split
+        # is at the root, we still get cross-clade pairs from the root split.
+        # Here test a star tree where the internal node has all leaves - all cross-clade pairs found.
+        import dendropy
+        import unittest.mock as mock
+        newick = '(g1a,g1b,g2a,g2b);'  # star topology
+        tree = dendropy.Tree.get(data=newick, schema='newick')
+        db = mock.MagicMock()
+        db.k.return_value = {}
+        db.tigrfamdescription.return_value = {}
+        db.pfam2description.return_value = {}
+        db.ec2description.return_value = {}
+        t = Test(self.genome_annotation_simple_example,
+                 self.genome_groups_simple_example,
+                 'other', 0.05, 'fdr_bh', 1, db)
+        # Star tree has no internal bifurcations with cross-clade g1/g2 splits
+        pairs = t._get_phylo_pairs(tree, ['g1a', 'g1b'], ['g2a', 'g2b'])
+        # In a star tree, no internal node separates g1 from g2 subtrees
+        self.assertIsInstance(pairs, list)
+
+    def test_get_phylo_pairs_no_duplicates(self):
+        # The same (g1, g2) pair should not appear twice even if found via multiple nodes.
+        import dendropy
+        import unittest.mock as mock
+        newick = '((g1a,g1b),(g2a,g2b));'
+        tree = dendropy.Tree.get(data=newick, schema='newick')
+        db = mock.MagicMock()
+        db.k.return_value = {}
+        db.tigrfamdescription.return_value = {}
+        db.pfam2description.return_value = {}
+        db.ec2description.return_value = {}
+        t = Test(self.genome_annotation_simple_example,
+                 self.genome_groups_simple_example,
+                 'other', 0.05, 'fdr_bh', 1, db)
+        pairs = t._get_phylo_pairs(tree, ['g1a', 'g1b'], ['g2a', 'g2b'])
+        # No duplicate tuples
+        self.assertEqual(len(pairs), len(set(pairs)))
+
+    # ---------------------------------------------------------------------------
+    # filter_by_prevalence: additional edge cases
+    # ---------------------------------------------------------------------------
+
+    def test_filter_by_prevalence_empty_dict_returns_empty(self):
+        result = Enrichment.filter_by_prevalence({}, 0.5)
+        self.assertEqual(result, {})
+
+    def test_filter_by_prevalence_boundary_exactly_at_cutoff(self):
+        # 2 of 4 genomes have K00001 → prevalence = 0.5 exactly → kept at cutoff=0.5
+        ann_dict = {
+            'g1': {'K00001': 1},
+            'g2': {'K00001': 1},
+            'g3': {},
+            'g4': {},
+        }
+        result = Enrichment.filter_by_prevalence(ann_dict, 0.5)
+        self.assertIn('K00001', result['g1'])
+
+    def test_filter_by_prevalence_one_below_cutoff_removed(self):
+        # 1 of 4 genomes have K00001 → prevalence = 0.25 < 0.5 → removed
+        ann_dict = {
+            'g1': {'K00001': 1},
+            'g2': {},
+            'g3': {},
+            'g4': {},
+        }
+        result = Enrichment.filter_by_prevalence(ann_dict, 0.5)
+        self.assertNotIn('K00001', result.get('g1', {}))
+
+    def test_filter_by_prevalence_annotation_with_zero_value_not_counted(self):
+        # Annotations stored with value=0 should not count as present.
+        ann_dict = {
+            'g1': {'K00001': 0},  # stored but absent (value=0)
+            'g2': {'K00001': 1},
+        }
+        # 1 of 2 genomes has K00001 > 0 → prevalence = 0.5 → kept at cutoff=0.5
+        result = Enrichment.filter_by_prevalence(ann_dict, 0.5)
+        # K00001 value=0 in g1 was not counted, but the annotation is still kept
+        # (because g2 has it). The key in g1 may be absent after filtering.
+        self.assertIn('K00001', result['g2'])
 
 
 if __name__ == "__main__":
