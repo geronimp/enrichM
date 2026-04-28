@@ -22,6 +22,7 @@ EnrichM is written in Python 3 and requires >= 3.8. EnrichM requires the followi
 * [prodigal](http://prodigal.ornl.gov/) >= 2.6.3
 * [parallel](https://www.gnu.org/software/parallel/) >= 20180222
 * [mmseqs2](https://github.com/soedinglab/MMseqs2) >= 13
+* [mcl](https://micans.org/mcl/) (required only for `annotate --annotate_ortholog`)
 
 ## conda (recommended)
 Clone the repository and create the conda environment:
@@ -37,7 +38,7 @@ pip install .
 ```
 pip install enrichm
 ```
-Note: non-Python dependencies (hmmer, diamond, prodigal, parallel, mmseqs2) must be installed separately when using PyPI.
+Note: non-Python dependencies (hmmer, diamond, prodigal, parallel, mmseqs2, and mcl if using `--annotate_ortholog`) must be installed separately when using PyPI.
 
 After installation, you'll need to download the back-end databases.
 
@@ -77,6 +78,10 @@ Enrichment reads an annotation matrix (IDs as rows, genomes as columns) and a me
 
 - **Synteny analysis**: identifies conserved gene blocks (operons) among enriched genes using intergenic distance thresholds
 - **Mobile element proximity**: flags enriched genes located near transposases or insertion sequences
+- **IndVal (Indicator Value) analysis**: automatically computed for every run; scores each annotation for specificity and fidelity to each group with permutation-based FDR-corrected p-values (`indval_results.tsv`)
+- **NMF decomposition** (`--decompose`): factorises the annotation matrix into latent functional components and tests component scores between groups via Mann-Whitney U; outputs loadings, per-genome scores, and a heatmap. Use `--n_components` to fix the number of components or `--select_components` to select automatically via cophenetic correlation
+- **Phylogenetic correction** (`--tree`): Scoary1-style paired comparison that tests whether pairwise enrichment signals survive correction for shared ancestry; requires a Newick tree with tip labels matching genome names
+- **Multi-type batch mode** (`--all`): when used with `--annotate_output`, runs enrichment for every annotation type present and writes results to per-type subdirectories under `--output`
 - Accepts output from `annotate`, or external tools including DRAM, eggNOG-mapper
 
 ## generate
