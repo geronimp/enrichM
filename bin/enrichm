@@ -233,6 +233,9 @@ if __name__ == "__main__":
                 help='Number of NMF components (k). Overrides automatic selection. Requires --decompose.')
     enrichment_runtime_options.add_argument('--select_components', action='store_true',
                 help='Select NMF k automatically via cophenetic correlation (slow). Requires --decompose.')
+    enrichment_runtime_options.add_argument('--all', action='store_true',
+                help='Run enrichment for all annotation types present in --annotate_output. '
+                     'Results are written to per-type subdirectories under --output.')
     enrichment_runtime_options.add_argument('--allow_negative_values',
                 help='Allow negative values in input matrix.', action='store_true',)
     enrichment_runtime_options.add_argument('--ko', action='store_true',

@@ -179,13 +179,13 @@ class Run:
 
         if args.annotate_output:
 
-            if not any(types):
+            if not any(types) and not args.all:
                 raise Exception(
-                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy")
+                    "Input Error: One of the following flags must be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy --all")
 
-            if len([x for x in types if x]) > 1:
+            if len([x for x in types if x]) > 1 and not args.all:
                 raise Exception(
-                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy")
+                    "Only one of the following flags may be specified: --ko --pfam --tigrfam --orthologs --orthogroup --clusters --ko_hmm --ec --cazy (or use --all)")
 
     def _check_classify(self, args):
         '''
@@ -273,9 +273,10 @@ class Run:
                                     args.genome_and_annotation_matrix, args.module_rules_json,
                                     args.gff_files, args.output)
 
-    def run_enrichment(self, args):
-        self._check_enrichment(args)
-        enrichment = Enrichment()
+    # Maps flag name → ParseAnnotate attribute name (same here, but explicit)
+    ANNOTATION_TYPES = ['ko', 'ko_hmm', 'pfam', 'tigrfam', 'cazy', 'ec', 'cluster', 'ortholog']
+
+    def _run_enrichment_for_type(self, enrichment, args, output_directory, **type_flags):
         enrichment.enrichment_pipeline(args.annotate_output,
                                        args.annotation_matrix,
                                        args.gff_files,
@@ -290,27 +291,50 @@ class Run:
                                        args.threshold,
                                        args.multi_test_correction,
                                        args.processes,
-                                       args.ko,
-                                       args.pfam,
-                                       args.tigrfam,
-                                       args.cluster,
-                                       args.ortholog,
-                                       args.cazy,
-                                       args.ec,
-                                       args.ko_hmm,
-                                       args.cog,
-                                       args.go,
-                                       args.eggnog,
+                                       type_flags.get('ko', False),
+                                       type_flags.get('pfam', False),
+                                       type_flags.get('tigrfam', False),
+                                       type_flags.get('cluster', False),
+                                       type_flags.get('ortholog', False),
+                                       type_flags.get('cazy', False),
+                                       type_flags.get('ec', False),
+                                       type_flags.get('ko_hmm', False),
+                                       type_flags.get('cog', False),
+                                       type_flags.get('go', False),
+                                       type_flags.get('eggnog', False),
                                        args.intergenic_distance,
                                        args.subblock_size,
                                        args.operon_mismatch_cutoff,
                                        args.operon_match_score_cutoff,
                                        args.me_distance,
-                                       args.output,
+                                       output_directory,
                                        args.decompose,
                                        args.n_components,
                                        args.select_components,
                                        args.tree)
+
+    def run_enrichment(self, args):
+        self._check_enrichment(args)
+        enrichment = Enrichment()
+
+        if args.annotate_output and args.all:
+            from enrichm.parser import ParseAnnotate
+            pa = ParseAnnotate(args.annotate_output, args.processes)
+            for ann_type in self.ANNOTATION_TYPES:
+                if getattr(pa, ann_type, None) is not None:
+                    logging.info(f'Running enrichment for annotation type: {ann_type}')
+                    type_output = os.path.join(args.output, ann_type)
+                    os.makedirs(type_output, exist_ok=True)
+                    self._run_enrichment_for_type(enrichment, args, type_output,
+                                                  **{ann_type: True})
+        else:
+            self._run_enrichment_for_type(enrichment, args, args.output,
+                                          ko=args.ko, pfam=args.pfam,
+                                          tigrfam=args.tigrfam, cluster=args.cluster,
+                                          ortholog=args.ortholog, cazy=args.cazy,
+                                          ec=args.ec, ko_hmm=args.ko_hmm,
+                                          cog=args.cog, go=args.go,
+                                          eggnog=args.eggnog)
 
     def run_predict(self, args):
         self._check_predict(args)
