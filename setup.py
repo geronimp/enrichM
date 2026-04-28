@@ -36,5 +36,6 @@ setup(
         'polars>=1.0',
         'pyrodigal>=3.0',
         'dendropy>=4.5',
+        'matplotlib>=3.7',
     ],
 )
