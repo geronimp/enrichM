@@ -5,9 +5,17 @@ name = "enrichM"
 platforms = ["linux-64"]
 version = "0.1.0"
 
+[activation.env]
+ENRICHM_DB = "/path/to/enrichm_database_v12"
+
 [tasks]
-pipeline = "python scripts/pipeline.py"
-nmf_heatmap = "python scripts/plot_nmf_heatmap.py"
+pipeline = { cmd = "python scripts/pipeline.py", description = "Run the full enrichm annotate -> enrichment pipeline end to end (see --help for --genome_dir/--metadata/--annotation/etc.)" }
+nmf_heatmap = { cmd = "python scripts/plot_nmf_heatmap.py", description = "Plot a group-annotated heatmap of per-genome NMF scores from an 'enrichment --decompose' run (see --help for --scores/--metadata/--output)" }
+
+subset-data = { cmd = "python scripts/subset_genomes.py", description = "Build a fast test subset (3 genomes/Faecalibacterium group + the Gemmiger genome) from data/genomes + data/groups.tsv", inputs = ["data/genomes", "data/groups.tsv", "scripts/subset_genomes.py"], outputs = ["data/genomes_subset", "data/groups_subset.tsv"] }
+annotate = { cmd = "python bin/enrichm annotate --genome_directory data/genomes_subset --ko_hmm --threads 8 --output data/pipeline_output_subset/annotate_output --force", depends-on = ["subset-data"], description = "Run enrichm annotate (KO HMMs) on the 7-genome data/ subset", inputs = ["data/genomes_subset"], outputs = ["data/pipeline_output_subset/annotate_output"] }
+enrichment = { cmd = "python bin/enrichm enrichment --annotate_output data/pipeline_output_subset/annotate_output --metadata data/groups_subset.tsv --ko_hmm --output data/pipeline_output_subset/enrichment --force", depends-on = ["annotate"], description = "Run enrichm enrichment (KO HMMs) comparing the Faecalibacterium/Gemmiger groups in the data/ subset", inputs = ["data/pipeline_output_subset/annotate_output", "data/groups_subset.tsv"], outputs = ["data/pipeline_output_subset/enrichment"] }
+classify = { cmd = "python bin/enrichm classify --genome_and_annotation_matrix data/pipeline_output_subset/annotate_output/ko_hmm_frequency_table.tsv --output data/pipeline_output_subset/classify --force", depends-on = ["annotate"], description = "Run enrichm classify (KEGG module completeness) on the annotate output for the data/ subset", inputs = ["data/pipeline_output_subset/annotate_output"], outputs = ["data/pipeline_output_subset/classify"] }
 
 [dependencies]
 diamond = "*"

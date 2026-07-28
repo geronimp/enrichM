@@ -5,6 +5,7 @@ enrichm/_pycache__/*
 test/__pycache__/*
 *.pyc
 dist/*
+data/
 dist/
 *.egg-info/
 docs/build/
