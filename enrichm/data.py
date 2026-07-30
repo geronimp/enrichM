@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import re
 import ssl
 import sqlite3
 import urllib.request
@@ -230,47 +231,99 @@ class Data:
     # -------------------------------------------------------------------------
 
     def _parse_hmm_file(self, hmm_path):
-        """Parse NAME, DESC, and CL lines from an HMM file.
+        """Parse ACC, NAME, DESC, and CL lines from an HMM file.
 
-        Returns (descriptions, clans) where both are {name: value} dicts.
-        Clan entries are only present for HMMs that belong to a Pfam clan.
+        Entries are keyed on the accession (ACC) declared by each model, because
+        that is the identifier hmmsearch reports in its domtblout output and so
+        the identifier annotations are stored under. Models that declare no
+        accession fall back to their name. Descriptions default to the model
+        name so that every model in the library is represented.
+
+        Returns (descriptions, clans). Clan keys have any accession version
+        suffix stripped, matching how Sequence.same_clan looks them up. Clan
+        entries are only present for HMMs that belong to a Pfam clan.
         """
         descriptions = {}
         clans = {}
-        name = None
+        name = accession = description = clan = None
+
+        def store():
+            if name is None:
+                return
+            identifier = accession or name
+            descriptions[identifier] = description or name
+            if clan:
+                clans[identifier.split('.')[0]] = clan
+
         with open(hmm_path) as fh:
             for line in fh:
                 line = line.rstrip()
+
                 if line.startswith('NAME'):
+                    # Start of a new model, so record the previous one.
+                    store()
                     name = line.split(None, 1)[1].strip()
+                    accession = description = clan = None
+                elif line.startswith('ACC') and name:
+                    accession = line.split(None, 1)[1].strip()
                 elif line.startswith('DESC') and name:
-                    descriptions[name] = line.split(None, 1)[1].strip()
+                    description = line.split(None, 1)[1].strip()
                 elif line.startswith('CL') and name:
-                    clans[name] = line.split(None, 1)[1].strip()
+                    clan = line.split(None, 1)[1].strip()
+        store()
+
         logging.info('  Parsed %d entries (%d with clan) from %s',
                      len(descriptions), len(clans), os.path.basename(hmm_path))
         return descriptions, clans
 
+    @staticmethod
+    def _table_keyed_by_accession(conn, table, column):
+        """Return True if a table's ids look like HMM accessions.
+
+        Databases built before accession keying was fixed are keyed on model
+        names instead, which silently matches nothing at annotation time.
+        """
+        row = conn.execute(f'SELECT {column} FROM {table} LIMIT 1').fetchone()
+
+        if row is None:
+            return False
+
+        return bool(re.match(r'^(PF|NF|TIGR)\d', row[0]))
+
     def _populate_pfam_metadata(self, conn, hmm_path):
         """Parse Pfam HMM metadata and write to DB. Skips if already present."""
-        if (self._table_has_data(conn, 'pfam_descriptions') and
-                self._table_has_data(conn, 'pfam_clans')):
-            logging.info('  Pfam metadata already present — skipping')
-            return
+        if self._table_has_data(conn, 'pfam_descriptions'):
+            if self._table_keyed_by_accession(conn, 'pfam_descriptions', 'pfam_id'):
+                logging.info('  Pfam metadata already present — skipping')
+                return
+            logging.info('  Pfam metadata is keyed on model names — refreshing')
+            conn.execute('DELETE FROM pfam_descriptions')
+            conn.execute('DELETE FROM pfam_clans')
+
         pfam_desc, pfam_clans = self._parse_hmm_file(hmm_path)
-        conn.executemany('INSERT OR IGNORE INTO pfam_descriptions VALUES (?, ?)',
+
+        if not pfam_clans:
+            logging.warning('  No clan (CL) entries found in %s. Overlapping Pfam '
+                            'domains from the same clan cannot be resolved without '
+                            'them.', os.path.basename(hmm_path))
+
+        conn.executemany('INSERT OR REPLACE INTO pfam_descriptions VALUES (?, ?)',
                          pfam_desc.items())
-        conn.executemany('INSERT OR IGNORE INTO pfam_clans VALUES (?, ?)',
+        conn.executemany('INSERT OR REPLACE INTO pfam_clans VALUES (?, ?)',
                          pfam_clans.items())
         conn.commit()
 
     def _populate_tigrfam_metadata(self, conn, hmm_path):
         """Parse TIGRFAM HMM metadata and write to DB. Skips if already present."""
         if self._table_has_data(conn, 'tigrfam_descriptions'):
-            logging.info('  TIGRFAM metadata already present — skipping')
-            return
+            if self._table_keyed_by_accession(conn, 'tigrfam_descriptions', 'tigrfam_id'):
+                logging.info('  TIGRFAM metadata already present — skipping')
+                return
+            logging.info('  TIGRFAM metadata is keyed on model names — refreshing')
+            conn.execute('DELETE FROM tigrfam_descriptions')
+
         tigrfam_desc, _ = self._parse_hmm_file(hmm_path)
-        conn.executemany('INSERT OR IGNORE INTO tigrfam_descriptions VALUES (?, ?)',
+        conn.executemany('INSERT OR REPLACE INTO tigrfam_descriptions VALUES (?, ?)',
                          tigrfam_desc.items())
         conn.commit()
 

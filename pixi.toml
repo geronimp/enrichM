@@ -6,7 +6,7 @@ platforms = ["linux-64"]
 version = "0.1.0"
 
 [activation.env]
-ENRICHM_DB = "/path/to/enrichm_database_v12"
+ENRICHM_DB = "/work/microbiome/db/enrichm/enrichm_database_v12/"
 
 [tasks]
 pipeline = { cmd = "python scripts/pipeline.py", description = "Run the full enrichm annotate -> enrichment pipeline end to end (see --help for --genome_dir/--metadata/--annotation/etc.)" }

@@ -11,7 +11,7 @@ path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')]+sys.path
 
 from enrichm.annotate import Annotate
-from enrichm.genome import Genome, Annotation, AnnotationParser
+from enrichm.genome import Genome, Annotation, AnnotationParser, Sequence
 
 ###############################################################################
 
@@ -146,6 +146,68 @@ class Tests(unittest.TestCase):
             self.assertIn('seq_b', genome.sequences)
             self.assertIn('seq_c', genome.sequences)
             self.assertEqual(genome.protein_ordered_dict, {0: 'seq_a', 1: 'seq_b', 2: 'seq_c'})
+
+    def test_overlapping_pfam_annotations_from_different_clans_are_kept_once(self):
+        # Overlapping domains from different clans are all retained, but each hit
+        # must only ever be added once. Adding it once per overlapping annotation
+        # makes the annotation list grow exponentially with the number of hits.
+        sequence = Sequence("seq_a")
+        pfam2clan = {'PF00001': 'CL0001', 'PF00002': 'CL0002'}
+
+        for hit in range(20):
+            pfam_id = 'PF00001.1' if hit % 2 == 0 else 'PF00002.1'
+            sequence.add([pfam_id], 1e-10, range(0, 100), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+
+        self.assertEqual(len(sequence.annotations), 20)
+
+    def test_overlapping_pfam_annotations_from_same_clan_keep_best_evalue(self):
+        sequence = Sequence("seq_a")
+        pfam2clan = {'PF00001': 'CL0001', 'PF00002': 'CL0001'}
+
+        sequence.add(['PF00001.1'], 1e-10, range(0, 100), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+        sequence.add(['PF00002.1'], 1e-20, range(10, 90), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+        sequence.add(['PF00001.1'], 1e-05, range(20, 80), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+
+        self.assertEqual([annotation.annotation for annotation in sequence.annotations], ['PF00002.1'])
+
+    def test_pfam_annotations_outside_of_clans_are_kept(self):
+        # Pfams that belong to no clan are not alternative annotations of each
+        # other, so overlapping hits are all retained.
+        sequence = Sequence("seq_a")
+
+        sequence.add(['PF00001.1'], 1e-10, range(0, 100), AnnotationParser.PFAM, pfam2clan={})
+        sequence.add(['PF00002.1'], 1e-20, range(10, 90), AnnotationParser.PFAM, pfam2clan={})
+
+        self.assertEqual(sorted(annotation.annotation for annotation in sequence.annotations),
+                         ['PF00001.1', 'PF00002.1'])
+
+    def test_called_proteins_are_uniquely_named(self):
+        # Genome objects and HMM/DIAMOND searches key sequences on the first word
+        # of the FASTA description, so gene ids must be unique within it.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            annotate = Annotate(tmp_dir,
+                                False, False, True, False, False, False, False, False, False,
+                                1e-05, 0, 0.3, 0.7, 0.7, 0.7,
+                                False, False, False, False, False, False, True,
+                                5, 4, 2500, False, 1, 1, '.fna', False)
+            annotate.call_proteins(os.path.join(path_to_data, 'test_nucleic_bin'))
+
+            protein_file = os.path.join(tmp_dir, Annotate.GENOME_PROTEINS,
+                                        'GCF_001889405.1_ASM188940v1_subset.faa')
+            descriptions = [line[1:].strip() for line in open(protein_file) if line.startswith('>')]
+            names = [description.partition(' ')[0] for description in descriptions]
+
+            self.assertGreater(len(names), 1)
+            self.assertEqual(len(set(names)), len(names))
+
+            genome = Genome(False, None, protein_file, None)
+            self.assertEqual(len(genome.sequences), len(names))
+
+            # Coordinates are parsed out of the description, and are needed to
+            # write .gff files.
+            sequence = genome.sequences[names[0]]
+            self.assertEqual(int(sequence.finishpos) > int(sequence.startpos), True)
+            self.assertIn(sequence.direction, ('1', '-1'))
 
     def test(self):
         tmp = tempfile.mkdtemp()

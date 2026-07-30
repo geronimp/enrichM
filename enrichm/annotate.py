@@ -136,6 +136,30 @@ class Annotate:
 
         return genome_directory
 
+    @staticmethod
+    def _prodigal_header(contig_id, idx, gene):
+        '''
+        Build a prodigal-style FASTA header for a gene called by pyrodigal. The
+        coordinate fields are what Sequence objects parse to populate their
+        start/finish/direction attributes (used when writing .gff files).
+
+        Parameters
+        ----------
+        contig_id - string. Name of the contig the gene was called on, without
+                    any description.
+        idx       - integer. 1-based index of the gene within the contig
+        gene      - pyrodigal Gene object
+        '''
+        partial = f"{int(gene.partial_begin)}{int(gene.partial_end)}"
+        stats = ';'.join([f"ID={contig_id}_{idx}",
+                          f"partial={partial}",
+                          f"start_type={gene.start_type}",
+                          f"rbs_motif={gene.rbs_motif}",
+                          f"rbs_spacer={gene.rbs_spacer}",
+                          f"gc_cont={gene.gc_cont:.3f}"])
+
+        return f"{contig_id}_{idx} # {gene.begin} # {gene.end} # {gene.strand} # {stats}"
+
     def call_proteins(self, genome_directory):
         '''
         Use prodigal to call proteins within the genomes
@@ -173,12 +197,17 @@ class Annotate:
                 faa_out = open(protein_out, "w")
                 fna_out = open(gene_out, "w")
                 for description, sequence in self.seqio.each(open(genome_path)):
+                    # Only the first word of the description survives whitespace
+                    # truncation by hmmsearch and diamond, so gene ids must be
+                    # unique within it or all genes on a contig collapse into one.
+                    contig_id = description.partition(' ')[0]
                     genes = gene_finder.find_genes(sequence)
                     # Write proteins
                     for idx, gene in enumerate(genes):
                         idx = idx + 1
-                        faa_out.write(f">{description}_{idx}\n{gene.translate()}\n")
-                        fna_out.write(f">{description}_{idx}\n{gene.sequence()}\n")
+                        header = self._prodigal_header(contig_id, idx, gene)
+                        faa_out.write(f">{header}\n{gene.translate()}\n")
+                        fna_out.write(f">{header}\n{gene.sequence()}\n")
                 faa_out.flush()
                 faa_out.close()
                 fna_out.flush()

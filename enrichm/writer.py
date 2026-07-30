@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+from os import path
 from itertools import chain
 from collections import Counter
 from enrichm.databases import Databases
@@ -140,6 +141,20 @@ class MatrixGenerator:
             else:
                 genome_annotations = {genome.name:Counter(chain(*[set(sequence.all_annotations()) for sequence in genome.sequences.values()]))
                                       for genome in genomes_list}
+
+            # Rows come from the reference database, so any annotation that is
+            # not in it is dropped from the matrix. Report that rather than
+            # writing a silently empty table.
+            observed = set(chain(*[counts.keys() for counts in genome_annotations.values()]))
+            unknown = observed - set(self.annotation_list)
+
+            if len(unknown) > 0:
+                logging.warning("    - %i of %i observed %s annotations are absent from the "
+                                "reference database and were excluded from %s (e.g. %s). The "
+                                "database may need rebuilding with 'enrichm data --create'.",
+                                len(unknown), len(observed), self.annotation_type,
+                                path.basename(output_path),
+                                ', '.join(sorted(unknown)[:3]))
 
             for annotation in self.annotation_list:
                 output_line = [annotation]
