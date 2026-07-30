@@ -236,6 +236,40 @@ class Tests(unittest.TestCase):
             self.assertEqual(int(sequence.finishpos) > int(sequence.startpos), True)
             self.assertIn(sequence.direction, ('1', '-1'))
 
+    def _annotate_instance(self, tmp_dir, cut_ga_pfam=True, cut_nc_pfam=False,
+                           cut_tc_pfam=False, cut_ga_tigrfam=False):
+        return Annotate(tmp_dir,
+                        False, False, True, False, False, False, False, False, False,
+                        1e-05, 0, 0.3, 0.8, 0.8, 0.7,
+                        cut_ga_pfam, cut_nc_pfam, cut_tc_pfam,
+                        cut_ga_tigrfam, False, False, True,
+                        5, 4, 2500, False, 1, 1, '.fna', False)
+
+    def test_pfam_searches_use_gathering_thresholds_by_default(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            annotate = self._annotate_instance(tmp_dir)
+
+            self.assertEqual(annotate._model_specific_cutoff('/db/pfam.hmm'), '--cut_ga')
+            # TIGRFAM keeps its opt-in behaviour.
+            self.assertIsNone(annotate._model_specific_cutoff('/db/tigrfam.hmm'))
+            self.assertIsNone(annotate._model_specific_cutoff('/db/ko.hmm'))
+
+    def test_model_specific_cutoffs_are_mutually_exclusive(self):
+        # hmmsearch rejects more than one of --cut_ga/--cut_nc/--cut_tc, and an
+        # explicitly requested threshold beats the defaulted gathering cutoff.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            trusted = self._annotate_instance(tmp_dir, cut_tc_pfam=True)
+            noise = self._annotate_instance(tmp_dir, cut_nc_pfam=True)
+
+            self.assertEqual(trusted._model_specific_cutoff('/db/pfam.hmm'), '--cut_tc')
+            self.assertEqual(noise._model_specific_cutoff('/db/pfam.hmm'), '--cut_nc')
+
+    def test_gathering_thresholds_can_be_turned_off(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            annotate = self._annotate_instance(tmp_dir, cut_ga_pfam=False)
+
+            self.assertIsNone(annotate._model_specific_cutoff('/db/pfam.hmm'))
+
     def test(self):
         tmp = tempfile.mkdtemp()
         self.simple_annotate_instance \
