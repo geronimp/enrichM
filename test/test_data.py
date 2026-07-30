@@ -95,6 +95,42 @@ class Tests(unittest.TestCase):
                 conn.execute('SELECT count(*) FROM pfam_clans').fetchone()[0], 2)
             conn.close()
 
+    def test_pfam_clans_file_is_parsed(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            clans_path = os.path.join(tmp_dir, Data.PFAM_CLANS_FILENAME)
+
+            with open(clans_path, 'w', encoding='utf-8') as handle:
+                handle.write('PF10417\tCL0172\tRedoxin\t1-cysPrx_C\tC-terminal domain\n')
+                handle.write('PF00085\tCL0172\tRedoxin\tThioredoxin\tThioredoxin\n')
+                handle.write('PF99999\t\t\tClanless\tBelongs to no clan\n')
+                handle.write('PF99998\t\\N\t\\N\tAlsoClanless\tBelongs to no clan\n')
+
+            clans = Data()._parse_pfam_clans_file(clans_path)
+
+            self.assertEqual(clans, {'PF10417': 'CL0172', 'PF00085': 'CL0172'})
+
+    def test_clans_are_taken_from_tsv_when_hmm_has_none(self):
+        # Current Pfam releases carry no CL lines in Pfam-A.hmm, so clan
+        # membership has to come from Pfam-A.clans.tsv instead.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            hmm_path = os.path.join(tmp_dir, 'test.hmm')
+
+            with open(hmm_path, 'w', encoding='utf-8') as handle:
+                handle.write(HMM_FILE.replace('CL    CL0172\n', ''))
+
+            with open(os.path.join(tmp_dir, Data.PFAM_CLANS_FILENAME), 'w',
+                      encoding='utf-8') as handle:
+                handle.write('PF10417\tCL0172\tRedoxin\t1-cysPrx_C\tC-terminal domain\n')
+
+            data = Data()
+            conn = sqlite3.connect(os.path.join(tmp_dir, 'enrichm.db'))
+            data._ensure_schema(conn)
+            data._populate_pfam_metadata(conn, hmm_path)
+
+            self.assertEqual(conn.execute('SELECT pfam_id, clan_id FROM pfam_clans').fetchall(),
+                             [('PF10417', 'CL0172')])
+            conn.close()
+
     def test_accession_keyed_metadata_is_left_alone(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             data = Data()

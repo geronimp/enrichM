@@ -31,6 +31,12 @@ class Data:
         'dbcan3':   ['https://dbcan.s3.us-west-2.amazonaws.com/db_v5-2_9-13-2025/dbCAN.hmm'],
     }
 
+    # Clan membership is not carried in the CL lines of current Pfam-A.hmm
+    # releases, so it is taken from this file instead.
+    PFAM_CLANS_URL = ('https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/'
+                      'Pfam-A.clans.tsv.gz')
+    PFAM_CLANS_FILENAME = 'Pfam-A.clans.tsv'
+
     if db_var in os.environ:
         DATABASE_DIR = os.environ[db_var]
     else:
@@ -290,6 +296,55 @@ class Data:
 
         return bool(re.match(r'^(PF|NF|TIGR)\d', row[0]))
 
+    def _parse_pfam_clans_file(self, clans_path):
+        """Parse clan membership from a Pfam-A.clans.tsv file.
+
+        The file is tab separated as (accession, clan, clan name, family name,
+        description), with an empty clan field for families that belong to no
+        clan. Accessions are unversioned, matching how Sequence.same_clan looks
+        them up.
+        """
+        clans = {}
+
+        with open(clans_path) as fh:
+            for line in fh:
+                fields = line.rstrip('\n').split('\t')
+
+                if len(fields) < 2:
+                    continue
+
+                pfam_id, clan_id = fields[0].split('.')[0].strip(), fields[1].strip()
+
+                if clan_id and clan_id != '\\N':
+                    clans[pfam_id] = clan_id
+
+        logging.info('  Parsed %d clan memberships from %s',
+                     len(clans), os.path.basename(clans_path))
+        return clans
+
+    def _pfam_clans(self, hmm_dir):
+        """Return {pfam_id: clan_id}, downloading Pfam-A.clans.tsv if needed.
+
+        Returns an empty dict if the file cannot be fetched, so that a missing
+        network does not fail the whole database build.
+        """
+        clans_path = os.path.join(hmm_dir, self.PFAM_CLANS_FILENAME)
+
+        if not os.path.isfile(clans_path):
+            clans_gz = clans_path + '.gz'
+            try:
+                logging.info('  Downloading Pfam clan membership')
+                self._download(self.PFAM_CLANS_URL, clans_gz)
+                with gzip.open(clans_gz, 'rb') as gz_in, open(clans_path, 'wb') as out:
+                    shutil.copyfileobj(gz_in, out)
+                os.remove(clans_gz)
+            except Exception as exc:
+                logging.warning('  Could not fetch Pfam clan membership from %s: %s',
+                                self.PFAM_CLANS_URL, exc)
+                return {}
+
+        return self._parse_pfam_clans_file(clans_path)
+
     def _populate_pfam_metadata(self, conn, hmm_path):
         """Parse Pfam HMM metadata and write to DB. Skips if already present."""
         if self._table_has_data(conn, 'pfam_descriptions'):
@@ -303,9 +358,12 @@ class Data:
         pfam_desc, pfam_clans = self._parse_hmm_file(hmm_path)
 
         if not pfam_clans:
-            logging.warning('  No clan (CL) entries found in %s. Overlapping Pfam '
+            pfam_clans = self._pfam_clans(os.path.dirname(hmm_path))
+
+        if not pfam_clans:
+            logging.warning('  No Pfam clan membership available. Overlapping Pfam '
                             'domains from the same clan cannot be resolved without '
-                            'them.', os.path.basename(hmm_path))
+                            'it.')
 
         conn.executemany('INSERT OR REPLACE INTO pfam_descriptions VALUES (?, ?)',
                          pfam_desc.items())

@@ -324,35 +324,32 @@ class Sequence(Genome):
             overlap = [previous_annotation for previous_annotation in to_check
                        if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
 
-            if len(overlap) == 0:
-                self.annotations.append(new_annotation)
+            # Overlapping annotations only compete for the region when they are
+            # alternative descriptions of the same domain. For Pfam that means
+            # belonging to the same clan, following Pfam's own convention that a
+            # residue cannot be assigned to two families of one clan. Domains
+            # from different clans, and annotations of families in no clan, are
+            # independent and coexist.
+            if annotation_type == AnnotationParser.PFAM:
+                competing = [previous_annotation for previous_annotation in overlap
+                             if self.same_clan(new_annotation, previous_annotation, pfam2clan)]
+            else:
+                competing = overlap
+
+            # The new annotation is kept only if it beats everything it competes
+            # with, and then replaces all of them. Keeping it when it merely beat
+            # one of several competitors would retain an annotation alongside a
+            # better description of the same region.
+            if not all(new_annotation.compare(previous_annotation)
+                       for previous_annotation in competing):
                 continue
 
-            # Each new annotation is either kept once or discarded once, no matter
-            # how many previous annotations it overlaps.
-            to_remove = list()
-            keep_new_annotation = False
-
-            for overlapping_previous_annotation in overlap:
-
-                if(annotation_type == AnnotationParser.PFAM and
-                   not self.same_clan(new_annotation, overlapping_previous_annotation, pfam2clan)):
-                    # Domains from different Pfam clans are not competing for the
-                    # same region, so both annotations are retained.
-                    keep_new_annotation = True
-                    continue
-
-                if new_annotation.compare(overlapping_previous_annotation):
-                    to_remove.append(overlapping_previous_annotation)
-                    keep_new_annotation = True
-
-            if len(to_remove) > 0:
-                discarded = set(id(annotation) for annotation in to_remove)
+            if len(competing) > 0:
+                discarded = set(id(annotation) for annotation in competing)
                 self.annotations = [annotation for annotation in self.annotations
                                     if id(annotation) not in discarded]
 
-            if keep_new_annotation:
-                self.annotations.append(new_annotation)
+            self.annotations.append(new_annotation)
 
     @staticmethod
     def same_clan(annotation, other_annotation, pfam2clan):
