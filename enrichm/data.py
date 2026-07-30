@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import re
 import ssl
 import sqlite3
 import urllib.request
@@ -29,6 +30,12 @@ class Data:
         'hmm_pgap': ['https://ftp.ncbi.nlm.nih.gov/hmm/current/hmm_PGAP.HMM.tgz'],
         'dbcan3':   ['https://dbcan.s3.us-west-2.amazonaws.com/db_v5-2_9-13-2025/dbCAN.hmm'],
     }
+
+    # Clan membership is not carried in the CL lines of current Pfam-A.hmm
+    # releases, so it is taken from this file instead.
+    PFAM_CLANS_URL = ('https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/'
+                      'Pfam-A.clans.tsv.gz')
+    PFAM_CLANS_FILENAME = 'Pfam-A.clans.tsv'
 
     if db_var in os.environ:
         DATABASE_DIR = os.environ[db_var]
@@ -230,47 +237,151 @@ class Data:
     # -------------------------------------------------------------------------
 
     def _parse_hmm_file(self, hmm_path):
-        """Parse NAME, DESC, and CL lines from an HMM file.
+        """Parse ACC, NAME, DESC, and CL lines from an HMM file.
 
-        Returns (descriptions, clans) where both are {name: value} dicts.
-        Clan entries are only present for HMMs that belong to a Pfam clan.
+        Entries are keyed on the accession (ACC) declared by each model, because
+        that is the identifier hmmsearch reports in its domtblout output and so
+        the identifier annotations are stored under. Models that declare no
+        accession fall back to their name. Descriptions default to the model
+        name so that every model in the library is represented.
+
+        Returns (descriptions, clans). Clan keys have any accession version
+        suffix stripped, matching how Sequence.same_clan looks them up. Clan
+        entries are only present for HMMs that belong to a Pfam clan.
         """
         descriptions = {}
         clans = {}
-        name = None
+        name = accession = description = clan = None
+
+        def store():
+            if name is None:
+                return
+            identifier = accession or name
+            descriptions[identifier] = description or name
+            if clan:
+                clans[identifier.split('.')[0]] = clan
+
         with open(hmm_path) as fh:
             for line in fh:
                 line = line.rstrip()
+
                 if line.startswith('NAME'):
+                    # Start of a new model, so record the previous one.
+                    store()
                     name = line.split(None, 1)[1].strip()
+                    accession = description = clan = None
+                elif line.startswith('ACC') and name:
+                    accession = line.split(None, 1)[1].strip()
                 elif line.startswith('DESC') and name:
-                    descriptions[name] = line.split(None, 1)[1].strip()
+                    description = line.split(None, 1)[1].strip()
                 elif line.startswith('CL') and name:
-                    clans[name] = line.split(None, 1)[1].strip()
+                    clan = line.split(None, 1)[1].strip()
+        store()
+
         logging.info('  Parsed %d entries (%d with clan) from %s',
                      len(descriptions), len(clans), os.path.basename(hmm_path))
         return descriptions, clans
 
+    @staticmethod
+    def _table_keyed_by_accession(conn, table, column):
+        """Return True if a table's ids look like HMM accessions.
+
+        Databases built before accession keying was fixed are keyed on model
+        names instead, which silently matches nothing at annotation time.
+        """
+        row = conn.execute(f'SELECT {column} FROM {table} LIMIT 1').fetchone()
+
+        if row is None:
+            return False
+
+        return bool(re.match(r'^(PF|NF|TIGR)\d', row[0]))
+
+    def _parse_pfam_clans_file(self, clans_path):
+        """Parse clan membership from a Pfam-A.clans.tsv file.
+
+        The file is tab separated as (accession, clan, clan name, family name,
+        description), with an empty clan field for families that belong to no
+        clan. Accessions are unversioned, matching how Sequence.same_clan looks
+        them up.
+        """
+        clans = {}
+
+        with open(clans_path) as fh:
+            for line in fh:
+                fields = line.rstrip('\n').split('\t')
+
+                if len(fields) < 2:
+                    continue
+
+                pfam_id, clan_id = fields[0].split('.')[0].strip(), fields[1].strip()
+
+                if clan_id and clan_id != '\\N':
+                    clans[pfam_id] = clan_id
+
+        logging.info('  Parsed %d clan memberships from %s',
+                     len(clans), os.path.basename(clans_path))
+        return clans
+
+    def _pfam_clans(self, hmm_dir):
+        """Return {pfam_id: clan_id}, downloading Pfam-A.clans.tsv if needed.
+
+        Returns an empty dict if the file cannot be fetched, so that a missing
+        network does not fail the whole database build.
+        """
+        clans_path = os.path.join(hmm_dir, self.PFAM_CLANS_FILENAME)
+
+        if not os.path.isfile(clans_path):
+            clans_gz = clans_path + '.gz'
+            try:
+                logging.info('  Downloading Pfam clan membership')
+                self._download(self.PFAM_CLANS_URL, clans_gz)
+                with gzip.open(clans_gz, 'rb') as gz_in, open(clans_path, 'wb') as out:
+                    shutil.copyfileobj(gz_in, out)
+                os.remove(clans_gz)
+            except Exception as exc:
+                logging.warning('  Could not fetch Pfam clan membership from %s: %s',
+                                self.PFAM_CLANS_URL, exc)
+                return {}
+
+        return self._parse_pfam_clans_file(clans_path)
+
     def _populate_pfam_metadata(self, conn, hmm_path):
         """Parse Pfam HMM metadata and write to DB. Skips if already present."""
-        if (self._table_has_data(conn, 'pfam_descriptions') and
-                self._table_has_data(conn, 'pfam_clans')):
-            logging.info('  Pfam metadata already present — skipping')
-            return
+        if self._table_has_data(conn, 'pfam_descriptions'):
+            if self._table_keyed_by_accession(conn, 'pfam_descriptions', 'pfam_id'):
+                logging.info('  Pfam metadata already present — skipping')
+                return
+            logging.info('  Pfam metadata is keyed on model names — refreshing')
+            conn.execute('DELETE FROM pfam_descriptions')
+            conn.execute('DELETE FROM pfam_clans')
+
         pfam_desc, pfam_clans = self._parse_hmm_file(hmm_path)
-        conn.executemany('INSERT OR IGNORE INTO pfam_descriptions VALUES (?, ?)',
+
+        if not pfam_clans:
+            pfam_clans = self._pfam_clans(os.path.dirname(hmm_path))
+
+        if not pfam_clans:
+            logging.warning('  No Pfam clan membership available. Overlapping Pfam '
+                            'domains from the same clan cannot be resolved without '
+                            'it.')
+
+        conn.executemany('INSERT OR REPLACE INTO pfam_descriptions VALUES (?, ?)',
                          pfam_desc.items())
-        conn.executemany('INSERT OR IGNORE INTO pfam_clans VALUES (?, ?)',
+        conn.executemany('INSERT OR REPLACE INTO pfam_clans VALUES (?, ?)',
                          pfam_clans.items())
         conn.commit()
 
     def _populate_tigrfam_metadata(self, conn, hmm_path):
         """Parse TIGRFAM HMM metadata and write to DB. Skips if already present."""
         if self._table_has_data(conn, 'tigrfam_descriptions'):
-            logging.info('  TIGRFAM metadata already present — skipping')
-            return
+            if self._table_keyed_by_accession(conn, 'tigrfam_descriptions', 'tigrfam_id'):
+                logging.info('  TIGRFAM metadata already present — skipping')
+                return
+            logging.info('  TIGRFAM metadata is keyed on model names — refreshing')
+            conn.execute('DELETE FROM tigrfam_descriptions')
+
         tigrfam_desc, _ = self._parse_hmm_file(hmm_path)
-        conn.executemany('INSERT OR IGNORE INTO tigrfam_descriptions VALUES (?, ?)',
+        conn.executemany('INSERT OR REPLACE INTO tigrfam_descriptions VALUES (?, ?)',
                          tigrfam_desc.items())
         conn.commit()
 

@@ -317,45 +317,61 @@ class Sequence(Genome):
         '''
 
         new_annotations = [Annotation(annotation, evalue, region, annotation_type) for annotation in annotations]
-        annotation_list = [annotation for annotation in self.annotations if annotation.type == new_annotations[0].type]
-        if len(annotation_list) > 0:
-            to_remove 	= list()
-            to_check 	= annotation_list
 
-            for new_annotation in new_annotations:
-                overlap = [previous_annotation for previous_annotation in to_check
-                               if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
+        for new_annotation in new_annotations:
+            to_check = [annotation for annotation in self.annotations
+                        if annotation.type == new_annotation.type]
+            overlap = [previous_annotation for previous_annotation in to_check
+                       if len(previous_annotation.region.intersection(new_annotation.region)) > 0]
 
-                if len(overlap)>0:
+            # Overlapping annotations only compete for the region when they are
+            # alternative descriptions of the same domain. For Pfam that means
+            # belonging to the same clan, following Pfam's own convention that a
+            # residue cannot be assigned to two families of one clan. Domains
+            # from different clans, and annotations of families in no clan, are
+            # independent and coexist.
+            if annotation_type == AnnotationParser.PFAM:
+                competing = [previous_annotation for previous_annotation in overlap
+                             if self.same_clan(new_annotation, previous_annotation, pfam2clan)]
+            else:
+                competing = overlap
 
-                    for overlapping_previous_annotation in overlap:
+            # The new annotation is kept only if it beats everything it competes
+            # with, and then replaces all of them. Keeping it when it merely beat
+            # one of several competitors would retain an annotation alongside a
+            # better description of the same region.
+            if not all(new_annotation.compare(previous_annotation)
+                       for previous_annotation in competing):
+                continue
 
-                        if annotation_type==AnnotationParser.PFAM:
-                            if (new_annotation.annotation.split('.')[0] in pfam2clan
-                            and overlapping_previous_annotation.annotation.split('.')[0] in pfam2clan
-                            and pfam2clan[new_annotation.annotation.split('.')[0]]
-                                == pfam2clan[overlapping_previous_annotation.annotation.split('.')[0]]
-                            ):
-                                if new_annotation.compare(overlapping_previous_annotation):
-                                    to_remove.append(overlapping_previous_annotation)
-                            else:
-                                self.annotations.append(new_annotation)
+            if len(competing) > 0:
+                discarded = set(id(annotation) for annotation in competing)
+                self.annotations = [annotation for annotation in self.annotations
+                                    if id(annotation) not in discarded]
 
-                        else:
-                            if new_annotation.compare(overlapping_previous_annotation):
-                                to_remove.append(overlapping_previous_annotation)
+            self.annotations.append(new_annotation)
 
-                    if len(to_remove)>0:
-                        self.annotations = [annotation for annotation in self.annotations
-                                            if annotation not in to_remove]
-                        self.annotations.append(new_annotation)
+    @staticmethod
+    def same_clan(annotation, other_annotation, pfam2clan):
+        '''
+        Returns True if two Pfam annotations belong to the same clan, and are
+        therefore alternative annotations of the same region.
 
-                else:
-                        self.annotations.append(new_annotation)
+        Parameters
+        ----------
+        annotation       - Annotation object.
+        other_annotation - Annotation object.
+        pfam2clan        - Dictionary. Pfam id (without version) to clan id.
+        '''
+        if not pfam2clan:
+            return False
 
-        else:
-            for new_annotation in new_annotations:
-                self.annotations.append(new_annotation)
+        pfam_id = annotation.annotation.split('.')[0]
+        other_pfam_id = other_annotation.annotation.split('.')[0]
+
+        return (pfam_id in pfam2clan
+                and other_pfam_id in pfam2clan
+                and pfam2clan[pfam_id] == pfam2clan[other_pfam_id])
 
 class Annotation(Sequence):
     '''

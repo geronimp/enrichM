@@ -118,8 +118,11 @@ if __name__ == "__main__":
                 help='Annotate with EC ids')
 
     annotate_cutoff_options = annotate.add_argument_group('Cutoff options')
-    annotate_cutoff_options.add_argument('--cut_ga_pfam', action='store_true',
-                help='For PFAM searches: use profiles GA gathering cutoffs to set all thresholding')
+    annotate_cutoff_options.add_argument('--cut_ga_pfam', action=argparse.BooleanOptionalAction,
+                default=True,
+                help='For PFAM searches: use profiles GA gathering cutoffs to set all thresholding. '
+                     'These are the per-family thresholds Pfam itself uses to define a match '
+                     '(default: True; use --no-cut_ga_pfam to threshold on --evalue instead)')
     annotate_cutoff_options.add_argument('--cut_nc_pfam', action='store_true',
                 help='For PFAM searches: use profiles NC noise cutoffs to set all thresholding')
     annotate_cutoff_options.add_argument('--cut_tc_pfam', action='store_true',

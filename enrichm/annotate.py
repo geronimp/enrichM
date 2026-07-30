@@ -136,6 +136,30 @@ class Annotate:
 
         return genome_directory
 
+    @staticmethod
+    def _prodigal_header(contig_id, idx, gene):
+        '''
+        Build a prodigal-style FASTA header for a gene called by pyrodigal. The
+        coordinate fields are what Sequence objects parse to populate their
+        start/finish/direction attributes (used when writing .gff files).
+
+        Parameters
+        ----------
+        contig_id - string. Name of the contig the gene was called on, without
+                    any description.
+        idx       - integer. 1-based index of the gene within the contig
+        gene      - pyrodigal Gene object
+        '''
+        partial = f"{int(gene.partial_begin)}{int(gene.partial_end)}"
+        stats = ';'.join([f"ID={contig_id}_{idx}",
+                          f"partial={partial}",
+                          f"start_type={gene.start_type}",
+                          f"rbs_motif={gene.rbs_motif}",
+                          f"rbs_spacer={gene.rbs_spacer}",
+                          f"gc_cont={gene.gc_cont:.3f}"])
+
+        return f"{contig_id}_{idx} # {gene.begin} # {gene.end} # {gene.strand} # {stats}"
+
     def call_proteins(self, genome_directory):
         '''
         Use prodigal to call proteins within the genomes
@@ -173,12 +197,17 @@ class Annotate:
                 faa_out = open(protein_out, "w")
                 fna_out = open(gene_out, "w")
                 for description, sequence in self.seqio.each(open(genome_path)):
+                    # Only the first word of the description survives whitespace
+                    # truncation by hmmsearch and diamond, so gene ids must be
+                    # unique within it or all genes on a contig collapse into one.
+                    contig_id = description.partition(' ')[0]
                     genes = gene_finder.find_genes(sequence)
                     # Write proteins
                     for idx, gene in enumerate(genes):
                         idx = idx + 1
-                        faa_out.write(f">{description}_{idx}\n{gene.translate()}\n")
-                        fna_out.write(f">{description}_{idx}\n{gene.sequence()}\n")
+                        header = self._prodigal_header(contig_id, idx, gene)
+                        faa_out.write(f">{header}\n{gene.translate()}\n")
+                        fna_out.write(f">{header}\n{gene.sequence()}\n")
                 faa_out.flush()
                 faa_out.close()
                 fna_out.flush()
@@ -323,17 +352,25 @@ class Annotate:
             specific_cutoffs = None
 
         self.hmm_search(output_directory_path, database, hmmcutoff)
-        
+
         if ids_type == AnnotationParser.PFAM:
             pfam2clan = databases.pfam2clan()
         else:
             pfam2clan = None
 
+        if hmmcutoff and self._model_specific_cutoff(database):
+            # Each model's own curated threshold decides what counts as a hit, so
+            # the generic e-value and bit score filters must not discard hits that
+            # the profile itself considers significant.
+            evalue_cutoff, bitscore_cutoff = float('inf'), 0
+        else:
+            evalue_cutoff, bitscore_cutoff = self.evalue, self.bit
+
         for genome_annotation in listdir(output_directory_path):
             genome_id = path.splitext(genome_annotation)[0]
             genome = genome_dict[genome_id]
             output_annotation_path = path.join(output_directory_path, genome_annotation)
-            genome.add(output_annotation_path, self.evalue, self.bit, self.aln_query,
+            genome.add(output_annotation_path, evalue_cutoff, bitscore_cutoff, self.aln_query,
                        self.aln_reference, specific_cutoffs, parser, ids_type,
                        pfam2clan=pfam2clan)
 
@@ -547,6 +584,39 @@ class Annotate:
 
         return cmd
 
+    def _model_specific_cutoff(self, database):
+        '''
+        Return the hmmsearch flag for the model-specific score threshold to use
+        with a database, or None when the search should be filtered on e-value or
+        bit score instead.
+
+        Pfam and TIGRFAM/NCBIFAM profiles carry curated per-family thresholds,
+        and those are what the reference databases themselves use to define a
+        match. The flags are mutually exclusive in hmmsearch, so only one is ever
+        returned: an explicitly requested trusted or noise cutoff takes
+        precedence over the gathering cutoff.
+
+        Parameters
+        ----------
+        database - string. Path to the HMM database being searched
+        '''
+        if 'pfam' in database:
+            requested = (('--cut_tc', self.cut_tc_pfam),
+                         ('--cut_nc', self.cut_nc_pfam),
+                         ('--cut_ga', self.cut_ga_pfam))
+        elif 'tigrfam' in database:
+            requested = (('--cut_tc', self.cut_tc_tigrfam),
+                         ('--cut_nc', self.cut_nc_tigrfam),
+                         ('--cut_ga', self.cut_ga_tigrfam))
+        else:
+            return None
+
+        for flag, is_requested in requested:
+            if is_requested:
+                return flag
+
+        return None
+
     def hmm_search(self, output_path, database, hmmcutoff):
         '''
         Carry out a hmmsearch.
@@ -568,23 +638,10 @@ class Annotate:
                                                     --domtblout %s/{}%s " \
                           % (input_genome_path, self.PROTEINS_SUFFIX, self.parallel,
                              self.threads, output_path, self.ANNOTATION_SUFFIX)
-        if hmmcutoff:
-            if (self.cut_ga_pfam or self.cut_nc_pfam or self.cut_tc_pfam) and 'pfam' in database:
-                if self.cut_ga_pfam:
-                    cmd += " --cut_ga "
-                if self.cut_nc_pfam:
-                    cmd += " --cut_nc "
-                if self.cut_tc_pfam:
-                    cmd += " --cut_tc "
-            elif (self.cut_ga_tigrfam or self.cut_nc_tigrfam or self.cut_tc_tigrfam) and 'tigrfam' in database:
-                if self.cut_ga_tigrfam:
-                    cmd += " --cut_ga "
-                if self.cut_nc_tigrfam:
-                    cmd += " --cut_nc "
-                if self.cut_tc_tigrfam:
-                    cmd += " --cut_tc "
-            else:
-                cmd += self._default_hmmsearch_options()
+        cutoff_flag = self._model_specific_cutoff(database) if hmmcutoff else None
+
+        if cutoff_flag:
+            cmd += f" {cutoff_flag} "
         else:
             cmd += self._default_hmmsearch_options()
 

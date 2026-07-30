@@ -11,7 +11,7 @@ path_to_data = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 sys.path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')]+sys.path
 
 from enrichm.annotate import Annotate
-from enrichm.genome import Genome, Annotation, AnnotationParser
+from enrichm.genome import Genome, Annotation, AnnotationParser, Sequence
 
 ###############################################################################
 
@@ -146,6 +146,129 @@ class Tests(unittest.TestCase):
             self.assertIn('seq_b', genome.sequences)
             self.assertIn('seq_c', genome.sequences)
             self.assertEqual(genome.protein_ordered_dict, {0: 'seq_a', 1: 'seq_b', 2: 'seq_c'})
+
+    def test_overlapping_pfam_annotations_from_different_clans_are_kept_once(self):
+        # Overlapping domains from different clans are all retained, but each hit
+        # must only ever be added once. Adding it once per overlapping annotation
+        # makes the annotation list grow exponentially with the number of hits.
+        sequence = Sequence("seq_a")
+        pfam2clan = {'PF%05i' % hit: 'CL%05i' % hit for hit in range(20)}
+
+        for hit in range(20):
+            sequence.add(['PF%05i.1' % hit], 1e-10, range(0, 100),
+                         AnnotationParser.PFAM, pfam2clan=pfam2clan)
+
+        self.assertEqual(len(sequence.annotations), 20)
+
+    def test_pfam_annotation_beaten_within_its_clan_is_discarded(self):
+        # An overlap with an unrelated clan must not rescue an annotation that
+        # has already lost to a better description of the same region.
+        sequence = Sequence("seq_a")
+        pfam2clan = {'PF00001': 'CL0001', 'PF00002': 'CL0002', 'PF00003': 'CL0001'}
+
+        sequence.add(['PF00001.1'], 1e-30, range(0, 100), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+        sequence.add(['PF00002.1'], 1e-10, range(50, 200), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+        # Overlaps both, but loses to PF00001.1 inside its own clan.
+        sequence.add(['PF00003.1'], 1e-02, range(20, 120), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+
+        self.assertEqual(sorted(annotation.annotation for annotation in sequence.annotations),
+                         ['PF00001.1', 'PF00002.1'])
+
+    def test_annotation_must_beat_every_overlap_to_be_kept(self):
+        # Annotation types without clans compete on e-value alone, so beating
+        # only one of several overlapping annotations is not enough.
+        sequence = Sequence("seq_a")
+
+        sequence.add(['K00001'], 1e-30, range(0, 50), AnnotationParser.KO)
+        sequence.add(['K00002'], 1e-02, range(60, 100), AnnotationParser.KO)
+        # Better than K00002, worse than K00001, overlapping both.
+        sequence.add(['K00003'], 1e-10, range(40, 70), AnnotationParser.KO)
+
+        self.assertEqual(sorted(annotation.annotation for annotation in sequence.annotations),
+                         ['K00001', 'K00002'])
+
+    def test_overlapping_pfam_annotations_from_same_clan_keep_best_evalue(self):
+        sequence = Sequence("seq_a")
+        pfam2clan = {'PF00001': 'CL0001', 'PF00002': 'CL0001'}
+
+        sequence.add(['PF00001.1'], 1e-10, range(0, 100), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+        sequence.add(['PF00002.1'], 1e-20, range(10, 90), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+        sequence.add(['PF00001.1'], 1e-05, range(20, 80), AnnotationParser.PFAM, pfam2clan=pfam2clan)
+
+        self.assertEqual([annotation.annotation for annotation in sequence.annotations], ['PF00002.1'])
+
+    def test_pfam_annotations_outside_of_clans_are_kept(self):
+        # Pfams that belong to no clan are not alternative annotations of each
+        # other, so overlapping hits are all retained.
+        sequence = Sequence("seq_a")
+
+        sequence.add(['PF00001.1'], 1e-10, range(0, 100), AnnotationParser.PFAM, pfam2clan={})
+        sequence.add(['PF00002.1'], 1e-20, range(10, 90), AnnotationParser.PFAM, pfam2clan={})
+
+        self.assertEqual(sorted(annotation.annotation for annotation in sequence.annotations),
+                         ['PF00001.1', 'PF00002.1'])
+
+    def test_called_proteins_are_uniquely_named(self):
+        # Genome objects and HMM/DIAMOND searches key sequences on the first word
+        # of the FASTA description, so gene ids must be unique within it.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            annotate = Annotate(tmp_dir,
+                                False, False, True, False, False, False, False, False, False,
+                                1e-05, 0, 0.3, 0.7, 0.7, 0.7,
+                                False, False, False, False, False, False, True,
+                                5, 4, 2500, False, 1, 1, '.fna', False)
+            annotate.call_proteins(os.path.join(path_to_data, 'test_nucleic_bin'))
+
+            protein_file = os.path.join(tmp_dir, Annotate.GENOME_PROTEINS,
+                                        'GCF_001889405.1_ASM188940v1_subset.faa')
+            descriptions = [line[1:].strip() for line in open(protein_file) if line.startswith('>')]
+            names = [description.partition(' ')[0] for description in descriptions]
+
+            self.assertGreater(len(names), 1)
+            self.assertEqual(len(set(names)), len(names))
+
+            genome = Genome(False, None, protein_file, None)
+            self.assertEqual(len(genome.sequences), len(names))
+
+            # Coordinates are parsed out of the description, and are needed to
+            # write .gff files.
+            sequence = genome.sequences[names[0]]
+            self.assertEqual(int(sequence.finishpos) > int(sequence.startpos), True)
+            self.assertIn(sequence.direction, ('1', '-1'))
+
+    def _annotate_instance(self, tmp_dir, cut_ga_pfam=True, cut_nc_pfam=False,
+                           cut_tc_pfam=False, cut_ga_tigrfam=False):
+        return Annotate(tmp_dir,
+                        False, False, True, False, False, False, False, False, False,
+                        1e-05, 0, 0.3, 0.8, 0.8, 0.7,
+                        cut_ga_pfam, cut_nc_pfam, cut_tc_pfam,
+                        cut_ga_tigrfam, False, False, True,
+                        5, 4, 2500, False, 1, 1, '.fna', False)
+
+    def test_pfam_searches_use_gathering_thresholds_by_default(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            annotate = self._annotate_instance(tmp_dir)
+
+            self.assertEqual(annotate._model_specific_cutoff('/db/pfam.hmm'), '--cut_ga')
+            # TIGRFAM keeps its opt-in behaviour.
+            self.assertIsNone(annotate._model_specific_cutoff('/db/tigrfam.hmm'))
+            self.assertIsNone(annotate._model_specific_cutoff('/db/ko.hmm'))
+
+    def test_model_specific_cutoffs_are_mutually_exclusive(self):
+        # hmmsearch rejects more than one of --cut_ga/--cut_nc/--cut_tc, and an
+        # explicitly requested threshold beats the defaulted gathering cutoff.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            trusted = self._annotate_instance(tmp_dir, cut_tc_pfam=True)
+            noise = self._annotate_instance(tmp_dir, cut_nc_pfam=True)
+
+            self.assertEqual(trusted._model_specific_cutoff('/db/pfam.hmm'), '--cut_tc')
+            self.assertEqual(noise._model_specific_cutoff('/db/pfam.hmm'), '--cut_nc')
+
+    def test_gathering_thresholds_can_be_turned_off(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            annotate = self._annotate_instance(tmp_dir, cut_ga_pfam=False)
+
+            self.assertIsNone(annotate._model_specific_cutoff('/db/pfam.hmm'))
 
     def test(self):
         tmp = tempfile.mkdtemp()
