@@ -97,7 +97,11 @@ class Genome:
                                                  bitscore_cutoff, percent_aln_query_cutoff,
                                                  percent_aln_reference_cutoff,
                                         specific_cutoffs,
-                                        (True if ref_ids == AnnotationParser.KO_HMM else False))
+                                        # KOfam and dbCAN models are identified by
+                                        # their NAME; dbCAN models have no ACC line,
+                                        # so their accession column is just '-'.
+                                        ref_ids in (AnnotationParser.KO_HMM,
+                                                    AnnotationParser.CAZY))
             
 
             if ref_ids == AnnotationParser.PFAM:

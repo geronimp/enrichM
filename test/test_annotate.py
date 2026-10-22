@@ -147,6 +147,33 @@ class Tests(unittest.TestCase):
             self.assertIn('seq_c', genome.sequences)
             self.assertEqual(genome.protein_ordered_dict, {0: 'seq_a', 1: 'seq_b', 2: 'seq_c'})
 
+    def test_cazy_annotations_use_hmm_name(self):
+        # dbCAN models have no ACC line, so hmmsearch writes '-' as the
+        # accession. CAZy hits must be keyed on the model NAME instead, which is
+        # also what the CAZy frequency table rows are built from.
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            protein_file = os.path.join(tmp_dir, "test_genome.faa")
+            with open(protein_file, 'w') as fh:
+                fh.write(">seq_a\n" + "M" * 300 + "\n>seq_b\n" + "M" * 300 + "\n")
+
+            domtbl = os.path.join(tmp_dir, "test_genome.domtblout")
+            fields = ["seq_a", "-", "300", "GH13_42.hmm", "-", "280", "1e-50", "200.0",
+                      "0.0", "1", "1", "1e-50", "1e-50", "199.0", "0.0",
+                      "1", "280", "10", "290", "5", "295", "0.95", "-"]
+            other = list(fields)
+            other[0], other[3] = "seq_b", "CBM50.hmm"
+            with open(domtbl, 'w') as fh:
+                fh.write("# header\n")
+                fh.write(" ".join(fields) + "\n")
+                fh.write(" ".join(other) + "\n")
+
+            genome = Genome(False, None, protein_file, None)
+            genome.add(domtbl, 1e-5, 0, 0.3, 0.3, None,
+                       AnnotationParser.HMMPARSER, AnnotationParser.CAZY)
+
+            self.assertEqual(genome.sequences['seq_a'].all_annotations(), ['GH13_42.hmm'])
+            self.assertEqual(genome.sequences['seq_b'].all_annotations(), ['CBM50.hmm'])
+
     def test_overlapping_pfam_annotations_from_different_clans_are_kept_once(self):
         # Overlapping domains from different clans are all retained, but each hit
         # must only ever be added once. Adding it once per overlapping annotation
